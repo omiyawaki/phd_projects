@@ -1,0 +1,13 @@
+#+TITLE: Research Notes
+#+AUTHOR: Osamu Miyawaki
+#+DATE: Jun 10, 2020
+
+* Introduction
+
+* Comparing energy fluxes to Hartmann (2016)
+
+[[/ssh:mid1:/project2/tas1/miyawaki/projects/prospectus/figs/fig-6-1-hartmann.png]]
+
+* Sensitivity of RCE and RAE regimes to various parameters
+
+* Next Steps
