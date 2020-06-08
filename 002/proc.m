@@ -3,7 +3,7 @@ clc; close all; clear variables;
 addpath(genpath('/project2/tas1/miyawaki/matlab'));
 
 % parameters
-lat_interp = 'era'; % which latitudinal grid to interpolate to: don (donohoe, coarse) or era (native ERA-Interim, fine)
+lat_interp = 'std'; % which latitudinal grid to interpolate to: don (donohoe, coarse) or era (native ERA-Interim, fine)
 lat_std = -90:0.25:90; % define standard latitude grid for 'std' interpolation
 ep = 0.3; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
 ga = 0.7; % threshold for RAE definition. RAE is defined as where R1 > ga
@@ -37,7 +37,7 @@ elseif strcmp(lat_interp, 'era')
         don.(fn{1}) = interp1(don.lon, don.(fn{1}), interim.lon, 'spline');
         % interpolate to ERA lat
         don.(fn{1}) = permute(don.(fn{1}), [2 1 3]);
-        don.(fn{1}) = interp1(don.lat, don.(fn{1}), interim.lat, 'spline');
+        don.(fn{1}) = interp1(don.lat, don.(fn{1}), interim.lat, 'spline', nan);
         % order dimensions to be consistent with Donohoe data (mon, lat, lon)
         don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
     end
@@ -52,7 +52,7 @@ elseif strcmp(lat_interp, 'std') % interpolate all to fine standard grid
     for fn = {'ssr', 'str', 'tsr', 'ttr', 'sshf', 'slhf'}
         % interpolate to std lat
         don.(fn{1}) = permute(interim.(fn{1}), [2 1 3]);
-        don.(fn{1}) = interp1(interim.lat, don.(fn{1}), lat_std, 'splin');
+        don.(fn{1}) = interp1(interim.lat, don.(fn{1}), lat_std, 'spline', nan);
         % order dimensions to be consistent with Donohoe data (mon, lat, lon)
         don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
     end
@@ -64,7 +64,7 @@ elseif strcmp(lat_interp, 'std') % interpolate all to fine standard grid
         don.(fn{1}) = interp1(don.lon, don.(fn{1}), interim.lon, 'spline');
         % interpolate to ERA lat
         don.(fn{1}) = permute(don.(fn{1}), [2 1 3]);
-        don.(fn{1}) = interp1(don.lat, don.(fn{1}), lat_std, 'spline');
+        don.(fn{1}) = interp1(don.lat, don.(fn{1}), lat_std, 'spline', nan);
         % order dimensions to be consistent with Donohoe data (mon, lat, lon)
         don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
     end

@@ -11,6 +11,7 @@ load(['/project2/tas1/miyawaki/projects/002/data/processed_data_' lat_interp '.m
 % set default figure parameters
 if 1
     par.ppos = [0 0 10/3 7/3];
+    par.ppos_sq = [0 0 10/3 10/3];
     par.ppos_wide = [0 0 13/3 7/3];
     par.fs = 10;
     set(0, 'DefaultLineLineWidth', 1.1);
@@ -70,11 +71,14 @@ function plots_lat(subdir, plotdir, lat, don, TETEN, tf, par)
 % latitude vs energy flux line plots, comparable to Hartmann (2016)
     figure(); clf; hold all;
     plot(lat, nanmean(nanmean(don.ra,1),3), 'color', par.gray)
+    plot(lat, nanmean(nanmean(don.TEDIV,1),3), 'color', par.maroon)
+    plot(lat, nanmean(nanmean(TETEN,1),3), 'color', par.green)
     plot(lat, -nanmean(nanmean(don.slhf,1),3), 'color', par.blue)
     plot(lat, -nanmean(nanmean(don.sshf,1),3), 'color', par.orange)
+    xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
     axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
-    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:15:90])
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ylim', [-150 150], 'xminortick', 'on', 'yminortick', 'on')
     hline(0, '-k');
     print([plotdir subdir '/era-fig-6-1-hartmann'], '-dpng', '-r300');
     close;
