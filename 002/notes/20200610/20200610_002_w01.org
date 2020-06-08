@@ -1,0 +1,25 @@
+#+title: Research Notes
+#+author: Osamu Miyawaki
+#+date: Jun 10, 2020
+#+options: toc:nil
+
+* Introduction
+
+* Comparing energy fluxes to Hartmann (2016)
+
+Shown in Figure [[fig:hartmann]]
+
+#+caption: Reprint of Fig. 6.1 from cite:hartmann_important_2002 showing the energy flux terms in the vertically-integrated MSE budget. LE is latent heat, SH is sensible heat, $\Delta F_a$ is MSE flux divergence, and $R_a$ is atmospheric radiative cooling.
+#+label: fig:hartmann
+[[../../../prospectus/figs/fig-6-1-hartmann.png]]
+
+#+caption: Same as Figure [[fig:hartmann]] but reproduced using ERA-Interim data from 2000--2012. Blue is latent heat, orange is sensible heat, red is MSE flux divergence, gray is atmospheric radiative cooling, and green is the residual, which we infer as the atmospheric MSE storage.
+#+label: fig:repro
+[[../../figures_std/tf/era-fig-6-1-hartmann.png]]
+
+* Sensitivity of RCE and RAE regimes to various parameters
+
+* Next Steps
+
+bibliographystyle:apalike
+bibliography:~/Documents/Papers/references.bib
