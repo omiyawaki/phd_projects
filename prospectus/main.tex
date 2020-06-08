@@ -1,0 +1,387 @@
+\documentclass{article}
+
+\usepackage{natbib}
+\bibliographystyle{humannat}
+\usepackage{tocbibind}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+\usepackage{amsmath, amsfonts, amssymb}
+
+\title{Investigating temperature regime transitions between Snowball and Hothouse climates}
+\author{Osamu Miyawaki \\ Advisor: Tiffany Shaw \\ Committee: Malte Jansen, Doug MacAyeal, Noboru Nakamura}
+\date{November 25, 2019}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+
+The temperature field of the atmosphere is one of the fundamental ways of describing a planet's climate. On Earth, a qualitative description of climate begins with the intuition that the tropics tend to be warm and the poles tend to be cold. We also have an intuition that places of higher elevations, such as the top of a mountain, tend to be colder. Figure \ref{fig:reanalysis}, which shows the zonal mean temperature field in the troposphere, confirms that our intuition is correct. We wish to understand what sets the zonal mean temperature field in a more quantitative manner because fundamental theories of the general circulation rely on our understanding of vertical and latitudinal temperature gradients. For example, the extent of the Hadley cell depends on the static stability \citep{held-hou-1980} and the growth rate of baroclinic eddies depends on both static stability and the meridional gradient of temperature \citep{charney-1947, eady-1949, phillips-1954}.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{./figs/interim/jan_temp.png}
+\caption{Zonally averaged climatological tropospheric temperature profile in January. Data source: ERA-Interim. Data made available by the courtesy of Tiffany Shaw.}
+\label{fig:reanalysis}
+\end{figure}
+
+The first law of thermodynamics provides the physical foundation from which to study the temperature field of the atmosphere. The equation is given in its general form below:
+\begin{equation}
+de = dq - dw
+\end{equation}
+$de$ is the change in internal energy, $dq$ is the change in heat input into the system, and $dw$ is the work done by the system. Internal energy and work can be rewritten using the state variables $T$ (temperature), $p$ (pressure), and $\rho$ (density):
+\begin{equation}
+d(c_p T) = dq + \frac{1}{\rho} dp
+\end{equation}
+$c_p$ is the specific heat capacity of air at constant pressure. We note that the above equation has units of energy per unit mass. Multiplying by $\rho$ and taking the material derivative of the above equation amounts to a statement that the energy of a Lagrangian parcel of fluid is conserved.
+\begin{equation}
+\rho \frac{D}{Dt}(c_p T) = \rho \dot{q} + \frac{Dp}{Dt}
+\end{equation}
+where $\dot{q}$ is the rate of energy (power) that is supplied into the system per unit mass. The left hand side can be rewritten in the following form by using the conservation of mass:
+\begin{equation}
+\frac{\partial}{\partial t}(\rho c_p T) + \nabla \cdot (\rho c_p \bold{v} T) = \rho \dot{q} + \frac{Dp}{Dt}
+\end{equation}
+where $\bold{v}$ is the three-dimensional velocity vector. This equation is a four-dimensional (time and three spatial dimensions) partial differential equation that cannot be solved analytically. Moreover, to close this problem, the conservation of mass, momentum, moisture, and an equation of state must be solved for the velocity, pressure, and humidity fields as well. Thus, the governing equations in their complete form are too complicated to make a direct inference of the solution that may emerge. The complication is that the physics of climate interact across spatial and temporal scales that span multiple orders of magnitude. This challenge lies at the heart of much research in climate science.
+
+\citet{held-2005} likened the challenge of understanding complexity in climate science to complexity in biology. His vision for the success of climate science is to develop our understanding with a model hierarchy that continuously spans from the simplicity of a single-celled organism like the E. coli to the complexity of a human. Thus, we take two strategies to understand the structure of tropospheric temperature: 1) make assumptions to simplify the governing equations to a form that is understandable, and 2) solve the full equation numerically to most faithfully capture the complexity of the real world. For the insights we obtain from the simple models (strategy 1) to be useful, we must validate its predictions with the real world where observations exist, and with the numerical solution of the full equations (strategy 2) where observations are poor or does not exist. 
+
+\subsection{1-D temperature structure in latitude} 
+
+We begin with strategy 1 by first restricting our attention to the steady-state (remove time dependence), zonal-mean (remove longitudinal dependence) structure. One motivation behind such a choice is that our understanding of the general circulation of the atmosphere tells us that it is the vertical and latitudinal variations of temperature that are of first order importance in forming the synoptic weather systems in the midlatitudes. Such a two-dimensional picture is still difficult to work with mathematically, so we consider only one-dimensional variation. Let us begin with latitudinal variation first. The simplified equation is
+\begin{equation}
+\frac{d}{dy}(\rho c_p v T) = \rho \dot{q} + v \frac{dp}{dy}
+\end{equation}
+where $v$ is the latitudinal component of velocity. The quantity inside the derivative may be thought of as the energy flux carried by fluid motion, which we denote as $F$. If we make the anelastic approximation, we consider horizontal gradients of pressure to be small, so we may simplify the equation to be
+\begin{equation}
+\frac{dF}{dy} \approx \rho \dot{q} 
+\end{equation}
+This equation states that the convergence of atmospheric and oceanic heat fluxes must be balanced by the sources and sinks of heat fluxes at any given latitude.
+
+The dominant source of heat flux is solar radiation (insolation). Insolation is not equally distributed with latitude because of the spherical geometry of Earth. The consequence of the spherical geometry is that the same intensity of insolation is distributed over a larger area at higher latitudes. Thus, the annually-averaged insolation follows a cosine curve, with a maximum at the equator and minimum at the poles.
+
+If energy were to be conserved locally at every latitude through radiative fluxes (incoming shortwave and outgoing longwave), we anticipate temperatures similar to that of the moon, where equatorial temperature is inhospitably hot ($\approx 330$ K) and polar temperature is cold ($\approx 210$ K) \citep{north-et-al-1981}. Clearly, such a model fails to explain the observed latitudinal structure on Earth where temperatures are more evenly distributed ($\approx 300$ K in the tropics, $\approx 260$ K at the poles). This is because radiation is not the only contributor to the fluxes of energy at a given latitude. Namely, the atmosphere and ocean responds by transporting warm fluid poleward and cold fluid equatorward, as shown in Figure~\ref{fig:whole-column}.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{./figs/whole-column}
+\caption{Arrows indicate the net transport of energy through the boundary of an atmosphere and ocean column. SW = shortwave, LW = longwave, TOA = top of atmosphere, F = atmospheric heat transport.}
+\label{fig:whole-column}
+\end{figure}
+
+A simple way to represent the fluid energy transport $F$ is to consider it as a diffusive process. Diffusion acts to homogenize the fluid. Thus, in the presence of a temperature gradient, a diffusive atmosphere transports energy down the gradient. Such a model that calculates the latitudinal structure of temperature by incorporating radiative heat fluxes and the downgradient transport of energy is known as an energy balance model (EBM).
+
+\subsection{1-D temperature structure in height} \label{subsec:1-d-height}
+
+Another approach to simplify the full thermodynamic equation is to consider the vertical structure for a globally-averaged Earth. In steady-state, the simplified equation assuming hydrostatic balance is written as
+\begin{equation}
+\frac{\partial}{\partial z}(\rho c_p w T) = \rho \dot{q} - \rho g w
+\end{equation} 
+For the global average, mass conservation requires there be equal upward motion as downward motion, so $w=0$. The equation then reduces to 
+\begin{equation}
+\frac{\partial}{\partial z}(\rho c_p w T) = \rho \dot{q} 
+\end{equation} 
+This equation states that the vertical convergence of heat flux must be balanced by the net heat fluxes due to radiation and phase changes of water.
+
+Early studies on the vertical temperature profile involved calculations of pure radiative equilibrium, thus ignoring the effect of convective motions and phase change \citep{humphreys-1909, manabe-moller-1961}. A major limitation of applying the radiative equilibrium profile as a model for the tropospheric stratification is that it is unstable to convective motions. Thus, it is not a good assumption to neglect the vertical heat flux and phase change that results from convection. Recognizing this, \citet{manabe-strickler-1964} calculated a radiative-convective equilibrium (RCE) profile by relaxing any unstable lapse rate toward one that is neutrally stable. To put the significance of this work in context, the only comprehensive numerical model that existed at the time was the two-layer Phillips model, which due to its two-layer configuration could not be used to study the mean stratification in detail. Thus, Manabe and Strickler's calculation of the RCE temperature profile was a pioneering work in the effort to understand the stratification of the globally-averaged atmosphere.
+
+The picture of RCE holds well for the globally-averaged column because the horizontal heat fluxes exactly integrate to zero. However, we know from Figure~\ref{fig:reanalysis} that the temperature field is a strong function of latitude. Thus, it would be useful to understand the vertical temperature profile also as a function of latitude. The energy balance of an atmospheric column is a useful starting point and is shown schematically in Figure~\ref{fig:atmos-column}. Let us first discuss the radiative fluxes, which are drawn as black arrows in Figure~\ref{fig:atmos-column} a). To give us a sense of how the magnitudes of these fluxes vary with latitude, Figure~\ref{fig:fig-2-lin} shows the observed net radiation fluxes as a function of latitude. The net radiation imbalance (shortwave and longwave in both directions) at the top of the atmosphere (black line) implies that there is a net poleward energy transport by the atmosphere and oceans. Interestingly, the atmosphere cools nearly uniformly with latitude (green line). Thus, without loss of generality, we can combine all of the radiative fluxes entering and exiting the atmosphere as net radiative cooling of the atmosphere, as shown in Figure~\ref{fig:atmos-column} b). In mathematical form, we can write this balance in steady-state as:
+\begin{equation} \label{eq:atmos-balance}
+R_a = LH + SH + \Delta F_a
+\end{equation}
+Next, we non-dimensionalize this equation by introducing a characteristic scale of radiative cooling $R$, turbulent fluxes $T$, and convergence of atmospheric heat flux $F$:
+\begin{equation}
+R_a \sim R \qquad LH+SH \sim T \qquad \Delta F_a \sim F
+\end{equation}
+The non-dimensionalized form of Equation~\ref{eq:atmos-balance} is
+\begin{equation}
+r_a = \frac{T}{R}(lh + sh) + \frac{F}{R}\Delta f_a
+\end{equation}
+where the lower case notation denotes that the variables are non-dimensionalized. We can now explore the limiting cases where either one of the terms are smaller than order one. These limiting cases may allow us to make simplifying assumptions that allow us to form analytical solutions to the vertical structure of temperature for a regional domain. If the turbulent fluxes dominate over the convergence of atmospheric heat flux (i.e., $T \gg F$), the net radiative cooling of the atmosphere is balanced by the surface turbulent fluxes:
+\begin{equation}
+R_a \approx LH + SH
+\end{equation}
+This is depicted schematically in Figure~\ref{fig:limit-column} a). Since the heat fluxes are oriented in the vertical direction, we can think of this limit as RCE as discussed above. On the other hand, if the convergence of atmospheric heat flux dominate over the turbulent fluxes, the net radiative cooling of the atmosphere is balanced by the convergence of atmospheric heat transport:
+\begin{equation}
+R_a \approx \Delta F_a
+\end{equation}
+This is depicted schematically in Figure~\ref{fig:limit-column} b). We will refer to this regime as radiative-advective equilibrium (RAE) following the nomenclature of Cronin and Jansen (2016).
+
+Where do these limiting cases apply in the real atmosphere, if at all? Interestingly, there is no work in the literature that answers this question explicitly. We can do a preliminary analysis by referring to Figure~\ref{fig:fig-6-1-hartmann}. Here, the various terms in the atmospheric energy balance is shown as a function of latitude. In the low latitudes, $F$ is smaller than $T$ by a factor of 2. In general, an order of magnitude difference is required to justify the unimportance of smaller scale terms. Despite the potentially non-negligible influence of atmospheric heat transport in the tropics, the limiting case of RCE is widely used as an ideal model to study tropical phenomena \citep{wing-et-al-2018}. In the high latitudes, $F \gg T$ by at least an order of magnitude. This suggests that the limiting case of RAE is well justified as an ideal model of the polar regions. I propose to investigate this question in more detail as part of my thesis. I will study the latitudinal extent to which RCE and RAE hold in the current climate and explore their seasonal variation. I discuss this plan in more detail in Section~\ref{subsec:proposal-1}
+
+The limiting cases of RCE and RAE are useful because previous work show that there are analytical expressions for the lapse rate associated with each case. We discuss next how the various assumptions within the RCE and RAE framework lead to their respective 1-D models of stratification.
+
+\begin{figure}
+\centering
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=0.9\textwidth]{./figs/atmos-column-a}
+\end{subfigure}%
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=0.9\textwidth]{./figs/atmos-column-b}
+\end{subfigure}
+\caption{Arrows indicate the transport of energy through the boundary of an atmospheric column. a) Radiative fluxes decomposed into shortwave and longwave fluxes at the top and bottom boundaries of the atmosphere. b) Radiative fluxes combined as a net radiative cooling of the atmosphere ($R_a$). Same notation as in Figure~\ref{fig:whole-column}.}
+\label{fig:atmos-column}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{./figs/fig-2-lin.jpg}
+\caption{Reprint of Figure 2 from \citet{lin-et-al-2008}. Net radiative fluxes are derived from NASA satellite data (CERES, SRC, and ISCCP) as a function of latitude. SFC = surface, TOA = top of atmosphere, and atmo: atmosphere. Numbers indicate the globally-averaged value.}
+\label{fig:fig-2-lin}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=0.9\textwidth]{./figs/rce-column}
+\end{subfigure}%
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=0.9\textwidth]{./figs/rae-column}
+\end{subfigure}
+\caption{a) Hypothesized dominant energy balance of RCE. b) hypothesized dominant energy balance of RAE. Dominant fluxes are in bold.}
+\label{fig:limit-column}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{./figs/fig-6-1-hartmann.png}
+\caption{Reprint of Figure 6.1 from \citet{hartmann-2015}. Various components of the atmospheric energy balance is shown as a function of latitude for the annual mean. Turbulent fluxes dominate over heat flux convergence in the tropics, suggesting that RCE may be applicable in the low latitudes. On the contrary, heat flux convergence dominates over turbulent fluxes in the poles, suggesting that RAE may be applicable in the high latitudes.}
+\label{fig:fig-6-1-hartmann}
+\end{figure}
+
+\subsection{Analytical lapse rate in radiative-convective equilibrium}
+RCE as a theoretical model for the tropical climate originates in \citet{arakawa-schubert-1974} under the label, ``convective quasi-equilibrium''. The foundation of their argument rests on the existence of sufficient scale separation between the forcing mechanism that generates instability (radiative heating and cooling) and the equilibrating response that restores neutral stability (convection). Indeed, convection is understood to occur on time scales of hours, which is an order of magnitude smaller than the time scale of radiative cooling, which acts on the order of days \citep{manabe-strickler-1964}. Arakawa and Schubert demonstrate this by noting that the cloud work function remains constant in time based on observational data from the Marshall Islands \citep{yanai-et-al-1973}. Thus, if one considers a domain consisting of multiple instances of convection over a long enough duration of time, a picture of statistical equilibrium emerges where the destabilizing force of radiation roughly balances the stabilizing response of convection. Arakawa and Schubert use this idea to close their problem of parameterizing unresolved convective motions in GCMs.
+
+\citet{bretherton-smolarkiewicz-1989} demonstrated using a two-dimensional non-hydrostatic model that convective temperatures propagate through the entire domain in RCE, even in regions of dry descent. This view challenged the previously held notion that regions of subsidence followed a dry adiabat \citep{bjerknes-1938} which was inconsistent with the large-scale observation of weak temperature gradients in the tropics. It is important to emphasize that the weak temperature gradient hypothesis holds only in regions where the coriolis force is weak, as vertical shear in the presence of a strong coriolis parameter can balance horizontal temperature gradients in the limit of geostrophic balance \citep{vallis-2017}. The weak temperature gradient hypothesis appears in subsequent theoretical studies of the tropics \citep{pierrehumbert-1995, nilsson-emanuel-1999, sobel-et-al-2001} and continues to be an important assumption for understanding tropical phenomena in modern literature \citep{vallis-et-al-2015}. Here, we use the weak temperature gradient hypothesis to justify representing the stratification of RCE as one that is neutral to convective motions.
+
+Thus, understanding the stratification in a state of RCE simplifies to understanding the temperature profile that is set by convection. A useful starting point is the moist adiabat because observational studies show that the tropical stratification is neutrally stable to a moist adiabat \citep{betts-1982, xu-emanuel-1989}. The moist pseudo-adiabatic lapse rate, $\Gamma_m$, can be calculated by solving for the lapse rate of a hypothetical parcel that conserves saturation moist static energy ($MSE^*$):
+\begin{align}
+MSE^* = c_pT+gz+q^*L & \\
+\frac{\partial MSE^*}{\partial z} = c_p\Gamma_m+g+L\frac{\partial q^*}{\partial z} &=0 \\
+c_p\Gamma_m+g+ q^* L\left( \Gamma_m \frac{L}{R_vT^2} + \frac{g}{R_dT}\right ) &=0 \\
+c_p\Gamma_m \left( 1 + \frac{q^* L^2}{R_vT^2} \right ) + g \left( 1 + \frac{q^* L}{R_dT} \right ) &= 0 \\
+\Gamma_m = - \frac{g}{c_p}\left(\frac{1 + \frac{q^* L}{R_dT}}{1 + \frac{q^* L^2}{R_vT^2}} \right)
+\end{align}
+where $g$ is the gravitational acceleration constant, $c_p$ is the specific heat capacity of air at constant pressure, $R_d$ is the specific gas constant of air, $R_v$ is the specific gas constant of vapor, $L$ is the latent heat of vaporization, and $T$ is temperature. The temperature profile can be calculated by numerically integrating the above equation with respect of $z$. A similar equation can be derived in pressure coordinates by differentiating with respect to $p$. Since the atmosphere is usually not saturated at the surface, the convective lapse rate is assumed to follow a dry adiabat until the air reaches saturation (lifted condensation level).
+
+The formula above is termed the pseudo-adiabat because once vapor condenses, it is assumed to precipitate out immediately, make it an irreversible process. An alternative definition of the moist adiabat is the reversible adiabat, where condensed vapor is assumed to remain in the parcel through ascent, implying zero precipitation. Real convection insofar that it can be represented as a moist adiabat at all\footnote{A more detailed treatment of convection includes the effects of entrainment, or mixing between a plume of moist ascent and dry descent \citep{blyth-1993}. An attractively simple model for incorporating such effects into the moist adiabat was developed by \citet{singh-ogorman-2013} and generalized by \citet{romps-2014}. While it is acknowledged that achieving quantitative accuracy will require incorporating such effects, we begin with simple assumptions that allow clean interpretations of results.} lies somewhere within the two types of adiabats. A more realistic treatment requires parameterizing the microphysics of cloud liquid autoconversion and accretion \citep{emanuel-1994}. Furthermore, the moist adiabat can be extended to include the solid phase of water, details of which are difficult to constrain due to the existence of supercooled liquid at sub-freezing temperatures \citep{ooyama-1990}. For the sake of simplicity and clarity, we will proceed with the pseudo-adiabat formula.
+
+\subsection{Analytical lapse rate in radiative-advective equilibrium}
+
+The dominant influence of atmospheric heat transport in the energy balance of the high latitudes was quantitatively demonstrated by observations and models by \citet{nakamura-oort-1988}. A characteristic temperature profile of the high latitudes, particularly in winter, is the presence of a near-surface inversion. This is evident from climatological reanalysis data shown before in Figure~\ref{fig:reanalysis}, where surface temperatures are colder than the overlying air close to the north pole (90 deg N). The high latitude temperature profile was numerically calculated by \citet{overland-guest-1991} using a radiative transfer model, confirming the dominance of radiation and advection in setting the high latitude temperature profile. \cite{abbot-tziperman-2008} used a single column model to demonstrate the behavior of convection in high latitudes in the context of equable climates. In the process, they demonstrate that convection is suppressed in the modern high latitudes due to the stabilizing effects of sea-ice (cold surface) and atmospheric heat transport (warming aloft). Recent work by \citet{cronin-jansen-2016} led to an analytical lapse rate model for the high latitudes.
+
+A detailed derivation of Cronin and Jansen's model will not be repeated here. We simply note the major assumptions that goes into their derivation and the resulting formula. The assumptions can be summarized as follows:
+\begin{itemize}
+\item optical thickness ($\tau$) scales with pressure ($p$) to the power of $n$.
+\item the atmosphere is a graybody except for a fraction $\beta$ where longwave radiation can escape (atmospheric window).
+\item the net atmospheric heating rate $F_a$ from absorption of shortwave radiation and advection of warm air scales with $\tau$ to the power of $b$.
+\item the net surface heating rate $F_s$ accounts for absorption of shortwave radiation and the ocean-atmosphere heat exchange.
+\item turbulent fluxes are assumed to be 0.
+\item the model is useful only if the resulting stratification is stable to convection.
+\end{itemize}
+The above assumptions lead to an analytic equation of temperature as a function of $\tau$:
+\begin{equation}
+T(\tau) = \left(\frac{(F_S + F_A - \beta \sigma T_S^4)(1+\tau) + \frac{F_Ab}{\tau_0}\left(\frac{\tau}{\tau_0}\right)^{b-1}-\frac{F_A\tau_0}{b+1}\left(\frac{\tau}{\tau_0}\right)^{b+1}}{2 \sigma (1-\beta)} \right)^{1/4}
+\end{equation}
+The profile can be converted to pressure coordinates using the relation between $p$ and $\tau$ from the first assumption. Unlike the lapse rate equation for a moist adiabat which only depends on the surface temperature and humidity, the equation for the high latitude stratification depends on four parameters: surface optical thickness $\tau_0$, surface heating rate $F_s$, atmospheric heating rate $F_a$, vertical scaling $n$ of optical thickness, and vertical scaling $b$ of atmospheric heating rate.
+
+\subsection{3-D temperature structure}
+
+A simple model for the sake of simplicity alone has little scientific value. We must verify that the intuition that we gain from such simple models are correct with observations. Where observational data are poor or not available (such as future climate change or past vertical structure of temperature), we must rely on comprehensive models that are designed to most faithfully represent the complexity of the real world. Such a state-of-the-art model is the general circulation model (GCM).
+
+GCMs follow the ideology of strategy 2 by numerically solving the primitive equations. The key assumptions that are made in the primitive equations are that 1) the flow is hydrostatic, 2) the vertical velocity $w$ is much smaller than the horizontal velocities $u$ and $v$, and that 3) the atmosphere is thin relative to the planetary radius. In addition to the assumptions made above, GCMs stray from the real world because its solution must be solved in a discretized domain. Physical processes that occur on scales smaller than the model grid must be parameterized. While GCMs should not be taken as a substitute for the real world, it offers great scientific value because we can configure controlled experiments with GCMs to study the comprehensive behavior of climate in a systematic way. 
+
+\subsection{Temperature structure in future climate change}
+
+Much of our understanding of climate originates from theories and models that successfully explain the present climate for which we have direct observational data of the atmosphere. When theory, comprehensive models, and observations paint a consistent picture of modern climate and the response of climate to external forcings, we build confidence that our understanding has reliable predictive power. Thus, we discuss next the work that has been done to understand the change in tropospheric temperature structure in response to external forcings. A particularly common external forcing is increasing CO$_2$ concentrations because that is the direction we are headed in the future.
+
+\citet{vallis-et-al-2015} review the robust responses of the atmosphere forced with a 1\% increase in CO$_2$ per year. They show that GCMs robustly predict amplified warming aloft in the tropics and amplified warming near the surface at the poles. This is illustrated from the multimodel mean temperature response shown in Figure~\ref{fig:fig-6-vallis}. A similar pattern results from the equilibrium temperature response to an abrupt quadrupling of CO$_2$ concentrations. The fact that these patterns are present in nearly all GCMs suggest that there may be a simple physical explanation for this response. The amplified warming aloft in the tropics is often explained as a shift to a warmer moist adiabat \citep{po-chedley-and-fu-2012}. A physical explanation for the amplification is that more latent heat is released in a warmer atmosphere following the Clausius-Clapeyron relation. The amplified warming near the surface in the poles was originally thought to be due to the ice-albedo feedback \citep{manabe-wetherald-1975}. However, \citet{pithan-mauritsen-2014} demonstrated that the lapse rate feedback is the most important contribution, followed closely by the ice-albedo feedback and the Planck feedback. \citet{cronin-jansen-2016} developed the analytical model of RAE as a tool for understanding the high-latitude lapse rate feedback. \citet{payne-et-al-2015} use both the RCE and RAE framework to demonstrate that these theories can qualitatively explain the amplified temperature responses over the tropics and at the polar surface. My current work subjects the theoretical prediction of RCE in the tropics quantitatively. This will be discussed in more detail in Section~\ref{sec:current}.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{./figs/fig-6-vallis.png}
+\caption{Reprint of Figure 6 from \citet{vallis-et-al-2015}. Multimodel mean zonal mean temperature trend (K/decade) in northern hemisphere winter (DJF) of AOGCMs forced with the 1\% per year increase of CO$_2$. There is a robust pattern in the temperature response where warming is amplified aloft in the tropics and near the surface in the arctic.}
+\label{fig:fig-6-vallis}
+\end{figure}
+
+\subsection{Temperature structure in past climate change} \label{subsec:past}
+
+While it is practical to study the particular type of climate change that we are expecting in the future, it is important to verify that our understanding of climate is universal. Its ideas and predictions should be applicable for various external forcings and initial conditions.
+
+A particularly useful extension to supplement our understanding of anthropogenic climate change is that of cooling due to a decrease in carbon dioxide concentrations. This forcing is attractive because of its symmetry to anthropogenic warming. This allows us to pose simple null hypotheses. For example, as CO$_2$ concentration decreases, is there amplified cooling aloft over the tropics? Is there amplified surface cooling over the poles? Furthermore, when the cooling is taken to the limit of Earth frozen over in ice (Snowball Earth), do our theories of climate still apply? \citet{budyko-1969} and \citet{sellers-1969} demonstrated using an EBM that such a climate state not only exists but is stable to small perturbations. Subsequently, the Snowball climate has been configured using GCMs, allowing its equilibrium state to be studied in detail. These simulations show that the stratification in the tropics is dry adiabatic and that the equator-to-pole temperature gradient increases in the snowball. Then, taking the difference between this snowball equilibrium and the modern climate equilibrium would produce amplified cooling aloft over the tropics and at the surface at the poles, confirming the null hypotheses posed above.
+
+The pioneering study on the dynamics and structure of the snowball troposphere was led by \citet{pierrehumbert-2005} and extended with multiple GCMs by \citet{abbot-et-al-2013}. The dynamics of the effectively dry Hadley cell received particular attention and was investigated by \citet{caballero-et-al-2008}, \citet{voigt-et-al-2012}, and \citet{voigt-2013}. Abbot led a series of work on convection and clouds in the snowball \citep{abbot-et-al-2012, abbot-2014} to demonstrate its importance in the problem of deglaciation. More recently, \citet{graham-et-al-2019} investigated the dynamics of the snowball stratosphere. Thus, the snowball climate in equilibrium has been investigated in detail by past studies\footnote{This does not imply that the snowball climate state in equilibrium is completely understood. For example, there remain interesting problems of the Snowball equilibrium state such as the baroclinicity puzzle for storm tracks (why are storm tracks weaker despite the stronger meridional temperature gradient?) and the dynamics and thermodynamics of dry radiative-convective equilibrium (the currently observed asymmetry of moist ascent and dry descent no longer applies; do existing scaling laws of convective velocity and area fraction break down in the dry limit?).}.
+
+\subsection{Transient response of temperature structure}
+
+In contrast, the transient response between the modern and Snowball Earth has received little attention. The transient response is important because abrupt phenomena and tipping points have been identified in the climate system before \citep{alley-et-al-2003}. For example, recently, \citet{schneider-et-al-2019} demonstrated tipping point behavior of marine stratocumulus clouds with warming, indicating that a strong positive cloud feedback may be triggered. \citet{voigt-marotzke-2010} studied the transition from a modern climate to the snowball in the context of sea-ice growth using the ECHAM5 GCM. Figure~\ref{fig:fig-1-voigt} shows that sea-ice grows rapidly upon reaching $\approx 50$\% global sea-ice cover, suggesting that the atmosphere may also respond rapidly to the changing surface boundary conditions. The transient response of the atmosphere toward snowball conditions in not discussed in their study nor in subsequent literature, leaving the topic open for pioneering work. I propose to investigate this transition with a focus on the temperature response for which simple analytical theories exist (RCE and RAE).
+
+Most simple theories of atmospheric phenomena, including the analytic lapse rate models of RCE and RAE, assume a steady-state condition. That is, such theories have no explanatory power should abrupt behavior emerge, beyond any abruptness that is inherited from parameters that is supplied into the theory. This might be one way in which an existing theory potentially fails to explain transient behavior.
+
+Past studies of RCE reported the existence of multiple equilibria across the model hierarchy \citep{renno-1997, sobel-et-al-2007, sessions-et-al-2010}. Depending on the initial conditions, RCE leads to either a moist state characterized by frequent deep convection or to a dry state where convection is suppressed. Such behavior suggests the possibility of abrupt transitions and hysteresis when undergoing a large climate change as for the transition to snowball Earth.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{./figs/fig-1-voigt}
+\caption{Repreint of Figure 1 in \citep{voigt-marotzke-2010} showing the transient growth of sea-ice in the transition to a snowball using the ECHAM5 GCM. Various colored lines correspond to different types of forcing, such as 75\% reduced insolation, 87\%, etc. and one instance where CO$_2$ was reduced to 0.1\% of present at 100\% insolation.}
+\label{fig:fig-1-voigt}
+\end{figure}
+
+\subsection{Research questions}
+
+In summary, the research questions I will address in my thesis are as follows:
+\begin{itemize}
+\item Where do we observe RCE and RAE in the current climate? How do the regions of RCE and RAE vary seasonally?
+\item How does the latitudinal extent of RCE and RAE change transiently from modern to Snowball and Hothouse Earth? How well do RCE and RAE predict the temperature response compared to a full 3-D simulation?
+\end{itemize}
+
+\section{Current research} \label{sec:current}
+
+My current research investigates the discrepancy between the warming response predicted from the RCE theory and GCMs forced with an increase in CO$_2$ concentrations. Namely, when the convectively neutral profile in RCE is represented in its simplest form as a moist adiabat, it overestimates the warming aloft by $\approx 20$\% compared to the GCM. As the tropics is often referred to as neutral to a moist adiabat \citep{xu-emanuel-1989}, it is important to understand why this simple prediction cannot explain the GCM response.
+
+Our work shows that convective entrainment\footnote{The motivation to test the entrainment hypothesis originates from the work of \citet{tripati-et-al-2014}, who showed that proxies indicating snowlines during the last glacial maximum in the mountains of the Maritime continent cannot be explained using a moist adiabat. When they used a model that accounted from entrainment, the snowlines were consistent with the proxies of sea surface temperature.} and the representation of shallow convection\footnote{The importance of shallow convection may be connected to the study of \citet{sherwood-et-al-2014}, who demonstrated a connection between the vigor of lower tropospheric mixing and climate sensitivity. Our work shows that the presence of strong shallow convection may lead to a bimodal profile of warming, with local maxima in the upper and lower troposphere.}, neither effects which are represented in the moist adiabat, play an important role in suppressing the warming response of GCMs. Figure~\ref{fig:entrain} shows that as the GFDL AM2 GCM \citep{anderson-et-al-2004} is constrained to use larger entrainment rates, the response deviates farther away from moist adiabatic. We find that a modified moist adiabat that accounts for entrainment \citep{singh-ogorman-2013, romps-2014} reduces the overprediction to $\approx 10$\% (not shown). Figure~\ref{fig:shallow} shows that the shallow convection scheme plays an important role in producing a bimodal structure of warming in the upper (300 hPa) and lower (700 hPa) troposphere.
+
+I present a timeline for how I plan to complete this project in the upcoming months:
+\begin{itemize}
+\item January 2020: Wrap up the current experiments where I study the importance of shallow convection in the GFDL AM2 GCM. Follow technique used by \citet{sherwood-et-al-2014} to quantify the strength of shallow convection in GCMs. Is there a correlation between the strength of shallow convection and the overprediction of the moist adiabat? 
+\item February 2020: Finalize key points of research and collect all the figures I will use to support my conclusions. Make an outline of the paper and begin to write the manuscript.
+\item March 2020: Revise manuscript with feedback from the co-authors of this work, Zhihong Tan, Tiffany Shaw, and Malte Jansen.
+\item April 2020: Submit manuscript. I envision submitting the manuscript to a journal such as the Journal of Climate or the Journal of Geophysical Research: Atmospheres.
+\end{itemize}
+
+\textbf{Expected outcome:} This work sheds light on the reasons why the moist adiabat disagrees with the tropical temperature response predicted by a GCM. Following on the works of Singh and O'Gorman and Romps, we find that an entraining moist adiabat is shown to reduce the overprediction. We plan to publish the result of this work and will form the first chapter of my thesis.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{./figs/entrain.png}
+\caption{$\alpha$ is the Tokioka parameter, which sets the minimum entrainment rate in the Relaxed Arakawa-Schubert convection scheme \citep{moorthi-suarez-1992} in GFDL AM2. As the model is constrained to use stronger entrainment rates, it deviates farther away from the moist adiabatic response.}
+\label{fig:entrain}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{./figs/shallow.png}
+\caption{The vertical structure of the warming response using the Donner convection scheme \citep{donner-et-al-2001} with the University of Washington shallow convection scheme \citep{park-bretherton-2009} enabled (solid) and disabled (dashed). Shallow convection contributes to a bimodal structure of warming.} 
+\label{fig:shallow}
+\end{figure}
+
+\section{Proposed research}
+
+\subsection{Defining RCE and RAE regimes in modern climate and their seasonal variation} \label{subsec:proposal-1}
+
+In Section~\ref{subsec:1-d-height}, we qualitatively argued that RCE holds where $T \gg F$ and RAE holds where $F \gg T$. The goal of the first proposed project is to develop a more quantitative criteria for the validity of RCE and RAE. The second goal of this project is to use the criteria to study how the latitudinal extent of RCE and RAE varies seasonally.
+
+As a preliminary analysis, I will demonstrate some examples of criteria using data from the ECHAM6 GCM simulations of the modern climate (data courtesy of R.J. Graham and Tiffany Shaw). Figure~\ref{fig:modern-budget} shows the latitudinal dependence of all the terms that are involved in the atmospheric energy balance as was shown before in Figure~\ref{fig:fig-6-1-hartmann} with reanalysis data. Unlike the reanalysis data (annual mean), the fluxes shown here are the climatological average of January. The strict definition of RCE implies that $F = 0$, and the locations where this is satisfied are shown with a solid black vertical line. Similarly, the strict definition of RAE implies that $T = 0$, and the location where this is satisfied is shown with a dashed black line. In a strict sense, RCE and RAE are only satisfied at specific latitudinal points. It would be more useful to relax this definition so that we can capture a broader region in which RCE or RAE is approximately satisfied.
+
+Figure~\ref{fig:modern-criteria} shows the ratio of $F$ to $T$ as a function of latitude. Note that the $y$ axis is in logarithmic scale to facilitate with the order of magnitude analysis we wish to perform. The solid horizontal line indicates where $F$ is smaller than $T$ by one order of magnitude. We can think of RCE to be approximately satisfied where the ratio is below this solid line. Similarly, the dashed horizontal line indicates where $F$ is larger than $T$ by one order of magnitude. We can think of RAE to be approximately satisfied where the ratio is above this dashed line. This criteria identifies the transition between the subtropics and the midlatitudes to satisfy RCE, which is not where we conventionally consider RCE to hold. This is problematic because if we further relax the definition of RCE (e.g., down from one order of magnitude to 0.5) so as to capture the tropics, we expand the region where RCE is approximately valid all the way out to the midlatitudes. A more nuanced definition of RCE may be necessary, such as considering the magnitude of latent heat fluxes alone, rather than the total sum of turbulent fluxes. Indeed, the glossary of the American Meteorological Society defines RCE as ``the equilibrium state of an atmospheric column for which any net loss or gain of radiant energy is balanced by the vertical transport of latent \textit{or} sensible heat'' \citep{ams-glossary}. Thus, it is implied that convective heat flux can be represented as some combination of surface latent and sensible heat fluxes, and not necessarily the total sum.
+
+Comparing Figure~\ref{fig:fig-6-1-hartmann} and Figure~\ref{fig:modern-budget} also allows us to make a preliminary inference on the seasonal variation of RCE and RAE. We emphasize that this analysis is preliminary because we are comparing the energy balance of a GCM with that of a reanalysis. The regime where RAE is satisfied extends farther out in the winter hemisphere (60 deg N) relative to the annual mean (80 deg N). In contrast, the extent of RCE does not appear to vary strongly with season, which is consistent with the relatively weak seasonal variability in the tropics. Based on this result, we can make a sketch of what the seasonal dependence of the latitudinal extent may look like, as shown in Figure~\ref{fig:seasonality}. We also wish to understand the physical mechanism that controls the seasonal cycle of the extent of RCE and RAE. For example, the extent of RAE may be closely related to the extent of sea-ice cover, which inhibits surface turbulent fluxes.
+
+\textbf{Expected outcome:} We will develop a criteria to determine the latitudinal extent to which RCE and RAE is approximately satisfied. We will use this criteria to study the seasonal cycle of where RCE and RAE hold. A figure such as that sketched in Figure~\ref{fig:seasonality} will be produced using reanalysis data. The result of this work may be of broad interest to the climate science community, so we believe it would be fitting for publication in a journal such as the Geophysical Research Letters.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{./figs/snowball/modern_energy_budget.png}
+\caption{Same as Figure~\ref{fig:fig-6-1-hartmann} but of the modern climatology as simulated by the ECHAM6 GCM. Note that unlike Figure~\ref{fig:fig-6-1-hartmann} (which shows the annual mean), this data corresponds to the January climatology. Vertical black line indicates where surface turbulent fluxes balances atmospheric radiative cooling. Dashed black line indicates where atmospheric heat flux convergence balances atmospheric radiative cooling. Data made available by the courtesy of R.J. Graham and Tiffany Shaw.}
+\label{fig:modern-budget}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{./figs/modern-criteria.PNG}
+\caption{The ratio of the magnitude of atmospheric heat transport to the surface turbulent fluxes. Note that the $y$-axis is in logarithmic scale. Where the ratio is small (by 1 order of magnitude) RCE is approximately satisfied. Where the ratio is large, RAE is approximately satisfied.}
+\label{fig:modern-criteria}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{./figs/seasonality}
+\caption{A sketch showing the seasonality of the extent to which RCE and RAE hold.}
+\label{fig:seasonality}
+\end{figure}
+
+\subsection{Transition of RCE and RAE regimes between modern and Snowball Earth}
+
+Previous studies on the snowball equilibrium provide some preliminary insight for the snowball equilibrium state. For example, Figure~\ref{fig:fig-3-pierrehumbert} shows that there exists a surface inversion in the midlatitude winter, which is the characteristic stratification of the high latitudes in the modern climate. This suggests that the extent to which RAE holds grows toward lower latitudes through the snowball transition. Figure~\ref{fig:fig-2-voigt} shows that a large region of the summer troposphere appears nearly neutrally stable to a dry adiabat, roughly extending between the equator and 45 deg N. Thus, the extent to which RCE holds may grow as well, owing to the weak activity of baroclinic eddies in the summer hemisphere.
+
+The above approach of checking the applicability of a theory \textit{a posteriori} is problematic because it is possible that the simulated stratification resulted from mechanisms that are not captured within the framework of RCE or RAE. In other words, it is possible that our theory predicts the correct response for the wrong reasons. To address this potential problem, we need a framework for predicting the applicability of RCE and RAE \textit{a priori}. The outcome of the first proposed project is such a framework that allows us to identify the applicability of RCE and RAE based on the latitudinal structure of radiative and turbulent fluxes.
+
+We can use the results from existing Snowball simulations run on the ECHAM6 GCM (data courtesy of R.J. Graham and Tiffany Shaw) to constrain what the latitudinal extent of RCE and RAE look like in the limit of the Snowball Earth. Figure~\ref{fig:snowball-budget} shows the radiative, turbulent, and atmospheric heat fluxes as a function of latitude for January in Snowball Earth. Compared to modern, we find that all energy fluxes (except for sensible heat) are weaker in the Snowball. The latent heat flux (blue) in particular is much weaker in the Snowball. This is expected following the Clausius-Clapeyron relation. The result is that both regions of RCE and RAE shift southward by $\approx 10$ deg in latitude. Figure~\ref{fig:snowball-criteria} shows that a small region surrounding the South Pole may be characterized as RCE owing to the large magnitude of sensible heat and negligible heat transport there. This raises interesting questions about how RCE in the polar regions may differ from the tropics (e.g., does the weak temperature gradient break down in polar RCE? Do the insights from \citet{cronin-chavas-2019} apply for the dry, rotating RCE of the summer pole in the Snowball?). Furthermore, how does the summer pole transition from a state of RAE in the modern climate (see Figure~\ref{fig:modern-criteria}) to RCE in the Snowball?
+
+We now discuss how the transition to the Snowball climate will be configured. Our primary interest is the response to CO$_2$ forcing as discussed in Section~\ref{subsec:past} because of the direct symmetry to anthropogenic warming. \citet{voigt-marotzke-2010} demonstrated that a Snowball can be achieved by reductions in CO$_2$ alone using the ECHAM5 GCM. We will use the updated version of this model, ECHAM6, for our simulations to take advantage of the improvements\footnote{Improvements that were made include a different shortwave radiative transfer code, a higher model top, and a new criteria for triggering convection \citep{stevens-et-al-2013}} that have been made since then. The novelty of this proposed work is that we will explore intermediate values of CO$_2$ between the modern value ($\approx 400$ ppm) and that required to obtain a Snowball ($0.2862$ ppm for ECHAM5). We will explore both equilibrium responses at intermediate values (e.g., abruptly decreasing CO$_2$ and taking the average of the steady-state) and the transient response to a transient forcing (e.g., linearly decreasing CO$_2$ at 10\% per year). Since the Snowball state cannot be attained without a sea-ice model, a bare-bones GCM must at least have the atmospheric and sea-ice component built in. As we are interested in understanding the various climate states that exist between the modern and Snowball equilibrium, the GCM should be run in as simple of a configuration as allowable for computational feasibility. The aquaplanet configuration offers a good solution for the questions that we are interested in, because aquaplanet GCMs also exhibit the robust temperature responses of amplified warming aloft in the tropics and near the surface at the poles \citep{shaw-tan-2018}. However, ocean transport was demonstrated to play an important role in the maintenance of various different types of Snowball states (e.g., hard Snowball, slushball, Jormungand) so we acknowledge that even in a slab-ocean aquaplanet model, a simple representation of ocean heat transport should be included \citep{rose-2015}. Lastly, we will test the robustness of our results to various types of forcing, as CO$_2$ is not the only way the Snowball state has been studied in the past.
+
+\textbf{Expected outcome:} Figure~\ref{fig:snowball} shows a sketch of a figure that we envision will result from the study. On the $x$-axis is a state variable that describes the climate regime. The shaded area denotes the latitudinal extent to which the assumptions of RCE and RAE are satisfied. In the transition toward a snowball, surface temperature decreases, and we anticipate the latitudinal extent of RAE to grow based on simulations exhibiting a surface inversion in the midlatitudes at solstice \citep{pierrehumbert-2004}. This extension is also expected based on the latitudinal structure of turbulent and atmospheric heat fluxes. The nature of the transition is unknown, and charting this behavior will be the first outcome of this work. While the figure below shows a linear transition, this may not necessarily be the case because sea-ice is found to grow non-linearly in the transition toward a snowball \citep{voigt-marotzke-2010}. Additionally, it will be useful to understand why the transition behaves the way it does. For example, does the lower latitudinal bound of RAE closely track the sea-ice margin, which strongly inhibits turbulent fluxes at the surface? This cannot be the explanation all the way through, however, as sea-ice would continue to grow toward the equator. Thus, the second goal of this work will be to provide explanations for how the latitudinal extent to which RCE and RAE depend on a given state and regime of the climate. This will be the third chapter of my thesis and I envision the work to be published in a journal such as the Journal of Climate or the Journal of Geophysical Research: Atmospheres.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{./figs/fig-3-pierrehumbert}
+\caption{Reprint of Figure 3 from \citet{pierrehumbert-2004} showing the mid-latitude stratification (solid) in the snowball summer (46 deg N) and winter (46 deg S). The dashed lines are the corresponding dry adiabats for reference.}
+\label{fig:fig-3-pierrehumbert}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{./figs/fig-2-voigt}
+\caption{Reprint of Figure 2 from \citet{voigt-2013} showing the stratification of a snowball solstice in potential temperature (thin contours) and the tropopause height (thick line).}
+\label{fig:fig-2-voigt}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{./figs/snowball/snowball_energy_budget.png}
+\caption{Same as Figure~\ref{fig:modern-budget} but for Snowball Earth. Data made available by the courtesy of R.J. Graham and Tiffany Shaw.}
+\label{fig:snowball-budget}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{./figs/snowball-criteria.PNG}
+\caption{Same as Figure~\ref{fig:modern-criteria} but for Snowball Earth.}
+\label{fig:snowball-criteria}
+\end{figure}
+
+\begin{figure}
+\centering
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=0.9\textwidth]{./figs/snowball-winter}
+\end{subfigure}%
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=0.9\textwidth]{./figs/snowball-summer}
+\end{subfigure}
+\caption{A sketch showing the evolution of the extent of RCE and RAE in the transition from modern to Snowball Earth for the winter hemisphere (left) and the summer hemisphere (right). The $x$-axis can be any variable that describes the state of the global climate regime. Here I chose the globally-averaged surface temperature as the state variable. Shaded regions denote the latitudinal extent in which either RCE or RAE is satisfied at any given climate regime.}
+\label{fig:snowball}
+\end{figure}
+
+\subsection{Transition of RCE and RAE regimes between modern and Hothouse Earth}
+
+Naturally, we would like to extend this work to include the transition toward a warmer regime beyond that typically studied in the context of anthropogenic warming. Namely, we would like to know what the regimes of RCE and RAE look like in the Hothouse climate of the mid-Cretaceous and Eocene Epochs when the poles were thought to be ice-free and the winters warm enough for palm trees and crocodiles to thrive in the high-latitudes \citep{greenwood-wing-1995}. \citet{abbot-tziperman-2008} led a series of work on the importance of convection in the high-latitudes of equable climates, offering a preview of what such a climate regime looks like. Combined with the weaker meridional temperature gradients of equable climates, the high-latitude equilibrium in equable climates may potentially be characterized by RCE.
+
+A speculative sketch of the complete regime transition across Snowball, modern, and Hothouse climates is shown in Figure~\ref{fig:complete}. The first step toward verifying such a picture would involve studying the radiative, turbulent, and atmospheric heat fluxes as a function of latitude. The model data from the Eocene atmosphere-ocean simulations would be a great place to start \citep{lunt-et-al-2012}. To study the transient response, the recently proposed LongRunMIP project \citep{rugenstein-et-al-2019} would provide a partial preview into the extension of anthropogenic warming, but LongRunMIP runs still do not reach the warmth of the Eocene climate. Thus, it would be necessary to configure my own GCM experiments with incrementally higher CO$_2$ concentrations to study the transient behavior between the modern and Hothouse climate as well. This would be the fourth and final chapter of my thesis.
+
+\begin{figure}
+\centering
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=0.9\textwidth]{./figs/complete-winter}
+\end{subfigure}%
+\begin{subfigure}{0.5\textwidth}
+\includegraphics[width=0.9\textwidth]{./figs/complete-summer}
+\end{subfigure}
+\caption{Same as Figure~\ref{fig:snowball} but now extended out to include the Hothouse Earth regime.}
+\label{fig:complete}
+\end{figure}
+
+\section{Summary and impacts}
+
+Understanding the meridional and vertical structure of temperature is essential for us to close many theories that exist in the literature today, from the strength and extent of the Hadley cell to the growth rate of baroclinic eddies. A first step toward developing such a 2-D theory of the stratification is to start by characterizing where simple 1-D theories of stratification, namely RCE and RAE, apply in the modern climate and across deep-time climate change. If such 1-D theories are valid at the tropics and the poles, we can use this as a boundary condition to understand the stratification of the mid-latitudes, where everything (radiation, convection, and advection) matters.
+
+After the completion of this thesis, we will have a better understanding of where simple 1-D models of stratification apply in the real world. Thus, the work can be thought of as a synthesis of our understanding across the hierarchy of climate models, following the spirit of climate research advocated by \citet{held-2005}. Having an understanding of where RCE and RAE regimes hold across a large parameter space also benefits the community of exoplanet research, where one may be interested in characterizing the climate of a planet via crude measurements of radiative and turbulent fluxes. Finally, I believe that this work will help communicate climate change to the public because box models are easy to understand. Deep-time climate change is a captivating subject that stirs the imagination of any curious human being. I am confident that the result of my thesis research will have a positive effect in the scientific community and beyond. 
+
+\clearpage
+\bibliography{biblio}
+
+\end{document}
