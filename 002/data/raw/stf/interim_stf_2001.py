@@ -14,5 +14,5 @@ server.retrieve({
     "stream": "mdfa",
     "type": "fc",
     "format": "netcdf",
-    "target": "interim_tf_2001.nc",
+    "target": "interim_stf_2001.nc",
 })
