@@ -1,10 +1,20 @@
 \begin{thebibliography}{}
 
-\bibitem[Hartmann and Larson, 2002]{hartmann_important_2002}
-Hartmann, D.~L. and Larson, K. (2002).
-\newblock An important constraint on tropical cloud - climate feedback.
-\newblock {\em Geophysical Research Letters}, 29(20):12--1--12--4.
-\newblock \_eprint:
-  https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1029/2002GL015835.
+\bibitem[Cronin and Jansen, 2016]{cronin_analytic_2016}
+Cronin, T.~W. and Jansen, M.~F. (2016).
+\newblock Analytic radiative‐advective equilibrium as a model for
+  high‐latitude climate.
+\newblock {\em Geophysical Research Letters}, 43(1):449--457.
+
+\bibitem[Donohoe and Battisti, 2013]{donohoe_seasonal_2013}
+Donohoe, A. and Battisti, D.~S. (2013).
+\newblock The {Seasonal} {Cycle} of {Atmospheric} {Heating} and {Temperature}.
+\newblock {\em Journal of Climate}, 26(14):4962--4980.
+\newblock Publisher: American Meteorological Society.
+
+\bibitem[Hartmann, 2016]{hartmann_global_2016}
+Hartmann, D. (2016).
+\newblock {\em Global {Physical} {Climatology}}.
+\newblock Elsevier, 2nd edition.
 
 \end{thebibliography}

@@ -31,12 +31,13 @@
     "capt-of"
     "hyperref")
    (LaTeX-add-labels
-    "sec:orga958d81"
-    "sec:orgc6a99bb"
-    "fig:orgfcea42b"
-    "fig:orgd5a751b"
-    "sec:org6a7a86b"
-    "sec:org94035b8")
+    "sec:org87a156c"
+    "sec:org0977f9f"
+    "sec:org6912b6e"
+    "fig:orga1d3f39"
+    "fig:org85f4a7e"
+    "sec:org3f22efd"
+    "sec:org79c8a4f")
    (LaTeX-add-bibliographies
     "../../../../Papers/references"))
  :latex)

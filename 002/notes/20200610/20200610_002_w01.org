@@ -1,15 +1,31 @@
 #+title: Research Notes
 #+author: Osamu Miyawaki
-#+date: Jun 10, 2020
+#+date: June 10, 2020
 #+options: toc:nil
 
 * Introduction
+The goal of our next project is to identify and understand the spatio-temporal structure of RCE (radiative convective equilibrium) and RAE (radiative advective equilibrium) regimes on modern Earth. We define RCE and RAE by starting with the vertically-integrated MSE ($h$) equation:
+\begin{equation}
+\frac{\partial h}{\partial t} + \nabla\cdot(vh) = R_a + LH + SH
+\end{equation}
+where $v$ is horizontal wind, $R_a$ is atmospheric radiative cooling, LH is latent heat, and SH is sensible heat. We non-dimensionalize this equation by dividing by $R_a$:
+\begin{align}
+\frac{\frac{\partial h}{\partial t} + \nabla\cdot(vh)}{R_a} &= 1 + \frac{LH + SH}{R_a} \\
+R_1 &= 1 + R_2
+\end{align}
+where we defined non-dimensional numbers $R_1$ and $R_2$ representing the relative importance of advective heat transport (assuming that atmospheric heat storage is small) and surface turbulent fluxes, respectively. RCE is the limiting case where $R_1 \ll 1$ and RAE is where $R_2 \ll 1$.
+
+RCE and RAE are useful concepts because these assumptions are used in simple models of the vertical temperature structure. In RCE, the vertical temperature profile is thought to be set by convection if averaged over an adequately large area and time. The moist adiabat is one simple model for the temperature structure set by convection. In RAE, understanding the vertical temperature profile requires a simple model of radiative transfer and an assumption about the vertical profile of advective heat transport. cite:cronin_analytic_2016 developed the first RAE model, which uses a two-stream gray radiation scheme with an atmospheric window. We can compare the Earth's temperature profiles in regions where RCE and RAE are approximately satisfied to assess the accuracy of these simple models.
+
+* Methods
+We use reanalysis data from ERA-interim spanning from years 2000 through 2012. I obtain the latent heat, sensible heat, and atmospheric radiative cooling terms from the [[https://apps.ecmwf.int/datasets/data/interim-mdfa/levtype=sfc/][ECMWF website]]. I use the atmospheric MSE storage and MSE flux divergence data from cite:donohoe_seasonal_2013
 
 * Comparing energy fluxes to Hartmann (2016)
+Before we analyze the spatial and temporal structure of RCAE, it is a good idea to ensure that the energy fluxes I use to calculate the RCAE regimes are sensible. Fig. 6-1 from cite:hartmann_global_2016 (reprinted as Fig. [[fig:hartmann]] here) is useful as he shows the vertically-integrated energy fluxes in terms that are useful for evaluating RCAE, namely latent heat, sensible heat, atmospheric heat transport (as measured as MSE flux divergence), and atmospheric radiative cooling.
 
-Shown in Figure [[fig:hartmann]]
+For comparison, the fluxes I obtained from ERA-Interim is shown in Fig. [[fig:repro]].
 
-#+caption: Reprint of Fig. 6.1 from cite:hartmann_important_2002 showing the energy flux terms in the vertically-integrated MSE budget. LE is latent heat, SH is sensible heat, $\Delta F_a$ is MSE flux divergence, and $R_a$ is atmospheric radiative cooling.
+#+caption: Reprint of Fig. 6.1 from cite:hartmann_global_2016 showing the energy flux terms in the vertically-integrated MSE budget. LE is latent heat, SH is sensible heat, $\Delta F_a$ is MSE flux divergence, and $R_a$ is atmospheric radiative cooling.
 #+label: fig:hartmann
 [[../../../prospectus/figs/fig-6-1-hartmann.png]]
 
