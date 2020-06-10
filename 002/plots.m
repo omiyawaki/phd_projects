@@ -60,17 +60,17 @@ end
 
 %% call functions
 % plot_ra_tediv_mon_lat(subdir, plotdir, lat, donz, par); % plot R_a and flux divergence profiles
-% plot_energy_lat(subdir, plotdir, lat, donz, TETEN, stf, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
+plot_energy_lat(subdir, plotdir, lat, donz, TETEN, stf, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
 % plot_teten_stf_r1_mon_lat(subdir, plotdir, lat, TETEN, stf, r1, par); % plot remaining energy fluxes that depends on energy closure method
 
 % sweep through various threshold values
-for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
-    if ~exist([plotdir subdir sprintf('/rcae_%g', par.ep)])
-        mkdir([plotdir subdir sprintf('/rcae_%g', par.ep)]);
-    end
-    plot_rcae_mon_lat(subdir, plotdir, lat, par); % plot RCAE regimes, depends on choice of threshold epsilon
-    plot_temp(subdir, plotdir, plev_era, par); % plot temperature profiles in RCAE regimes
-end
+% for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
+%     if ~exist([plotdir subdir sprintf('/rcae_%g', par.ep)])
+%         mkdir([plotdir subdir sprintf('/rcae_%g', par.ep)]);
+%     end
+%     plot_rcae_mon_lat(subdir, plotdir, lat, par); % plot RCAE regimes, depends on choice of threshold epsilon
+%     plot_temp(subdir, plotdir, plev_era, par); % plot temperature profiles in RCAE regimes
+% end
 
 %% define functions
 function plot_ra_tediv_mon_lat(subdir, plotdir, lat, donz, par)
@@ -107,6 +107,7 @@ end
 function plot_energy_lat(subdir, plotdir, lat, donz, TETEN, stf, par)
 % latitude vsenergy flux line plots, comparable to Hartmann (2016)
     figure();clf; hold all;
+    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
     plot(lat,nanmean(donz.ra,1), 'color', par.gray)
     plot(lat,nanmean(donz.TEDIV,1), 'color', par.maroon)
     plot(lat,nanmean(TETEN,1), 'color', par.green)
@@ -121,7 +122,6 @@ function plot_energy_lat(subdir, plotdir, lat, donz, TETEN, stf, par)
     axis('tight');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
     set(gca, 'fontsize', par.fs, 'xminortick', 'on', 'yminortick', 'on')
-    hline(0, '-k');
     print([plotdir subdir '/era-fig-6-1-hartmann'], '-dpng', '-r300');
     close;
 end
