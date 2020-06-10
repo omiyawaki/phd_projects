@@ -1,4 +1,4 @@
-% Created 2020-06-09 Tue 10:54
+% Created 2020-06-10 Wed 12:37
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -29,47 +29,80 @@
 \maketitle
 
 \section{Introduction}
-\label{sec:org87a156c}
-The goal of our next project is to identify and understand the spatio-temporal structure of RCE (radiative convective equilibrium) and RAE (radiative advective equilibrium) regimes on modern Earth. We define RCE and RAE by starting with the vertically-integrated MSE (\(h\)) equation:
+\label{sec:orge8aff1a}
+The goal of our next project is to identify and understand the spatio-temporal structure of RCE (radiative convective equilibrium) and RAE (radiative advective equilibrium) regimes on modern Earth. We define RCE and RAE by starting with the vertically-integrated MSE (\(\langle h \rangle\)) equation:
 \begin{equation}
-\frac{\partial h}{\partial t} + \nabla\cdot(vh) = R_a + LH + SH
+\label{eq:org4506c62}
+\frac{\partial \langle h \rangle}{\partial t} + \langle \nabla\cdot(vh) \rangle = R_a + LH + SH
 \end{equation}
 where \(v\) is horizontal wind, \(R_a\) is atmospheric radiative cooling, LH is latent heat, and SH is sensible heat. We non-dimensionalize this equation by dividing by \(R_a\):
 \begin{align}
-\frac{\frac{\partial h}{\partial t} + \nabla\cdot(vh)}{R_a} &= 1 + \frac{LH + SH}{R_a} \\
+\frac{\frac{\partial \langle h \rangle}{\partial t} + \langle \nabla\cdot(vh) \rangle}{R_a}  &= 1 + \frac{LH + SH}{R_a} \\
 R_1 &= 1 + R_2
 \end{align}
 where we defined non-dimensional numbers \(R_1\) and \(R_2\) representing the relative importance of advective heat transport (assuming that atmospheric heat storage is small) and surface turbulent fluxes, respectively. RCE is the limiting case where \(R_1 \ll 1\) and RAE is where \(R_2 \ll 1\).
 
-RCE and RAE are useful concepts because these assumptions are used in simple models of the vertical temperature structure. In RCE, the vertical temperature profile is thought to be set by convection if averaged over an adequately large area and time. The moist adiabat is one simple model for the temperature structure set by convection. In RAE, understanding the vertical temperature profile requires a simple model of radiative transfer and an assumption about the vertical profile of advective heat transport. \cite{cronin_analytic_2016} developed the first RAE model, which uses a two-stream gray radiation scheme with an atmospheric window. We can compare the Earth's temperature profiles in regions where RCE and RAE are approximately satisfied to assess the accuracy of these simple models.
+RCE and RAE are useful concepts because these assumptions are used in simple models of the vertical temperature structure. In RCE, the vertical temperature profile is thought to be set by convection if averaged over an adequately large area and time. The moist adiabat is one simple model for the temperature structure set by convection. In RAE, understanding the vertical temperature profile requires a simple model of radiative transfer and an assumption about the vertical profile of advective heat transport. \cite{cronin_analytic_2016} developed the first RAE model, which uses a two-stream gray radiation scheme with an atmospheric window. We can compare the Earth's temperature profiles in regions where RCE and RAE are approximately satisfied to assess 1) whether it is appropriate to use Eq. \ref{eq:org4506c62} to define RCE and RAE, and 2) how well the theoretical temperature profiles of RCE and RAE compare to the temperature profiles in a reanalysis.
 
 \section{Methods}
-\label{sec:org0977f9f}
-We use reanalysis data from ERA-interim spanning from years 2000 through 2012. I obtain the latent heat, sensible heat, and atmospheric radiative cooling terms from the \href{https://apps.ecmwf.int/datasets/data/interim-mdfa/levtype=sfc/}{ECMWF website}. I use the atmospheric MSE storage and MSE flux divergence data from \cite{donohoe_seasonal_2013}
+\label{sec:org7625311}
+\subsection{Energy fluxes}
+\label{sec:org89987df}
+I use reanalysis data from ERA-interim spanning from years 2000 through 2012. I obtain the latent heat, sensible heat, and atmospheric radiative cooling terms from the \href{https://apps.ecmwf.int/datasets/data/interim-mdfa/levtype=sfc/}{ECMWF archives}. The raw ERA-Interim energy fluxes are in units of Jm\(^{-2}\) in forecast steps of hours 00--12 and 12--24. To convert to Wm\(^{-2}\), I sum the raw fluxes for both steps and divide by 86400 s. I also use the atmospheric MSE tendency and MSE flux divergence data from \cite{donohoe_seasonal_2013}, which is calculated in a way that satisfies mass conservation.
 
-\section{Comparing energy fluxes to Hartmann (2016)}
-\label{sec:org6912b6e}
-Before we analyze the spatial and temporal structure of RCAE, it is a good idea to ensure that the energy fluxes I use to calculate the RCAE regimes are sensible. Fig. 6-1 from \cite{hartmann_global_2016} (reprinted as Fig. \ref{fig:orga1d3f39} here) is useful as he shows the vertically-integrated energy fluxes in terms that are useful for evaluating RCAE, namely latent heat, sensible heat, atmospheric heat transport (as measured as MSE flux divergence), and atmospheric radiative cooling.
+To ensure that energy is conserved, one of the energy fluxes are inferred as the residual of the other terms in Eq. \ref{eq:org4506c62}. I consider two variations:
+\begin{enumerate}
+\item Infer the surface turbulent fluxes (LH + SH) as the residual of the other terms (radiative cooling, atmospheric MSE tendency, and flux divergence). This is similar to the approach used by \cite{donohoe_seasonal_2013}.
+\item Infer the atmospheric MSE tendency as the residual of the other terms (radiative cooling, atmopsheric MSE flux divergence, latent heat, and sensible heat).
+\end{enumerate}
 
-For comparison, the fluxes I obtained from ERA-Interim is shown in Fig. \ref{fig:org85f4a7e}.
+Next, I interpolate the data to a meriodional grid with a spacing of 0.25\(^\circ\). I use the spline interpolation method. I then evaluate the non-dimensional numbers \(R_1\) and \(R_2\).
+
+To identify regions where RCE and RAE are approximately satisfied, I introduce the threshold \(\epsilon\), such that:
+\begin{enumerate}
+\item RCE is satisfied where \(|R_1| < \epsilon\).
+\item RAE is satisfied where \(|R_2| < \epsilon\).
+\end{enumerate}
+
+Lastly, I take the zonal average of all quantities to plot the seasonal and latitudinal dependence.
+
+\subsection{Temperature profiles}
+\label{sec:orgd9077a7}
+To evaluate the temperature profiles over regions of RCE and RAE, I also obtain the 3-D temperature data from ERA-Interim. Specifically, I use the data from the category ``Monthly Means of Daily Means'', which should be suitable for studying the climatology. To obtain the temperature profile over regions of RCE, I only consider the regions satisfying \(|R_1| < \epsilon\). I then take the annual average and the cosine-weighted meridional average to obtain a climatological temperature profile over regions of RCE. I obtain the temperature profile over RAE in a similar way.
+
+\section{Results}
+\label{sec:org2afc12d}
+\subsection{Comparing energy fluxes to Hartmann (2016)}
+\label{sec:org34c0928}
+Before I analyze the spatial and temporal structure of RCAE, it is a good idea to ensure that the energy fluxes we use to calculate the RCAE regimes look correct. Fig. 6-1 from \cite{hartmann_global_2016} (reprinted as Fig. \ref{fig:orge6224e3} here) is useful as he shows the annual climatology of vertically-integrated energy fluxes in terms that are useful for evaluating RCAE, namely latent heat, sensible heat, atmospheric heat transport (as measured as MSE flux divergence), and atmospheric radiative cooling.
+
+For comparison, the fluxes we obtained from ERA-Interim is shown in Fig. \ref{fig:org4d617c6}. Here, the MSE tendency term is inferred as the residual of the other energy fluxes. The latent and sensible heat fluxes are similar to that in Fig. \ref{fig:orge6224e3}. The radiative cooling flux here appears to be stronger overall (e.g., gray line is around \(-120\) Wm\({-2}\) at 20 S vs \(-90\) Wm\(^{-2}\) in \ref{fig:orge6224e3}), but the meridional structure is similar. Likewise, MSE flux divergence is shifted downward here (e.g., red line is around 40 Wm\(^{-2}\) at 20 S vs 70 Wm\(^{-2}\) in \ref{fig:orge6224e3}). The inferred MSE tendency is quite large for the annual average and is negative, which implies that the atmosphere is cooling with time. This does not appear to be realistic for the annual mean.
+
+The energy fluxes for the case when the surface turbulent fluxes are inferred as the residual are shown in \ref{fig:orgf6c4291}.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../../../prospectus/figs/fig-6-1-hartmann.png}
-\caption{\label{fig:orga1d3f39}Reprint of Fig. 6.1 from \cite{hartmann_global_2016} showing the energy flux terms in the vertically-integrated MSE budget. LE is latent heat, SH is sensible heat, \(\Delta F_a\) is MSE flux divergence, and \(R_a\) is atmospheric radiative cooling.}
+\caption{\label{fig:orge6224e3}Reprint of Fig. 6.1 from \cite{hartmann_global_2016} showing the energy flux terms in the vertically-integrated MSE budget. LE is latent heat, SH is sensible heat, \(\Delta F_a\) is MSE flux divergence, and \(R_a\) is atmospheric radiative cooling.}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=.9\linewidth]{../../figures_std/tf/era-fig-6-1-hartmann.png}
-\caption{\label{fig:org85f4a7e}Same as Figure \ref{fig:orga1d3f39} but reproduced using ERA-Interim data from 2000--2012. Blue is latent heat, orange is sensible heat, red is MSE flux divergence, gray is atmospheric radiative cooling, and green is the residual, which we infer as the atmospheric MSE storage.}
+\includegraphics[width=.9\linewidth]{../../figures/std/stf/era-fig-6-1-hartmann.png}
+\caption{\label{fig:org4d617c6}Same as Figure \ref{fig:orge6224e3} but reproduced using ERA-Interim data from 2000--2012. Blue is latent heat, orange is sensible heat, red is MSE flux divergence, gray is atmospheric radiative cooling, and green is the residual, which we infer as the atmospheric MSE storage.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/std/teten/era-fig-6-1-hartmann.png}
+\caption{\label{fig:orgf6c4291}Same as Figure \ref{fig:org4d617c6} but the surface turbulent fluxes (blue and orange dashed line) are inferred as the residual. Here, it is not possible to separate the turbulent fluxes into latent and sensible fluxes.}
 \end{figure}
 
 \section{Sensitivity of RCE and RAE regimes to various parameters}
-\label{sec:org3f22efd}
+\label{sec:org5cf4ee6}
 
 \section{Next Steps}
-\label{sec:org79c8a4f}
+\label{sec:org738ca58}
 
 \bibliographystyle{apalike}
 \bibliography{../../../../Papers/references}
