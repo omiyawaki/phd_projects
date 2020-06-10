@@ -5,13 +5,14 @@ addpath(genpath('/project2/tas1/miyawaki/matlab'));
 %% set parameters
 par.lat_interp = 'std'; % which latitudinal grid to interpolate to: don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
 par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' interpolation
-par.ep = 0.1; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
-par.ga = 1-par.ep; % threshold for RAE definition. RAE is defined as where R1 > ga
+par.ep_swp = 0.1:0.05:0.35; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
 
 %% call functions
-proc_rcae(par)
-proc_temp(par)
-filt_temp(par)
+for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
+    proc_rcae(par)
+    proc_temp(par)
+    filt_temp(par)
+end
 
 %% define functions
 function proc_rcae(par)
@@ -134,22 +135,28 @@ function proc_rcae(par)
     end
 
     % identify locations of RCE using threshold epsilon (ep)
-    donz.rcae_d = zeros(size(donz.r1_d));
-    donz.rcae_e = zeros(size(donz.r1_e));
-    donz.rcae_d(abs(donz.r1_d) < par.ep) = 1;
-    donz.rcae_e(abs(donz.r1_e) < par.ep) = 1;
+    rcae.d = zeros(size(donz.r1_d));
+    rcae.e = zeros(size(donz.r1_e));
+    rcae.d(abs(donz.r1_d) < par.ep) = 1;
+    rcae.e(abs(donz.r1_e) < par.ep) = 1;
     % identify locations of RAE using threshold gamma (ga)
-    donz.rcae_d(donz.r1_d > par.ga) = -1;
-    donz.rcae_e(donz.r1_e > par.ga) = -1;
+    rcae.d(donz.r1_d > par.ga) = -1;
+    rcae.e(donz.r1_e > par.ga) = -1;
 
-    % save data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/eps_%g/', par.ep);
-    filename = sprintf('processed_rad_%s.mat', par.lat_interp);
-    printname = [foldername filename];
+    % save energy flux data into mat file
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/', par.lat_interp);
+    printname = [foldername 'fluxes.mat'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
     save(printname, 'donz', 'lat');
+    % save rcae data
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/eps_%g/', par.lat_interp, par.ep);
+    printname = [foldername 'rcae.mat'];
+    if ~exist(foldername, 'dir')
+        mkdir(foldername)
+    end
+    save(printname, 'rcae', 'lat');
 
 end
 function proc_temp(par)
@@ -189,9 +196,8 @@ function proc_temp(par)
     end
 
     % save data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/eps_%g/', par.ep);
-    filename = sprintf('processed_vert_%s.mat', par.lat_interp);
-    printname = [foldername filename];
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/', par.lat_interp);
+    printname = [foldername 'vert.mat'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
@@ -199,22 +205,24 @@ function proc_temp(par)
 
 end
 function filt_temp(par)
+    % load fluxes
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/fluxes.mat', par.lat_interp));
     % load rcae data
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/eps_%g/processed_rad_%s.mat', par.ep, par.lat_interp));
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/eps_%g/rcae.mat', par.lat_interp, par.ep));
     % load temp
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/eps_%g/processed_vert_%s', par.ep, par.lat_interp));
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/vert', par.lat_interp));
 
     % create empty arrays to store filtering array
-    rce_d_filt = nan(size(donz.rcae_d));
-    rce_e_filt = nan(size(donz.rcae_e));
-    rae_d_filt = nan(size(donz.rcae_d));
-    rae_e_filt = nan(size(donz.rcae_e));
+    rce_d_filt = nan(size(rcae.d));
+    rce_e_filt = nan(size(rcae.e));
+    rae_d_filt = nan(size(rcae.d));
+    rae_e_filt = nan(size(rcae.e));
     % set RCE=1, elsewhere nan
-    rce_d_filt(donz.rcae_d==1)=1;
-    rce_e_filt(donz.rcae_e==1)=1;
+    rce_d_filt(rcae.d==1)=1;
+    rce_e_filt(rcae.e==1)=1;
     % set RAE=1, elsewhere nan
-    rae_d_filt(donz.rcae_d==-1)=1;
-    rae_e_filt(donz.rcae_e==-1)=1;
+    rae_d_filt(rcae.d==-1)=1;
+    rae_e_filt(rcae.e==-1)=1;
 
     % filter temperature
     t_rce_d_filt = rce_d_filt .* vertz.t;
@@ -239,9 +247,8 @@ function filt_temp(par)
     vert_filt.rae_e = nansum(cosd(lat).*rae_e_t_t, 1) / nansum(cosd(lat).*rae_e_filt_t');
 
     % save filtered data
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/eps_%g/', par.ep);
-    filename = sprintf('processed_vert_filt_%s.mat', par.lat_interp);
-    printname = [foldername filename];
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/eps_%g/', par.lat_interp, par.ep);
+    printname = [foldername 'vert_filt'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end

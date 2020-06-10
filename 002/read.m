@@ -13,9 +13,9 @@ vars_3d = {'t'};
 
 %% call functions
 read_grid()
-read_rad(rad_vars, par)
-read_stf(stf_vars, par)
-read_3d(vars_3d, par)
+% read_rad(rad_vars, par)
+% read_stf(stf_vars, par)
+% read_3d(vars_3d, par)
 
 %% define functions
 function read_grid()
