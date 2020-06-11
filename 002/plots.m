@@ -9,29 +9,7 @@ par.ep_swp = [0.1:0.05:0.35]; % threshold value for determining RCE and RAE
 % set how to close energy budget
 % if == teten, use TETEN data from Donohoe to close energy budget
 % if == stf, use SH and LH data from ERA-Interim to close energy budget
-subdir = 'teten';
-
-% load grid
-load('/project2/tas1/miyawaki/projects/002/data/read/era_grid.mat');
-% load processed data/proc
-load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/fluxes.mat', par.lat_interp));
-% create a mon x lat meshgrid for contour plots
-[par.mesh_lat, par.mesh_mon] = meshgrid(1:12, lat);
-% make figure directory if it does not exist
-plotdir = sprintf('./figures/%s/', par.lat_interp);
-if ~exist([plotdir subdir], 'dir')
-    mkdir([plotdir subdir]);
-end
-% define TETEN and stf depending on closure method
-if strcmp(subdir, 'teten')
-    TETEN = donz.TETEN; % use Donohoe TETEN
-    stf = donz.stf_res; % stf is inferred as residual
-    r1 = donz.r1_d; % corresponding non dimensional number r1
-elseif strcmp(subdir, 'stf')
-    stf = donz.stf; % use ERA-Interim turbulent fluxes
-    TETEN = donz.TETEN_res; % TETEN is inferred as residual
-    r1 = donz.r1_e; % corresponding non dimensional number r1
-end
+par.closure = 'stf';
 % set default figure parameters
 if 1
     par.ppos = [0 0 10/3 7/3];
@@ -59,62 +37,63 @@ if 1
 end
 
 %% call functions
-% plot_ra_tediv_mon_lat(subdir, plotdir, lat, donz, par); % plot R_a and flux divergence profiles
-plot_energy_lat(subdir, plotdir, lat, donz, TETEN, stf, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
-% plot_teten_stf_r1_mon_lat(subdir, plotdir, lat, TETEN, stf, r1, par); % plot remaining energy fluxes that depends on energy closure method
+% plot_ra_tediv_mon_lat('era', par); % plot R_a and flux divergence profiles
+% plot_energy_lat('era', par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
+% plot_teten_stf_r1_mon_lat('era', par); % plot remaining energy fluxes that depends on energy closure method
 
 % sweep through various threshold values
-% for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
-%     if ~exist([plotdir subdir sprintf('/rcae_%g', par.ep)])
-%         mkdir([plotdir subdir sprintf('/rcae_%g', par.ep)]);
-%     end
-%     plot_rcae_mon_lat(subdir, plotdir, lat, par); % plot RCAE regimes, depends on choice of threshold epsilon
-%     plot_temp(subdir, plotdir, plev_era, par); % plot temperature profiles in RCAE regimes
-% end
+for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
+    plot_rcae_mon_lat('era', par); % plot RCAE regimes, depends on choice of threshold epsilon
+    plot_temp('era', par); % plot temperature profiles in RCAE regimes
+end
 
 %% define functions
-function plot_ra_tediv_mon_lat(subdir, plotdir, lat, donz, par)
+function plot_ra_tediv_mon_lat(data_type, par)
+    % load data
+    [fluxez, ~, ~, ~, lat, par] = load_fluxes(data_type, par);
     % seasonaity vs latitude plots for each term in the energy budget
     % atmospheric radiative cooling
     figure();clf; hold all;
     cmp = colCog(20);
     colormap(cmp);
-    contourf(par.mesh_lat, par.mesh_mon, donz.ra', -200:20:200, 'linecolor', 'none');
+    contourf(par.mesh_lat, par.mesh_mon, fluxez.ra', -200:20:200, 'linecolor', 'none');
     xlabel('Month'); ylabel('Latitude (deg)');
     caxis([-200 200]);
     cb = colorbar('limits', [-180 0], 'ticks', [-200:20:0]);
     cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
     ylabel(cb, '$R_a$ (Wm$^{-2}$)', 'fontsize', par.fs);
     set(gca, 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print([plotdir '/ra_mon_lat'], '-dpng', '-r300');
+    print([par.plotdir '/ra_mon_lat'], '-dpng', '-r300');
     close;
 
     % atmosphric moist static energy divergence (TEDIV)
     figure(); clf; hold all;
     cmp = colCog(20);
     colormap(cmp);
-    contourf(par.mesh_lat, par.mesh_mon, donz.TEDIV', -200:20:200, 'linecolor', 'none');
+    contourf(par.mesh_lat, par.mesh_mon, fluxez.TEDIV', -200:20:200, 'linecolor', 'none');
     xlabel('Month'); ylabel('Latitude (deg)');
     caxis([-200 200]);
     cb = colorbar('limits', [-120 120], 'ticks', [-120:20:120]);
     cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
     ylabel(cb, '$\nabla\cdot(\vec{v}h)$ (Wm$^{-2}$)', 'fontsize', par.fs);
     set(gca, 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print([plotdir '/tediv_mon_lat'], '-dpng', '-r300');
+    print([par.plotdir '/tediv_mon_lat'], '-dpng', '-r300');
     close;
 
 end
-function plot_energy_lat(subdir, plotdir, lat, donz, TETEN, stf, par)
-% latitude vsenergy flux line plots, comparable to Hartmann (2016)
+function plot_energy_lat(data_type, par)
+% load data
+    [fluxez, TETEN, stf, r1, lat, par] = load_fluxes(data_type, par);
+% latitude vs energy flux line plots, comparable to Hartmann (2016)
     figure();clf; hold all;
     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-    plot(lat,nanmean(donz.ra,1), 'color', par.gray)
-    plot(lat,nanmean(donz.TEDIV,1), 'color', par.maroon)
+    plot(lat,nanmean(fluxez.ra,1), 'color', par.gray)
+    plot(lat,nanmean(fluxez.TEDIV,1), 'color', par.maroon)
     plot(lat,nanmean(TETEN,1), 'color', par.green)
-    if strcmp(subdir, 'stf')
-        plot(lat, -nanmean(donz.slhf,1), 'color', par.blue)
-        plot(lat, -nanmean(donz.sshf,1), 'color', par.orange)
-    elseif strcmp(subdir, 'teten')
+    if strcmp(par.closure, 'stf')
+        plot(lat, -nanmean(fluxez.slhf,1), 'color', par.blue)
+        plot(lat, -nanmean(fluxez.sshf,1), 'color', par.orange)
+    elseif strcmp(par.closure, 'teten')
         plot(lat, nanmean(stf,1), '--', 'color', par.blue)
         plot(lat, nanmean(stf,1), ':', 'color', par.orange)
     end
@@ -122,10 +101,12 @@ function plot_energy_lat(subdir, plotdir, lat, donz, TETEN, stf, par)
     axis('tight');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
     set(gca, 'fontsize', par.fs, 'xminortick', 'on', 'yminortick', 'on')
-    print([plotdir subdir '/era-fig-6-1-hartmann'], '-dpng', '-r300');
+    print(sprintf('%s/%s/era-fig-6-1-hartmann', par.plotdir, par.closure), '-dpng', '-r300');
     close;
 end
-function plot_teten_stf_r1_mon_lat(subdir, plotdir, lat, TETEN, stf, r1, par)
+function plot_teten_stf_r1_mon_lat(data_type, par)
+    [fluxez, TETEN, stf, r1, lat, par] = load_fluxes(data_type, par); % load data
+
     % surface turbulent fluxes (SH + LH)
     figure(); clf; hold all;
     cmp = colCog(20);
@@ -137,7 +118,7 @@ function plot_teten_stf_r1_mon_lat(subdir, plotdir, lat, TETEN, stf, r1, par)
     cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
     ylabel(cb, 'SH + LH (Wm$^{-2}$)', 'fontsize', par.fs);
     set(gca, 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print([plotdir subdir '/stf_mon_lat'], '-dpng', '-r300');
+    print(sprintf('%s/%s/stf_mon_lat', par.plotdir, par.closure), '-dpng', '-r300');
     close;
 
     % atmosphric moist static energy storage (TETEN)
@@ -151,7 +132,7 @@ function plot_teten_stf_r1_mon_lat(subdir, plotdir, lat, TETEN, stf, r1, par)
     cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
     ylabel(cb, '$\frac{\partial h}{\partial t}$ (Wm$^{-2}$)', 'fontsize', par.fs);
     set(gca, 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print([plotdir subdir '/teten_mon_lat'], '-dpng', '-r300');
+    print(sprintf('%s/%s/teten_mon_lat', par.plotdir, par.closure), '-dpng', '-r300');
     close;
 
     % non-dimensional number R1
@@ -165,14 +146,16 @@ function plot_teten_stf_r1_mon_lat(subdir, plotdir, lat, TETEN, stf, r1, par)
     cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
     ylabel(cb, '$R_1$ (unitless)', 'fontsize', par.fs);
     set(gca, 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print([plotdir subdir '/r1_mon_lat'], '-dpng', '-r300');
+    print(sprintf('%s/%s/r1_mon_lat', par.plotdir, par.closure), '-dpng', '-r300');
     close;
 
 end
-function plot_rcae_mon_lat(subdir, plotdir, lat, par)
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/eps_%g/rcae.mat', par.lat_interp, par.ep));
-    if strcmp(subdir, 'teten'); rcae_plot = rcae.d; end;
-    if strcmp(subdir, 'stf'); rcae_plot = rcae.e; end;
+function plot_rcae_mon_lat(data_type, par)
+    % load data
+    [~, ~, ~, ~, lat, par] = load_fluxes(data_type, par);
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/rcae.mat', data_type, par.lat_interp, par.ep));
+    if strcmp(par.closure, 'teten'); rcae_plot = rcae.teten; end;
+    if strcmp(par.closure, 'stf'); rcae_plot = rcae.stf; end;
     % spatio-emporal dependence of RCE and RAE
     figure(); clf; hold all;
     cmp = colCog(10);
@@ -181,21 +164,50 @@ function plot_rcae_mon_lat(subdir, plotdir, lat, par)
     caxis([-2 2]);
     xlabel('Month'); ylabel('Latitude (deg)');
     set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print([plotdir subdir sprintf('/rcae_%g/rcae_mon_lat', par.ep)], '-dpng', '-r300');
+    print(sprintf('%s/%s/rcae_%g/rcae_mon_lat', par.plotdir, par.closure, par.ep), '-dpng', '-r300');
     close;
 end
-function plot_temp(subdir, plotdir, plev_era, par)
+function plot_temp(data_type, par)
+% load era plev grid
+    load('/project2/tas1/miyawaki/projects/002/data/read/era_grid.mat')
+    par.plotdir = sprintf('./figures/%s/%s', data_type, par.lat_interp);
 % vertical temperature profile
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/eps_%g/vert_filt.mat', par.lat_interp, par.ep));
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/vert_filt.mat', data_type, par.lat_interp, par.ep));
     figure(); clf; hold all;
-    h_rce = plot(vert_filt.rce_d, plev_era, 'color', par.orange);
-    h_rae = plot(vert_filt.rae_d, plev_era, 'color', par.blue);
+    if strcmp(par.closure, 'teten'); rce_temp = vert_filt.rce_teten; rae_temp = vert_filt.rae_teten; end;
+    if strcmp(par.closure, 'stf'); rce_temp = vert_filt.rce_stf; rae_temp = vert_filt.rae_stf; end;
+    h_rce = plot(rce_temp, plev_era, 'color', par.orange);
+    h_rae = plot(rae_temp, plev_era, 'color', par.blue);
     xlabel('T (K)'); ylabel('p (hPa)');
     legend([h_rce h_rae], 'RCE', 'RAE');
     axis('tight');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [100 200 300 400:200:1000], 'xminortick', 'on')
     hline(0, '-k');
-    print([plotdir subdir sprintf('/rcae_%g/temp', par.ep)], '-dpng', '-r300');
+    print(sprintf('%s/%s/rcae_%g/temp', par.plotdir, par.closure, par.ep), '-dpng', '-r300');
     close;
+end
+
+function [fluxez, TETEN, stf, r1, lat, par] = load_fluxes(data_type, par)
+    % load processed data/proc
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/fluxes.mat', data_type, par.lat_interp));
+    % create a mon x lat meshgrid for contour plots
+    [par.mesh_lat, par.mesh_mon] = meshgrid(1:12, lat);
+    % make figure directory if it does not exist
+    par.plotdir = sprintf('./figures/%s/%s', data_type, par.lat_interp);
+    if ~exist(sprintf('%s/%s', par.plotdir, par.closure), 'dir')
+        for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
+            mkdir(sprintf('%s/%s/rcae_%g', par.plotdir, par.closure, par.ep));
+        end
+    end
+    % define TETEN and stf depending on closure method
+    if strcmp(par.closure, 'teten')
+        TETEN = fluxez.TETEN; % use Donohoe TETEN
+        stf = fluxez.stf_res; % stf is inferred as residual
+        r1 = fluxez.r1_teten; % corresponding non dimensional number r1
+    elseif strcmp(par.closure, 'stf')
+        stf = fluxez.stf; % use ERA-Interim turbulent fluxez
+        TETEN = fluxez.TETEN_res; % TETEN is inferred as residual
+        r1 = fluxez.r1_stf; % corresponding non dimensional number r1
+    end
 end

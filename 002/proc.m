@@ -9,15 +9,15 @@ par.ep_swp = 0.1:0.05:0.35; % threshold for RCE definition. RCE is defined as wh
 par.cpd = 1005.7; par.Rd = 287; par.g = 9.81; par.L = 2.501e6;
 
 %% call functions
-% for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
-%     proc_rcae(par)
-%     proc_temp(par)
-%     filt_temp(par)
-% end
-proc_mpi(par)
+for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
+    % proc_era_rcae(par)
+    proc_era_temp(par)
+    filt_era_temp(par)
+    % proc_mpi_rcae(par)
+end
 
 %% define functions
-function proc_rcae(par)
+function proc_era_rcae(par)
     % read data from Aaron Donohoe's mass-corrected atmospheric energy transport calculations
     % from ERA-Interim climatology from year 2000 through 2012.
     don = load('/project2/tas1/miyawaki/projects/002/data/read/radiation_dynamics_climatology.mat');
@@ -120,40 +120,40 @@ function proc_rcae(par)
     % compute non-dimensional number R1
     % R1 measures the importance of atmospheric heat transport
     % defined using Donohoe TETEN closure
-    don.r1_d = (don.TETEN + don.TEDIV) ./ don.ra;
+    don.r1_teten = (don.TETEN + don.TEDIV) ./ don.ra;
     % defined using ERA-Interim stf closure
-    don.r1_e = (don.TETEN_res + don.TEDIV) ./ don.ra;
+    don.r1_stf = (don.TETEN_res + don.TEDIV) ./ don.ra;
 
     % compute non-dimensional number R2
     % R2 measures the importance of surface turbulent fluxes
     % defined using Donohoe TETEN closure
-    don.r2_d = don.stf_res ./ don.ra;
+    don.r2_teten = don.stf_res ./ don.ra;
     % defined using ERA-Interim stf closure
-    don.r2_e = don.stf ./ don.ra;
+    don.r2_stf = don.stf ./ don.ra;
 
     % take zonal averages
-    for fn = {'ra', 'stf', 'stf_res', 'sshf', 'slhf', 'TETEN', 'TETEN_res', 'TEDIV', 'r1_d', 'r1_e', 'r2_d', 'r2_e'}
-        donz.(fn{1}) = nanmean(don.(fn{1}), 3);
+    for fn = {'ra', 'stf', 'stf_res', 'sshf', 'slhf', 'TETEN', 'TETEN_res', 'TEDIV', 'r1_teten', 'r1_stf', 'r2_teten', 'r2_stf'}
+        fluxez.(fn{1}) = nanmean(don.(fn{1}), 3);
     end
 
     % identify locations of RCE using threshold epsilon (ep)
-    rcae.d = zeros(size(donz.r1_d));
-    rcae.e = zeros(size(donz.r1_e));
-    rcae.d(abs(donz.r1_d) < par.ep) = 1;
-    rcae.e(abs(donz.r1_e) < par.ep) = 1;
+    rcae.teten = zeros(size(fluxez.r1_teten));
+    rcae.stf = zeros(size(fluxez.r1_stf));
+    rcae.teten(abs(fluxez.r1_teten) < par.ep) = 1;
+    rcae.stf(abs(fluxez.r1_stf) < par.ep) = 1;
     % identify locations of RAE using threshold gamma (ga)
-    rcae.d(donz.r1_d > par.ga) = -1;
-    rcae.e(donz.r1_e > par.ga) = -1;
+    rcae.teten(fluxez.r1_teten > par.ga) = -1;
+    rcae.stf(fluxez.r1_stf > par.ga) = -1;
 
     % save energy flux data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/', par.lat_interp);
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/', par.lat_interp);
     printname = [foldername 'fluxes.mat'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    save(printname, 'donz', 'lat');
+    save(printname, 'fluxez', 'lat');
     % save rcae data
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/eps_%g/', par.lat_interp, par.ep);
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/eps_%g/', par.lat_interp, par.ep);
     printname = [foldername 'rcae.mat'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
@@ -161,7 +161,7 @@ function proc_rcae(par)
     save(printname, 'rcae', 'lat');
 
 end
-function proc_temp(par)
+function proc_era_temp(par)
     % read data from Aaron Donohoe's mass-corrected atmospheric energy transport calculations
     % from ERA-Interim climatology from year 2000 through 2012.
     don = load('/project2/tas1/miyawaki/projects/002/data/read/radiation_dynamics_climatology.mat');
@@ -198,7 +198,7 @@ function proc_temp(par)
     end
 
     % save data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/', par.lat_interp);
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/', par.lat_interp);
     printname = [foldername 'vert.mat'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
@@ -206,58 +206,61 @@ function proc_temp(par)
     save(printname, 'vertz', 'lat');
 
 end
-function filt_temp(par)
+function filt_era_temp(par)
     % load fluxes
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/fluxes.mat', par.lat_interp));
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/fluxes.mat', par.lat_interp));
     % load rcae data
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/eps_%g/rcae.mat', par.lat_interp, par.ep));
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/eps_%g/rcae.mat', par.lat_interp, par.ep));
     % load temp
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/vert', par.lat_interp));
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/vert', par.lat_interp));
 
     % create empty arrays to store filtering array
-    rce_d_filt = nan(size(rcae.d));
-    rce_e_filt = nan(size(rcae.e));
-    rae_d_filt = nan(size(rcae.d));
-    rae_e_filt = nan(size(rcae.e));
+    rce_teten_filt = nan(size(rcae.teten));
+    rce_stf_filt = nan(size(rcae.stf));
+    rae_teten_filt = nan(size(rcae.teten));
+    rae_stf_filt = nan(size(rcae.stf));
     % set RCE=1, elsewhere nan
-    rce_d_filt(rcae.d==1)=1;
-    rce_e_filt(rcae.e==1)=1;
+    rce_teten_filt(rcae.teten==1)=1;
+    rce_stf_filt(rcae.stf==1)=1;
     % set RAE=1, elsewhere nan
-    rae_d_filt(rcae.d==-1)=1;
-    rae_e_filt(rcae.e==-1)=1;
+    rae_teten_filt(rcae.teten==-1)=1;
+    rae_stf_filt(rcae.stf==-1)=1;
 
     % filter temperature
-    t_rce_d_filt = rce_d_filt .* vertz.t;
-    t_rce_e_filt = rce_e_filt .* vertz.t;
-    t_rae_d_filt = rae_d_filt .* vertz.t;
-    t_rae_e_filt = rae_e_filt .* vertz.t;
+    t_rce_teten_filt = rce_teten_filt .* vertz.t;
+    t_rce_stf_filt = rce_stf_filt .* vertz.t;
+    t_rae_teten_filt = rae_teten_filt .* vertz.t;
+    t_rae_stf_filt = rae_stf_filt .* vertz.t;
 
     % averaged temperature profile
     % take time average first
-    rce_d_filt_t = squeeze(nanmean(rce_d_filt, 1));
-    rce_e_filt_t = squeeze(nanmean(rce_e_filt, 1));
-    rae_d_filt_t = squeeze(nanmean(rae_d_filt, 1));
-    rae_e_filt_t = squeeze(nanmean(rae_e_filt, 1));
-    rce_d_t_t = squeeze(nanmean(t_rce_d_filt, 1));
-    rce_e_t_t = squeeze(nanmean(t_rce_e_filt, 1));
-    rae_d_t_t = squeeze(nanmean(t_rae_d_filt, 1));
-    rae_e_t_t = squeeze(nanmean(t_rae_e_filt, 1));
+    rce_teten_filt_t = squeeze(nanmean(rce_teten_filt, 1));
+    rce_stf_filt_t = squeeze(nanmean(rce_stf_filt, 1));
+    rae_teten_filt_t = squeeze(nanmean(rae_teten_filt, 1));
+    rae_stf_filt_t = squeeze(nanmean(rae_stf_filt, 1));
+    rce_teten_t_t = squeeze(nanmean(t_rce_teten_filt, 1));
+    rce_stf_t_t = squeeze(nanmean(t_rce_stf_filt, 1));
+    rae_teten_t_t = squeeze(nanmean(t_rae_teten_filt, 1));
+    rae_stf_t_t = squeeze(nanmean(t_rae_stf_filt, 1));
     % take cosine-weighted zonal average
-    vert_filt.rce_d = nansum(cosd(lat).*rce_d_t_t, 1) / nansum(cosd(lat).*rce_d_filt_t');
-    vert_filt.rce_e = nansum(cosd(lat).*rce_e_t_t, 1) / nansum(cosd(lat).*rce_e_filt_t');
-    vert_filt.rae_d = nansum(cosd(lat).*rae_d_t_t, 1) / nansum(cosd(lat).*rae_d_filt_t');
-    vert_filt.rae_e = nansum(cosd(lat).*rae_e_t_t, 1) / nansum(cosd(lat).*rae_e_filt_t');
+    vert_filt.rce_teten = nansum(cosd(lat).*rce_teten_t_t, 1) / nansum(cosd(lat).*rce_teten_filt_t');
+    vert_filt.rce_stf = nansum(cosd(lat).*rce_stf_t_t, 1) / nansum(cosd(lat).*rce_stf_filt_t');
+    vert_filt.rae_teten = nansum(cosd(lat).*rae_teten_t_t, 1) / nansum(cosd(lat).*rae_teten_filt_t');
+    vert_filt.rae_stf = nansum(cosd(lat).*rae_stf_t_t, 1) / nansum(cosd(lat).*rae_stf_filt_t');
 
     % save filtered data
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/eps_%g/', par.lat_interp, par.ep);
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/eps_%g/', par.lat_interp, par.ep);
     printname = [foldername 'vert_filt'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
     save(printname, 'vert_filt');
 end
-function proc_mpi(par)
+
+function proc_mpi_rcae(par)
     load('/project2/tas1/miyawaki/projects/002/data/read/mpi_3d_climatology'); % read 3D mpi data
+
+    lat = mpi_3d.lat;
 
     % calculate x component of MSE flux divergence
     lon_4d = repmat(mpi_3d.lon, [1 size(mpi_3d.ta, 2) size(mpi_3d.ta, 3) size(mpi_3d.ta, 4)]);
@@ -276,7 +279,7 @@ function proc_mpi(par)
     dvh = permute(dvh, [2 1 3 4]);
 
     % vertically integrate
-    divvh = squeeze( trapz(mpi_3d.plev, -1/par.g*(duh + dvh), 3) ); % total horizontal MSE flux divergence
+    fluxes.TEDIV = squeeze( trapz(mpi_3d.plev, -1/par.g*(duh + dvh), 3) ); % total horizontal MSE flux divergence
     h = squeeze( trapz(mpi_3d.plev, -1/par.g*(mpi_3d.h), 3) ); % MSE
 
     % MSE tendency
@@ -284,16 +287,56 @@ function proc_mpi(par)
     dhdt_half(:,:,2:end) = (h(:,:,2:end) - h(:,:,1:end-1)) / (30.5*86400);
     dhdt_half(:,:,1) = (h(:,:,1) - h(:,:,end)) / (30.5*86400);
     dhdt_half = permute(dhdt_half, [3 1 2]);
-    dhdt = interp1(0.5:11.5, dhdt_half, 1:12);
-    dhdt = permute(dhdt, [2 3 1]);
+    fluxes.TETEN = interp1(0.5:11.5, dhdt_half, 1:12);
+    fluxes.TETEN = permute(fluxes.TETEN, [2 3 1]);
 
     load('/project2/tas1/miyawaki/projects/002/data/read/mpi_2d_climatology'); % read 2D mpi data
+    fluxes.slhf = mpi_2d.hfls; fluxes.sshf = mpi_2d.hfss; % rename turbulent fluxes to be consistent with era
+    fluxes.ra = mpi_2d.rsdt - mpi_2d.rsut + mpi_2d.rsus - mpi_2d.rsds + mpi_2d.rlus - mpi_2d.rlds - mpi_2d.rlut; % calculate atmospheric radiative cooling
+    fluxes.stf = fluxes.slhf + fluxes.sshf;
 
-    mpi.ra = mpi_2d.rsdt - mpi_2d.rsut + mpi_2d.rsus - mpi_2d.rsds + mpi_2d.rlus - mpi_2d.rlds - mpi_2d.rlut; % calculate atmospheric radiative cooling
+    % infer energy fluxes as residuals
+    fluxes.TETEN_res = fluxes.ra + fluxes.slhf + fluxes.sshf - fluxes.TEDIV;
+    fluxes.stf_res = fluxes.TETEN + fluxes.TEDIV - fluxes.ra;
 
-    mpi.r1 = (dhdt + divvh)./mpi.ra; % calculate nondimensional number R1
-    mpi.r2 = (mpi_2d.l)
+    fluxes.r1 = (fluxes.TETEN + fluxes.TEDIV)./fluxes.ra; % calculate nondimensional number R1 disregarding MSE budget closure
+    fluxes.r2 = fluxes.stf./fluxes.ra; % calculate nondimensional number R2 disregarding MSE budget closure
+    fluxes.r1_teten = (fluxes.TETEN + fluxes.TEDIV)./fluxes.ra; % calculate nondimensional number R1 using MSE tendency as closure
+    fluxes.r2_teten = fluxes.stf_res./fluxes.ra; % calculate nondimensional number R2 using MSE tendency as closure
+    fluxes.r1_stf = (fluxes.TETEN_res + fluxes.TEDIV)./fluxes.ra; % calculate nondimensional number R1 using turbulent fluxes as closure
+    fluxes.r2_stf = fluxes.stf./fluxes.ra; % calculate nondimensional number R2 using turbulent fluxes as closure
 
-    return
+    % take zonal averages
+    for fn = fieldnames(fluxes)'
+        fluxez.(fn{1}) = squeeze(nanmean(fluxes.(fn{1}), 1));
+        fluxez.(fn{1}) = permute(fluxez.(fn{1}), [2 1]); % rearrange to mon x lat
+    end
+
+    % identify locations of RCE using threshold epsilon (ep)
+    rcae.none = zeros(size(fluxez.r1));
+    rcae.teten = zeros(size(fluxez.r1_teten));
+    rcae.stf = zeros(size(fluxez.r1_stf));
+    rcae.none(abs(fluxez.r1) < par.ep) = 1;
+    rcae.teten(abs(fluxez.r1_teten) < par.ep) = 1;
+    rcae.stf(abs(fluxez.r1_stf) < par.ep) = 1;
+    % identify locations of RAE using threshold gamma (ga)
+    rcae.none(abs(fluxez.r2) < par.ep) = -1;
+    rcae.teten(abs(fluxez.r2_teten) < par.ep) = -1;
+    rcae.stf(abs(fluxez.r2_stf) < par.ep) = -1;
+
+    % save energy flux data into mat file
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/mpi/%s/', par.lat_interp);
+    printname = [foldername 'fluxes.mat'];
+    if ~exist(foldername, 'dir')
+        mkdir(foldername)
+    end
+    save(printname, 'fluxez', 'lat');
+    % save rcae data
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/mpi/%s/eps_%g/', par.lat_interp, par.ep);
+    printname = [foldername 'rcae.mat'];
+    if ~exist(foldername, 'dir')
+        mkdir(foldername)
+    end
+    save(printname, 'rcae', 'lat');
 
 end
