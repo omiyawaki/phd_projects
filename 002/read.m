@@ -1,21 +1,25 @@
 clc; clear variables; close all;
 
 %% set parameters
-% spanning years
-par.yr_span = 2000:2012;
+par.yr_span = 2000:2012; % spanning years
 par.yr_text = cellstr(num2str(par.yr_span'))';
-% radiation variables to read
-rad_vars = {'ssr', 'str', 'tsr', 'ttr'};
-% surface turbulent flux variables to read
-stf_vars = {'sshf', 'slhf'};
-% 3d variables to read
-vars_3d = {'t'};
+rad_vars = {'ssr', 'str', 'tsr', 'ttr'}; % radiation variables to read
+stf_vars = {'sshf', 'slhf'}; % surface turbulent flux variables to read
+vars_3d = {'t'}; % 3d variables to read
+vars_mpi_2d = {'rsdt', 'rsut', 'rsus', 'rsds', 'rlus', 'rlds', 'rlut', 'hfls', 'hfss'}; % 2D MPI-ESM-LR variables to read
+vars_mpi_3d = {'ta', 'hus', 'zg', 'ua', 'va'}; % 3d MPI-ESM-LR variables
+startend_mpi = {'280001-280912', '281001-281912', '282001-282912', '283001-283912', '284001-284912'};
+par.yr_span_mpi = 50; % number of years that I am considering in the MPI climatology
+% useful constants
+par.cpd = 1005.7; par.Rd = 287; par.L = 2.501e6; par.g = 9.81;
 
 %% call functions
-read_grid()
+% read_grid()
 % read_rad(rad_vars, par)
 % read_stf(stf_vars, par)
 % read_3d(vars_3d, par)
+read_mpi_2d(vars_mpi_2d, par)
+% read_mpi_3d(vars_mpi_3d, startend_mpi, par)
 
 %% define functions
 function read_grid()
@@ -93,4 +97,41 @@ function read_3d(vars_3d, par)
     vert.t = squeeze(nanmean(interim_raw.t, 1));
 
     save('/project2/tas1/miyawaki/projects/002/data/read/temp_climatology.mat', 'vert', 'vars_3d');
+end
+function read_mpi_2d(vars_mpi_2d, par)
+    for i=1:length(vars_mpi_2d); var = vars_mpi_2d{i};
+        mpi_raw.(var) = ncread(sprintf('/project2/tas1/CMIP5_piControl/MPI-ESM-LR/%s_Amon_MPI-ESM-LR_piControl_r1i1p1_280001-284912.nc', var), var);
+        for month=1:12
+            index = month+[0:12:12*(par.yr_span_mpi-1)];
+            mpi_2d.(var)(:,:,month) = nanmean(mpi_raw.(var)(:,:,index),3);
+        end
+    end
+
+    save('/project2/tas1/miyawaki/projects/002/data/read/mpi_2d_climatology.mat', 'mpi_2d');
+end
+function read_mpi_3d(vars_mpi_3d, startend_mpi, par)
+    mpi_3d.lon = ncread(sprintf('/project2/tas1/CMIP5_piControl/MPI-ESM-LR/%s_Amon_MPI-ESM-LR_piControl_r1i1p1_%s.nc', 'ta', startend_mpi{1}), 'lon');
+    mpi_3d.lat = ncread(sprintf('/project2/tas1/CMIP5_piControl/MPI-ESM-LR/%s_Amon_MPI-ESM-LR_piControl_r1i1p1_%s.nc', 'ta', startend_mpi{1}), 'lat');
+    mpi_3d.plev = ncread(sprintf('/project2/tas1/CMIP5_piControl/MPI-ESM-LR/%s_Amon_MPI-ESM-LR_piControl_r1i1p1_%s.nc', 'ta', startend_mpi{1}), 'plev');
+    for i=1:length(vars_mpi_3d); var = vars_mpi_3d{i};
+        for j=1:length(startend_mpi); startend = startend_mpi{j};
+            mpi_raw.(var){j} = ncread(sprintf('/project2/tas1/CMIP5_piControl/MPI-ESM-LR/%s_Amon_MPI-ESM-LR_piControl_r1i1p1_%s.nc', var, startend), var);
+        end
+        % concatenate all years
+        mpi_cat.(var) = cat(4, mpi_raw.(var){:});
+    end
+    % mpi_cat.pa = permute( repmat(mpi_3d.plev, [1 size(mpi_cat.ta, 1) size(mpi_cat.ta, 2) size(mpi_cat.ta, 4)]), [2 3 1 4]);
+    % mpi_cat.rho = mpi_cat.pa./(par.Rd*mpi_cat.ta);
+    mpi_cat.h = par.cpd*mpi_cat.ta + par.L*mpi_cat.hus + par.g*mpi_cat.zg;
+    mpi_cat.vh = mpi_cat.va.*mpi_cat.h;
+    mpi_cat.uh = mpi_cat.ua.*mpi_cat.h;
+    % take monthly climatology
+    for fn={'ta', 'h', 'vh', 'uh'};
+        for month=1:12
+            index = month+[0:12:12*(par.yr_span_mpi-1)];
+            mpi_3d.(fn{1})(:,:,:,month) = nanmean(mpi_cat.(fn{1})(:,:,:,index),4);
+        end
+    end
+
+    save('/project2/tas1/miyawaki/projects/002/data/read/mpi_3d_climatology.mat', 'mpi_3d');
 end
