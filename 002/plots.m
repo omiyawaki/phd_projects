@@ -4,12 +4,12 @@ addpath(genpath('/project2/tas1/miyawaki/matlab'));
 
 %% set parameters
 % lat grid type
-par.lat_interp = 'don'; % don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
+par.lat_interp = 'era'; % don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
 par.ep_swp = 0.3; % threshold value for determining RCE and RAE
 % set how to close energy budget
 % if == teten, use TETEN data from Donohoe to close energy budget
 % if == stf, use SH and LH data from ERA-Interim to close energy budget
-par.closure = 'stf';
+par.closure = 'teten';
 % set default figure parameters
 if 1
     par.ppos = [0 0 10/3 7/3];
