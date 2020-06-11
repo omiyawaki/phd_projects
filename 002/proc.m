@@ -3,17 +3,17 @@ clc; close all; clear variables;
 addpath(genpath('/project2/tas1/miyawaki/matlab'));
 
 %% set parameters
-par.lat_interp = 'std'; % which latitudinal grid to interpolate to: don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
+par.lat_interp = 'don'; % which latitudinal grid to interpolate to: don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
 par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' interpolation
 par.ep_swp = 0.3; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
 par.cpd = 1005.7; par.Rd = 287; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3;
 
 %% call functions
 for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
-    % proc_era_rcae(par)
-    % proc_era_temp(par)
-    % filt_era_temp(par)
-    proc_mpi_rcae(par)
+    proc_era_rcae(par)
+    proc_era_temp(par)
+    filt_era_temp(par)
+    % proc_mpi_rcae(par)
 end
 
 %% define functions
@@ -258,14 +258,24 @@ function filt_era_temp(par)
 end
 
 function proc_mpi_rcae(par)
+    load('/project2/tas1/miyawaki/projects/002/data/read/mpi_2d_climatology'); % read 2D mpi data
     load('/project2/tas1/miyawaki/projects/002/data/read/mpi_3d_climatology'); % read 3D mpi data
 
-    mpi_3d.h(1,3,1,1)
-    mpi_3d.plev(1)
-    mpi_3d.lat(3)
-    return
-
     lat = mpi_3d.lat;
+
+    % create surface mask
+    ps_4d = permute(repmat(mpi_2d.ps, [1 1 1 size(mpi_3d.ta, 3)]), [1 2 4 3]);
+    pa_4d = permute(repmat(mpi_3d.plev, [1 size(mpi_2d.ps)]), [2 3 1 4]);
+    surface_mask = nan(size(mpi_3d.ta));
+    surface_mask(pa_4d < ps_4d) = 1;
+
+    % filter all 3D data with surface mask
+    for fn = fieldnames(mpi_3d)'
+        if ~strcmp(fn{1}, {'lon', 'lat', 'plev'})
+            mpi_3d.(fn{1}) = mpi_3d.(fn{1}).*surface_mask;
+        end
+    end
+    pa_4d = pa_4d.*surface_mask;
 
     % calculate x component of MSE flux divergence
     dlon = mpi_3d.lon(2)-mpi_3d.lon(1);
@@ -282,13 +292,20 @@ function proc_mpi_rcae(par)
     dlat = mpi_3d.lat(2) - mpi_3d.lat(1);
     dy = par.a*deg2rad(dlat);
     lat_half = (mpi_3d.lat(2:end) + mpi_3d.lat(1:end-1))/2;
-    dvh_half = (mpi_3d.vh(:,2:end,:,:) - mpi_3d.vh(:,1:end-1,:,:))/dy;
+    cos_4d = repmat( cosd(mpi_3d.lat), [1 size(mpi_3d.ta,1), size(mpi_3d.ta,3), size(mpi_3d.ta,4)] );
+    cos_4d = permute(cos_4d, [2 1 3 4]);
+    dvh_half = (cos_4d(:,2:end,:,:).*mpi_3d.vh(:,2:end,:,:) - cos_4d(:,1:end-1,:,:).*mpi_3d.vh(:,1:end-1,:,:))/dy;
     dvh_half = permute(dvh_half, [2 1 3 4]);
     dvh = interp1(lat_half, dvh_half, mpi_3d.lat);
     dvh = permute(dvh, [2 1 3 4]);
 
     % vertically integrate
-    fluxes.TEDIV = squeeze( trapz(mpi_3d.plev, -1/par.g*(duh + dvh), 3) ); % total horizontal MSE flux divergence
+    % fluxes.TEDIV = squeeze( trapz(mpi_3d.plev, -1/par.g*(duh + dvh), 3) ); % total horizontal MSE flux divergence
+    for i = 1:length(mpi_3d.lon); long = mpi_3d.lon(i);
+        for j = 1:length(mpi_3d.lat); lati = mpi_3d.lat(j);
+            fluxes.TEDIV(i,j,:) = squeeze( trapz(squeeze(pa_4d(i,j,:,1)), -1/par.g*(duh(i,j,:,:) + dvh(i,j,:,:)), 3) ); % total horizontal MSE flux divergence
+        end
+    end
     h = squeeze( trapz(mpi_3d.plev, -1/par.g*(mpi_3d.h), 3) ); % MSE
 
     % MSE tendency
