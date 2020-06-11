@@ -5,11 +5,11 @@ addpath(genpath('/project2/tas1/miyawaki/matlab'));
 %% set parameters
 % lat grid type
 par.lat_interp = 'std'; % don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
-par.ep_swp = [0.1:0.05:0.35]; % threshold value for determining RCE and RAE
+par.ep_swp = 0.3; % threshold value for determining RCE and RAE
 % set how to close energy budget
 % if == teten, use TETEN data from Donohoe to close energy budget
 % if == stf, use SH and LH data from ERA-Interim to close energy budget
-par.closure = 'stf';
+par.closure = 'teten';
 % set default figure parameters
 if 1
     par.ppos = [0 0 10/3 7/3];
@@ -38,7 +38,7 @@ end
 
 %% call functions
 % plot_ra_tediv_mon_lat('era', par); % plot R_a and flux divergence profiles
-% plot_energy_lat('era', par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
+ plot_energy_lat('mpi', par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
 % plot_teten_stf_r1_mon_lat('era', par); % plot remaining energy fluxes that depends on energy closure method
 
 % sweep through various threshold values
