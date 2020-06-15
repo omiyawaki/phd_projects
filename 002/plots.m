@@ -37,9 +37,10 @@ if 1
 end
 
 %% call functions
-plot_ra_tediv_mon_lat('era', par); % plot R_a and flux divergence profiles
-plot_energy_lat('era', par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
-plot_teten_stf_r1_mon_lat('era', par); % plot remaining energy fluxes that depends on energy closure method
+plot_don_vh(par); % plot meridional MSE transport (in units of power) for Donohoe MSE flux divergence
+% plot_ra_tediv_mon_lat('era', par); % plot R_a and flux divergence profiles
+% plot_energy_lat('era', par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
+% plot_teten_stf_r1_mon_lat('era', par); % plot remaining energy fluxes that depends on energy closure method
 
 % sweep through various threshold values
 for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
@@ -48,6 +49,22 @@ for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
 end
 
 %% define functions
+function plot_don_vh(par)
+% load data
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/vh.mat', par.lat_interp));
+    figure(); clf; hold all;
+    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+    line([0 0], [-4.5 4], 'linewidth', 0.5, 'color', 'k');
+    plot(lat, vh*10^-15, 'color', par.maroon);
+    xlabel('latitude (deg)'); ylabel('PW')
+    title('Northward MSE Energy Transport');
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+    par.plotdir = sprintf('./figures/era/%s', par.lat_interp);
+    print([par.plotdir '/vh'], '-dpng', '-r300');
+    close;
+end
 function plot_ra_tediv_mon_lat(data_type, par)
     % load data
     [fluxez, ~, ~, ~, lat, par] = load_fluxes(data_type, par);

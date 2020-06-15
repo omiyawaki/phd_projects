@@ -15,19 +15,19 @@ par.cpd = 1005.7; par.Rd = 287; par.L = 2.501e6; par.g = 9.81;
 
 %% call functions
 % read_grid()
-% read_rad(rad_vars, par)
+read_rad(rad_vars, par)
 % read_stf(stf_vars, par)
 % read_3d(vars_3d, par)
-read_mpi_2d(vars_mpi_2d, par)
+% read_mpi_2d(vars_mpi_2d, par)
 % read_mpi_3d(vars_mpi_3d, startend_mpi, par)
 
 %% define functions
 function read_grid()
     % read data net SW and LW radiation data downloaded from ERA-Interim
     % first read lon and lat vectors since this is different from the Donohoe grid
-    lon_era = ncread('/project2/tas1/miyawaki/projects/002/data/raw/rad/interim_rad_2000.nc', 'longitude');
-    lat_era = ncread('/project2/tas1/miyawaki/projects/002/data/raw/rad/interim_rad_2000.nc', 'latitude');
-    plev_era =  ncread('/project2/tas1/miyawaki/projects/002/data/raw/temp/interim_temp_2000.nc', 'level');
+    lon_era = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/interim_rad_2000.nc', 'longitude');
+    lat_era = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/interim_rad_2000.nc', 'latitude');
+    plev_era =  ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/temp/interim_temp_2000.nc', 'level');
 
     % save grid
     save('/project2/tas1/miyawaki/projects/002/data/read/era_grid.mat', 'lat_era', 'lon_era', 'plev_era')
@@ -38,7 +38,8 @@ function read_rad(rad_vars, par)
     % dimensions are (lon x lat x time)
     % time is sequenced as id(1) = jan, step 00-12, id(2) = jan, step 12-24, id(3) = feb, step 00-12, etc.
     for j=1:length(par.yr_span)
-        interim_raw.(text.(rad_vars{i}){j}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/rad/interim_rad_%g.nc',par.yr_span(j)), rad_vars{i});
+        interim_raw.(text.(rad_vars{i}){j}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/interim_rad_%g.nc',par.yr_span(j)), rad_vars{i});
+        return
         % the data is originally reported as J m^-2 per day, so
         % divide by 86400 s to get the conventional W m^-2 flux
         % over the full day
@@ -62,7 +63,7 @@ function read_stf(stf_vars, par)
     % dimensions are (lon x lat x time)
     % time is sequenced as id(1) = jan, step 00-12, id(2) = jan, step 12-24, id(3) = feb, step 00-12, etc.
     for j=1:length(par.yr_span)
-        interim_raw.(text.(stf_vars{i}){j}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/stf/interim_stf_%g.nc',par.yr_span(j)), stf_vars{i});
+        interim_raw.(text.(stf_vars{i}){j}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/stf/interim_stf_%g.nc',par.yr_span(j)), stf_vars{i});
         % the data is originally reported as J m^-2 per day, so
         % we add the 00-12 and 12-24 steps and then
         % divide by 86400 s to get the conventional W m^-2 flux
@@ -84,7 +85,7 @@ function read_3d(vars_3d, par)
         text.(vars_3d{i}) = strcat(vars_3d{i}, par.yr_text);
         % dimensions are (lon x lat x plev x time)
         for j=1:length(par.yr_span)
-            interim_raw.(text.(vars_3d{i}){j}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/temp/interim_temp_%g.nc',par.yr_span(j)), vars_3d{i});
+            interim_raw.(text.(vars_3d{i}){j}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/temp/interim_temp_%g.nc',par.yr_span(j)), vars_3d{i});
             for month = 1:12
                 interim_raw.(text.(vars_3d{i}){j})(:,:,:,month) = interim_raw.(text.(vars_3d{i}){j})(:,:,:,month);
             end

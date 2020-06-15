@@ -8,11 +8,11 @@ server.retrieve({
     "expver": "1",
     "grid": "0.75/0.75",
     "levtype": "sfc",
-    "param": "176.128/177.128/178.128/179.128",
+    "param": "212.128",
     "step": "12",
     "time": "00:00:00/12:00:00",
     "stream": "mdfa",
     "type": "fc",
     "format": "netcdf",
-    "target": "interim_rad_2001.nc",
+    "target": "era_swdt_2001_method_2.nc",
 })

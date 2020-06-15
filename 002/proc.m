@@ -3,17 +3,19 @@ clc; close all; clear variables;
 addpath(genpath('/project2/tas1/miyawaki/matlab'));
 
 %% set parameters
-par.lat_interp = 'don'; % which latitudinal grid to interpolate to: don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
+par.lat_interp = 'std'; % which latitudinal grid to interpolate to: don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
 par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' interpolation
 par.ep_swp = 0.3; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
 par.cpd = 1005.7; par.Rd = 287; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3;
 
 %% call functions
+% proc_era_vh(par) % calculate integrated energy transport (in units of power) using Donohoe MSE flux divergence
+proc_era_net_fluxes(par) % calculate global TOA and surface energy flux imbalance
 for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
-    proc_era_rcae(par)
-    proc_era_temp(par)
-    filt_era_temp(par)
-    % proc_mpi_rcae(par)
+    % proc_era_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+    % proc_era_temp(par) % extract raw temperature data from ERA-Interim
+    % filt_era_temp(par) % calculate temperature profiles over RCE and RAE using ERA-Interim data
+    % proc_mpi_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using MPI-ESM-LR data
 end
 
 %% define functions
@@ -161,6 +163,55 @@ function proc_era_rcae(par)
     save(printname, 'rcae', 'lat');
 
 end
+function proc_era_net_fluxes(par)
+% calculates the global TOA energy imbalance using ERA-Interim data
+    % read ERA-Interim grid data
+    load('/project2/tas1/miyawaki/projects/002/data/read/era_grid.mat');
+    % read radiation climatology from ERA-Interim, 2000 - 2012 (rad)
+    load('/project2/tas1/miyawaki/projects/002/data/read/radiation_climatology.mat');
+    % surface turbulent fluxes (stf)
+    load('/project2/tas1/miyawaki/projects/002/data/read/turbfluxes_climatology.mat');
+
+    net_toa_raw = rad.tsr + rad.ttr; % compute net radiative fluxes at TOA, positive down
+    net_toa_tz = squeeze(nanmean(nanmean( net_toa_raw, 1 ), 3))'; % take zonal and time averages and transpose to have same dimensions as latitude grid
+    net_toa = nansum(cosd(lat_era).*net_toa_tz) / nansum(cosd(lat_era));
+    disp( sprintf('The net radiative imbalance at TOA is %g Wm^-2.', net_toa) );
+
+    net_sfc_raw = rad.ssr + rad.str + stf.sshf + stf.slhf; % compute net radiative fluxes at surface, positive down
+    net_sfc_tz = squeeze(nanmean(nanmean( net_sfc_raw, 1 ), 3))'; % take zonal and time averages and transpose to have same dimensions as latitude grid
+    net_sfc = nansum(cosd(lat_era).*net_sfc_tz) / nansum(cosd(lat_era));
+    disp( sprintf('The net radiative imbalance at the surface is %g Wm^-2.', net_sfc) );
+end
+function proc_era_vh(par)
+% calculates the power transported by the atmosphere at every latitude
+    % read data from Aaron Donohoe's mass-corrected atmospheric energy transport calculations
+    % from ERA-Interim climatology from year 2000 through 2012.
+    don = load('/project2/tas1/miyawaki/projects/002/data/read/radiation_dynamics_climatology.mat');
+
+    tediv_t = squeeze(nanmean(don.TEDIV, 1)); % take time average
+    tediv_tz = trapz(deg2rad(don.lon), tediv_t, 2); % zonally integrate
+    vh = cumtrapz(deg2rad(don.lat), par.a^2*cosd(don.lat).*tediv_tz); % cumulatively integrate in latitude
+
+    if strcmp(par.lat_interp, 'don')
+        lat = don.lat;
+    elseif strcmp(par.lat_interp, 'era')
+        load('/project2/tas1/miyawaki/projects/002/data/read/era_grid.mat'); % read ERA-Interim grid data
+        lat = lat_era;
+        vh = interp1(don.lat, vh, lat_era, 'spline', nan); % interpolate to ERA lat
+    elseif strcmp(par.lat_interp, 'std') % interpolate all to fine standard grid
+        lat = par.lat_std;
+        vh = interp1(don.lat, vh, par.lat_std, 'spline', nan); % interpolate to standard lat
+    end
+
+    % save data into mat file
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/', par.lat_interp);
+    printname = [foldername 'vh.mat'];
+    if ~exist(foldername, 'dir')
+        mkdir(foldername)
+    end
+    save(printname, 'vh', 'lat');
+
+end
 function proc_era_temp(par)
     % read data from Aaron Donohoe's mass-corrected atmospheric energy transport calculations
     % from ERA-Interim climatology from year 2000 through 2012.
@@ -256,7 +307,6 @@ function filt_era_temp(par)
     end
     save(printname, 'vert_filt');
 end
-
 function proc_mpi_rcae(par)
     load('/project2/tas1/miyawaki/projects/002/data/read/mpi_2d_climatology'); % read 2D mpi data
     load('/project2/tas1/miyawaki/projects/002/data/read/mpi_3d_climatology'); % read 3D mpi data
