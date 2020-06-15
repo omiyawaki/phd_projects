@@ -33,8 +33,10 @@ ceres.lat = ncread('/project2/tas1/miyawaki/projects/002/data/raw/ceres/ceres_sw
 % read ERA data
 % era.swdt_raw = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/era_swdt_2001.nc', 'tisr');
 % era.lat = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/era_swdt_2001.nc', 'latitude');
-era.swdt_raw = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/era_swdt_2001_method_2.nc', 'tisr');
-era.lat = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/era_swdt_2001_method_2.nc', 'latitude');
+% era.swdt_raw = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/era_swdt_2001_method_2.nc', 'tisr');
+% era.lat = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/era_swdt_2001_method_2.nc', 'latitude');
+era.swdt_raw = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era5/rad/era5_swdt.nc', 'tisr');
+era.lat = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era5/rad/era5_swdt.nc', 'latitude');
 
 % account for steps in ERA
 for month=1:12
@@ -53,7 +55,7 @@ era.swdt_zti = interp1(era.lat, era.swdt_zt, ceres.lat);
 figure(); clf; hold all;
 h_ceres = plot(ceres.lat, ceres.swdt_zt, '-');
 h_era = plot(era.lat, era.swdt_zt, '--');
-legend([h_ceres h_era], 'CERES', 'ERA', 'location', 'south')
+legend([h_ceres h_era], 'CERES', 'ERA5', 'location', 'south')
 xlabel('latitude (deg)'); ylabel('Energy flux (Wm$^{-2}$)');
 title('TOA Incoming SW Flux');
 axis('tight');
@@ -65,7 +67,7 @@ close;
 figure(); clf; hold all;
 line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
 plot(ceres.lat, era.swdt_zti - ceres.swdt_zt, '-k');
-legend('ERA $-$ CERES', 'location', 'south')
+legend('ERA5 $-$ CERES', 'location', 'south')
 xlabel('latitude (deg)'); ylabel('Energy flux (Wm$^{-2}$)');
 title('TOA Incoming SW Flux');
 axis('tight');
