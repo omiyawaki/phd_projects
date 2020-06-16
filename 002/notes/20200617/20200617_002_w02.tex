@@ -1,0 +1,101 @@
+% Created 2020-06-16 Tue 11:39
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Osamu Miyawaki}
+\date{June 17, 2020}
+\title{Research Notes}
+\hypersetup{
+ pdfauthor={Osamu Miyawaki},
+ pdftitle={Research Notes},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:org8d9cec4}
+Action items from our previous meeting are:
+\begin{itemize}
+\item Understand why \(R_a\) is more negative in ERA reanalysis compared to Fig. 6.1 in \cite{hartmann_global_2016}.
+\begin{itemize}
+\item Verify that I am converting the raw ERA radiation fluxes to Wm\(^{-2}\) correctly by comparing incoming SW flux at TOA with CERES data
+\item Verify that the net energy flux at TOA is close to 0 (e.g., \(\pm 1\) Wm\(^{-2}\)).
+\end{itemize}
+\item Infer the MSE tendency and flux divergence terms as the residual of radiative cooling and surface turbulent fluxes. This allows us to avoid explicitly calculating the MSE flux divergence term.
+\begin{itemize}
+\item Integrate the divergence to calculate the MSE transport in W. The transport should be close to 0 at the poles.
+\end{itemize}
+\item Add \(P-E>0\) as an additional criteria for RCE. This is so that we only capture regions of RCE that are actively convecting. Does this eliminate RCE in the winter midlatitudes?
+\item Analyze the vertical temperature profiles.
+\begin{itemize}
+\item Separate the profiles in NH and SH
+\item Analyze the profiles to higher altitudes (e.g., 20 km following Fig. 1.3 in \cite{hartmann_global_2016}).
+\item Add dry and moist adiabats as reference temperature profiles for comparison.
+\end{itemize}
+\end{itemize}
+
+\section{Methods}
+\label{sec:orge82857e}
+\subsection{ERA5}
+\label{sec:orgdb3cdf1}
+I am now using the radiative fluxes and surface turbulent fluxes from the ERA5 reanalysis, which is the latest ERA data available. The main motivation for this is because ERA-Interim had an issue where the incoming solar flux at TOA was 4 Wm\(^{-2}\) too high. I compute the monthly climatology in ERA5 over 41 years spanning from 1979 through 2019.
+
+\subsection{MSE transport}
+\label{sec:orgafb3a6e}
+The vertically-integrated MSE transport should ideally be 0 if integrated over the entire globe. To verify this, I calculate the northward transport by integrating the MSE flux divergence as follows:
+\begin{equation}
+F_a(\phi) = \int_{-\pi}^{\phi}\int_{0}^{2\pi} \!\nabla\cdot(\vec{v}h)a^2\cos{\phi'} \, \mathrm{d}\lambda \mathrm{d}\phi'
+\end{equation}
+where \(a\) is the radius of the Earth, \(\lambda\) is longitude, \(\phi\) is latitude, \(\vec{v}\) is the horizontal wind vector, and \(h\) is MSE. The MSE flux divergence will be inferred as the residual of radiative cooling and surface turbulent fluxes.
+
+\section{Results}
+\label{sec:orgc0c41cd}
+\subsection{Comparing ERA5 energy fluxes to Hartmann (2016)}
+\label{sec:org066fc93}
+Radiative cooling remains large in ERA5 (gray line in Fig. \ref{fig:orgd2d127f}) compared to that in \cite{hartmann_global_2016} (reprinted in Fig. \ref{fig:org8752234}). For example, at 20 S, radiative cooling in ERA5 is \(-120\) Wm\(^{-2}\) compared to \(-90\) Wm\(^{-2}\) in Hartmann Fig. 6.1. The incoming solar flux at TOA in ERA5 was confirmed to be within 0.1 Wm\(^{-2}\) of the raw CERES data, so this discrepancy is not due to my processing of the ERA5 data. The globally-averaged net radiative imbalance at TOA in ERA5 is 0.48 Wm\(^{-2}\), indicating that the atmosphere/land/ocean system is accumulating energy (warming) over time. This is due to the greenhouse effect from increasing CO\(_2\) concentration and is a reasonable value. However, the globally-averaged net energy flux at the surface (positive going into the land/ocean, calculated as the sum of net SW, net LW, LH, and SH) in ERA5 is 6.21 Wm\(^{-2}\). This is unrealistically large compared to observations, which indicate that there is a net energy imbalance at the surface only around 0.9 Wm\(^{-2}\) \cite{trenberth_earths_2009}. Thus, the large (more negative) atmospheric radiative cooling in ERA5 appears to be due to unrealistic radiative fluxes at the surface.
+
+Since I am inferring the MSE flux divergence as the residual of radiative cooling and surface turbulent fluxes, the unrealistically large radiative cooling leads to an unrealistic MSE flux divergence profile as well (red line in Fig. \ref{fig:orgd2d127f}). Specifically, the inferred MSE flux divergence in ERA5 is shifted down by about 30 Wm\(^{-2}\) (Fig. \ref{fig:orgd2d127f}) compared to Hartmann Fig. 6.1 (Fig. \ref{fig:org8752234}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/era5/std/era-fig-6-1-hartmann.png}
+\caption{\label{fig:orgd2d127f}Annually-averaged energy fluxes in the vertically-integrated MSE budget. Blue is latent heat, orange is sensible heat, red is MSE flux divergence, and gray is atmospheric radiative cooling. MSE flux divergence is inferred as the residual of the other terms.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../../prospectus/figs/fig-6-1-hartmann.png}
+\caption{\label{fig:org8752234}Reprint of Fig. 6.1 from \cite{hartmann_global_2016} showing the energy flux terms in the vertically-integrated MSE budget. LE is latent heat, SH is sensible heat, \(\Delta F_a\) is MSE flux divergence, and \(R_a\) is atmospheric radiative cooling.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/era5/std/vh.png}
+\caption{\label{fig:org73c353a}Northward MSE transport in ERA5 is not 0 at the North Pole.}
+\end{figure}
+
+\section{Sensitivity of RCE and RAE regimes to various parameters}
+\label{sec:orge358300}
+
+\section{Next Steps}
+\label{sec:orgbe24baa}
+
+\bibliographystyle{apalike}
+\bibliography{../../../../../Sync/Papers/references}
+\end{document}
