@@ -6,17 +6,19 @@ addpath(genpath('/project2/tas1/miyawaki/matlab'));
 par.lat_interp = 'std'; % which latitudinal grid to interpolate to: don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
 par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' interpolation
 par.ep_swp = 0.3; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
+par.ep_cp = 0.5; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
 par.cpd = 1005.7; par.Rd = 287; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3;
 
 %% call functions
 % proc_era_vh(par) % calculate integrated energy transport (in units of power) using Donohoe MSE flux divergence
 % proc_era_net_fluxes(par) % calculate global TOA and surface energy flux imbalance
-proc_era5_net_fluxes(par) % calculate global TOA and surface energy flux imbalance
+% proc_era5_net_fluxes(par) % calculate global TOA and surface energy flux imbalance
 for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
     % proc_era_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
     % proc_era_temp(par) % extract raw temperature data from ERA-Interim
     % filt_era_temp(par) % calculate temperature profiles over RCE and RAE using ERA-Interim data
-    % proc_era5_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+    % proc_era5_fluxes(par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+    proc_era5_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
     % proc_mpi_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using MPI-ESM-LR data
 end
 
@@ -309,11 +311,13 @@ function filt_era_temp(par)
     end
     save(printname, 'vert_filt');
 end
-function proc_era5_rcae(par)
+function proc_era5_fluxes(par)
     % read ERA5 grid data
     load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat');
-    % read radiation climatology from ERA5, 2000 - 2012 (rad)
+    % read radiation climatology from ERA5
     load('/project2/tas1/miyawaki/projects/002/data/read/era5/radiation_climatology.mat');
+    % read hydrology climatology from ERA5
+    load('/project2/tas1/miyawaki/projects/002/data/read/era5/pe_climatology.mat');
     % surface turbulent fluxes (stf)
     load('/project2/tas1/miyawaki/projects/002/data/read/era5/turbfluxes_climatology.mat');
 
@@ -323,6 +327,10 @@ function proc_era5_rcae(par)
         for fn = rad_vars
             % order dimensions to be consistent with Donohoe data (mon, lat, lon)
             era5.(fn{1}) = permute(rad.(fn{1}), [3 2 1]);
+        end
+        for fn = pe_vars
+            % order dimensions to be consistent with Donohoe data (mon, lat, lon)
+            era5.(fn{1}) = permute(pe.(fn{1}), [3 2 1]);
         end
         for fn = stf_vars
             % order dimensions to be consistent with Donohoe data (mon, lat, lon)
@@ -334,6 +342,13 @@ function proc_era5_rcae(par)
         for fn = rad_vars
             % interpolate to std lat
             era5.(fn{1}) = permute(rad.(fn{1}), [2 1 3]);
+            era5.(fn{1}) = interp1(lat_era, era5.(fn{1}), par.lat_std, 'spline', nan);
+            % order dimensions to be consistent with Era5ohoe data (mon, lat, lon)
+            era5.(fn{1}) = permute(era5.(fn{1}), [3 1 2]);
+        end
+        for fn = pe_vars
+            % interpolate to std lat
+            era5.(fn{1}) = permute(pe.(fn{1}), [2 1 3]);
             era5.(fn{1}) = interp1(lat_era, era5.(fn{1}), par.lat_std, 'spline', nan);
             % order dimensions to be consistent with Era5ohoe data (mon, lat, lon)
             era5.(fn{1}) = permute(era5.(fn{1}), [3 1 2]);
@@ -370,15 +385,9 @@ function proc_era5_rcae(par)
     era5.r2 = era5.stf ./ era5.ra;
 
     % take zonal averages
-    for fn = {'ra', 'stf', 'sshf', 'slhf', 'res', 'r1', 'r2'}
+    for fn = {'ra', 'stf', 'sshf', 'slhf', 'res', 'r1', 'r2', 'cp', 'lsp', 'e'}
         fluxez.(fn{1}) = nanmean(era5.(fn{1}), 3);
     end
-
-    % identify locations of RCE using threshold epsilon (ep)
-    rcae = zeros(size(fluxez.r1));
-    rcae(abs(fluxez.r1) < par.ep) = 1;
-    % identify locations of RAE using threshold gamma (ga)
-    rcae(fluxez.r1 > par.ga) = -1;
 
     % save energy flux data into mat file
     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/', par.lat_interp);
@@ -387,6 +396,29 @@ function proc_era5_rcae(par)
         mkdir(foldername)
     end
     save(printname, 'fluxez', 'vh', 'lat');
+
+end
+function proc_era5_rcae(par)
+    % read ERA5 zonally averaged fluxes
+    filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/fluxes.mat', par.lat_interp);
+    if ~exist(filename); error('Data does not exist. Please run proc_era5_fluxes.m first.'); else
+        load(filename);
+    end
+
+    % identify locations of RCE using threshold epsilon (ep)
+    rcae.def = zeros(size(fluxez.r1));
+    rcae.def(abs(fluxez.r1) < par.ep) = 1;
+    % identify locations of RAE using threshold gamma (ga)
+    rcae.def(fluxez.r1 > par.ga) = -1;
+    % add additional criteria for RCE that P-E>0
+    rcae.pe = zeros(size(fluxez.r1));
+    rcae.pe(abs(fluxez.r1) < par.ep & (fluxez.cp+fluxez.lsp+fluxez.e>0)) = 1; % note that evap is defined negative into atmosphere
+    rcae.pe(fluxez.r1 > par.ga) = -1;
+    % add additional criteria for RCE that (P_ls - E)<<1
+    rcae.cp = zeros(size(fluxez.r1));
+    rcae.cp(abs(fluxez.r1) < par.ep & abs(fluxez.lsp./fluxez.cp<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
+    rcae.cp(fluxez.r1 > par.ga) = -1;
+
     % save rcae data
     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/eps_%g/', par.lat_interp, par.ep);
     printname = [foldername 'rcae.mat'];

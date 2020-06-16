@@ -5,6 +5,7 @@ par.yr_span = 2000:2012; % spanning years for ERA-Interim
 par.yr_span_era5 = '1979_2019'; % spanning years for ERA5
 par.yr_text = cellstr(num2str(par.yr_span'))';
 rad_vars = {'ssr', 'str', 'tsr', 'ttr'}; % radiation variables to read
+pe_vars = {'cp', 'lsp', 'e'}; % radiation variables to read
 stf_vars = {'sshf', 'slhf'}; % surface turbulent flux variables to read
 vars_3d = {'t'}; % 3d variables to read
 vars_mpi_2d = {'rsdt', 'rsut', 'rsus', 'rsds', 'rlus', 'rlds', 'rlut', 'hfls', 'hfss', 'ps'}; % 2D MPI-ESM-LR variables to read
@@ -21,7 +22,8 @@ par.cpd = 1005.7; par.Rd = 287; par.L = 2.501e6; par.g = 9.81;
 % read_era_3d(vars_3d, par)
 % read_era5_grid()
 % read_era5_rad(rad_vars, par)
-read_era5_stf(stf_vars, par)
+read_era5_pe(pe_vars, par)
+% read_era5_stf(stf_vars, par)
 % read_era5_3d(vars_3d, par)
 % read_mpi_2d(vars_mpi_2d, par)
 % read_mpi_3d(vars_mpi_3d, startend_mpi, par)
@@ -136,6 +138,29 @@ function read_era5_rad(rad_vars, par)
     end
 
     save('/project2/tas1/miyawaki/projects/002/data/read/era5/radiation_climatology.mat', 'rad', 'rad_vars');
+end
+function read_era5_pe(pe_vars, par)
+    for i=1:length(pe_vars)
+        % dimensions are (lon x lat x time)
+        % time is sequenced as id(1) = jan, step 00-12, id(2) = jan, step 12-24, id(3) = feb, step 00-12, etc.
+        era5_raw.(pe_vars{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/era5/pe/era5_pe_%s.nc',par.yr_span_era5), pe_vars{i});
+        % the data is originally reported as J m^-2 per day, so
+        % divide by 86400 s to get the conventional W m^-2 flux
+        % over the full day
+        era5_raw.(pe_vars{i}) = era5_raw.(pe_vars{i})/86400;
+        % calculate monthly climatology
+        if ~mod(size(era5_raw.(pe_vars{i}),3), 12)
+            n_years = size(era5_raw.(pe_vars{i}),3)/12;
+        else
+            error('Data does not end in a full year. Please make sure the data is available until the end of the year (December).');
+        end
+        for month = 1:12
+            get_months = month + [0:12:(n_years-1)*12];
+            pe.(pe_vars{i})(:,:,month) = nanmean(era5_raw.(pe_vars{i})(:,:,get_months),3);
+        end
+    end
+
+    save('/project2/tas1/miyawaki/projects/002/data/read/era5/pe_climatology.mat', 'pe', 'pe_vars');
 end
 function read_era5_stf(stf_vars, par)
     for i=1:length(stf_vars)
