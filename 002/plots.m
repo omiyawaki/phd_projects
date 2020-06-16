@@ -153,7 +153,7 @@ function plot_era5_energy_lat(data_type, par)
     close;
     figure(); clf; hold all;
     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-    line([0 0], [-4.5 4], 'linewidth', 0.5, 'color', 'k');
+    line([0 0], [-6 2.5], 'linewidth', 0.5, 'color', 'k');
     plot(lat, vh*10^-15, 'color', par.maroon);
     xlabel('latitude (deg)'); ylabel('PW')
     title('Northward MSE Energy Transport');
