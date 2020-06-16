@@ -4,12 +4,13 @@ addpath(genpath('/project2/tas1/miyawaki/matlab'));
 
 %% set parameters
 % lat grid type
-par.lat_interp = 'era'; % don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
+par.lat_interp = 'std'; % don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
 par.ep_swp = 0.3; % threshold value for determining RCE and RAE
 % set how to close energy budget
-% if == teten, use TETEN data from Donohoe to close energy budget
-% if == stf, use SH and LH data from ERA-Interim to close energy budget
-par.closure = 'teten';
+% if == teten, use TETEN data from Donohoe to close energy budget (option for ERA-Interim)
+% if == stf, use SH and LH data from ERA-Interim to close energy budget (option for ERA-Interim)
+% if == era5, use ERA5 radiative cooling and surface turbulent fluxes to close energy budget (only option for ERA5)
+par.closure = 'era5';
 % set default figure parameters
 if 1
     par.ppos = [0 0 10/3 7/3];
@@ -37,15 +38,16 @@ if 1
 end
 
 %% call functions
-plot_don_vh(par); % plot meridional MSE transport (in units of power) for Donohoe MSE flux divergence
+% plot_don_vh(par); % plot meridional MSE transport (in units of power) for Donohoe MSE flux divergence
 % plot_ra_tediv_mon_lat('era', par); % plot R_a and flux divergence profiles
-% plot_energy_lat('era', par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
+% plot_era_energy_lat('era', par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
+plot_era5_energy_lat('era5', par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
 % plot_teten_stf_r1_mon_lat('era', par); % plot remaining energy fluxes that depends on energy closure method
 
 % sweep through various threshold values
 for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
-    plot_rcae_mon_lat('era', par); % plot RCAE regimes, depends on choice of threshold epsilon
-    plot_temp('era', par); % plot temperature profiles in RCAE regimes
+    % plot_rcae_mon_lat('era', par); % plot RCAE regimes, depends on choice of threshold epsilon
+    % plot_temp('era', par); % plot temperature profiles in RCAE regimes
 end
 
 %% define functions
@@ -67,7 +69,7 @@ function plot_don_vh(par)
 end
 function plot_ra_tediv_mon_lat(data_type, par)
     % load data
-    [fluxez, ~, ~, ~, lat, par] = load_fluxes(data_type, par);
+    [fluxez, ~, ~, ~, lat, par] = load_era_fluxes(data_type, par);
     % seasonaity vs latitude plots for each term in the energy budget
     % atmospheric radiative cooling
     figure();clf; hold all;
@@ -98,9 +100,9 @@ function plot_ra_tediv_mon_lat(data_type, par)
     close;
 
 end
-function plot_energy_lat(data_type, par)
+function plot_era_energy_lat(data_type, par)
 % load data
-    [fluxez, TETEN, stf, r1, lat, par] = load_fluxes(data_type, par);
+    [fluxez, TETEN, stf, r1, lat, par] = load_era_fluxes(data_type, par);
 % latitude vs energy flux line plots, comparable to Hartmann (2016)
     figure();clf; hold all;
     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
@@ -117,13 +119,52 @@ function plot_energy_lat(data_type, par)
     xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
     axis('tight');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-    set(gca, 'fontsize', par.fs, 'xminortick', 'on', 'yminortick', 'on')
-    set(gca, 'fontsize', par.fs, 'xminortick', 'on', 'yminortick', 'on', 'ylim', [-200 200])
+    set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
     print(sprintf('%s/%s/era-fig-6-1-hartmann', par.plotdir, par.closure), '-dpng', '-r300');
     close;
 end
+function plot_era5_energy_lat(data_type, par)
+% load data
+    [fluxez, vh, lat, par] = load_era5_fluxes(data_type, par);
+% latitude vs energy flux line plots, comparable to Hartmann (2016)
+    figure();clf; hold all;
+    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+    plot(lat,nanmean(fluxez.ra,1), 'color', par.gray)
+    plot(lat,nanmean(fluxez.res,1), 'color', par.maroon)
+    plot(lat, -nanmean(fluxez.slhf,1), 'color', par.blue)
+    plot(lat, -nanmean(fluxez.sshf,1), 'color', par.orange)
+    xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+    print(sprintf('%s/era-fig-6-1-hartmann', par.plotdir), '-dpng', '-r300');
+    close;
+% northward MSE transport
+    figure(); clf; hold all;
+    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+    line([0 0], [-4.5 4], 'linewidth', 0.5, 'color', 'k');
+    plot(lat, vh*10^-15, 'color', par.maroon);
+    xlabel('latitude (deg)'); ylabel('PW')
+    title('Northward MSE Energy Transport');
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+    print([par.plotdir '/vh'], '-dpng', '-r300');
+    close;
+    figure(); clf; hold all;
+    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+    line([0 0], [-4.5 4], 'linewidth', 0.5, 'color', 'k');
+    plot(lat, vh*10^-15, 'color', par.maroon);
+    xlabel('latitude (deg)'); ylabel('PW')
+    title('Northward MSE Energy Transport');
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+    print([par.plotdir '/vh'], '-dpng', '-r300');
+    close;
+end
 function plot_teten_stf_r1_mon_lat(data_type, par)
-    [fluxez, TETEN, stf, r1, lat, par] = load_fluxes(data_type, par); % load data
+    [fluxez, TETEN, stf, r1, lat, par] = load_era_fluxes(data_type, par); % load data
 
     % surface turbulent fluxes (SH + LH)
     figure(); clf; hold all;
@@ -170,7 +211,7 @@ function plot_teten_stf_r1_mon_lat(data_type, par)
 end
 function plot_rcae_mon_lat(data_type, par)
     % load data
-    [~, ~, ~, ~, lat, par] = load_fluxes(data_type, par);
+    [~, ~, ~, ~, lat, par] = load_era_fluxes(data_type, par);
     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/rcae.mat', data_type, par.lat_interp, par.ep));
     if strcmp(par.closure, 'teten'); rcae_plot = rcae.teten; end;
     if strcmp(par.closure, 'stf'); rcae_plot = rcae.stf; end;
@@ -206,7 +247,7 @@ function plot_temp(data_type, par)
     close;
 end
 
-function [fluxez, TETEN, stf, r1, lat, par] = load_fluxes(data_type, par)
+function [fluxez, TETEN, stf, r1, lat, par] = load_era_fluxes(data_type, par)
     % load processed data/proc
     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/fluxes.mat', data_type, par.lat_interp));
     % create a mon x lat meshgrid for contour plots
@@ -227,5 +268,18 @@ function [fluxez, TETEN, stf, r1, lat, par] = load_fluxes(data_type, par)
         stf = fluxez.stf; % use ERA-Interim turbulent fluxez
         TETEN = fluxez.TETEN_res; % TETEN is inferred as residual
         r1 = fluxez.r1_stf; % corresponding non dimensional number r1
+    end
+end
+function [fluxez, vh, lat, par] = load_era5_fluxes(data_type, par)
+    % load processed data/proc
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/fluxes.mat', data_type, par.lat_interp));
+    % create a mon x lat meshgrid for contour plots
+    [par.mesh_lat, par.mesh_mon] = meshgrid(1:12, lat);
+    % make figure directory if it does not exist
+    par.plotdir = sprintf('./figures/%s/%s', data_type, par.lat_interp);
+    for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
+        if ~exist(sprintf('%s/rcae_%g', par.plotdir, par.ep), 'dir')
+            mkdir(sprintf('%s/rcae_%g', par.plotdir, par.ep));
+        end
     end
 end

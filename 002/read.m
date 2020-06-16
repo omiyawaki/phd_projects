@@ -1,7 +1,8 @@
 clc; clear variables; close all;
 
 %% set parameters
-par.yr_span = 2000:2012; % spanning years
+par.yr_span = 2000:2012; % spanning years for ERA-Interim
+par.yr_span_era5 = '1979_2019'; % spanning years for ERA5
 par.yr_text = cellstr(num2str(par.yr_span'))';
 rad_vars = {'ssr', 'str', 'tsr', 'ttr'}; % radiation variables to read
 stf_vars = {'sshf', 'slhf'}; % surface turbulent flux variables to read
@@ -14,15 +15,19 @@ par.yr_span_mpi = 50; % number of years that I am considering in the MPI climato
 par.cpd = 1005.7; par.Rd = 287; par.L = 2.501e6; par.g = 9.81;
 
 %% call functions
-% read_grid()
-read_rad(rad_vars, par)
-% read_stf(stf_vars, par)
-% read_3d(vars_3d, par)
+% read_era_grid()
+% read_era_rad(rad_vars, par)
+% read_era_stf(stf_vars, par)
+% read_era_3d(vars_3d, par)
+% read_era5_grid()
+% read_era5_rad(rad_vars, par)
+read_era5_stf(stf_vars, par)
+% read_era5_3d(vars_3d, par)
 % read_mpi_2d(vars_mpi_2d, par)
 % read_mpi_3d(vars_mpi_3d, startend_mpi, par)
 
 %% define functions
-function read_grid()
+function read_era_grid()
     % read data net SW and LW radiation data downloaded from ERA-Interim
     % first read lon and lat vectors since this is different from the Donohoe grid
     lon_era = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/interim_rad_2000.nc', 'longitude');
@@ -30,9 +35,9 @@ function read_grid()
     plev_era =  ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/temp/interim_temp_2000.nc', 'level');
 
     % save grid
-    save('/project2/tas1/miyawaki/projects/002/data/read/era_grid.mat', 'lat_era', 'lon_era', 'plev_era')
+    save('/project2/tas1/miyawaki/projects/002/data/read/era-interim/grid.mat', 'lat_era', 'lon_era', 'plev_era')
 end
-function read_rad(rad_vars, par)
+function read_era_rad(rad_vars, par)
     for i=1:length(rad_vars)
     text.(rad_vars{i}) = strcat(rad_vars{i}, par.yr_text);
     % dimensions are (lon x lat x time)
@@ -55,9 +60,9 @@ function read_rad(rad_vars, par)
     rad.ttr(:,:,month) = nanmean( cat(3, interim_raw.ttr2000(:,:,month), interim_raw.ttr2001(:,:,month), interim_raw.ttr2002(:,:,month), interim_raw.ttr2003(:,:,month), interim_raw.ttr2004(:,:,month), interim_raw.ttr2005(:,:,month), interim_raw.ttr2006(:,:,month), interim_raw.ttr2007(:,:,month), interim_raw.ttr2008(:,:,month), interim_raw.ttr2009(:,:,month), interim_raw.ttr2010(:,:,month), interim_raw.ttr2011(:,:,month), interim_raw.ttr2012(:,:,month)), 3);
         end
 
-    save('/project2/tas1/miyawaki/projects/002/data/read/radiation_climatology.mat', 'rad', 'rad_vars');
+    save('/project2/tas1/miyawaki/projects/002/data/read/era-interim/radiation_climatology.mat', 'rad', 'rad_vars');
 end
-function read_stf(stf_vars, par)
+function read_era_stf(stf_vars, par)
     for i=1:length(stf_vars)
     text.(stf_vars{i}) = strcat(stf_vars{i}, par.yr_text);
     % dimensions are (lon x lat x time)
@@ -78,9 +83,9 @@ function read_stf(stf_vars, par)
     stf.slhf(:,:,month) = nanmean( cat(3, interim_raw.slhf2000(:,:,month), interim_raw.slhf2001(:,:,month), interim_raw.slhf2002(:,:,month), interim_raw.slhf2003(:,:,month), interim_raw.slhf2004(:,:,month), interim_raw.slhf2005(:,:,month), interim_raw.slhf2006(:,:,month), interim_raw.slhf2007(:,:,month), interim_raw.slhf2008(:,:,month), interim_raw.slhf2009(:,:,month), interim_raw.slhf2010(:,:,month), interim_raw.slhf2011(:,:,month), interim_raw.slhf2012(:,:,month)), 3);
     end
 
-    save('/project2/tas1/miyawaki/projects/002/data/read/turbfluxes_climatology.mat', 'stf', 'stf_vars');
+    save('/project2/tas1/miyawaki/projects/002/data/read/era-interim/turbfluxes_climatology.mat', 'stf', 'stf_vars');
 end
-function read_3d(vars_3d, par)
+function read_era_3d(vars_3d, par)
     for i=1:length(vars_3d)
         text.(vars_3d{i}) = strcat(vars_3d{i}, par.yr_text);
         % dimensions are (lon x lat x plev x time)
@@ -97,6 +102,81 @@ function read_3d(vars_3d, par)
     % take zonal average to save space
     vert.t = squeeze(nanmean(interim_raw.t, 1));
 
+    save('/project2/tas1/miyawaki/projects/002/data/read/era-interim/temp_climatology.mat', 'vert', 'vars_3d');
+end
+function read_era5_grid()
+    % read data net SW and LW radiation data downloaded from Era5
+    % first read lon and lat vectors since this is different from the Donohoe grid
+    lon_era = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era5/rad/era5_rad_1979_2019.nc', 'longitude');
+    lat_era = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era5/rad/era5_rad_1979_2019.nc', 'latitude');
+    plev_era =  ncread('/project2/tas1/miyawaki/projects/002/data/raw/era5/temp/era5_temp_1979_2019.nc', 'level');
+
+    % save grid
+    save('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat', 'lat_era', 'lon_era', 'plev_era')
+end
+function read_era5_rad(rad_vars, par)
+    for i=1:length(rad_vars)
+        % dimensions are (lon x lat x time)
+        % time is sequenced as id(1) = jan, step 00-12, id(2) = jan, step 12-24, id(3) = feb, step 00-12, etc.
+        era5_raw.(rad_vars{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/era5/rad/era5_rad_%s.nc',par.yr_span_era5), rad_vars{i});
+        % the data is originally reported as J m^-2 per day, so
+        % divide by 86400 s to get the conventional W m^-2 flux
+        % over the full day
+        era5_raw.(rad_vars{i}) = era5_raw.(rad_vars{i})/86400;
+        % calculate monthly climatology
+        if ~mod(size(era5_raw.(rad_vars{i}),3), 12)
+            n_years = size(era5_raw.(rad_vars{i}),3)/12;
+        else
+            error('Data does not end in a full year. Please make sure the data is available until the end of the year (December).');
+        end
+        for month = 1:12
+            get_months = month + [0:12:(n_years-1)*12];
+            rad.(rad_vars{i})(:,:,month) = nanmean(era5_raw.(rad_vars{i})(:,:,get_months),3);
+        end
+    end
+
+    save('/project2/tas1/miyawaki/projects/002/data/read/era5/radiation_climatology.mat', 'rad', 'rad_vars');
+end
+function read_era5_stf(stf_vars, par)
+    for i=1:length(stf_vars)
+        % dimensions are (lon x lat x time)
+        % time is sequenced as id(1) = jan, step 00-12, id(2) = jan, step 12-24, id(3) = feb, step 00-12, etc.
+        era5_raw.(stf_vars{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/era5/stf/era5_stf_%s.nc',par.yr_span_era5), stf_vars{i});
+        % the data is originally reported as J m^-2 per day, so
+        % divide by 86400 s to get the conventional W m^-2 flux
+        % over the full day
+        era5_raw.(stf_vars{i}) = era5_raw.(stf_vars{i})/86400;
+        % calculate monthly climatology
+        if ~mod(size(era5_raw.(stf_vars{i}),3), 12)
+            n_years = size(era5_raw.(stf_vars{i}),3)/12;
+        else
+            error('Data does not end in a full year. Please make sure the data is available until the end of the year (December).');
+        end
+        for month = 1:12
+            get_months = month + [0:12:(n_years-1)*12];
+            stf.(stf_vars{i})(:,:,month) = nanmean(era5_raw.(stf_vars{i})(:,:,get_months),3);
+        end
+    end
+
+    save('/project2/tas1/miyawaki/projects/002/data/read/era5/turbfluxes_climatology.mat', 'stf', 'stf_vars');
+end
+function read_era5_3d(vars_3d, par)
+    for i=1:length(vars_3d)
+        text.(vars_3d{i}) = strcat(vars_3d{i}, par.yr_text);
+        % dimensions are (lon x lat x plev x time)
+        for j=1:length(par.yr_span)
+            interim_raw.(text.(vars_3d{i}){j}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/era5-interim/temp/interim_temp_%g.nc',par.yr_span(j)), vars_3d{i});
+            for month = 1:12
+                interim_raw.(text.(vars_3d{i}){j})(:,:,:,month) = interim_raw.(text.(vars_3d{i}){j})(:,:,:,month);
+            end
+        end
+    end
+    for month=1:12
+        interim_raw.t(:,:,:,month) = nanmean( cat(4, interim_raw.t2000(:,:,:,month), interim_raw.t2001(:,:,:,month), interim_raw.t2002(:,:,:,month), interim_raw.t2003(:,:,:,month), interim_raw.t2004(:,:,:,month), interim_raw.t2005(:,:,:,month), interim_raw.t2006(:,:,:,month), interim_raw.t2007(:,:,:,month), interim_raw.t2008(:,:,:,month), interim_raw.t2009(:,:,:,month), interim_raw.t2010(:,:,:,month), interim_raw.t2011(:,:,:,month), interim_raw.t2012(:,:,:,month)), 4);
+    end
+    % take zonal avera5ge to save space
+    vert.t = squeeze(nanmean(interim_raw.t, 1));
+
     save('/project2/tas1/miyawaki/projects/002/data/read/temp_climatology.mat', 'vert', 'vars_3d');
 end
 function read_mpi_2d(vars_mpi_2d, par)
@@ -108,7 +188,7 @@ function read_mpi_2d(vars_mpi_2d, par)
         end
     end
 
-    save('/project2/tas1/miyawaki/projects/002/data/read/mpi_2d_climatology.mat', 'mpi_2d');
+    save('/project2/tas1/miyawaki/projects/002/data/read/mpi/2d_climatology.mat', 'mpi_2d');
 end
 function read_mpi_3d(vars_mpi_3d, startend_mpi, par)
     mpi_3d.lon = ncread(sprintf('/project2/tas1/CMIP5_piControl/MPI-ESM-LR/%s_Amon_MPI-ESM-LR_piControl_r1i1p1_%s.nc', 'ta', startend_mpi{1}), 'lon');
@@ -134,5 +214,5 @@ function read_mpi_3d(vars_mpi_3d, startend_mpi, par)
         end
     end
 
-    save('/project2/tas1/miyawaki/projects/002/data/read/mpi_3d_climatology.mat', 'mpi_3d');
+    save('/project2/tas1/miyawaki/projects/002/data/read/mpi/3d_climatology.mat', 'mpi_3d');
 end
