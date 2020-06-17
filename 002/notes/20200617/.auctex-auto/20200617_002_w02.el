@@ -31,17 +31,19 @@
     "capt-of"
     "hyperref")
    (LaTeX-add-labels
-    "sec:org8d9cec4"
-    "sec:orge82857e"
-    "sec:orgdb3cdf1"
-    "sec:orgafb3a6e"
-    "sec:orgc0c41cd"
-    "sec:org066fc93"
-    "fig:orgd2d127f"
-    "fig:org8752234"
-    "fig:org73c353a"
-    "sec:orge358300"
-    "sec:orgbe24baa")
+    "sec:org814162f"
+    "sec:org73c8bf6"
+    "sec:org72e4393"
+    "sec:org04d8332"
+    "sec:orgcb9caed"
+    "sec:org0ecf3d9"
+    "sec:org477a594"
+    "sec:org657b9e5"
+    "sec:orga424258"
+    "fig:org50048af"
+    "fig:org2dc7b99"
+    "fig:org16f4d65"
+    "sec:org41380c3")
    (LaTeX-add-bibliographies
     "../../../../../Sync/Papers/references"))
  :latex)
