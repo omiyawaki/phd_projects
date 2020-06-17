@@ -48,7 +48,8 @@ end
 for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
     % plot_era_rcae_mon_lat('era', par); % plot RCAE regimes, depends on choice of threshold epsilon
     % plot_era_temp('era', par); % plot temperature profiles in RCAE regimes
-    plot_era5_rcae_mon_lat('era5', par); % plot RCAE regimes, depends on choice of threshold epsilon
+    % plot_era5_rcae_mon_lat('era5', par); % plot RCAE regimes, depends on choice of threshold epsilon
+    plot_era5_temp('era5', par); % plot temperature profiles in RCAE regimes
 end
 
 %% define functions
@@ -189,7 +190,7 @@ function plot_era_rcae_mon_lat(data_type, par)
 end
 function plot_era_temp(data_type, par)
 % load era plev grid
-    load('/project2/tas1/miyawaki/projects/002/data/read/era_grid.mat')
+    load('/project2/tas1/miyawaki/projects/002/data/read/era/grid.mat')
     par.plotdir = sprintf('./figures/%s/%s', data_type, par.lat_interp);
 % vertical temperature profile
     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/vert_filt.mat', data_type, par.lat_interp, par.ep));
@@ -280,6 +281,39 @@ function plot_era5_rcae_mon_lat(data_type, par)
     xlabel('Month'); ylabel('Latitude (deg)');
     set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
     print(sprintf('%s/rcae_%g/rcae_cp_mon_lat', par.plotdir, par.ep), '-dpng', '-r300');
+    close;
+end
+function plot_era5_temp(data_type, par)
+% load era5 plev grid
+    load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat')
+    par.plotdir = sprintf('./figures/%s/%s', data_type, par.lat_interp);
+% vertical temperature profile
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/vert_filt.mat', data_type, par.lat_interp, par.ep));
+    figure(); clf; hold all;
+    h_rce = plot(vert_filt.rce.def, plev_era, 'color', par.orange);
+    h_rae = plot(vert_filt.rae.def, plev_era, 'color', par.blue);
+    xlabel('T (K)'); ylabel('p (hPa)');
+    legend([h_rce h_rae], 'RCE', 'RAE');
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+    hline(0, '-k');
+    print(sprintf('%s/rcae_%g/rce_rae', par.plotdir, par.ep), '-dpng', '-r300');
+    close;
+% RCE and RAE separated into NH and SH
+    figure(); clf; hold all;
+    h_rce_tp = plot(vert_filt.rce.tp.def, plev_era, 'color', par.maroon);
+    h_rce_nh = plot(vert_filt.rce.nh.def, plev_era, '-', 'color', par.orange);
+    h_rce_sh = plot(vert_filt.rce.sh.def, plev_era, '--', 'color', par.orange);
+    h_rae_nh = plot(vert_filt.rae.nh.def, plev_era, '-', 'color', par.blue);
+    h_rae_sh = plot(vert_filt.rae.sh.def, plev_era, '--', 'color', par.blue);
+    xlabel('T (K)'); ylabel('p (hPa)');
+    legend([h_rce_tp h_rce_nh h_rce_sh h_rae_nh h_rae_sh], 'Tropical RCE', 'NH ML RCE', 'SH ML RCE', 'NH RAE', 'SH RAE');
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+    hline(0, '-k');
+    print(sprintf('%s/rcae_%g/rcae_nh_sh', par.plotdir, par.ep), '-dpng', '-r300');
     close;
 end
 

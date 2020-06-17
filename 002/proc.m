@@ -18,7 +18,10 @@ for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
     % proc_era_temp(par) % extract raw temperature data from ERA-Interim
     % filt_era_temp(par) % calculate temperature profiles over RCE and RAE using ERA-Interim data
     % proc_era5_fluxes(par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
-    proc_era5_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+    % proc_era5_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+    % proc_era5_temp(par) % extract raw temperature data from ERA5
+    % proc_era5_srfc(par) % extract raw surface data from ERA5
+    filt_era5_temp(par) % calculate temperature profiles over RCE and RAE using ERA5 data
     % proc_mpi_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using MPI-ESM-LR data
 end
 
@@ -446,6 +449,121 @@ function proc_era5_net_fluxes(par)
     net_sfc_tz = squeeze(nanmean(nanmean( net_sfc_raw, 1 ), 3))'; % take zonal and time avera5ges and transpose to have same dimensions as latitude grid
     net_sfc = nansum(cosd(lat_era).*net_sfc_tz) / nansum(cosd(lat_era));
     disp( sprintf('The net radiative imbalance at the surface is %g Wm^-2.', net_sfc) );
+end
+function proc_era5_temp(par)
+    load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat'); % read ERA5 grid data
+    load('/project2/tas1/miyawaki/projects/002/data/read/era5/temp_climatology.mat'); % load temperature
+
+    if strcmp(par.lat_interp, 'era5')
+        lat = lat_era;
+        % load ERA5 data
+        for fn = vars_3d
+            % order dimensions to be consistent with Donohoe data (mon, lat, plev)
+            vertz.(fn{1}) = permute(vert.(fn{1}), [3 1 2]);
+        end
+    elseif strcmp(par.lat_interp, 'std') % interpolate all to fine standard grid
+        lat = par.lat_std;
+        % interpolate raw ERA5 data onto std lat x ERA5 lon grid
+        for fn = vars_3d
+            % interpolate to std lat
+            vertz.(fn{1}) = interp1(lat_era, vert.(fn{1}), par.lat_std, 'spline', nan);
+            % order dimensions to be consistent with Donohoe data (mon, lat, plev)
+            vertz.(fn{1}) = permute(vertz.(fn{1}), [3 1 2]);
+        end
+    end
+
+    % save data into mat file
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/', par.lat_interp);
+    printname = [foldername 'vert.mat'];
+    if ~exist(foldername, 'dir')
+        mkdir(foldername)
+    end
+    save(printname, 'vertz', 'lat');
+
+end
+function proc_era5_srfc(par)
+    load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat'); % read ERA5 grid data
+    load('/project2/tas1/miyawaki/projects/002/data/read/era5/srfc_climatology.mat'); % load surface data
+
+    if strcmp(par.lat_interp, 'era5')
+        lat = lat_era;
+        % load ERA5 data
+        for fn = vars_srfc
+            srfcz.(fn{1}) = permute(srfc.(fn{1}), [2 1]); % order dimensions to be consistent with Donohoe data (mon, lat, plev)
+        end
+    elseif strcmp(par.lat_interp, 'std') % interpolate all to fine standard grid
+        lat = par.lat_std;
+        % interpolate raw ERA5 data onto std lat x ERA5 lon grid
+        for fn = vars_srfc
+            srfcz.(fn{1}) = interp1(lat_era, srfc.(fn{1}), par.lat_std, 'spline', nan); % interpolate to std lat
+            srfcz.(fn{1}) = permute(srfcz.(fn{1}), [2 1]); % order dimensions to be consistent with Donohoe data (mon, lat, plev)
+        end
+    end
+
+    % save data into mat file
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/', par.lat_interp);
+    printname = [foldername 'srfc.mat'];
+    if ~exist(foldername, 'dir')
+        mkdir(foldername)
+    end
+    save(printname, 'srfcz', 'lat');
+
+end
+function filt_era5_temp(par)
+    load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat'); % read ERA5 grid data
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/fluxes.mat', par.lat_interp)); % load fluxes
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/eps_%g/rcae.mat', par.lat_interp, par.ep)); % load rcae data
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/vert.mat', par.lat_interp)); % load temp
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/srfc.mat', par.lat_interp)); % load surface data
+
+    % create surface mask
+    ps_3d = repmat(srfcz.sp, [1 1 size(vertz.t, 3)]);
+    pa_3d = double(permute(repmat(plev_era, [1 size(srfcz.sp)]), [2 3 1]))*10^2; % convert from hPa to Pa
+    surface_mask = nan(size(vertz.t));
+    surface_mask(pa_3d < ps_3d) = 1;
+
+    % filter all 3D data with surface mask
+    for fn = fieldnames(vertz)'
+        vertz.(fn{1}) = vertz.(fn{1}).*surface_mask;
+    end
+    pa_3d = pa_3d.*surface_mask;
+
+    for fn = fieldnames(rcae)'
+        rce_filt.(fn{1}) = nan(size(rcae.(fn{1}))); % create empty arrays to store filtering array
+        rae_filt.(fn{1}) = nan(size(rcae.(fn{1})));
+        rce_filt.(fn{1})(rcae.(fn{1})==1)=1; % set RCE=1, elsewhere nan
+        rae_filt.(fn{1})(rcae.(fn{1})==-1)=1; % set RAE=1, elsewhere nan
+        t_rce.(fn{1}) = rce_filt.(fn{1}) .* vertz.t; % filter temperatures in RCE only
+        t_rae.(fn{1}) = rae_filt.(fn{1}) .* vertz.t; % filter temperatures in RAE only
+        ps_rce.(fn{1}) = rce_filt.(fn{1}) .* srfcz.sp; % filter surface pressures in RCE only
+        ps_rae.(fn{1}) = rae_filt.(fn{1}) .* srfcz.sp; % filter surface pressures in RAE only
+        rce_filt_t.(fn{1}) = squeeze(nanmean(rce_filt.(fn{1}), 1)); % take time mean of RCE filter
+        rae_filt_t.(fn{1}) = squeeze(nanmean(rae_filt.(fn{1}), 1)); % take time mean of RAE filter
+        t_rce_t.(fn{1}) = squeeze(nanmean(t_rce.(fn{1}), 1)); % take time mean of temperature
+        t_rae_t.(fn{1}) = squeeze(nanmean(t_rae.(fn{1}), 1)); % take time mean of temperature
+        vert_filt.rce.(fn{1}) = nansum(cosd(lat).*t_rce_t.(fn{1})) / nansum(cosd(lat).*rce_filt_t.(fn{1})'); % area-weighted meridional average
+        vert_filt.rce.tp.(fn{1}) = nansum(cosd(lat(abs(lat)<30)).*t_rce_t.(fn{1})(abs(lat)<30,:)) / nansum(cosd(lat(abs(lat)<30)).*rce_filt_t.(fn{1})(abs(lat)<30)'); % area-weighted meridional average
+        vert_filt.rce.nh.(fn{1}) = nansum(cosd(lat(lat>30)).*t_rce_t.(fn{1})(lat>30,:)) / nansum(cosd(lat(lat>30)).*rce_filt_t.(fn{1})(lat>30)'); % area-weighted meridional average
+        vert_filt.rce.sh.(fn{1}) = nansum(cosd(lat(lat<-30)).*t_rce_t.(fn{1})(lat<-30,:)) / nansum(cosd(lat(lat<-30)).*rce_filt_t.(fn{1})(lat<-30)'); % area-weighted meridional average
+        vert_filt.rae.(fn{1}) = nansum(cosd(lat).*t_rae_t.(fn{1})) / nansum(cosd(lat).*rae_filt_t.(fn{1})'); % area-weighted meridional average
+        vert_filt.rae.nh.(fn{1}) = nansum(cosd(lat(lat>0)).*t_rae_t.(fn{1})(lat>0,:)) / nansum(cosd(lat(lat>0)).*rae_filt_t.(fn{1})(lat>0)'); % area-weighted meridional average
+        vert_filt.rae.sh.(fn{1}) = nansum(cosd(lat(lat<0)).*t_rae_t.(fn{1})(lat<0,:)) / nansum(cosd(lat(lat<0)).*rae_filt_t.(fn{1})(lat<0)'); % area-weighted meridional average
+        vert_filt.rce.(fn{1})(plev_era*100 > min(min(ps_rce.(fn{1})))) = nan;
+        vert_filt.rce.tp.(fn{1})(plev_era*100 > min(min(ps_rce.(fn{1})(:,abs(lat)<30)))) = nan;
+        vert_filt.rce.nh.(fn{1})(plev_era*100 > min(min(ps_rce.(fn{1})(:,lat>30)))) = nan;
+        vert_filt.rce.sh.(fn{1})(plev_era*100 > min(min(ps_rce.(fn{1})(:,lat<-30)))) = nan;
+        vert_filt.rae.(fn{1})(plev_era*100 > min(min(ps_rae.(fn{1})))) = nan;
+        vert_filt.rae.nh.(fn{1})(plev_era*100 > min(min(ps_rae.(fn{1})(:,lat>0)))) = nan;
+        vert_filt.rae.sh.(fn{1})(plev_era*100 > min(min(ps_rae.(fn{1})(:,lat<0)))) = nan;
+    end
+
+    % save filtered data
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/eps_%g/', par.lat_interp, par.ep);
+    printname = [foldername 'vert_filt'];
+    if ~exist(foldername, 'dir')
+        mkdir(foldername)
+    end
+    save(printname, 'vert_filt');
 end
 function proc_mpi_rcae(par)
     load('/project2/tas1/miyawaki/projects/002/data/read/mpi/2d_climatology'); % read 2D mpi data

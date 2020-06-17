@@ -7,7 +7,8 @@ par.yr_text = cellstr(num2str(par.yr_span'))';
 rad_vars = {'ssr', 'str', 'tsr', 'ttr'}; % radiation variables to read
 pe_vars = {'cp', 'lsp', 'e'}; % radiation variables to read
 stf_vars = {'sshf', 'slhf'}; % surface turbulent flux variables to read
-vars_3d = {'t'}; % 3d variables to read
+vars_3d = {'t'}; % 3d variables to read (t = temp)
+vars_srfc = {'sp', 't2m', 'd2m'}; % surface variables to read (sp = surface pressure, t2m = 2m temp, d2m = 2m dew point temp)
 vars_mpi_2d = {'rsdt', 'rsut', 'rsus', 'rsds', 'rlus', 'rlds', 'rlut', 'hfls', 'hfss', 'ps'}; % 2D MPI-ESM-LR variables to read
 vars_mpi_3d = {'ta', 'hus', 'zg', 'ua', 'va'}; % 3d MPI-ESM-LR variables
 startend_mpi = {'280001-280912', '281001-281912', '282001-282912', '283001-283912', '284001-284912'};
@@ -22,9 +23,10 @@ par.cpd = 1005.7; par.Rd = 287; par.L = 2.501e6; par.g = 9.81;
 % read_era_3d(vars_3d, par)
 % read_era5_grid()
 % read_era5_rad(rad_vars, par)
-read_era5_pe(pe_vars, par)
+% read_era5_pe(pe_vars, par)
 % read_era5_stf(stf_vars, par)
 % read_era5_3d(vars_3d, par)
+read_era5_sfc(vars_srfc, par)
 % read_mpi_2d(vars_mpi_2d, par)
 % read_mpi_3d(vars_mpi_3d, startend_mpi, par)
 
@@ -102,9 +104,9 @@ function read_era_3d(vars_3d, par)
         interim_raw.t(:,:,:,month) = nanmean( cat(4, interim_raw.t2000(:,:,:,month), interim_raw.t2001(:,:,:,month), interim_raw.t2002(:,:,:,month), interim_raw.t2003(:,:,:,month), interim_raw.t2004(:,:,:,month), interim_raw.t2005(:,:,:,month), interim_raw.t2006(:,:,:,month), interim_raw.t2007(:,:,:,month), interim_raw.t2008(:,:,:,month), interim_raw.t2009(:,:,:,month), interim_raw.t2010(:,:,:,month), interim_raw.t2011(:,:,:,month), interim_raw.t2012(:,:,:,month)), 4);
     end
     % take zonal average to save space
-    vert.t = squeeze(nanmean(interim_raw.t, 1));
+    sfc.t = squeeze(nanmean(interim_raw.t, 1));
 
-    save('/project2/tas1/miyawaki/projects/002/data/read/era-interim/temp_climatology.mat', 'vert', 'vars_3d');
+    save('/project2/tas1/miyawaki/projects/002/data/read/era-interim/temp_climatology.mat', 'sfc', 'vars_3d');
 end
 function read_era5_grid()
     % read data net SW and LW radiation data downloaded from Era5
@@ -187,22 +189,39 @@ function read_era5_stf(stf_vars, par)
 end
 function read_era5_3d(vars_3d, par)
     for i=1:length(vars_3d)
-        text.(vars_3d{i}) = strcat(vars_3d{i}, par.yr_text);
-        % dimensions are (lon x lat x plev x time)
-        for j=1:length(par.yr_span)
-            interim_raw.(text.(vars_3d{i}){j}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/era5-interim/temp/interim_temp_%g.nc',par.yr_span(j)), vars_3d{i});
-            for month = 1:12
-                interim_raw.(text.(vars_3d{i}){j})(:,:,:,month) = interim_raw.(text.(vars_3d{i}){j})(:,:,:,month);
-            end
+        % dimensions are (lat x plev x time); note that this data is already zonally-averaged
+        era5_raw.(vars_3d{i}) = squeeze(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/era5/temp/era5_tempz_%s.nc', par.yr_span_era5), vars_3d{i}));
+    end
+    % calculate monthly climatology
+    if ~mod(size(era5_raw.(vars_3d{i}),3), 12)
+        n_years = size(era5_raw.(vars_3d{i}),3)/12;
+    else
+        error('Data does not end in a full year. Please make sure the data is available until the end of the year (December).');
+    end
+    for month = 1:12
+        get_months = month + [0:12:(n_years-1)*12];
+        vert.(vars_3d{i})(:,:,month) = nanmean(era5_raw.(vars_3d{i})(:,:,get_months),3);
+    end
+
+    save('/project2/tas1/miyawaki/projects/002/data/read/era5/temp_climatology.mat', 'vert', 'vars_3d');
+end
+function read_era5_sfc(vars_srfc, par)
+    for i=1:length(vars_srfc)
+        % dimensions are (lat x time); note that the data is already zonally averaged
+        era5_raw.(vars_srfc{i}) = squeeze(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/era5/sfc/era5_sfcz_%s.nc', par.yr_span_era5), vars_srfc{i}));
+        % calculate monthly climatology
+        if ~mod(size(era5_raw.(vars_srfc{i}),2), 12)
+            n_years = size(era5_raw.(vars_srfc{i}),2)/12;
+        else
+            error('Data does not end in a full year. Please make sure the data is available until the end of the year (December).');
+        end
+        for month = 1:12
+            get_months = month + [0:12:(n_years-1)*12];
+            srfc.(vars_srfc{i})(:,month) = nanmean(era5_raw.(vars_srfc{i})(:,get_months),2);
         end
     end
-    for month=1:12
-        interim_raw.t(:,:,:,month) = nanmean( cat(4, interim_raw.t2000(:,:,:,month), interim_raw.t2001(:,:,:,month), interim_raw.t2002(:,:,:,month), interim_raw.t2003(:,:,:,month), interim_raw.t2004(:,:,:,month), interim_raw.t2005(:,:,:,month), interim_raw.t2006(:,:,:,month), interim_raw.t2007(:,:,:,month), interim_raw.t2008(:,:,:,month), interim_raw.t2009(:,:,:,month), interim_raw.t2010(:,:,:,month), interim_raw.t2011(:,:,:,month), interim_raw.t2012(:,:,:,month)), 4);
-    end
-    % take zonal avera5ge to save space
-    vert.t = squeeze(nanmean(interim_raw.t, 1));
 
-    save('/project2/tas1/miyawaki/projects/002/data/read/temp_climatology.mat', 'vert', 'vars_3d');
+    save('/project2/tas1/miyawaki/projects/002/data/read/era5/srfc_climatology.mat', 'srfc', 'vars_srfc');
 end
 function read_mpi_2d(vars_mpi_2d, par)
     for i=1:length(vars_mpi_2d); var = vars_mpi_2d{i};
