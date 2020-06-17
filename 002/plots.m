@@ -315,6 +315,36 @@ function plot_era5_temp(data_type, par)
     hline(0, '-k');
     print(sprintf('%s/rcae_%g/rcae_nh_sh', par.plotdir, par.ep), '-dpng', '-r300');
     close;
+% RCE and RAE separated into NH and SH, P-E>0 criteria added for RCE
+    figure(); clf; hold all;
+    h_rce_tp = plot(vert_filt.rce.tp.pe, plev_era, 'color', par.maroon);
+    h_rce_nh = plot(vert_filt.rce.nh.pe, plev_era, '-', 'color', par.orange);
+    h_rce_sh = plot(vert_filt.rce.sh.pe, plev_era, '--', 'color', par.orange);
+    h_rae_nh = plot(vert_filt.rae.nh.pe, plev_era, '-', 'color', par.blue);
+    h_rae_sh = plot(vert_filt.rae.sh.pe, plev_era, '--', 'color', par.blue);
+    xlabel('T (K)'); ylabel('p (hPa)');
+    legend([h_rce_tp h_rce_nh h_rce_sh h_rae_nh h_rae_sh], 'Tropical RCE', 'NH ML RCE', 'SH ML RCE', 'NH RAE', 'SH RAE');
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+    hline(0, '-k');
+    print(sprintf('%s/rcae_%g/rcae_nh_sh_pe', par.plotdir, par.ep), '-dpng', '-r300');
+    close;
+% RCE and RAE separated into NH and SH, Pls/Pc<<1 criteria added for RCE
+    figure(); clf; hold all;
+    h_rce_tp = plot(vert_filt.rce.tp.cp, plev_era, 'color', par.maroon);
+    h_rce_nh = plot(vert_filt.rce.nh.cp, plev_era, '-', 'color', par.orange);
+    h_rce_sh = plot(vert_filt.rce.sh.cp, plev_era, '--', 'color', par.orange);
+    h_rae_nh = plot(vert_filt.rae.nh.cp, plev_era, '-', 'color', par.blue);
+    h_rae_sh = plot(vert_filt.rae.sh.cp, plev_era, '--', 'color', par.blue);
+    xlabel('T (K)'); ylabel('p (hPa)');
+    legend([h_rce_tp h_rce_nh h_rae_nh h_rae_sh], 'Tropical RCE', 'NH ML RCE', 'NH RAE', 'SH RAE');
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+    hline(0, '-k');
+    print(sprintf('%s/rcae_%g/rcae_nh_sh_cp', par.plotdir, par.ep), '-dpng', '-r300');
+    close;
 end
 
 function [fluxez, TETEN, stf, r1, lat, par] = load_era_fluxes(data_type, par)
