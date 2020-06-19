@@ -8,6 +8,7 @@ par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' 
 par.ep_swp = 0.3; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
 par.ep_cp = 0.5; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
 par.cpd = 1005.7; par.Rd = 287; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3;
+gcm_info
 
 %% call functions
 % proc_era_vh(par) % calculate integrated energy transport (in units of power) using Donohoe MSE flux divergence
@@ -21,8 +22,10 @@ for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
     % proc_era5_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
     % proc_era5_temp(par) % extract raw temperature data from ERA5
     % proc_era5_srfc(par) % extract raw surface data from ERA5
-    filt_era5_temp(par) % calculate temperature profiles over RCE and RAE using ERA5 data
-    % proc_mpi_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using MPI-ESM-LR data
+    % filt_era5_temp(par) % calculate temperature profiles over RCE and RAE using ERA5 data
+    for k=1:length(pars.gcm_models); model=par.gcm_models{k}
+        proc_gcm_rcae(par, model) % calculate energy fluxes in the vertically-integrated MSE budget using GCM-ESM-LR data
+    end
 end
 
 %% define functions
@@ -43,33 +46,33 @@ function proc_era_rcae(par)
         % interpolate raw ERA-Interim data onto Donohoe lat x lon grid
         for fn = rad_vars
             % interpolate to Donohoe lon
-            don.(fn{1}) = interp1(lon_era, rad.(fn{1}), don.lon);
+            don.(fn{1}) = interp1(grid.lon, rad.(fn{1}), don.lon);
             % interpolate to Donohoe lat
             don.(fn{1}) = permute(don.(fn{1}), [2 1 3]);
-            don.(fn{1}) = interp1(lat_era, don.(fn{1}), don.lat);
+            don.(fn{1}) = interp1(grid.lat, don.(fn{1}), don.lat);
             % order dimensions to be consistent with Donohoe data (mon, lat, lon)
             don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
         end
         for fn = stf_vars
             % interpolate to Donohoe lon
-            don.(fn{1}) = interp1(lon_era, stf.(fn{1}), don.lon);
+            don.(fn{1}) = interp1(grid.lon, stf.(fn{1}), don.lon);
             % interpolate to Donohoe lat
             don.(fn{1}) = permute(don.(fn{1}), [2 1 3]);
-            don.(fn{1}) = interp1(lat_era, don.(fn{1}), don.lat);
+            don.(fn{1}) = interp1(grid.lat, don.(fn{1}), don.lat);
             % order dimensions to be consistent with Donohoe data (mon, lat, lon)
             don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
         end
     elseif strcmp(par.lat_interp, 'era')
-        lat = lat_era;
+        lat = grid.lat;
         % interpolate don TETEN and TEDIV data onto ERA lat x lon grid
         for fn = {'TETEN', 'TEDIV'}
             % order dimensions as (lon, lat, mon)
             don.(fn{1}) = permute(don.(fn{1}), [3 2 1]);
             % interpolate to ERA lon
-            don.(fn{1}) = interp1(don.lon, don.(fn{1}), lon_era, 'spline');
+            don.(fn{1}) = interp1(don.lon, don.(fn{1}), grid.lon, 'spline');
             % interpolate to ERA lat
             don.(fn{1}) = permute(don.(fn{1}), [2 1 3]);
-            don.(fn{1}) = interp1(don.lat, don.(fn{1}), lat_era, 'spline', nan);
+            don.(fn{1}) = interp1(don.lat, don.(fn{1}), grid.lat, 'spline', nan);
             % order dimensions to be consistent with Donohoe data (mon, lat, lon)
             don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
         end
@@ -88,14 +91,14 @@ function proc_era_rcae(par)
         for fn = rad_vars
             % interpolate to std lat
             don.(fn{1}) = permute(rad.(fn{1}), [2 1 3]);
-            don.(fn{1}) = interp1(lat_era, don.(fn{1}), par.lat_std, 'spline', nan);
+            don.(fn{1}) = interp1(grid.lat, don.(fn{1}), par.lat_std, 'spline', nan);
             % order dimensions to be consistent with Donohoe data (mon, lat, lon)
             don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
         end
         for fn = stf_vars
             % interpolate to std lat
             don.(fn{1}) = permute(stf.(fn{1}), [2 1 3]);
-            don.(fn{1}) = interp1(lat_era, don.(fn{1}), par.lat_std, 'spline', nan);
+            don.(fn{1}) = interp1(grid.lat, don.(fn{1}), par.lat_std, 'spline', nan);
             % order dimensions to be consistent with Donohoe data (mon, lat, lon)
             don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
         end
@@ -104,7 +107,7 @@ function proc_era_rcae(par)
             % order dimensions as (lon, lat, mon)
             don.(fn{1}) = permute(don.(fn{1}), [3 2 1]);
             % interpolate to ERA lon
-            don.(fn{1}) = interp1(don.lon, don.(fn{1}), lon_era, 'spline');
+            don.(fn{1}) = interp1(don.lon, don.(fn{1}), grid.lon, 'spline');
             % interpolate to ERA lat
             don.(fn{1}) = permute(don.(fn{1}), [2 1 3]);
             don.(fn{1}) = interp1(don.lat, don.(fn{1}), par.lat_std, 'spline', nan);
@@ -181,12 +184,12 @@ function proc_era_net_fluxes(par)
 
     net_toa_raw = rad.tsr + rad.ttr; % compute net radiative fluxes at TOA, positive down
     net_toa_tz = squeeze(nanmean(nanmean( net_toa_raw, 1 ), 3))'; % take zonal and time averages and transpose to have same dimensions as latitude grid
-    net_toa = nansum(cosd(lat_era).*net_toa_tz) / nansum(cosd(lat_era));
+    net_toa = nansum(cosd(grid.lat).*net_toa_tz) / nansum(cosd(grid.lat));
     disp( sprintf('The net radiative imbalance at TOA is %g Wm^-2.', net_toa) );
 
     net_sfc_raw = rad.ssr + rad.str + stf.sshf + stf.slhf; % compute net radiative fluxes at surface, positive down
     net_sfc_tz = squeeze(nanmean(nanmean( net_sfc_raw, 1 ), 3))'; % take zonal and time averages and transpose to have same dimensions as latitude grid
-    net_sfc = nansum(cosd(lat_era).*net_sfc_tz) / nansum(cosd(lat_era));
+    net_sfc = nansum(cosd(grid.lat).*net_sfc_tz) / nansum(cosd(grid.lat));
     disp( sprintf('The net radiative imbalance at the surface is %g Wm^-2.', net_sfc) );
 end
 function proc_era_vh(par)
@@ -203,8 +206,8 @@ function proc_era_vh(par)
         lat = don.lat;
     elseif strcmp(par.lat_interp, 'era')
         load('/project2/tas1/miyawaki/projects/002/data/read/era-interim/grid.mat'); % read ERA-Interim grid data
-        lat = lat_era;
-        vh = interp1(don.lat, vh, lat_era, 'spline', nan); % interpolate to ERA lat
+        lat = grid.lat;
+        vh = interp1(don.lat, vh, grid.lat, 'spline', nan); % interpolate to ERA lat
     elseif strcmp(par.lat_interp, 'std') % interpolate all to fine standard grid
         lat = par.lat_std;
         vh = interp1(don.lat, vh, par.lat_std, 'spline', nan); % interpolate to standard lat
@@ -233,12 +236,12 @@ function proc_era_temp(par)
         % interpolate raw ERA-Interim data onto Donohoe lat grid
         for fn = vars_3d
             % interpolate to Vertzohoe lat
-            vertz.(fn{1}) = interp1(lat_era, vert.(fn{1}), lat);
+            vertz.(fn{1}) = interp1(grid.lat, vert.(fn{1}), lat);
             % order dimensions to be consistent with Vertzohoe data (mon, lat, plev)
             vertz.(fn{1}) = permute(vertz.(fn{1}), [3 1 2]);
         end
     elseif strcmp(par.lat_interp, 'era')
-        lat = lat_era;
+        lat = grid.lat;
         % load ERA-Interim data
         for fn = vars_3d
             % order dimensions to be consistent with Donohoe data (mon, lat, plev)
@@ -249,7 +252,7 @@ function proc_era_temp(par)
         % interpolate raw ERA-Interim data onto std lat x ERA lon grid
         for fn = vars_3d
             % interpolate to std lat
-            vertz.(fn{1}) = interp1(lat_era, vert.(fn{1}), par.lat_std, 'spline', nan);
+            vertz.(fn{1}) = interp1(grid.lat, vert.(fn{1}), par.lat_std, 'spline', nan);
             % order dimensions to be consistent with Donohoe data (mon, lat, plev)
             vertz.(fn{1}) = permute(vertz.(fn{1}), [3 1 2]);
         end
@@ -314,18 +317,29 @@ function filt_era_temp(par)
     end
     save(printname, 'vert_filt');
 end
-function proc_era5_fluxes(par)
-    % read ERA5 grid data
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat');
-    % read radiation climatology from ERA5
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/radiation_climatology.mat');
-    % read hydrology climatology from ERA5
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/pe_climatology.mat');
-    % surface turbulent fluxes (stf)
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/turbfluxes_climatology.mat');
+function proc_fluxes(type, par)
+    if strcmp(type, 'era5')
+        % read ERA5 grid data
+        load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat');
+        % read radiation climatology from ERA5
+        load('/project2/tas1/miyawaki/projects/002/data/read/era5/radiation_climatology.mat');
+        % read hydrology climatology from ERA5
+        load('/project2/tas1/miyawaki/projects/002/data/read/era5/pe_climatology.mat');
+        % surface turbulent fluxes (stf)
+        load('/project2/tas1/miyawaki/projects/002/data/read/era5/turbfluxes_climatology.mat');
+    elseif strcmp(type, 'gcm')
+        % read GCM grid data
+        load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat');
+        % read radiation climatology from gcm model
+        load('/project2/tas1/miyawaki/projects/002/data/read/era5/radiation_climatology.mat');
+        % read hydrology climatology from gcm model
+        load('/project2/tas1/miyawaki/projects/002/data/read/era5/pe_climatology.mat');
+        % surface turbulent fluxes (stf)
+        load('/project2/tas1/miyawaki/projects/002/data/read/era5/turbfluxes_climatology.mat');
+    end
 
     if strcmp(par.lat_interp, 'era5')
-        lat = lat_era;
+        lat = grid.lat;
         % load ERA5 data
         for fn = rad_vars
             % order dimensions to be consistent with Donohoe data (mon, lat, lon)
@@ -345,21 +359,21 @@ function proc_era5_fluxes(par)
         for fn = rad_vars
             % interpolate to std lat
             era5.(fn{1}) = permute(rad.(fn{1}), [2 1 3]);
-            era5.(fn{1}) = interp1(lat_era, era5.(fn{1}), par.lat_std, 'spline', nan);
+            era5.(fn{1}) = interp1(grid.lat, era5.(fn{1}), par.lat_std, 'spline', nan);
             % order dimensions to be consistent with Era5ohoe data (mon, lat, lon)
             era5.(fn{1}) = permute(era5.(fn{1}), [3 1 2]);
         end
         for fn = pe_vars
             % interpolate to std lat
             era5.(fn{1}) = permute(pe.(fn{1}), [2 1 3]);
-            era5.(fn{1}) = interp1(lat_era, era5.(fn{1}), par.lat_std, 'spline', nan);
+            era5.(fn{1}) = interp1(grid.lat, era5.(fn{1}), par.lat_std, 'spline', nan);
             % order dimensions to be consistent with Era5ohoe data (mon, lat, lon)
             era5.(fn{1}) = permute(era5.(fn{1}), [3 1 2]);
         end
         for fn = stf_vars
             % interpolate to std lat
             era5.(fn{1}) = permute(stf.(fn{1}), [2 1 3]);
-            era5.(fn{1}) = interp1(lat_era, era5.(fn{1}), par.lat_std, 'spline', nan);
+            era5.(fn{1}) = interp1(grid.lat, era5.(fn{1}), par.lat_std, 'spline', nan);
             % order dimensions to be consistent with Era5ohoe data (mon, lat, lon)
             era5.(fn{1}) = permute(era5.(fn{1}), [3 1 2]);
         end
@@ -376,7 +390,7 @@ function proc_era5_fluxes(par)
     era5.res = era5.ra + era5.stf;
     % compute northward MSE transport using the residual data
     tediv_t = squeeze(nanmean(era5.res, 1)); % take time average
-    tediv_tz = trapz(deg2rad(lon_era), tediv_t, 2); % zonally integrate
+    tediv_tz = trapz(deg2rad(grid.lon), tediv_t, 2); % zonally integrate
     vh = cumtrapz(deg2rad(lat), par.a^2*cosd(lat).*tediv_tz); % cumulatively integrate in latitude
 
     % compute non-dimensional number R1
@@ -442,12 +456,12 @@ function proc_era5_net_fluxes(par)
 
     net_toa_raw = rad.tsr + rad.ttr; % compute net radiative fluxes at TOA, positive down
     net_toa_tz = squeeze(nanmean(nanmean( net_toa_raw, 1 ), 3))'; % take zonal and time avera5ges and transpose to have same dimensions as latitude grid
-    net_toa = nansum(cosd(lat_era).*net_toa_tz) / nansum(cosd(lat_era));
+    net_toa = nansum(cosd(grid.lat).*net_toa_tz) / nansum(cosd(grid.lat));
     disp( sprintf('The net radiative imbalance at TOA is %g Wm^-2.', net_toa) );
 
     net_sfc_raw = rad.ssr + rad.str + stf.sshf + stf.slhf; % compute net radiative fluxes at surface, positive down
     net_sfc_tz = squeeze(nanmean(nanmean( net_sfc_raw, 1 ), 3))'; % take zonal and time avera5ges and transpose to have same dimensions as latitude grid
-    net_sfc = nansum(cosd(lat_era).*net_sfc_tz) / nansum(cosd(lat_era));
+    net_sfc = nansum(cosd(grid.lat).*net_sfc_tz) / nansum(cosd(grid.lat));
     disp( sprintf('The net radiative imbalance at the surface is %g Wm^-2.', net_sfc) );
 end
 function proc_era5_temp(par)
@@ -455,7 +469,7 @@ function proc_era5_temp(par)
     load('/project2/tas1/miyawaki/projects/002/data/read/era5/temp_climatology.mat'); % load temperature
 
     if strcmp(par.lat_interp, 'era5')
-        lat = lat_era;
+        lat = grid.lat;
         % load ERA5 data
         for fn = vars_3d
             % order dimensions to be consistent with Donohoe data (mon, lat, plev)
@@ -466,7 +480,7 @@ function proc_era5_temp(par)
         % interpolate raw ERA5 data onto std lat x ERA5 lon grid
         for fn = vars_3d
             % interpolate to std lat
-            vertz.(fn{1}) = interp1(lat_era, vert.(fn{1}), par.lat_std, 'spline', nan);
+            vertz.(fn{1}) = interp1(grid.lat, vert.(fn{1}), par.lat_std, 'spline', nan);
             % order dimensions to be consistent with Donohoe data (mon, lat, plev)
             vertz.(fn{1}) = permute(vertz.(fn{1}), [3 1 2]);
         end
@@ -486,7 +500,7 @@ function proc_era5_srfc(par)
     load('/project2/tas1/miyawaki/projects/002/data/read/era5/srfc_climatology.mat'); % load surface data
 
     if strcmp(par.lat_interp, 'era5')
-        lat = lat_era;
+        lat = grid.lat;
         % load ERA5 data
         for fn = vars_srfc
             srfcz.(fn{1}) = permute(srfc.(fn{1}), [2 1]); % order dimensions to be consistent with Donohoe data (mon, lat, plev)
@@ -495,7 +509,7 @@ function proc_era5_srfc(par)
         lat = par.lat_std;
         % interpolate raw ERA5 data onto std lat x ERA5 lon grid
         for fn = vars_srfc
-            srfcz.(fn{1}) = interp1(lat_era, srfc.(fn{1}), par.lat_std, 'spline', nan); % interpolate to std lat
+            srfcz.(fn{1}) = interp1(grid.lat, srfc.(fn{1}), par.lat_std, 'spline', nan); % interpolate to std lat
             srfcz.(fn{1}) = permute(srfcz.(fn{1}), [2 1]); % order dimensions to be consistent with Donohoe data (mon, lat, plev)
         end
     end
@@ -518,7 +532,7 @@ function filt_era5_temp(par)
 
     % create surface mask
     ps_3d = repmat(srfcz.sp, [1 1 size(vertz.t, 3)]);
-    pa_3d = double(permute(repmat(plev_era, [1 size(srfcz.sp)]), [2 3 1]))*10^2; % convert from hPa to Pa
+    pa_3d = double(permute(repmat(grid.plev, [1 size(srfcz.sp)]), [2 3 1]))*10^2; % convert from hPa to Pa
     surface_mask = nan(size(vertz.t));
     surface_mask(pa_3d < ps_3d) = 1;
 
@@ -548,13 +562,13 @@ function filt_era5_temp(par)
         vert_filt.rae.(fn{1}) = nansum(cosd(lat).*t_rae_t.(fn{1})) / nansum(cosd(lat).*rae_filt_t.(fn{1})'); % area-weighted meridional average
         vert_filt.rae.nh.(fn{1}) = nansum(cosd(lat(lat>0)).*t_rae_t.(fn{1})(lat>0,:)) / nansum(cosd(lat(lat>0)).*rae_filt_t.(fn{1})(lat>0)'); % area-weighted meridional average
         vert_filt.rae.sh.(fn{1}) = nansum(cosd(lat(lat<0)).*t_rae_t.(fn{1})(lat<0,:)) / nansum(cosd(lat(lat<0)).*rae_filt_t.(fn{1})(lat<0)'); % area-weighted meridional average
-        vert_filt.rce.(fn{1})(plev_era*100 > min(min(ps_rce.(fn{1})))) = nan;
-        vert_filt.rce.tp.(fn{1})(plev_era*100 > min(min(ps_rce.(fn{1})(:,abs(lat)<30)))) = nan;
-        vert_filt.rce.nh.(fn{1})(plev_era*100 > min(min(ps_rce.(fn{1})(:,lat>30)))) = nan;
-        vert_filt.rce.sh.(fn{1})(plev_era*100 > min(min(ps_rce.(fn{1})(:,lat<-30)))) = nan;
-        vert_filt.rae.(fn{1})(plev_era*100 > min(min(ps_rae.(fn{1})))) = nan;
-        vert_filt.rae.nh.(fn{1})(plev_era*100 > min(min(ps_rae.(fn{1})(:,lat>0)))) = nan;
-        vert_filt.rae.sh.(fn{1})(plev_era*100 > min(min(ps_rae.(fn{1})(:,lat<0)))) = nan;
+        vert_filt.rce.(fn{1})(grid.plev*100 > min(min(ps_rce.(fn{1})))) = nan;
+        vert_filt.rce.tp.(fn{1})(grid.plev*100 > min(min(ps_rce.(fn{1})(:,abs(lat)<30)))) = nan;
+        vert_filt.rce.nh.(fn{1})(grid.plev*100 > min(min(ps_rce.(fn{1})(:,lat>30)))) = nan;
+        vert_filt.rce.sh.(fn{1})(grid.plev*100 > min(min(ps_rce.(fn{1})(:,lat<-30)))) = nan;
+        vert_filt.rae.(fn{1})(grid.plev*100 > min(min(ps_rae.(fn{1})))) = nan;
+        vert_filt.rae.nh.(fn{1})(grid.plev*100 > min(min(ps_rae.(fn{1})(:,lat>0)))) = nan;
+        vert_filt.rae.sh.(fn{1})(grid.plev*100 > min(min(ps_rae.(fn{1})(:,lat<0)))) = nan;
     end
 
     % save filtered data
@@ -565,73 +579,19 @@ function filt_era5_temp(par)
     end
     save(printname, 'vert_filt');
 end
-function proc_mpi_rcae(par)
-    load('/project2/tas1/miyawaki/projects/002/data/read/mpi/2d_climatology'); % read 2D mpi data
-    load('/project2/tas1/miyawaki/projects/002/data/read/mpi/3d_climatology'); % read 3D mpi data
+function proc_gcm_rcae(par)
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/2d_climatology', model)); % read 2D gcm data
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/3d_climatology', model)); % read 3D gcm data
 
-    lat = mpi_3d.lat;
+    lat = gcm_3d.lat;
 
-    % create surface mask
-    ps_4d = permute(repmat(mpi_2d.ps, [1 1 1 size(mpi_3d.ta, 3)]), [1 2 4 3]);
-    pa_4d = permute(repmat(mpi_3d.plev, [1 size(mpi_2d.ps)]), [2 3 1 4]);
-    surface_mask = nan(size(mpi_3d.ta));
-    surface_mask(pa_4d < ps_4d) = 1;
-
-    % filter all 3D data with surface mask
-    for fn = fieldnames(mpi_3d)'
-        if ~strcmp(fn{1}, {'lon', 'lat', 'plev'})
-            mpi_3d.(fn{1}) = mpi_3d.(fn{1}).*surface_mask;
-        end
-    end
-    pa_4d = pa_4d.*surface_mask;
-
-    % calculate x component of MSE flux divergence
-    dlon = mpi_3d.lon(2)-mpi_3d.lon(1);
-    dx = par.a*cosd(mpi_3d.lat)*deg2rad(dlon);
-    dx_4d = repmat(dx, [1 size(mpi_3d.ta,1) size(mpi_3d.ta,3) size(mpi_3d.ta,4)]);
-    dx_4d = permute(dx_4d, [2 1 3 4]);
-    lon_half = (mpi_3d.lon(2:end) + mpi_3d.lon(1:end-1))/2;
-    lon_half(end+1) = (mpi_3d.lon(end)+360)/2;
-    duh_half = (mpi_3d.uh(2:end,:,:,:) - mpi_3d.uh(1:end-1,:,:,:))./dx_4d(1:end-1,:,:,:);
-    duh_half(end+1,:,:,:) = (mpi_3d.uh(1,:,:,:) - mpi_3d.uh(end,:,:,:))./dx_4d(1,:,:,:);
-    duh = interp1(lon_half, duh_half, mpi_3d.lon);
-
-    % calculate y component of MSE flux divergence
-    dlat = mpi_3d.lat(2) - mpi_3d.lat(1);
-    dy = par.a*deg2rad(dlat);
-    lat_half = (mpi_3d.lat(2:end) + mpi_3d.lat(1:end-1))/2;
-    cos_4d = repmat( cosd(mpi_3d.lat), [1 size(mpi_3d.ta,1), size(mpi_3d.ta,3), size(mpi_3d.ta,4)] );
-    cos_4d = permute(cos_4d, [2 1 3 4]);
-    dvh_half = (cos_4d(:,2:end,:,:).*mpi_3d.vh(:,2:end,:,:) - cos_4d(:,1:end-1,:,:).*mpi_3d.vh(:,1:end-1,:,:))/dy;
-    dvh_half = permute(dvh_half, [2 1 3 4]);
-    dvh = interp1(lat_half, dvh_half, mpi_3d.lat);
-    dvh = permute(dvh, [2 1 3 4]);
-
-    % vertically integrate
-    % fluxes.TEDIV = squeeze( trapz(mpi_3d.plev, -1/par.g*(duh + dvh), 3) ); % total horizontal MSE flux divergence
-    for i = 1:length(mpi_3d.lon); long = mpi_3d.lon(i);
-        for j = 1:length(mpi_3d.lat); lati = mpi_3d.lat(j);
-            fluxes.TEDIV(i,j,:) = squeeze( trapz(squeeze(pa_4d(i,j,:,1)), -1/par.g*(duh(i,j,:,:) + dvh(i,j,:,:)), 3) ); % total horizontal MSE flux divergence
-        end
-    end
-    h = squeeze( trapz(mpi_3d.plev, -1/par.g*(mpi_3d.h), 3) ); % MSE
-
-    % MSE tendency
-    dhdt_half = nan(size(h));
-    dhdt_half(:,:,2:end) = (h(:,:,2:end) - h(:,:,1:end-1)) / (30.5*86400);
-    dhdt_half(:,:,1) = (h(:,:,1) - h(:,:,end)) / (30.5*86400);
-    dhdt_half = permute(dhdt_half, [3 1 2]);
-    fluxes.TETEN = interp1(0.5:11.5, dhdt_half, 1:12);
-    fluxes.TETEN = permute(fluxes.TETEN, [2 3 1]);
-
-    load('/project2/tas1/miyawaki/projects/002/data/read/mpi/2d_climatology'); % read 2D mpi data
-    fluxes.slhf = -mpi_2d.hfls; fluxes.sshf = -mpi_2d.hfss; % rename and change sign of turbulent fluxes to be consistent with era
-    fluxes.ra = mpi_2d.rsdt - mpi_2d.rsut + mpi_2d.rsus - mpi_2d.rsds + mpi_2d.rlus - mpi_2d.rlds - mpi_2d.rlut; % calculate atmospheric radiative cooling
+    load('/project2/tas1/miyawaki/projects/002/data/read/gcm/2d_climatology'); % read 2D gcm data
+    fluxes.slhf = -data_2d.hfls; fluxes.sshf = -data_2d.hfss; % rename and change sign of turbulent fluxes to be consistent with era
+    fluxes.ra = data_2d.rsdt - data_2d.rsut + data_2d.rsus - data_2d.rsds + data_2d.rlus - data_2d.rlds - data_2d.rlut; % calculate atmospheric radiative cooling
     fluxes.stf = fluxes.slhf + fluxes.sshf;
 
-    % infer energy fluxes as residuals
-    fluxes.TETEN_res = fluxes.ra + fluxes.slhf + fluxes.sshf - fluxes.TEDIV;
-    fluxes.stf_res = fluxes.TETEN + fluxes.TEDIV - fluxes.ra;
+    % infer MSE tendency and flux divergence as residuals
+    fluxes.res = fluxes.ra + fluxes.stf;
 
     fluxes.r1 = (fluxes.TETEN + fluxes.TEDIV)./fluxes.ra; % calculate nondimensional number R1 disregarding MSE budget closure
     fluxes.r2 = fluxes.stf./fluxes.ra; % calculate nondimensional number R2 disregarding MSE budget closure
@@ -659,18 +619,36 @@ function proc_mpi_rcae(par)
     rcae.stf(abs(fluxez.r2_stf) < par.ep) = -1;
 
     % save energy flux data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/mpi/%s/', par.lat_interp);
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/gcm/%s/', par.lat_interp);
     printname = [foldername 'fluxes.mat'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
     save(printname, 'fluxez', 'lat');
     % save rcae data
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/mpi/%s/eps_%g/', par.lat_interp, par.ep);
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/gcm/%s/eps_%g/', par.lat_interp, par.ep);
     printname = [foldername 'rcae.mat'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
     save(printname, 'rcae', 'lat');
+
+end
+
+function proc_gcm_temp(par, model)
+
+    % create surface mask
+    ps_4d = permute(repmat(gcm_2d.ps, [1 1 1 size(gcm_3d.ta, 3)]), [1 2 4 3]);
+    pa_4d = permute(repmat(gcm_3d.plev, [1 size(gcm_2d.ps)]), [2 3 1 4]);
+    surface_mask = nan(size(gcm_3d.ta));
+    surface_mask(pa_4d < ps_4d) = 1;
+
+    % filter all 3D data with surface mask
+    for fn = fieldnames(gcm_3d)'
+        if ~strcmp(fn{1}, {'lon', 'lat', 'plev'})
+            gcm_3d.(fn{1}) = gcm_3d.(fn{1}).*surface_mask;
+        end
+    end
+    pa_4d = pa_4d.*surface_mask;
 
 end
