@@ -24,15 +24,16 @@ par.cpd = 1005.7; par.Rd = 287; par.L = 2.501e6; par.g = 9.81;
 %% call functions
 type='era5';
 % read_grid(type, par)
-read_rad(type, par)
+% read_rad(type, par)
 % TODO convert all of this below:
-% read_era5_pe(type, par)
+% read_pe(type, par)
 % read_era5_stf(type, par)
 % read_era5_vert(type, par)
 % read_era5_sfc(type, par)
 for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
     % read_grid('gcm', par)
     % read_rad('gcm', par)
+    read_pe('gcm', par)
     % read_gcm_2d(par, model)
     % read_gcm_3d(par, model)
 end
@@ -130,6 +131,16 @@ function read_pe(type, par) % TODO finish converting this to be type agnostic
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/pe_climatology.mat', type), 'pe', 'pe_vars');
 
     elseif strcmp(type, 'gcm')
+        pe_vars=par.gcm.vars.pe;
+        for i=1:length(par.gcm.vars.pe); var = par.gcm.vars.pe{i};
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.nc', par.model, var, par.model));
+            fullpath=sprintf('%s/%s', file.folder, file.name);
+            pe.(var)=ncread(fullpath, var);
+        end
+        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model);
+        if ~exist(newdir, 'dir'); mkdir(newdir); end
+        filename='pe_climatology.mat';
+        save(sprintf('%s/%s', newdir, filename), 'pe', 'pe_vars');
     end
 end
 function read_era5_stf(stf_vars, par) % TODO

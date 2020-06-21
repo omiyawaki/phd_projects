@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-declare -a vars_gcm=("ta" "hur" "ps" "hurs" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
+declare -a vars_gcm=("ta" "hur" "ps" "hurs" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
 
 cwd=$(pwd) # save current working directory
 cd ../gcm_raw # switch to directory with raw data
@@ -19,7 +19,14 @@ for dirs in MPI-ESM-LR/; do # for MPI-ESM-LR only (test run)
                 echo "File of type $pattern does not exist. Skipping..."
             elif [ $(find . -maxdepth 1 -name "$pattern" -printf '.' | wc -m) -eq 1 ]; then # check if there are multiple files of this variable
                 file=$(ls $pattern)
-                cdo ymonmean $file $cwd/$dirs$file.ymonmean.nc # take multi-year monthly climatology and save
+                common="${file%_*-*}_" # common part of file name that doesn't contain the years
+                yr=${file#"${file%_*-*}_"} # extract just the year part of name containing last year
+                yr_end=${yr: 7:4} # extract the last year and month
+                yr_m30=$((yr_end-29)) # 30 years before the end
+                sel30="${common}${yr_m30}01-${yr_end}12" # write file name with last 30 years
+                cdo seldate,${yr_m30}-01,$((yr_end+1))-01 $file $cwd/$dirs$sel30.nc # select last 30 years
+                cdo ymonmean $cwd/$dirs$sel30.nc $cwd/$dirs$sel30.ymonmean.nc # take multi-year monthly climatology and save
+                rm $cwd/$dirs/$sel30.nc # delete temporary 30 year file
             else
                 files=( $pattern )
                 first="${files[0]}" # first file of this variable
@@ -27,12 +34,16 @@ for dirs in MPI-ESM-LR/; do # for MPI-ESM-LR only (test run)
                 common="${first%_*-*}_" # common part of file name that doesn't contain the years
                 begin=${first#"${first%_*-*}_"} # extract just the year part of name containing first year
                 end=${last#"${last%_*-*}_"} # extract just the year part of name containing last year
-                yr_begin=${begin: 0:6} # extract the first year and month
-                yr_end=${end: 7:6} # extract the last year and month
-                merge="${common}${yr_begin}-${yr_end}.nc" # write file name with merged time
-                cdo mergetime $(ls ${vars}_*) $cwd/$dirs/$merge # combine multiple files into one
-                cdo ymonmean $cwd/$dirs/$merge $cwd/$dirs$merge.ymonmean.nc # take multi-year monthly climatology and save
-                rm $cwd/$dirs/$merge # delete original merged file
+                yr_begin=${begin: 0:4} # extract the first year and month
+                yr_end=${end: 7:4} # extract the last year and month
+                yr_m30=$((yr_end-29)) # 30 years before the end
+                merge="${common}${yr_begin}01-${yr_end}12" # write file name with merged time
+                sel30="${common}${yr_m30}01-${yr_end}12" # write file name with last 30 years
+                cdo mergetime $(ls ${vars}_*) $cwd/$dirs/$merge.nc # combine multiple files into one
+                cdo seldate,${yr_m30}-01,$((yr_end+1))-01 $cwd/$dirs/$merge.nc $cwd/$dirs/$sel30.nc # select last 30 years
+                cdo ymonmean $cwd/$dirs/$sel30.nc $cwd/$dirs$sel30.ymonmean.nc # take multi-year monthly climatology and save
+                rm $cwd/$dirs/$merge.nc # delete temporary merged file
+                rm $cwd/$dirs/$sel30.nc # delete temporary 30 year file
             fi
         fi
     done
