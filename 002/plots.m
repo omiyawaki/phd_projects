@@ -36,23 +36,114 @@ if 1
     par.purple = 0.5*[0.4940, 0.1840, 0.5560];
     par.gray = 0.5*[1 1 1];
 end
+gcm_info
 
 %% call functions
+type = 'era5';
 % plot_don_vh(par); % plot meridional MSE transport (in units of power) for Donohoe MSE flux divergence
 % plot_era_ra_tediv_mon_lat('era', par); % plot R_a and flux divergence profiles
 % plot_era_energy_lat('era', par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
 % plot_era_teten_stf_r1_mon_lat('era', par); % plot remaining energy fluxes that depends on energy closure method
-% plot_era5_energy_lat('era5', par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
+% choose_plots(type, par);
+for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
+    type = 'gcm';
+    % choose_plots(type, par);
+end
 
 % sweep through various threshold values
 for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
+    type = 'era5';
     % plot_era_rcae_mon_lat('era', par); % plot RCAE regimes, depends on choice of threshold epsilon
     % plot_era_temp('era', par); % plot temperature profiles in RCAE regimes
     % plot_era5_rcae_mon_lat('era5', par); % plot RCAE regimes, depends on choice of threshold epsilon
-    plot_era5_temp('era5', par); % plot temperature profiles in RCAE regimes
+    % plot_era5_temp('era5', par); % plot temperature profiles in RCAE regimes
+    choose_plots_ep(type, par)
+    for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
+        type = 'gcm'
+        choose_plots_ep(type, par)
+    end
 end
 
 %% define functions
+function choose_plots(type, par)
+    plot_energy_lat(type, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
+end
+function choose_plots_ep(type, par)
+    plot_rcae_mon_lat(type, par)
+end
+
+function plot_energy_lat(type, par) % latitude vs energy flux line plots, comparable to Hartmann (2016)
+    [fluxes, vh, lat, par] = load_fluxes(type, par); % load data
+    figure(); clf; hold all;
+    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+    plot(lat,nanmean(fluxes.ra,2), 'color', par.gray)
+    plot(lat,nanmean(fluxes.res,2), 'color', par.maroon)
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        plot(lat, -nanmean(fluxes.slhf,2), 'color', par.blue)
+        plot(lat, -nanmean(fluxes.sshf,2), 'color', par.orange)
+    elseif strcmp(type, 'gcm')
+        plot(lat, nanmean(fluxes.hfls,2), 'color', par.blue)
+        plot(lat, nanmean(fluxes.hfss,2), 'color', par.orange)
+    end
+    xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'ylim', [-inf 150], 'xminortick', 'on', 'yminortick', 'on')
+    print(sprintf('%s/energy-fluxes', par.plotdir), '-dpng', '-r300');
+    close;
+% northward MSE transport
+    figure(); clf; hold all;
+    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+    line([0 0], [min(vh) max(vh)]*10^-15, 'linewidth', 0.5, 'color', 'k');
+    plot(lat, vh*10^-15, 'color', par.maroon);
+    xlabel('latitude (deg)'); ylabel('PW')
+    title('Northward MSE Energy Transport');
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+    print([par.plotdir '/mse-transport'], '-dpng', '-r300');
+    close;
+end
+function plot_rcae_mon_lat(type, par)
+    % load data
+    [~, ~, lat, par] = load_fluxes(type, par);
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/rcae.mat', type, par.lat_interp, par.ep));
+    elseif strcmp(type, 'gcm')
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g/rcae.mat', type, par.model, par.lat_interp, par.ep));
+    end
+    % spatio-emporal dependence of RCE and RAE, regular definitions
+    figure(); clf; hold all;
+    cmp = colCog(10);
+    colormap(cmp);
+    imagesc([1 12], [lat(1) lat(end)], rcae.def);
+    caxis([-2 2]);
+    xlabel('Month'); ylabel('Latitude (deg)');
+    set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/rcae_%g/rcae_mon_lat', par.plotdir, par.ep), '-dpng', '-r300');
+    close;
+    % spatio-emporal dependence of RCE and RAE, RCE requires P-E>0
+    figure(); clf; hold all;
+    cmp = colCog(10);
+    colormap(cmp);
+    imagesc([1 12], [lat(1) lat(end)], rcae.pe);
+    caxis([-2 2]);
+    xlabel('Month'); ylabel('Latitude (deg)');
+    set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/rcae_%g/rcae_pe_mon_lat', par.plotdir, par.ep), '-dpng', '-r300');
+    close;
+    % spatio-emporal dependence of RCE and RAE, RCE requires P-E>0
+    figure(); clf; hold all;
+    cmp = colCog(10);
+    colormap(cmp);
+    imagesc([1 12], [lat(1) lat(end)], rcae.cp);
+    caxis([-2 2]);
+    xlabel('Month'); ylabel('Latitude (deg)');
+    set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/rcae_%g/rcae_cp_mon_lat', par.plotdir, par.ep), '-dpng', '-r300');
+    close;
+end
+
 function plot_don_vh(par)
 % load data
     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/vh.mat', par.lat_interp));
@@ -101,29 +192,6 @@ function plot_era_ra_tediv_mon_lat(data_type, par)
     print([par.plotdir '/tediv_mon_lat'], '-dpng', '-r300');
     close;
 
-end
-function plot_era_energy_lat(data_type, par)
-% load data
-    [fluxez, TETEN, stf, r1, lat, par] = load_era_fluxes(data_type, par);
-% latitude vs energy flux line plots, comparable to Hartmann (2016)
-    figure();clf; hold all;
-    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-    plot(lat,nanmean(fluxez.ra,1), 'color', par.gray)
-    plot(lat,nanmean(fluxez.TEDIV,1), 'color', par.maroon)
-    plot(lat,nanmean(TETEN,1), 'color', par.green)
-    if strcmp(par.closure, 'stf')
-        plot(lat, -nanmean(fluxez.slhf,1), 'color', par.blue)
-        plot(lat, -nanmean(fluxez.sshf,1), 'color', par.orange)
-    elseif strcmp(par.closure, 'teten')
-        plot(lat, nanmean(stf,1), '--', 'color', par.blue)
-        plot(lat, nanmean(stf,1), ':', 'color', par.orange)
-    end
-    xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
-    axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-    set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
-    print(sprintf('%s/%s/era-fig-6-1-hartmann', par.plotdir, par.closure), '-dpng', '-r300');
-    close;
 end
 function plot_era_teten_stf_r1_mon_lat(data_type, par)
     [fluxez, TETEN, stf, r1, lat, par] = load_era_fluxes(data_type, par); % load data
@@ -208,81 +276,7 @@ function plot_era_temp(data_type, par)
     print(sprintf('%s/%s/rcae_%g/temp', par.plotdir, par.closure, par.ep), '-dpng', '-r300');
     close;
 end
-function plot_era5_energy_lat(data_type, par)
-% load data
-    [fluxez, vh, lat, par] = load_era5_fluxes(data_type, par);
-% latitude vs energy flux line plots, comparable to Hartmann (2016)
-    figure();clf; hold all;
-    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-    plot(lat,nanmean(fluxez.ra,1), 'color', par.gray)
-    plot(lat,nanmean(fluxez.res,1), 'color', par.maroon)
-    plot(lat, -nanmean(fluxez.slhf,1), 'color', par.blue)
-    plot(lat, -nanmean(fluxez.sshf,1), 'color', par.orange)
-    xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
-    axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-    set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
-    print(sprintf('%s/era-fig-6-1-hartmann', par.plotdir), '-dpng', '-r300');
-    close;
-% northward MSE transport
-    figure(); clf; hold all;
-    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-    line([0 0], [-4.5 4], 'linewidth', 0.5, 'color', 'k');
-    plot(lat, vh*10^-15, 'color', par.maroon);
-    xlabel('latitude (deg)'); ylabel('PW')
-    title('Northward MSE Energy Transport');
-    axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
-    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
-    print([par.plotdir '/vh'], '-dpng', '-r300');
-    close;
-    figure(); clf; hold all;
-    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-    line([0 0], [-6 2.5], 'linewidth', 0.5, 'color', 'k');
-    plot(lat, vh*10^-15, 'color', par.maroon);
-    xlabel('latitude (deg)'); ylabel('PW')
-    title('Northward MSE Energy Transport');
-    axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
-    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
-    print([par.plotdir '/vh'], '-dpng', '-r300');
-    close;
-end
-function plot_era5_rcae_mon_lat(data_type, par)
-    % load data
-    [~, ~, lat, par] = load_era5_fluxes(data_type, par);
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/rcae.mat', data_type, par.lat_interp, par.ep));
-    % spatio-emporal dependence of RCE and RAE, regular definitions
-    figure(); clf; hold all;
-    cmp = colCog(10);
-    colormap(cmp);
-    imagesc([1 12], [lat(1) lat(end)], rcae.def');
-    caxis([-2 2]);
-    xlabel('Month'); ylabel('Latitude (deg)');
-    set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print(sprintf('%s/rcae_%g/rcae_mon_lat', par.plotdir, par.ep), '-dpng', '-r300');
-    close;
-    % spatio-emporal dependence of RCE and RAE, RCE requires P-E>0
-    figure(); clf; hold all;
-    cmp = colCog(10);
-    colormap(cmp);
-    imagesc([1 12], [lat(1) lat(end)], rcae.pe');
-    caxis([-2 2]);
-    xlabel('Month'); ylabel('Latitude (deg)');
-    set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print(sprintf('%s/rcae_%g/rcae_pe_mon_lat', par.plotdir, par.ep), '-dpng', '-r300');
-    close;
-    % spatio-emporal dependence of RCE and RAE, RCE requires P-E>0
-    figure(); clf; hold all;
-    cmp = colCog(10);
-    colormap(cmp);
-    imagesc([1 12], [lat(1) lat(end)], rcae.cp');
-    caxis([-2 2]);
-    xlabel('Month'); ylabel('Latitude (deg)');
-    set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print(sprintf('%s/rcae_%g/rcae_cp_mon_lat', par.plotdir, par.ep), '-dpng', '-r300');
-    close;
-end
+
 function plot_era5_temp(data_type, par)
 % load era5 plev grid
     load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat')
@@ -370,13 +364,19 @@ function [fluxez, TETEN, stf, r1, lat, par] = load_era_fluxes(data_type, par)
         r1 = fluxez.r1_stf; % corresponding non dimensional number r1
     end
 end
-function [fluxez, vh, lat, par] = load_era5_fluxes(data_type, par)
+function [fluxes, vh, lat, par] = load_fluxes(type, par)
     % load processed data/proc
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/fluxes.mat', data_type, par.lat_interp));
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/fluxes.mat', type, par.lat_interp));
+        par.plotdir = sprintf('./figures/%s/%s', type, par.lat_interp);
+    elseif strcmp(type, 'gcm')
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/fluxes.mat', type, par.model, par.lat_interp));
+        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.model, par.lat_interp);
+    end
+
     % create a mon x lat meshgrid for contour plots
     [par.mesh_lat, par.mesh_mon] = meshgrid(1:12, lat);
     % make figure directory if it does not exist
-    par.plotdir = sprintf('./figures/%s/%s', data_type, par.lat_interp);
     for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
         if ~exist(sprintf('%s/rcae_%g', par.plotdir, par.ep), 'dir')
             mkdir(sprintf('%s/rcae_%g', par.plotdir, par.ep));

@@ -36,4 +36,4 @@ c.retrieve(
         ],
         'time': '00:00',
     },
-    'era5_sfc_1979_2019.nc')
+    'era5_srfc_1979_2019.nc')

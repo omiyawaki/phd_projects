@@ -11,161 +11,206 @@ par.cpd = 1005.7; par.Rd = 287; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3;
 gcm_info
 
 %% call functions
-% proc_era_vh(par) % calculate integrated energy transport (in units of power) using Donohoe MSE flux divergence
-% proc_era_net_fluxes(par) % calculate global TOA and surface energy flux imbalance
-% proc_era5_net_fluxes(par) % calculate global TOA and surface energy flux imbalance
+type = 'era5'; % data type to run analysis on
+choose_proc(type, par)
+for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
+    type = 'gcm';
+    choose_proc(type, par)
+end
+
 for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
-    % proc_era_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
-    % proc_era_temp(par) % extract raw temperature data from ERA-Interim
-    % filt_era_temp(par) % calculate temperature profiles over RCE and RAE using ERA-Interim data
-    % proc_era5_fluxes(par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
-    % proc_era5_rcae(par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
-    % proc_era5_temp(par) % extract raw temperature data from ERA5
-    % proc_era5_srfc(par) % extract raw surface data from ERA5
-    % filt_era5_temp(par) % calculate temperature profiles over RCE and RAE using ERA5 data
-    for k=1:length(pars.gcm_models); model=par.gcm_models{k}
-        proc_gcm_rcae(par, model) % calculate energy fluxes in the vertically-integrated MSE budget using GCM-ESM-LR data
+    % choose_proc_ep(type, par)
+    for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
+        type = 'gcm';
+        % choose_proc_ep(type, par)
     end
 end
 
 %% define functions
-function proc_era_rcae(par)
-    % ead data from Aaron Donohoe's mass-corrected atmospheric energy transport calculations
-    % from ERA-Interim climatology from year 2000 through 2012.
-    don = load('/project2/tas1/miyawaki/projects/002/data/read/radiation_dynamics_climatology.mat');
-
-    % read ERA-Interim grid data
-    load('/project2/tas1/miyawaki/projects/002/data/read/era-interim/grid.mat');
-    % read radiation climatology from ERA-Interim, 2000 - 2012 (rad)
-    load('/project2/tas1/miyawaki/projects/002/data/read/era-interim/radiation_climatology.mat');
-    % surface turbulent fluxes (stf)
-    load('/project2/tas1/miyawaki/projects/002/data/read/era-interim/turbfluxes_climatology.mat');
-
-    if strcmp(par.lat_interp, 'don')
-        lat = don.lat;
-        % interpolate raw ERA-Interim data onto Donohoe lat x lon grid
-        for fn = rad_vars
-            % interpolate to Donohoe lon
-            don.(fn{1}) = interp1(grid.lon, rad.(fn{1}), don.lon);
-            % interpolate to Donohoe lat
-            don.(fn{1}) = permute(don.(fn{1}), [2 1 3]);
-            don.(fn{1}) = interp1(grid.lat, don.(fn{1}), don.lat);
-            % order dimensions to be consistent with Donohoe data (mon, lat, lon)
-            don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
-        end
-        for fn = stf_vars
-            % interpolate to Donohoe lon
-            don.(fn{1}) = interp1(grid.lon, stf.(fn{1}), don.lon);
-            % interpolate to Donohoe lat
-            don.(fn{1}) = permute(don.(fn{1}), [2 1 3]);
-            don.(fn{1}) = interp1(grid.lat, don.(fn{1}), don.lat);
-            % order dimensions to be consistent with Donohoe data (mon, lat, lon)
-            don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
-        end
-    elseif strcmp(par.lat_interp, 'era')
-        lat = grid.lat;
-        % interpolate don TETEN and TEDIV data onto ERA lat x lon grid
-        for fn = {'TETEN', 'TEDIV'}
-            % order dimensions as (lon, lat, mon)
-            don.(fn{1}) = permute(don.(fn{1}), [3 2 1]);
-            % interpolate to ERA lon
-            don.(fn{1}) = interp1(don.lon, don.(fn{1}), grid.lon, 'spline');
-            % interpolate to ERA lat
-            don.(fn{1}) = permute(don.(fn{1}), [2 1 3]);
-            don.(fn{1}) = interp1(don.lat, don.(fn{1}), grid.lat, 'spline', nan);
-            % order dimensions to be consistent with Donohoe data (mon, lat, lon)
-            don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
-        end
-        % load ERA-Interim data
-        for fn = rad_vars
-            % order dimensions to be consistent with Donohoe data (mon, lat, lon)
-            don.(fn{1}) = permute(rad.(fn{1}), [3 2 1]);
-        end
-        for fn = stf_vars
-            % order dimensions to be consistent with Donohoe data (mon, lat, lon)
-            don.(fn{1}) = permute(stf.(fn{1}), [3 2 1]);
-        end
-    elseif strcmp(par.lat_interp, 'std') % interpolate all to fine standard grid
-        lat = par.lat_std;
-        % interpolate raw ERA-Interim data onto std lat x ERA lon grid
-        for fn = rad_vars
-            % interpolate to std lat
-            don.(fn{1}) = permute(rad.(fn{1}), [2 1 3]);
-            don.(fn{1}) = interp1(grid.lat, don.(fn{1}), par.lat_std, 'spline', nan);
-            % order dimensions to be consistent with Donohoe data (mon, lat, lon)
-            don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
-        end
-        for fn = stf_vars
-            % interpolate to std lat
-            don.(fn{1}) = permute(stf.(fn{1}), [2 1 3]);
-            don.(fn{1}) = interp1(grid.lat, don.(fn{1}), par.lat_std, 'spline', nan);
-            % order dimensions to be consistent with Donohoe data (mon, lat, lon)
-            don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
-        end
-        % interpolate don TETEN and TEDIV data onto ERA lat x lon grid
-        for fn = {'TETEN', 'TEDIV'}
-            % order dimensions as (lon, lat, mon)
-            don.(fn{1}) = permute(don.(fn{1}), [3 2 1]);
-            % interpolate to ERA lon
-            don.(fn{1}) = interp1(don.lon, don.(fn{1}), grid.lon, 'spline');
-            % interpolate to ERA lat
-            don.(fn{1}) = permute(don.(fn{1}), [2 1 3]);
-            don.(fn{1}) = interp1(don.lat, don.(fn{1}), par.lat_std, 'spline', nan);
-            % order dimensions to be consistent with Donohoe data (mon, lat, lon)
-            don.(fn{1}) = permute(don.(fn{1}), [3 1 2]);
-        end
+function choose_proc(type, par)
+    % proc_fluxes(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+    proc_net_fluxes(type, par) % calculate net energy fluxes at TOA and surface
+end
+function proc_fluxes(type, par)
+    if strcmp(type, 'era5')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
     end
 
-    % compute net radiative cooling from radiative fluxes
-    don.ra = don.tsr - don.ssr + don.ttr - don.str;
+    load(sprintf('%s/grid.mat', prefix)) % read grid data
+    load(sprintf('%s/rad.mat', prefix)) % read radiation data
+    load(sprintf('%s/pe.mat', prefix)) % read hydrology data
+    load(sprintf('%s/stf.mat', prefix)) % read surface turbulent flux data
 
-    % compute surface turbulent fluxes directly from ERA-Interim data
-    % multiply by negative to define flux from surface to atmosphere as positive
-    don.stf = -( don.sshf + don.slhf );
-
-    % compute surface turbulent fluxes as residual of radiative cooling, storage, and atmospheric heat transport
-    don.stf_res = don.TETEN + don.TEDIV - don.ra;
-
-    % compute MSE storage as residual of radiative cooling, turbulent fluxes, and heat transport
-    don.TETEN_res = don.ra + don.stf - don.TEDIV;
-
-    % compute non-dimensional number R1
-    % R1 measures the importance of atmospheric heat transport
-    % defined using Donohoe TETEN closure
-    don.r1_teten = (don.TETEN + don.TEDIV) ./ don.ra;
-    % defined using ERA-Interim stf closure
-    don.r1_stf = (don.TETEN_res + don.TEDIV) ./ don.ra;
-
-    % compute non-dimensional number R2
-    % R2 measures the importance of surface turbulent fluxes
-    % defined using Donohoe TETEN closure
-    don.r2_teten = don.stf_res ./ don.ra;
-    % defined using ERA-Interim stf closure
-    don.r2_stf = don.stf ./ don.ra;
-
-    % take zonal averages
-    for fn = {'ra', 'stf', 'stf_res', 'sshf', 'slhf', 'TETEN', 'TETEN_res', 'TEDIV', 'r1_teten', 'r1_stf', 'r2_teten', 'r2_stf'}
-        fluxez.(fn{1}) = nanmean(don.(fn{1}), 3);
+    lat = par.lat_std;
+    % interpolate onto std lat x lon grid
+    for fn = rad_vars % interpolate to std lat
+        intp.(fn{1}) = permute(rad.(fn{1}), [2 1 3]);
+        intp.(fn{1}) = interp1(grid.dim2.lat, intp.(fn{1}), par.lat_std, 'spline');
+        intp.(fn{1}) = permute(intp.(fn{1}), [2 1 3]);
+    end
+    for fn = pe_vars % interpolate to std lat
+        intp.(fn{1}) = permute(pe.(fn{1}), [2 1 3]);
+        intp.(fn{1}) = interp1(grid.dim2.lat, intp.(fn{1}), par.lat_std, 'spline');
+        intp.(fn{1}) = permute(intp.(fn{1}), [2 1 3]);
+    end
+    for fn = stf_vars % interpolate to std lat
+        intp.(fn{1}) = permute(stf.(fn{1}), [2 1 3]);
+        intp.(fn{1}) = interp1(grid.dim2.lat, intp.(fn{1}), par.lat_std, 'spline');
+        intp.(fn{1}) = permute(intp.(fn{1}), [2 1 3]);
     end
 
-    % identify locations of RCE using threshold epsilon (ep)
-    rcae.teten = zeros(size(fluxez.r1_teten));
-    rcae.stf = zeros(size(fluxez.r1_stf));
-    rcae.teten(abs(fluxez.r1_teten) < par.ep) = 1;
-    rcae.stf(abs(fluxez.r1_stf) < par.ep) = 1;
-    % identify locations of RAE using threshold gamma (ga)
-    rcae.teten(fluxez.r1_teten > par.ga) = -1;
-    rcae.stf(fluxez.r1_stf > par.ga) = -1;
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        intp.ra = intp.tsr - intp.ssr + intp.ttr - intp.str; % compute net radiative cooling from radiative fluxes
+        % compute surface turbulent fluxes directly from INTP data
+        % multiply by negative to define flux from surface to atmosphere as positive
+        intp.stf = -( intp.sshf + intp.slhf );
+    elseif strcmp(type, 'gcm')
+        intp.ra = intp.rsdt - intp.rsut + intp.rsus - intp.rsds + intp.rlus - intp.rlds - intp.rlut; % calculate atmospheric radiative cooling
+        intp.stf = intp.hfls + intp.hfss;
+    end
+
+    intp.res = intp.ra + intp.stf; % infer MSE tendency and flux divergence as residuals
+    % compute northward MSE transport using the residual data
+    tediv_t = squeeze(nanmean(intp.res, 3)); % take time average
+    tediv_tz = trapz(deg2rad(grid.dim2.lon), tediv_t, 1); % zonally integrate
+    vh = cumtrapz(deg2rad(lat), par.a^2*cosd(lat).*tediv_tz'); % cumulatively integrate in latitude
+    intp.r1 = (intp.res)./intp.ra; % calculate nondimensional number R1 disregarding MSE budget closure
+    intp.r2 = intp.stf./intp.ra; % calculate nondimensional number R2 disregarding MSE budget closure
+
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        % take zonal averages
+        for fn = {'ra', 'stf', 'sshf', 'slhf', 'res', 'r1', 'r2', 'cp', 'lsp', 'e'}
+            fluxes.(fn{1}) = squeeze(nanmean(intp.(fn{1}), 1));
+        end
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
+    elseif strcmp(type, 'gcm')
+        % take zonal averages
+        for fn = {'ra', 'stf', 'hfls', 'hfss', 'res', 'r1', 'r2', 'prc', 'pr', 'evspsbl'}
+            fluxes.(fn{1}) = squeeze(nanmean(intp.(fn{1}), 1));
+        end
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.model, par.lat_interp);
+    end
 
     % save energy flux data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/', par.lat_interp);
     printname = [foldername 'fluxes.mat'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    save(printname, 'fluxez', 'lat');
+    save(printname, 'fluxes', 'vh', 'lat');
+
+end
+function proc_net_fluxes(type, par)
+% calculates the global TOA energy imbalance using ERA-Interim data
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/rad.mat', prefix)); % read radiation data
+    load(sprintf('%s/stf.mat', prefix)); % read surface turbulent flux data
+
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        net_toa_raw = rad.tsr + rad.ttr; % compute net radiative fluxes at TOA, positive down
+    elseif strcmp(type, 'gcm')
+        net_toa_raw = - rad.rsut + rad.rsdt - rad.rlut;
+    end
+
+    net_toa_tz = squeeze(nanmean(nanmean( net_toa_raw, 1 ), 3))'; % take zonal and time avera5ges and transpose to have same dimensions as latitude grid
+    net_toa = nansum(cosd(grid.dim2.lat).*net_toa_tz) / nansum(cosd(grid.dim2.lat));
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        disp( sprintf('The net radiative imbalance in %s at TOA is %g Wm^-2.', type, net_toa) );
+    elseif strcmp(type, 'gcm')
+        disp( sprintf('The net radiative imbalance in %s at TOA is %g Wm^-2.', par.model, net_toa) );
+    end
+
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        net_sfc_raw = rad.ssr + rad.str + stf.sshf + stf.slhf; % compute net radiative fluxes at surface, positive down
+    elseif strcmp(type, 'gcm')
+        net_sfc_raw = - rad.rsus + rad.rsds - rad.rlus + rad.rlds - stf.hfss - stf.hfls; % compute net radiative fluxes at surface, positive down
+    end
+    net_sfc_tz = squeeze(nanmean(nanmean( net_sfc_raw, 1 ), 3))'; % take zonal and time avera5ges and transpose to have same dimensions as latitude grid
+    net_sfc = nansum(cosd(grid.dim2.lat).*net_sfc_tz) / nansum(cosd(grid.dim2.lat));
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        disp( sprintf('The net radiative imbalance in %s at the surface is %g Wm^-2.', type, net_sfc) );
+    elseif strcmp(type, 'gcm')
+        disp( sprintf('The net radiative imbalance in %s at the surface is %g Wm^-2.', par.model, net_sfc) );
+    end
+end
+function proc_era5_srfc(par)
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', type)); % read ERA5 grid data
+    load(sprintf('%s/srfc.mat', type)); % read ERA5 grid data
+
+    if strcmp(par.lat_interp, 'era5')
+        lat = grid.lat;
+        % load ERA5 data
+        for fn = vars_srfc
+            srfcz.(fn{1}) = permute(srfc.(fn{1}), [2 1]); % order dimensions to be consistent with Donohoe data (mon, lat, plev)
+        end
+    elseif strcmp(par.lat_interp, 'std') % interpolate all to fine standard grid
+        lat = par.lat_std;
+        % interpolate raw ERA5 data onto std lat x ERA5 lon grid
+        for fn = vars_srfc
+            srfcz.(fn{1}) = interp1(grid.lat, srfc.(fn{1}), par.lat_std, 'spline', nan); % interpolate to std lat
+            srfcz.(fn{1}) = permute(srfcz.(fn{1}), [2 1]); % order dimensions to be consistent with Donohoe data (mon, lat, plev)
+        end
+    end
+
+    % save data into mat file
+    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/', par.lat_interp);
+    printname = [foldername 'srfc.mat'];
+    if ~exist(foldername, 'dir')
+        mkdir(foldername)
+    end
+    save(printname, 'srfcz', 'lat');
+
+end
+
+function choose_proc_ep(type, par)
+    proc_rcae(type, par) % calculate RCE and RAE regimes
+end
+function proc_rcae(type, par)
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/fluxes.mat', type, par.lat_interp); % read ERA5 zonally averaged fluxes
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/', type, par.lat_interp, par.ep);
+    elseif strcmp(type, 'gcm')
+        filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/fluxes.mat', type, par.model, par.lat_interp); % read gcm zonally averaged fluxes
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g/', type, par.model, par.lat_interp, par.ep);
+    end
+    if ~exist(filename); error('Data does not exist. Please run proc_fluxes.m first.'); else
+        load(filename);
+    end
+
+    % identify locations of RCE using threshold epsilon (ep)
+    rcae.def = zeros(size(fluxes.r1));
+    rcae.def(abs(fluxes.r1) < par.ep) = 1;
+    % identify locations of RAE using threshold gamma (ga)
+    rcae.def(fluxes.r1 > par.ga) = -1;
+    % add additional criteria for RCE that P-E>0
+    rcae.pe = zeros(size(fluxes.r1));
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        rcae.pe(abs(fluxes.r1) < par.ep & (fluxes.cp+fluxes.lsp+fluxes.e>0)) = 1; % note that evap is defined negative into atmosphere
+    elseif strcmp(type, 'gcm')
+        rcae.pe(abs(fluxes.r1) < par.ep & (fluxes.pr-fluxes.evspsbl>0)) = 1;
+    end
+    rcae.pe(fluxes.r1 > par.ga) = -1;
+    % add additional criteria for RCE that (P_ls - E)<<1
+    rcae.cp = zeros(size(fluxes.r1));
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        rcae.cp(abs(fluxes.r1) < par.ep & abs(fluxes.lsp./fluxes.cp<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
+    elseif strcmp(type, 'gcm')
+        rcae.cp(abs(fluxes.r1) < par.ep & abs((fluxes.pr-fluxes.prc)./fluxes.prc<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
+    end
+    rcae.cp(fluxes.r1 > par.ga) = -1;
+
     % save rcae data
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/eps_%g/', par.lat_interp, par.ep);
     printname = [foldername 'rcae.mat'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
@@ -173,55 +218,8 @@ function proc_era_rcae(par)
     save(printname, 'rcae', 'lat');
 
 end
-function proc_era_net_fluxes(par)
-% calculates the global TOA energy imbalance using ERA-Interim data
-    % read ERA-Interim grid data
-    load('/project2/tas1/miyawaki/projects/002/data/read/era-interim/grid.mat');
-    % read radiation climatology from ERA-Interim, 2000 - 2012 (rad)
-    load('/project2/tas1/miyawaki/projects/002/data/read/era-interim/radiation_climatology.mat');
-    % surface turbulent fluxes (stf)
-    load('/project2/tas1/miyawaki/projects/002/data/read/era-interim/turbfluxes_climatology.mat');
 
-    net_toa_raw = rad.tsr + rad.ttr; % compute net radiative fluxes at TOA, positive down
-    net_toa_tz = squeeze(nanmean(nanmean( net_toa_raw, 1 ), 3))'; % take zonal and time averages and transpose to have same dimensions as latitude grid
-    net_toa = nansum(cosd(grid.lat).*net_toa_tz) / nansum(cosd(grid.lat));
-    disp( sprintf('The net radiative imbalance at TOA is %g Wm^-2.', net_toa) );
 
-    net_sfc_raw = rad.ssr + rad.str + stf.sshf + stf.slhf; % compute net radiative fluxes at surface, positive down
-    net_sfc_tz = squeeze(nanmean(nanmean( net_sfc_raw, 1 ), 3))'; % take zonal and time averages and transpose to have same dimensions as latitude grid
-    net_sfc = nansum(cosd(grid.lat).*net_sfc_tz) / nansum(cosd(grid.lat));
-    disp( sprintf('The net radiative imbalance at the surface is %g Wm^-2.', net_sfc) );
-end
-function proc_era_vh(par)
-% calculates the power transported by the atmosphere at every latitude
-    % read data from Aaron Donohoe's mass-corrected atmospheric energy transport calculations
-    % from ERA-Interim climatology from year 2000 through 2012.
-    don = load('/project2/tas1/miyawaki/projects/002/data/read/radiation_dynamics_climatology.mat');
-
-    tediv_t = squeeze(nanmean(don.TEDIV, 1)); % take time average
-    tediv_tz = trapz(deg2rad(don.lon), tediv_t, 2); % zonally integrate
-    vh = cumtrapz(deg2rad(don.lat), par.a^2*cosd(don.lat).*tediv_tz); % cumulatively integrate in latitude
-
-    if strcmp(par.lat_interp, 'don')
-        lat = don.lat;
-    elseif strcmp(par.lat_interp, 'era')
-        load('/project2/tas1/miyawaki/projects/002/data/read/era-interim/grid.mat'); % read ERA-Interim grid data
-        lat = grid.lat;
-        vh = interp1(don.lat, vh, grid.lat, 'spline', nan); % interpolate to ERA lat
-    elseif strcmp(par.lat_interp, 'std') % interpolate all to fine standard grid
-        lat = par.lat_std;
-        vh = interp1(don.lat, vh, par.lat_std, 'spline', nan); % interpolate to standard lat
-    end
-
-    % save data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/', par.lat_interp);
-    printname = [foldername 'vh.mat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
-    save(printname, 'vh', 'lat');
-
-end
 function proc_era_temp(par)
     % read data from Aaron Donohoe's mass-corrected atmospheric energy transport calculations
     % from ERA-Interim climatology from year 2000 through 2012.
@@ -317,156 +315,10 @@ function filt_era_temp(par)
     end
     save(printname, 'vert_filt');
 end
-function proc_fluxes(type, par)
-    if strcmp(type, 'era5')
-        % read ERA5 grid data
-        load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat');
-        % read radiation climatology from ERA5
-        load('/project2/tas1/miyawaki/projects/002/data/read/era5/radiation_climatology.mat');
-        % read hydrology climatology from ERA5
-        load('/project2/tas1/miyawaki/projects/002/data/read/era5/pe_climatology.mat');
-        % surface turbulent fluxes (stf)
-        load('/project2/tas1/miyawaki/projects/002/data/read/era5/turbfluxes_climatology.mat');
-    elseif strcmp(type, 'gcm')
-        % read GCM grid data
-        load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat');
-        % read radiation climatology from gcm model
-        load('/project2/tas1/miyawaki/projects/002/data/read/era5/radiation_climatology.mat');
-        % read hydrology climatology from gcm model
-        load('/project2/tas1/miyawaki/projects/002/data/read/era5/pe_climatology.mat');
-        % surface turbulent fluxes (stf)
-        load('/project2/tas1/miyawaki/projects/002/data/read/era5/turbfluxes_climatology.mat');
-    end
 
-    if strcmp(par.lat_interp, 'era5')
-        lat = grid.lat;
-        % load ERA5 data
-        for fn = rad_vars
-            % order dimensions to be consistent with Donohoe data (mon, lat, lon)
-            era5.(fn{1}) = permute(rad.(fn{1}), [3 2 1]);
-        end
-        for fn = pe_vars
-            % order dimensions to be consistent with Donohoe data (mon, lat, lon)
-            era5.(fn{1}) = permute(pe.(fn{1}), [3 2 1]);
-        end
-        for fn = stf_vars
-            % order dimensions to be consistent with Donohoe data (mon, lat, lon)
-            era5.(fn{1}) = permute(stf.(fn{1}), [3 2 1]);
-        end
-    elseif strcmp(par.lat_interp, 'std') % interpolate all to fine standard grid
-        lat = par.lat_std;
-        % interpolate raw ERA5 data onto std lat x ERA5 lon grid
-        for fn = rad_vars
-            % interpolate to std lat
-            era5.(fn{1}) = permute(rad.(fn{1}), [2 1 3]);
-            era5.(fn{1}) = interp1(grid.lat, era5.(fn{1}), par.lat_std, 'spline', nan);
-            % order dimensions to be consistent with Era5ohoe data (mon, lat, lon)
-            era5.(fn{1}) = permute(era5.(fn{1}), [3 1 2]);
-        end
-        for fn = pe_vars
-            % interpolate to std lat
-            era5.(fn{1}) = permute(pe.(fn{1}), [2 1 3]);
-            era5.(fn{1}) = interp1(grid.lat, era5.(fn{1}), par.lat_std, 'spline', nan);
-            % order dimensions to be consistent with Era5ohoe data (mon, lat, lon)
-            era5.(fn{1}) = permute(era5.(fn{1}), [3 1 2]);
-        end
-        for fn = stf_vars
-            % interpolate to std lat
-            era5.(fn{1}) = permute(stf.(fn{1}), [2 1 3]);
-            era5.(fn{1}) = interp1(grid.lat, era5.(fn{1}), par.lat_std, 'spline', nan);
-            % order dimensions to be consistent with Era5ohoe data (mon, lat, lon)
-            era5.(fn{1}) = permute(era5.(fn{1}), [3 1 2]);
-        end
-    end
-
-    % compute net radiative cooling from radiative fluxes
-    era5.ra = era5.tsr - era5.ssr + era5.ttr - era5.str;
-
-    % compute surface turbulent fluxes directly from ERA5 data
-    % multiply by negative to define flux from surface to atmosphere as positive
-    era5.stf = -( era5.sshf + era5.slhf );
-
-    % compute MSE storage and flux divergence as residual of radiative cooling and surface turbulent fluxes
-    era5.res = era5.ra + era5.stf;
-    % compute northward MSE transport using the residual data
-    tediv_t = squeeze(nanmean(era5.res, 1)); % take time average
-    tediv_tz = trapz(deg2rad(grid.lon), tediv_t, 2); % zonally integrate
-    vh = cumtrapz(deg2rad(lat), par.a^2*cosd(lat).*tediv_tz); % cumulatively integrate in latitude
-
-    % compute non-dimensional number R1
-    % R1 measures the importance of atmospheric heat transport
-    era5.r1 = (era5.res) ./ era5.ra;
-
-    % compute non-dimensional number R2
-    % R2 measures the importance of surface turbulent fluxes
-    era5.r2 = era5.stf ./ era5.ra;
-
-    % take zonal averages
-    for fn = {'ra', 'stf', 'sshf', 'slhf', 'res', 'r1', 'r2', 'cp', 'lsp', 'e'}
-        fluxez.(fn{1}) = nanmean(era5.(fn{1}), 3);
-    end
-
-    % save energy flux data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/', par.lat_interp);
-    printname = [foldername 'fluxes.mat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
-    save(printname, 'fluxez', 'vh', 'lat');
-
-end
-function proc_era5_rcae(par)
-    % read ERA5 zonally averaged fluxes
-    filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/fluxes.mat', par.lat_interp);
-    if ~exist(filename); error('Data does not exist. Please run proc_era5_fluxes.m first.'); else
-        load(filename);
-    end
-
-    % identify locations of RCE using threshold epsilon (ep)
-    rcae.def = zeros(size(fluxez.r1));
-    rcae.def(abs(fluxez.r1) < par.ep) = 1;
-    % identify locations of RAE using threshold gamma (ga)
-    rcae.def(fluxez.r1 > par.ga) = -1;
-    % add additional criteria for RCE that P-E>0
-    rcae.pe = zeros(size(fluxez.r1));
-    rcae.pe(abs(fluxez.r1) < par.ep & (fluxez.cp+fluxez.lsp+fluxez.e>0)) = 1; % note that evap is defined negative into atmosphere
-    rcae.pe(fluxez.r1 > par.ga) = -1;
-    % add additional criteria for RCE that (P_ls - E)<<1
-    rcae.cp = zeros(size(fluxez.r1));
-    rcae.cp(abs(fluxez.r1) < par.ep & abs(fluxez.lsp./fluxez.cp<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
-    rcae.cp(fluxez.r1 > par.ga) = -1;
-
-    % save rcae data
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/eps_%g/', par.lat_interp, par.ep);
-    printname = [foldername 'rcae.mat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
-    save(printname, 'rcae', 'lat');
-
-end
-function proc_era5_net_fluxes(par)
-% calculates the global TOA energy imbalance using ERA-Interim data
-    % read ERA5 grid data
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat');
-    % read radiation climatology from ERA5, 2000 - 2012 (rad)
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/radiation_climatology.mat');
-    % surface turbulent fluxes (stf)
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/turbfluxes_climatology.mat');
-
-    net_toa_raw = rad.tsr + rad.ttr; % compute net radiative fluxes at TOA, positive down
-    net_toa_tz = squeeze(nanmean(nanmean( net_toa_raw, 1 ), 3))'; % take zonal and time avera5ges and transpose to have same dimensions as latitude grid
-    net_toa = nansum(cosd(grid.lat).*net_toa_tz) / nansum(cosd(grid.lat));
-    disp( sprintf('The net radiative imbalance at TOA is %g Wm^-2.', net_toa) );
-
-    net_sfc_raw = rad.ssr + rad.str + stf.sshf + stf.slhf; % compute net radiative fluxes at surface, positive down
-    net_sfc_tz = squeeze(nanmean(nanmean( net_sfc_raw, 1 ), 3))'; % take zonal and time avera5ges and transpose to have same dimensions as latitude grid
-    net_sfc = nansum(cosd(grid.lat).*net_sfc_tz) / nansum(cosd(grid.lat));
-    disp( sprintf('The net radiative imbalance at the surface is %g Wm^-2.', net_sfc) );
-end
 function proc_era5_temp(par)
     load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat'); % read ERA5 grid data
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/temp_climatology.mat'); % load temperature
+    temp = squeeze(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.era5.yr_span), 'temp')); % load temp
 
     if strcmp(par.lat_interp, 'era5')
         lat = grid.lat;
@@ -493,34 +345,6 @@ function proc_era5_temp(par)
         mkdir(foldername)
     end
     save(printname, 'vertz', 'lat');
-
-end
-function proc_era5_srfc(par)
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat'); % read ERA5 grid data
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/srfc_climatology.mat'); % load surface data
-
-    if strcmp(par.lat_interp, 'era5')
-        lat = grid.lat;
-        % load ERA5 data
-        for fn = vars_srfc
-            srfcz.(fn{1}) = permute(srfc.(fn{1}), [2 1]); % order dimensions to be consistent with Donohoe data (mon, lat, plev)
-        end
-    elseif strcmp(par.lat_interp, 'std') % interpolate all to fine standard grid
-        lat = par.lat_std;
-        % interpolate raw ERA5 data onto std lat x ERA5 lon grid
-        for fn = vars_srfc
-            srfcz.(fn{1}) = interp1(grid.lat, srfc.(fn{1}), par.lat_std, 'spline', nan); % interpolate to std lat
-            srfcz.(fn{1}) = permute(srfcz.(fn{1}), [2 1]); % order dimensions to be consistent with Donohoe data (mon, lat, plev)
-        end
-    end
-
-    % save data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/', par.lat_interp);
-    printname = [foldername 'srfc.mat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
-    save(printname, 'srfcz', 'lat');
 
 end
 function filt_era5_temp(par)
@@ -578,61 +402,6 @@ function filt_era5_temp(par)
         mkdir(foldername)
     end
     save(printname, 'vert_filt');
-end
-function proc_gcm_rcae(par)
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/2d_climatology', model)); % read 2D gcm data
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/3d_climatology', model)); % read 3D gcm data
-
-    lat = gcm_3d.lat;
-
-    load('/project2/tas1/miyawaki/projects/002/data/read/gcm/2d_climatology'); % read 2D gcm data
-    fluxes.slhf = -data_2d.hfls; fluxes.sshf = -data_2d.hfss; % rename and change sign of turbulent fluxes to be consistent with era
-    fluxes.ra = data_2d.rsdt - data_2d.rsut + data_2d.rsus - data_2d.rsds + data_2d.rlus - data_2d.rlds - data_2d.rlut; % calculate atmospheric radiative cooling
-    fluxes.stf = fluxes.slhf + fluxes.sshf;
-
-    % infer MSE tendency and flux divergence as residuals
-    fluxes.res = fluxes.ra + fluxes.stf;
-
-    fluxes.r1 = (fluxes.TETEN + fluxes.TEDIV)./fluxes.ra; % calculate nondimensional number R1 disregarding MSE budget closure
-    fluxes.r2 = fluxes.stf./fluxes.ra; % calculate nondimensional number R2 disregarding MSE budget closure
-    fluxes.r1_teten = (fluxes.TETEN + fluxes.TEDIV)./fluxes.ra; % calculate nondimensional number R1 using MSE tendency as closure
-    fluxes.r2_teten = fluxes.stf_res./fluxes.ra; % calculate nondimensional number R2 using MSE tendency as closure
-    fluxes.r1_stf = (fluxes.TETEN_res + fluxes.TEDIV)./fluxes.ra; % calculate nondimensional number R1 using turbulent fluxes as closure
-    fluxes.r2_stf = fluxes.stf./fluxes.ra; % calculate nondimensional number R2 using turbulent fluxes as closure
-
-    % take zonal averages
-    for fn = fieldnames(fluxes)'
-        fluxez.(fn{1}) = squeeze(nanmean(fluxes.(fn{1}), 1));
-        fluxez.(fn{1}) = permute(fluxez.(fn{1}), [2 1]); % rearrange to mon x lat
-    end
-
-    % identify locations of RCE using threshold epsilon (ep)
-    rcae.none = zeros(size(fluxez.r1));
-    rcae.teten = zeros(size(fluxez.r1_teten));
-    rcae.stf = zeros(size(fluxez.r1_stf));
-    rcae.none(abs(fluxez.r1) < par.ep) = 1;
-    rcae.teten(abs(fluxez.r1_teten) < par.ep) = 1;
-    rcae.stf(abs(fluxez.r1_stf) < par.ep) = 1;
-    % identify locations of RAE using threshold gamma (ga)
-    rcae.none(abs(fluxez.r2) < par.ep) = -1;
-    rcae.teten(abs(fluxez.r2_teten) < par.ep) = -1;
-    rcae.stf(abs(fluxez.r2_stf) < par.ep) = -1;
-
-    % save energy flux data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/gcm/%s/', par.lat_interp);
-    printname = [foldername 'fluxes.mat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
-    save(printname, 'fluxez', 'lat');
-    % save rcae data
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/gcm/%s/eps_%g/', par.lat_interp, par.ep);
-    printname = [foldername 'rcae.mat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
-    save(printname, 'rcae', 'lat');
-
 end
 
 function proc_gcm_temp(par, model)
