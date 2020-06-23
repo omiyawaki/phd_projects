@@ -40,10 +40,6 @@ gcm_info
 
 %% call functions
 type = 'era5';
-% plot_don_vh(par); % plot meridional MSE transport (in units of power) for Donohoe MSE flux divergence
-% plot_era_ra_tediv_mon_lat('era', par); % plot R_a and flux divergence profiles
-% plot_era_energy_lat('era', par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
-% plot_era_teten_stf_r1_mon_lat('era', par); % plot remaining energy fluxes that depends on energy closure method
 % choose_plots(type, par);
 for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
     type = 'gcm';
@@ -53,13 +49,9 @@ end
 % sweep through various threshold values
 for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
     type = 'era5';
-    % plot_era_rcae_mon_lat('era', par); % plot RCAE regimes, depends on choice of threshold epsilon
-    % plot_era_temp('era', par); % plot temperature profiles in RCAE regimes
-    % plot_era5_rcae_mon_lat('era5', par); % plot RCAE regimes, depends on choice of threshold epsilon
-    % plot_era5_temp('era5', par); % plot temperature profiles in RCAE regimes
-    choose_plots_ep(type, par)
+    % choose_plots_ep(type, par)
     for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-        type = 'gcm'
+        type = 'gcm';
         choose_plots_ep(type, par)
     end
 end
@@ -68,10 +60,6 @@ end
 function choose_plots(type, par)
     plot_energy_lat(type, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
 end
-function choose_plots_ep(type, par)
-    plot_rcae_mon_lat(type, par)
-end
-
 function plot_energy_lat(type, par) % latitude vs energy flux line plots, comparable to Hartmann (2016)
     [fluxes, vh, lat, par] = load_fluxes(type, par); % load data
     figure(); clf; hold all;
@@ -103,6 +91,11 @@ function plot_energy_lat(type, par) % latitude vs energy flux line plots, compar
     set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
     print([par.plotdir '/mse-transport'], '-dpng', '-r300');
     close;
+end
+
+function choose_plots_ep(type, par)
+    % plot_rcae_mon_lat(type, par) % plot RCE/RAE regimes
+    plot_temp(type, par) % plot temperature profiles
 end
 function plot_rcae_mon_lat(type, par)
     % load data
@@ -143,227 +136,116 @@ function plot_rcae_mon_lat(type, par)
     print(sprintf('%s/rcae_%g/rcae_cp_mon_lat', par.plotdir, par.ep), '-dpng', '-r300');
     close;
 end
-
-function plot_don_vh(par)
-% load data
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/vh.mat', par.lat_interp));
-    figure(); clf; hold all;
-    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-    line([0 0], [-4.5 4], 'linewidth', 0.5, 'color', 'k');
-    plot(lat, vh*10^-15, 'color', par.maroon);
-    xlabel('latitude (deg)'); ylabel('PW')
-    title('Northward MSE Energy Transport');
-    axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
-    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
-    par.plotdir = sprintf('./figures/era/%s', par.lat_interp);
-    print([par.plotdir '/vh'], '-dpng', '-r300');
-    close;
-end
-function plot_era_ra_tediv_mon_lat(data_type, par)
+function plot_temp(type, par)
     % load data
-    [fluxez, ~, ~, ~, lat, par] = load_era_fluxes(data_type, par);
-    % seasonaity vs latitude plots for each term in the energy budget
-    % atmospheric radiative cooling
-    figure();clf; hold all;
-    cmp = colCog(20);
-    colormap(cmp);
-    contourf(par.mesh_lat, par.mesh_mon, fluxez.ra', -200:20:200, 'linecolor', 'none');
-    xlabel('Month'); ylabel('Latitude (deg)');
-    caxis([-200 200]);
-    cb = colorbar('limits', [-180 0], 'ticks', [-200:20:0]);
-    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-    ylabel(cb, '$R_a$ (Wm$^{-2}$)', 'fontsize', par.fs);
-    set(gca, 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print([par.plotdir '/ra_mon_lat'], '-dpng', '-r300');
-    close;
+    [~, ~, lat, par] = load_fluxes(type, par);
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/ta.mat', type, par.lat_interp, par.ep));
+        plev = grid.dim3.plev;
+    elseif strcmp(type, 'gcm')
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.model));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g/ta.mat', type, par.model, par.lat_interp, par.ep));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g/ma.mat', type, par.model, par.lat_interp, par.ep));
+        plev = grid.dim3.plev/100;
+    end
+    for i = {'def', 'pe', 'cp'}; crit = i{1};
+        for j = {'ann', 'djf', 'jja', 'mam', 'son'}; time = j{1};
+            for l = {'lo', 'l', 'o'}; land = l{1};
+                if strcmp(land, 'lo'); land_text = 'Land + Ocean';
+                elseif strcmp(land, 'l'); land_text = 'Land';
+                elseif strcmp(land, 'o'); land_text = 'Ocean';
+                end
 
-    % atmosphric moist static energy divergence (TEDIV)
-    figure(); clf; hold all;
-    cmp = colCog(20);
-    colormap(cmp);
-    contourf(par.mesh_lat, par.mesh_mon, fluxez.TEDIV', -200:20:200, 'linecolor', 'none');
-    xlabel('Month'); ylabel('Latitude (deg)');
-    caxis([-200 200]);
-    cb = colorbar('limits', [-120 120], 'ticks', [-120:20:120]);
-    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-    ylabel(cb, '$\nabla\cdot(\vec{v}h)$ (Wm$^{-2}$)', 'fontsize', par.fs);
-    set(gca, 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print([par.plotdir '/tediv_mon_lat'], '-dpng', '-r300');
-    close;
-
-end
-function plot_era_teten_stf_r1_mon_lat(data_type, par)
-    [fluxez, TETEN, stf, r1, lat, par] = load_era_fluxes(data_type, par); % load data
-
-    % surface turbulent fluxes (SH + LH)
-    figure(); clf; hold all;
-    cmp = colCog(20);
-    colormap(cmp);
-    contourf(par.mesh_lat, par.mesh_mon, stf', -200:20:200, 'linecolor', 'none');
-    xlabel('Month'); ylabel('Latitude (deg)');
-    caxis([-200 200]);
-    cb = colorbar('limits', [-60 160], 'ticks', [-60:20:160]);
-    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-    ylabel(cb, 'SH + LH (Wm$^{-2}$)', 'fontsize', par.fs);
-    set(gca, 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print(sprintf('%s/%s/stf_mon_lat', par.plotdir, par.closure), '-dpng', '-r300');
-    close;
-
-    % atmosphric moist static energy storage (TETEN)
-    figure();clf; hold all;
-    cmp = colCog(20);
-    colormap(cmp);
-    contourf(par.mesh_lat, par.mesh_mon, TETEN', -200:20:200, 'linecolor', 'none');
-    xlabel('Month'); ylabel('Latitude (deg)');
-    caxis([-200 200]);
-    cb = colorbar('limits', [-60 160], 'ticks', [-60:20:160]);
-    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-    ylabel(cb, '$\frac{\partial h}{\partial t}$ (Wm$^{-2}$)', 'fontsize', par.fs);
-    set(gca, 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print(sprintf('%s/%s/teten_mon_lat', par.plotdir, par.closure), '-dpng', '-r300');
-    close;
-
-    % non-dimensional number R1
-    figure(); clf; hold all;
-    cmp = colCog(20);
-    colormap(cmp);
-    contourf(par.mesh_lat, par.mesh_mon, r1', -1:0.1:1, 'linecolor', 'none');
-    xlabel('Month'); ylabel('Latitude (deg)');
-    caxis([-1 1]);
-    cb = colorbar('limits', [-1 1], 'ticks', [-1:0.2:1]);
-    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-    ylabel(cb, '$R_1$ (unitless)', 'fontsize', par.fs);
-    set(gca, 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print(sprintf('%s/%s/r1_mon_lat', par.plotdir, par.closure), '-dpng', '-r300');
-    close;
-
-end
-function plot_era_rcae_mon_lat(data_type, par)
-    % load data
-    [~, ~, ~, ~, lat, par] = load_era_fluxes(data_type, par);
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/rcae.mat', data_type, par.lat_interp, par.ep));
-    if strcmp(par.closure, 'teten'); rcae_plot = rcae.teten; end;
-    if strcmp(par.closure, 'stf'); rcae_plot = rcae.stf; end;
-    % spatio-emporal dependence of RCE and RAE
-    figure(); clf; hold all;
-    cmp = colCog(10);
-    colormap(cmp);
-    imagesc([1 12], [lat(1) lat(end)], rcae_plot');
-    caxis([-2 2]);
-    xlabel('Month'); ylabel('Latitude (deg)');
-    set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-    print(sprintf('%s/%s/rcae_%g/rcae_mon_lat', par.plotdir, par.closure, par.ep), '-dpng', '-r300');
-    close;
-end
-function plot_era_temp(data_type, par)
-% load era plev grid
-    load('/project2/tas1/miyawaki/projects/002/data/read/era/grid.mat')
-    par.plotdir = sprintf('./figures/%s/%s', data_type, par.lat_interp);
-% vertical temperature profile
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/vert_filt.mat', data_type, par.lat_interp, par.ep));
-    figure(); clf; hold all;
-    if strcmp(par.closure, 'teten'); rce_temp = vert_filt.rce_teten; rae_temp = vert_filt.rae_teten; end;
-    if strcmp(par.closure, 'stf'); rce_temp = vert_filt.rce_stf; rae_temp = vert_filt.rae_stf; end;
-    h_rce = plot(rce_temp, plev_era, 'color', par.orange);
-    h_rae = plot(rae_temp, plev_era, 'color', par.blue);
-    xlabel('T (K)'); ylabel('p (hPa)');
-    legend([h_rce h_rae], 'RCE', 'RAE');
-    axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
-    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [100 200 300 400:200:1000], 'xminortick', 'on')
-    hline(0, '-k');
-    print(sprintf('%s/%s/rcae_%g/temp', par.plotdir, par.closure, par.ep), '-dpng', '-r300');
-    close;
-end
-
-function plot_era5_temp(data_type, par)
-% load era5 plev grid
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat')
-    par.plotdir = sprintf('./figures/%s/%s', data_type, par.lat_interp);
-% vertical temperature profile
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/vert_filt.mat', data_type, par.lat_interp, par.ep));
-    figure(); clf; hold all;
-    h_rce = plot(vert_filt.rce.def, plev_era, 'color', par.orange);
-    h_rae = plot(vert_filt.rae.def, plev_era, 'color', par.blue);
-    xlabel('T (K)'); ylabel('p (hPa)');
-    legend([h_rce h_rae], 'RCE', 'RAE');
-    axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
-    hline(0, '-k');
-    print(sprintf('%s/rcae_%g/rce_rae', par.plotdir, par.ep), '-dpng', '-r300');
-    close;
-% RCE and RAE separated into NH and SH
-    figure(); clf; hold all;
-    h_rce_tp = plot(vert_filt.rce.tp.def, plev_era, 'color', par.maroon);
-    h_rce_nh = plot(vert_filt.rce.nh.def, plev_era, '-', 'color', par.orange);
-    h_rce_sh = plot(vert_filt.rce.sh.def, plev_era, '--', 'color', par.orange);
-    h_rae_nh = plot(vert_filt.rae.nh.def, plev_era, '-', 'color', par.blue);
-    h_rae_sh = plot(vert_filt.rae.sh.def, plev_era, '--', 'color', par.blue);
-    xlabel('T (K)'); ylabel('p (hPa)');
-    legend([h_rce_tp h_rce_nh h_rce_sh h_rae_nh h_rae_sh], 'Tropical RCE', 'NH ML RCE', 'SH ML RCE', 'NH RAE', 'SH RAE');
-    axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
-    hline(0, '-k');
-    print(sprintf('%s/rcae_%g/rcae_nh_sh', par.plotdir, par.ep), '-dpng', '-r300');
-    close;
-% RCE and RAE separated into NH and SH, P-E>0 criteria added for RCE
-    figure(); clf; hold all;
-    h_rce_tp = plot(vert_filt.rce.tp.pe, plev_era, 'color', par.maroon);
-    h_rce_nh = plot(vert_filt.rce.nh.pe, plev_era, '-', 'color', par.orange);
-    h_rce_sh = plot(vert_filt.rce.sh.pe, plev_era, '--', 'color', par.orange);
-    h_rae_nh = plot(vert_filt.rae.nh.pe, plev_era, '-', 'color', par.blue);
-    h_rae_sh = plot(vert_filt.rae.sh.pe, plev_era, '--', 'color', par.blue);
-    xlabel('T (K)'); ylabel('p (hPa)');
-    legend([h_rce_tp h_rce_nh h_rce_sh h_rae_nh h_rae_sh], 'Tropical RCE', 'NH ML RCE', 'SH ML RCE', 'NH RAE', 'SH RAE');
-    axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
-    hline(0, '-k');
-    print(sprintf('%s/rcae_%g/rcae_nh_sh_pe', par.plotdir, par.ep), '-dpng', '-r300');
-    close;
-% RCE and RAE separated into NH and SH, Pls/Pc<<1 criteria added for RCE
-    figure(); clf; hold all;
-    h_rce_tp = plot(vert_filt.rce.tp.cp, plev_era, 'color', par.maroon);
-    h_rce_nh = plot(vert_filt.rce.nh.cp, plev_era, '-', 'color', par.orange);
-    h_rce_sh = plot(vert_filt.rce.sh.cp, plev_era, '--', 'color', par.orange);
-    h_rae_nh = plot(vert_filt.rae.nh.cp, plev_era, '-', 'color', par.blue);
-    h_rae_sh = plot(vert_filt.rae.sh.cp, plev_era, '--', 'color', par.blue);
-    xlabel('T (K)'); ylabel('p (hPa)');
-    legend([h_rce_tp h_rce_nh h_rae_nh h_rae_sh], 'Tropical RCE', 'NH ML RCE', 'NH RAE', 'SH RAE');
-    axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
-    hline(0, '-k');
-    print(sprintf('%s/rcae_%g/rcae_nh_sh_cp', par.plotdir, par.ep), '-dpng', '-r300');
-    close;
-end
-
-function [fluxez, TETEN, stf, r1, lat, par] = load_era_fluxes(data_type, par)
-    % load processed data/proc
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/fluxes.mat', data_type, par.lat_interp));
-    % create a mon x lat meshgrid for contour plots
-    [par.mesh_lat, par.mesh_mon] = meshgrid(1:12, lat);
-    % make figure directory if it does not exist
-    par.plotdir = sprintf('./figures/%s/%s', data_type, par.lat_interp);
-    if ~exist(sprintf('%s/%s', par.plotdir, par.closure), 'dir')
-        for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
-            mkdir(sprintf('%s/%s/rcae_%g', par.plotdir, par.closure, par.ep));
+            % RCE and RAE separated into NH and SH
+                figure(); clf; hold all;
+                h_rce_tp = plot(ta.rce.tp.(crit).(land).(time), plev, 'color', par.maroon);
+                h_rce_nh = plot(ta.rce.nh.(crit).(land).(time), plev, '-', 'color', par.orange);
+                h_rce_sh = plot(ta.rce.sh.(crit).(land).(time), plev, '--', 'color', par.orange);
+                h_rae_nh = plot(ta.rae.nh.(crit).(land).(time), plev, '-', 'color', par.blue);
+                h_rae_sh = plot(ta.rae.sh.(crit).(land).(time), plev, '--', 'color', par.blue);
+                xlabel('T (K)'); ylabel('p (hPa)');
+                title(sprintf('%s, %s', upper(time), land_text));
+                % legend([h_rce_tp h_rce_nh h_rce_sh h_rae_nh h_rae_sh], 'Tropical RCE', 'NH ML RCE', 'SH ML RCE', 'NH RAE', 'SH RAE', 'location', 'eastoutside');
+                axis('tight');
+                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+                set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+                hline(0, '-k');
+                print(sprintf('%s/rcae_%g/temp_%s/%s/%s/rcae_all', par.plotdir, par.ep, crit, land, time), '-dpng', '-r300');
+                close;
+            % Tropical RCE compared with moist adiabat
+                figure(); clf; hold all;
+                h_rce_tp = plot(ta.rce.tp.(crit).(land).(time), plev, 'color', par.maroon);
+                h_rce_tp = plot(ma.rce.tp.(crit).(land).(time).ta, plev, ':', 'color', par.maroon);
+                xlabel('T (K)'); ylabel('p (hPa)');
+                title(sprintf('Tropical RCE, %s, %s', upper(time), land_text));
+                axis('tight');
+                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+                set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+                hline(0, '-k');
+                print(sprintf('%s/rcae_%g/temp_%s/%s/%s/rce_tp', par.plotdir, par.ep, crit, land, time), '-dpng', '-r300');
+                close;
+            % NH RCE compared with moist adiabat
+                figure(); clf; hold all;
+                h_rce_nh = plot(ta.rce.nh.(crit).(land).(time), plev, 'color', par.orange);
+                h_rce_nh = plot(ma.rce.nh.(crit).(land).(time).ta, plev, ':', 'color', par.orange);
+                xlabel('T (K)'); ylabel('p (hPa)');
+                title(sprintf('NH ML RCE, %s, %s', upper(time), land_text));
+                axis('tight');
+                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+                set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+                hline(0, '-k');
+                print(sprintf('%s/rcae_%g/temp_%s/%s/%s/rce_nh', par.plotdir, par.ep, crit, land, time), '-dpng', '-r300');
+                close;
+            % SH RCE compared with moist adiabat
+                figure(); clf; hold all;
+                h_rce_sh = plot(ta.rce.sh.(crit).(land).(time), plev, 'color', par.orange);
+                h_rce_sh = plot(ma.rce.sh.(crit).(land).(time).ta, plev, ':', 'color', par.orange);
+                xlabel('T (K)'); ylabel('p (hPa)');
+                title(sprintf('SH ML RCE, %s, %s', upper(time), land_text));
+                axis('tight');
+                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+                set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+                hline(0, '-k');
+                print(sprintf('%s/rcae_%g/temp_%s/%s/%s/rce_sh', par.plotdir, par.ep, crit, land, time), '-dpng', '-r300');
+                close;
+            end
         end
     end
-    % define TETEN and stf depending on closure method
-    if strcmp(par.closure, 'teten')
-        TETEN = fluxez.TETEN; % use Donohoe TETEN
-        stf = fluxez.stf_res; % stf is inferred as residual
-        r1 = fluxez.r1_teten; % corresponding non dimensional number r1
-    elseif strcmp(par.closure, 'stf')
-        stf = fluxez.stf; % use ERA-Interim turbulent fluxez
-        TETEN = fluxez.TETEN_res; % TETEN is inferred as residual
-        r1 = fluxez.r1_stf; % corresponding non dimensional number r1
+    % Legend for RCE and RAE separated into NH and SH
+    figure(); clf; hold all;
+    h_rce_tp = plot(ta.rce.tp.def.lo.ann, plev, 'color', par.maroon);
+    h_rce_nh = plot(ta.rce.nh.def.lo.ann, plev, '-', 'color', par.orange);
+    h_rce_sh = plot(ta.rce.sh.def.lo.ann, plev, '--', 'color', par.orange);
+    h_rae_nh = plot(ta.rae.nh.def.lo.ann, plev, '-', 'color', par.blue);
+    h_rae_sh = plot(ta.rae.sh.def.lo.ann, plev, '--', 'color', par.blue);
+    xlabel('T (K)'); ylabel('p (hPa)');
+    legend([h_rce_tp h_rce_nh h_rce_sh h_rae_nh h_rae_sh], 'Tropical RCE ($\pm 30^\circ$)', 'NH ML RCE ($>+30^\circ$)', 'SH ML RCE ($<-30^\circ$)', 'NH RAE', 'SH RAE', 'location', 'eastoutside');
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+    hline(0, '-k');
+    print(sprintf('%s/legends/temp', par.plotdir), '-dpng', '-r300');
+    close;
+    % Legend for moist adiabat comparisons
+    figure(); clf; hold all;
+    h_rce_tp = plot(ta.rce.tp.(crit).(land).(time), plev, 'color', par.maroon);
+    h_rce_tp_ma = plot(ma.rce.tp.(crit).(land).(time).ta, plev, ':', 'color', par.maroon);
+    xlabel('T (K)'); ylabel('p (hPa)');
+    if strcmp(type, 'era5') | strcmp('erai')
+        legend([h_rce_tp h_rce_tp_ma], upper(type), 'Moist adiabat', 'eastoutside');
+    elseif strcmp(type, 'gcm')
+        legend([h_rce_tp h_rce_tp_ma], par.model, 'Moist adiabat', 'eastoutside');
     end
+    title(upper(sprintf('%s', time)));
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+    hline(0, '-k');
+    print(sprintf('%s/legends/temp_ma', par.plotdir), '-dpng', '-r300');
+    close;
 end
+
 function [fluxes, vh, lat, par] = load_fluxes(type, par)
     % load processed data/proc
     if strcmp(type, 'era5') | strcmp(type, 'erai')
@@ -376,10 +258,20 @@ function [fluxes, vh, lat, par] = load_fluxes(type, par)
 
     % create a mon x lat meshgrid for contour plots
     [par.mesh_lat, par.mesh_mon] = meshgrid(1:12, lat);
-    % make figure directory if it does not exist
+
+    % make figure directories if it does not exist
     for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
-        if ~exist(sprintf('%s/rcae_%g', par.plotdir, par.ep), 'dir')
-            mkdir(sprintf('%s/rcae_%g', par.plotdir, par.ep));
+        for j = {'def', 'pe', 'cp'}; crit = j{1};
+            for k = {'ann', 'djf', 'jja', 'mam', 'son'}; time = k{1};
+                for l = {'lo', 'l', 'o'}; land = l{1};
+                    if ~exist(sprintf('%s/rcae_%g/temp_%s/%s/%s', par.plotdir, par.ep, crit, land, time), 'dir')
+                        mkdir(sprintf('%s/rcae_%g/temp_%s/%s/%s', par.plotdir, par.ep, crit, land, time));
+                    end
+                end
+            end
         end
+    end
+    if ~exist(sprintf('%s/legends', par.plotdir), 'dir')
+        mkdir(sprintf('%s/legends', par.plotdir));
     end
 end

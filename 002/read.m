@@ -23,7 +23,7 @@ par.cpd = 1005.7; par.Rd = 287; par.L = 2.501e6; par.g = 9.81;
 
 %% call functions
 type='era5';
-run_func(type, par);
+% run_func(type, par);
 for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
     type='gcm';
     run_func(type, par);
@@ -31,11 +31,11 @@ end
 
 %% define functions
 function run_func(type, par)
-    read_grid(type, par)
-    read_rad(type, par)
-    read_pe(type, par)
-    read_stf(type, par)
-    read_srfc(type, par)
+    % read_grid(type, par) % grid, i.e. lon, lat, plev
+    % read_rad(type, par) % radiation fluxes
+    % read_pe(type, par) % hydrological variables, e.g. precip, evap
+    % read_stf(type, par) % surface turbulent fluxes
+    read_srfc(type, par) % other surface variables, e.g. 2-m temperature, surface pressure
 end
 function read_grid(type, par)
     % read data net SW and LW radiation data downloaded from Era5
@@ -43,14 +43,14 @@ function read_grid(type, par)
     if strcmp(type, 'era5')
         grid.dim2.lon = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era5/rad/era5_rad_1979_2019.nc', 'longitude');
         grid.dim2.lat = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era5/rad/era5_rad_1979_2019.nc', 'latitude');
-        grid.dim2.plev =  ncread('/project2/tas1/miyawaki/projects/002/data/raw/era5/temp/era5_temp_1979_2019.nc', 'level');
         grid.dim3 = grid.dim2;
+        grid.dim3.plev =  ncread('/project2/tas1/miyawaki/projects/002/data/raw/era5/temp/era5_temp_1979_2019.nc', 'level');
         save('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat', 'grid')
     elseif strcmp(type, 'erai')
         grid.dim2.lon = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/interim_rad_2000.nc', 'longitude');
         grid.dim2.lat = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/interim_rad_2000.nc', 'latitude');
-        grid.dim2.plev =  ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/temp/interim_temp_2000.nc', 'level');
         grid.dim3 = grid.dim2;
+        grid.dim3.plev =  ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/temp/interim_temp_2000.nc', 'level');
         save('/project2/tas1/miyawaki/projects/002/data/read/era-interim/grid.mat', 'lat_era', 'lon_era', 'plev_era')
     elseif strcmp(type, 'gcm')
         file.dim2=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.nc', par.model, 'tas', par.model));
@@ -127,7 +127,7 @@ function read_stf(type, par)
         stf_vars=par.era.vars.stf;
         for i=1:length(stf_vars)
             % dimensions are (lon x lat x time)
-            stf.(stf_vars{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/stf/%s_stf_%s.ymonmean.nc', type, type, par.era5.yr_span), stf_vars{i});
+            stf.(stf_vars{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/stf/%s_stf_%s.ymonmean.nc', type, type, par.(type).yr_span), stf_vars{i});
             % the data is originally reported as J m^-2 per day, so
             % divide by 86400 s to get the conventional W m^-2 flux
             % over the full day
@@ -153,7 +153,7 @@ function read_srfc(type, par)
         srfc_vars=par.era.vars.srfc;
         for i=1:length(srfc_vars)
             % dimensions are (lat x time); note that the data is already zonally averaged
-            srfc.(srfc_vars{i}) = squeeze(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_srfc_%s.ymonmean.nc', type, type, par.era5.yr_span), srfc_vars{i}));
+            srfc.(srfc_vars{i}) = squeeze(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_srfc_%s.ymonmean.nc', type, type, par.(type).yr_span), srfc_vars{i}));
         end
         save('/project2/tas1/miyawaki/projects/002/data/read/era5/srfc.mat', 'srfc', 'srfc_vars');
 
@@ -172,12 +172,13 @@ function read_srfc(type, par)
                     hur=permute(hur, [2 1 3 4]); % bring lat to first dim
                     if ~isequal(grid.dim2.lat, grid.dim3.lat); hur=interp1(grid.dim3.lat, hur, grid.dim2.lat); end;
                     hur=permute(hur, [3 2 1 4]); % bring plev to first dim
+                    size(hur)
                     pb=CmdLineProgressBar("Calculating hurs..."); % track progress of this loop
-                    for id_lon=1:length(1:length(grid.dim2.lon))
-                        pb.print(id_lon, length(1:length(grid.dim3.lon)));
-                        for id_lat=1:length(1:length(grid.dim2.lat))
-                            for id_time=1:length(1:size(srfc.ps, 3))
-                                srfc.hurs(id_lon, id_lat, id_time)=interp1(grid.dim3.plev, hur(:,id_lon,id_lat,id_time), srfc.ps(id_lat, id_lat, id_time));
+                    for id_lon=1:length(grid.dim2.lon)
+                        pb.print(id_lon, length(grid.dim2.lon));
+                        for id_lat=1:length(grid.dim2.lat)
+                            for id_time=1:size(srfc.ps, 3)
+                                srfc.hurs(id_lon, id_lat, id_time)=interp1(grid.dim3.plev, hur(:,id_lon,id_lat,id_time), srfc.ps(id_lon, id_lat, id_time), 'linear', 'extrap');
                             end
                         end
                     end

@@ -7,22 +7,27 @@ par.lat_interp = 'std'; % which latitudinal grid to interpolate to: don (donohoe
 par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' interpolation
 par.ep_swp = 0.3; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
 par.ep_cp = 0.5; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
-par.cpd = 1005.7; par.Rd = 287; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3;
+par.ma_type = 'std'; % choose the type of moist adiabat: reversible, pseudo, or std
+par.frz = 0; % consider latent heat of fusion in moist adiabat?
+par.pa_span = [1000 100]*100; % pressure range for calculating moist adiabat
+par.dpa = -10; % pressure increment for integrating dry adiabat section of moist adiabat (matters for how accurately the LCL is computed)
+par.cpd = 1005.7; par.Rd = 287; par.Rv = 461; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3; par.eps = 0.622; % common constants, all in SI units for brevity
 gcm_info
 
 %% call functions
 type = 'era5'; % data type to run analysis on
-choose_proc(type, par)
+% choose_proc(type, par)
 for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
     type = 'gcm';
-    choose_proc(type, par)
+    % choose_proc(type, par)
 end
 
 for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
+    type = 'era5';
     % choose_proc_ep(type, par)
     for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
         type = 'gcm';
-        % choose_proc_ep(type, par)
+        choose_proc_ep(type, par)
     end
 end
 
@@ -139,42 +144,11 @@ function proc_net_fluxes(type, par)
         disp( sprintf('The net radiative imbalance in %s at the surface is %g Wm^-2.', par.model, net_sfc) );
     end
 end
-function proc_era5_srfc(par)
-    if strcmp(type, 'era5') | strcmp(type, 'erai')
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
-    elseif strcmp(type, 'gcm')
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
-    end
-    load(sprintf('%s/grid.mat', type)); % read ERA5 grid data
-    load(sprintf('%s/srfc.mat', type)); % read ERA5 grid data
-
-    if strcmp(par.lat_interp, 'era5')
-        lat = grid.lat;
-        % load ERA5 data
-        for fn = vars_srfc
-            srfcz.(fn{1}) = permute(srfc.(fn{1}), [2 1]); % order dimensions to be consistent with Donohoe data (mon, lat, plev)
-        end
-    elseif strcmp(par.lat_interp, 'std') % interpolate all to fine standard grid
-        lat = par.lat_std;
-        % interpolate raw ERA5 data onto std lat x ERA5 lon grid
-        for fn = vars_srfc
-            srfcz.(fn{1}) = interp1(grid.lat, srfc.(fn{1}), par.lat_std, 'spline', nan); % interpolate to std lat
-            srfcz.(fn{1}) = permute(srfcz.(fn{1}), [2 1]); % order dimensions to be consistent with Donohoe data (mon, lat, plev)
-        end
-    end
-
-    % save data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/', par.lat_interp);
-    printname = [foldername 'srfc.mat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
-    save(printname, 'srfcz', 'lat');
-
-end
 
 function choose_proc_ep(type, par)
-    proc_rcae(type, par) % calculate RCE and RAE regimes
+    % proc_rcae(type, par) % calculate RCE and RAE regimes
+    % proc_temp(type, par) % calculate RCE and RAE temperature profiles
+    proc_ma(type, par) % calculate moist adiabats corresponding to RCE profiles
 end
 function proc_rcae(type, par)
     if strcmp(type, 'era5') | strcmp(type, 'erai')
@@ -218,206 +192,323 @@ function proc_rcae(type, par)
     save(printname, 'rcae', 'lat');
 
 end
-
-
-function proc_era_temp(par)
-    % read data from Aaron Donohoe's mass-corrected atmospheric energy transport calculations
-    % from ERA-Interim climatology from year 2000 through 2012.
-    don = load('/project2/tas1/miyawaki/projects/002/data/read/era-interim/radiation_dynamics_climatology.mat');
-    % read ERA-Interim grid data
-    load('/project2/tas1/miyawaki/projects/002/data/read/era-interim/grid.mat');
-    % load temperature
-    load('/project2/tas1/miyawaki/projects/002/data/read/era-interim/temp_climatology.mat');
-
-    if strcmp(par.lat_interp, 'don')
-        lat = don.lat;
-        % interpolate raw ERA-Interim data onto Donohoe lat grid
-        for fn = vars_3d
-            % interpolate to Vertzohoe lat
-            vertz.(fn{1}) = interp1(grid.lat, vert.(fn{1}), lat);
-            % order dimensions to be consistent with Vertzohoe data (mon, lat, plev)
-            vertz.(fn{1}) = permute(vertz.(fn{1}), [3 1 2]);
-        end
-    elseif strcmp(par.lat_interp, 'era')
-        lat = grid.lat;
-        % load ERA-Interim data
-        for fn = vars_3d
-            % order dimensions to be consistent with Donohoe data (mon, lat, plev)
-            vertz.(fn{1}) = permute(vert.(fn{1}), [3 1 2]);
-        end
-    elseif strcmp(par.lat_interp, 'std') % interpolate all to fine standard grid
-        lat = par.lat_std;
-        % interpolate raw ERA-Interim data onto std lat x ERA lon grid
-        for fn = vars_3d
-            % interpolate to std lat
-            vertz.(fn{1}) = interp1(grid.lat, vert.(fn{1}), par.lat_std, 'spline', nan);
-            % order dimensions to be consistent with Donohoe data (mon, lat, plev)
-            vertz.(fn{1}) = permute(vertz.(fn{1}), [3 1 2]);
-        end
+function proc_temp(type, par)
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/', type, par.lat_interp, par.ep);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_*.ymonmean.nc', type, type));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        temp = ncread(fullpath, 't');
+    elseif strcmp(type, 'gcm')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g/', type, par.model, par.lat_interp, par.ep);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        var = 'ta';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        temp = ncread(fullpath, var);
     end
-
-    % save data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/', par.lat_interp);
-    printname = [foldername 'vert.mat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
-    save(printname, 'vertz', 'lat');
-
-end
-function filt_era_temp(par)
-    % load fluxes
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/fluxes.mat', par.lat_interp));
-    % load rcae data
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/eps_%g/rcae.mat', par.lat_interp, par.ep));
-    % load temp
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/vert', par.lat_interp));
-
-    % create empty arrays to store filtering array
-    rce_teten_filt = nan(size(rcae.teten));
-    rce_stf_filt = nan(size(rcae.stf));
-    rae_teten_filt = nan(size(rcae.teten));
-    rae_stf_filt = nan(size(rcae.stf));
-    % set RCE=1, elsewhere nan
-    rce_teten_filt(rcae.teten==1)=1;
-    rce_stf_filt(rcae.stf==1)=1;
-    % set RAE=1, elsewhere nan
-    rae_teten_filt(rcae.teten==-1)=1;
-    rae_stf_filt(rcae.stf==-1)=1;
-
-    % filter temperature
-    t_rce_teten_filt = rce_teten_filt .* vertz.t;
-    t_rce_stf_filt = rce_stf_filt .* vertz.t;
-    t_rae_teten_filt = rae_teten_filt .* vertz.t;
-    t_rae_stf_filt = rae_stf_filt .* vertz.t;
-
-    % averaged temperature profile
-    % take time average first
-    rce_teten_filt_t = squeeze(nanmean(rce_teten_filt, 1));
-    rce_stf_filt_t = squeeze(nanmean(rce_stf_filt, 1));
-    rae_teten_filt_t = squeeze(nanmean(rae_teten_filt, 1));
-    rae_stf_filt_t = squeeze(nanmean(rae_stf_filt, 1));
-    rce_teten_t_t = squeeze(nanmean(t_rce_teten_filt, 1));
-    rce_stf_t_t = squeeze(nanmean(t_rce_stf_filt, 1));
-    rae_teten_t_t = squeeze(nanmean(t_rae_teten_filt, 1));
-    rae_stf_t_t = squeeze(nanmean(t_rae_stf_filt, 1));
-    % take cosine-weighted zonal average
-    vert_filt.rce_teten = nansum(cosd(lat).*rce_teten_t_t, 1) / nansum(cosd(lat).*rce_teten_filt_t');
-    vert_filt.rce_stf = nansum(cosd(lat).*rce_stf_t_t, 1) / nansum(cosd(lat).*rce_stf_filt_t');
-    vert_filt.rae_teten = nansum(cosd(lat).*rae_teten_t_t, 1) / nansum(cosd(lat).*rae_teten_filt_t');
-    vert_filt.rae_stf = nansum(cosd(lat).*rae_stf_t_t, 1) / nansum(cosd(lat).*rae_stf_filt_t');
-
-    % save filtered data
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era/%s/eps_%g/', par.lat_interp, par.ep);
-    printname = [foldername 'vert_filt'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
-    save(printname, 'vert_filt');
-end
-
-function proc_era5_temp(par)
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat'); % read ERA5 grid data
-    temp = squeeze(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.era5.yr_span), 'temp')); % load temp
-
-    if strcmp(par.lat_interp, 'era5')
-        lat = grid.lat;
-        % load ERA5 data
-        for fn = vars_3d
-            % order dimensions to be consistent with Donohoe data (mon, lat, plev)
-            vertz.(fn{1}) = permute(vert.(fn{1}), [3 1 2]);
-        end
-    elseif strcmp(par.lat_interp, 'std') % interpolate all to fine standard grid
-        lat = par.lat_std;
-        % interpolate raw ERA5 data onto std lat x ERA5 lon grid
-        for fn = vars_3d
-            % interpolate to std lat
-            vertz.(fn{1}) = interp1(grid.lat, vert.(fn{1}), par.lat_std, 'spline', nan);
-            % order dimensions to be consistent with Donohoe data (mon, lat, plev)
-            vertz.(fn{1}) = permute(vertz.(fn{1}), [3 1 2]);
-        end
-    end
-
-    % save data into mat file
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/', par.lat_interp);
-    printname = [foldername 'vert.mat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
-    save(printname, 'vertz', 'lat');
-
-end
-function filt_era5_temp(par)
-    load('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat'); % read ERA5 grid data
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/fluxes.mat', par.lat_interp)); % load fluxes
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/eps_%g/rcae.mat', par.lat_interp, par.ep)); % load rcae data
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/vert.mat', par.lat_interp)); % load temp
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/srfc.mat', par.lat_interp)); % load surface data
+    load(sprintf('%s/grid.mat', prefix)); % read ERA5 grid data
+    load(sprintf('%s/srfc.mat', prefix)); % load surface data
+    load(sprintf('%s/%s/fluxes.mat', prefix_proc, par.lat_interp)); % load fluxes
+    load(sprintf('%s/%s/eps_%g/rcae.mat', prefix_proc, par.lat_interp, par.ep)); % load rcae data
 
     % create surface mask
-    ps_3d = repmat(srfcz.sp, [1 1 size(vertz.t, 3)]);
-    pa_3d = double(permute(repmat(grid.plev, [1 size(srfcz.sp)]), [2 3 1]))*10^2; % convert from hPa to Pa
-    surface_mask = nan(size(vertz.t));
-    surface_mask(pa_3d < ps_3d) = 1;
-
-    % filter all 3D data with surface mask
-    for fn = fieldnames(vertz)'
-        vertz.(fn{1}) = vertz.(fn{1}).*surface_mask;
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        ps = srfc.sp;
+        ps_vert = repmat(srfc.sp, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
+        ps_vert = permute(ps_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
+        pa = double(permute(repmat(grid.dim3.plev, [1 size(srfc.sp)]), [2 3 1 4]))*10^2; % convert from hPa to Pa
+    elseif strcmp(type, 'gcm')
+        ps = srfc.ps;
+        ps_vert = repmat(srfc.ps, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
+        ps_vert = permute(ps_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
+        pa = permute(repmat(grid.dim3.plev, [1 size(srfc.ps)]), [2 3 1 4]); % convert from hPa to Pa
     end
-    pa_3d = pa_3d.*surface_mask;
+    surface_mask = nan(size(temp));
+    surface_mask(pa < ps_vert) = 1;
+    land_mask = remove_land(grid.dim3.lat, grid.dim3.lon, 12);
+    ocean_mask = remove_ocean(grid.dim3.lat, grid.dim3.lon, 12);
+
+    ps_n.lo = ps;
+    ps_n.l = ps .* ocean_mask;
+    ps_n.o = ps .* land_mask;
+
+    land_mask = repmat(land_mask, [1 1 1 size(temp, 3)]); % expand land mask to vertical dim
+    land_mask = permute(land_mask, [1 2 4 3]); % place vertical dim where it belongs
+    ocean_mask = repmat(ocean_mask, [1 1 1 size(temp, 3)]); % expand ocean mask to vertical dim
+    ocean_mask = permute(ocean_mask, [1 2 4 3]); % place vertical dim where it belongs
+
+    temp_sm.lo = temp.*surface_mask; % filter temp with surface mask
+    temp_sm.l = temp.*surface_mask.*ocean_mask; % filter temp with surface mask
+    temp_sm.o = temp.*surface_mask.*land_mask; % filter temp with surface mask
+    pa_sm.lo = pa.*surface_mask; % filter pressure grid with surface mask
+    pa_sm.l = pa.*surface_mask.*ocean_mask; % filter pa with surface mask
+    pa_sm.o = pa.*surface_mask.*land_mask; % filter pa with surface mask
+
+    for l = {'lo', 'l', 'o'}; land = l{1};
+        temp_smz.(land) = squeeze(nanmean(temp_sm.(land), 1)); % take zonal average
+        temp_smz.(land) = permute(temp_smz.(land), [1 3 2]); % put plev at the last dimension
+        ps_z.(land) = squeeze(nanmean(ps_n.(land), 1));
+        lat = par.lat_std;
+        temp_smzi.(land) = interp1(grid.dim3.lat, temp_smz.(land), lat); % interpolate lat to standard grid
+        ps_zi.(land) = interp1(grid.dim2.lat, ps_z.(land), lat);
+    end
+
+    for fn = fieldnames(rcae)'
+            rce_filt.(fn{1}) = nan(size(rcae.(fn{1}))); % create empty arrays to store filtering array
+            rae_filt.(fn{1}) = nan(size(rcae.(fn{1}))); % dims (lat x time)
+            rce_filt.(fn{1})(rcae.(fn{1})==1)=1; % set RCE=1, elsewhere nan
+            rae_filt.(fn{1})(rcae.(fn{1})==-1)=1; % set RAE=1, elsewhere nan
+
+        for l = {'lo', 'l', 'o'}; land = l{1}; % over land, over ocean, or both
+            t_rce.(fn{1}).(land) = rce_filt.(fn{1}) .* temp_smzi.(land); % filter temperatures in RCE only
+            t_rae.(fn{1}).(land) = rae_filt.(fn{1}) .* temp_smzi.(land); % filter temperatures in RAE only
+            ps_rce.(fn{1}).(land) = rce_filt.(fn{1}) .* ps_zi.(land); % filter surface pressures in RCE only
+            ps_rae.(fn{1}).(land) = rae_filt.(fn{1}) .* ps_zi.(land); % filter surface pressures in RAE only
+
+            for time = {'ann', 'djf', 'jja', 'mam', 'son'}
+                if strcmp(time{1}, 'ann')
+                    rce_filt_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(rce_filt.(fn{1}), 2)); % take time{1} mean of RCE filter
+                    rae_filt_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(rae_filt.(fn{1}), 2)); % take time{1} mean of RAE filter
+                    t_rce_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(t_rce.(fn{1}).(land), 2)); % take time{1} mean of temperature
+                    t_rae_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(t_rae.(fn{1}).(land), 2)); % take time{1} mean of temperature
+                elseif strcmp(time{1}, 'djf')
+                    rce_filt_shift.(fn{1}).(land) = circshift(rce_filt.(fn{1}), 1, 2); % shift months by one to allow continuous indexing
+                    rae_filt_shift.(fn{1}).(land) = circshift(rae_filt.(fn{1}), 1, 2); % shift months by one to allow continuous indexing
+                    t_rce_shift.(fn{1}).(land) = circshift(t_rce.(fn{1}).(land), 1, 2);
+                    t_rae_shift.(fn{1}).(land) = circshift(t_rae.(fn{1}).(land), 1, 2);
+                    rce_filt_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(rce_filt_shift.(fn{1}).(land)(:,1:3,:), 2)); % take time{1} mean of RCE filter
+                    rae_filt_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(rae_filt_shift.(fn{1}).(land)(:,1:3,:), 2)); % take time{1} mean of RAE filter
+                    t_rce_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(t_rce_shift.(fn{1}).(land)(:,1:3,:), 2)); % take time{1} mean of temperature
+                    t_rae_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(t_rae_shift.(fn{1}).(land)(:,1:3,:), 2)); % take time{1} mean of temperature
+                elseif strcmp(time{1}, 'jja')
+                    rce_filt_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(rce_filt.(fn{1})(:,6:8,:), 2)); % take time{1} mean of RCE filter
+                    rae_filt_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(rae_filt.(fn{1})(:,6:8,:), 2)); % take time{1} mean of RAE filter
+                    t_rce_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(t_rce.(fn{1}).(land)(:,6:8,:), 2)); % take time{1} mean of temperature
+                    t_rae_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(t_rae.(fn{1}).(land)(:,6:8,:), 2)); % take time{1} mean of temperature
+                elseif strcmp(time{1}, 'mam')
+                    rce_filt_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(rce_filt.(fn{1})(:,3:5,:), 2)); % take time{1} mean of RCE filter
+                    rae_filt_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(rae_filt.(fn{1})(:,3:5,:), 2)); % take time{1} mean of RAE filter
+                    t_rce_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(t_rce.(fn{1}).(land)(:,3:5,:), 2)); % take time{1} mean of temperature
+                    t_rae_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(t_rae.(fn{1}).(land)(:,3:5,:), 2)); % take time{1} mean of temperature
+                elseif strcmp(time{1}, 'son')
+                    rce_filt_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(rce_filt.(fn{1})(:,9:11,:), 2)); % take time{1} mean of RCE filter
+                    rae_filt_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(rae_filt.(fn{1})(:,9:11,:), 2)); % take time{1} mean of RAE filter
+                    t_rce_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(t_rce.(fn{1}).(land)(:,9:11,:), 2)); % take time{1} mean of temperature
+                    t_rae_t.(fn{1}).(land).(time{1}) = squeeze(nanmean(t_rae.(fn{1}).(land)(:,9:11,:), 2)); % take time{1} mean of temperature
+                end
+                ta.rce.(fn{1}).(land).(time{1}) = nansum(cosd(lat).*t_rce_t.(fn{1}).(land).(time{1})) / nansum(cosd(lat).*rce_filt_t.(fn{1}).(land).(time{1})); % area-weighted meridional average
+                ta.rce.tp.(fn{1}).(land).(time{1}) = nansum(cosd(lat(abs(lat)<30)).*t_rce_t.(fn{1}).(land).(time{1})(abs(lat)<30,:)) / nansum(cosd(lat(abs(lat)<30)).*rce_filt_t.(fn{1}).(land).(time{1})(abs(lat)<30)); % area-weighted meridional average
+                ta.rce.nh.(fn{1}).(land).(time{1}) = nansum(cosd(lat(lat>30)).*t_rce_t.(fn{1}).(land).(time{1})(lat>30,:)) / nansum(cosd(lat(lat>30)).*rce_filt_t.(fn{1}).(land).(time{1})(lat>30)); % area-weighted meridional average
+                ta.rce.sh.(fn{1}).(land).(time{1}) = nansum(cosd(lat(lat<-30)).*t_rce_t.(fn{1}).(land).(time{1})(lat<-30,:)) / nansum(cosd(lat(lat<-30)).*rce_filt_t.(fn{1}).(land).(time{1})(lat<-30)); % area-weighted meridional average
+                ta.rae.(fn{1}).(land).(time{1}) = nansum(cosd(lat).*t_rae_t.(fn{1}).(land).(time{1})) / nansum(cosd(lat).*rae_filt_t.(fn{1}).(land).(time{1})); % area-weighted meridional average
+                ta.rae.nh.(fn{1}).(land).(time{1}) = nansum(cosd(lat(lat>0)).*t_rae_t.(fn{1}).(land).(time{1})(lat>0,:)) / nansum(cosd(lat(lat>0)).*rae_filt_t.(fn{1}).(land).(time{1})(lat>0)); % area-weighted meridional average
+                ta.rae.sh.(fn{1}).(land).(time{1}) = nansum(cosd(lat(lat<0)).*t_rae_t.(fn{1}).(land).(time{1})(lat<0,:)) / nansum(cosd(lat(lat<0)).*rae_filt_t.(fn{1}).(land).(time{1})(lat<0)); % area-weighted meridional average
+            end
+        end
+    end
+
+    % save filtered data
+    printname = [foldername 'ta'];
+    if ~exist(foldername, 'dir')
+        mkdir(foldername)
+    end
+    save(printname, 'ta');
+end
+function proc_ma(type, par)
+% calculate moist adiabats
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/', type, par.lat_interp, par.ep);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g/', type, par.model, par.lat_interp, par.ep);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/srfc.mat', prefix)); % read surface variable data
+    load(sprintf('%s/%s/eps_%g/rcae.mat', prefix_proc, par.lat_interp, par.ep)); % load rcae data
+
+    land_mask = remove_land(grid.dim3.lat, grid.dim3.lon, 12);
+    ocean_mask = remove_ocean(grid.dim3.lat, grid.dim3.lon, 12);
+
+    lat = par.lat_std;
+    for fn = fieldnames(srfc)'
+        for l = {'lo', 'l', 'o'}; land = l{1};
+            if strcmp(land, 'lo'); srfc_n.(fn{1}).(land) = srfc.(fn{1});
+            elseif strcmp(land, 'l'); srfc_n.(fn{1}).(land) = srfc.(fn{1}).*ocean_mask;
+            elseif strcmp(land, 'o'); srfc_n.(fn{1}).(land) = srfc.(fn{1}).*land_mask;
+            end
+
+            srfc_z.(fn{1}).(land) = squeeze(nanmean(srfc_n.(fn{1}).(land), 1)); % zonal mean
+            srfc_zi.(fn{1}).(land) = interp1(grid.dim2.lat, srfc_z.(fn{1}).(land), lat); % interpolate to standard lat grid
+        end
+    end
 
     for fn = fieldnames(rcae)'
         rce_filt.(fn{1}) = nan(size(rcae.(fn{1}))); % create empty arrays to store filtering array
-        rae_filt.(fn{1}) = nan(size(rcae.(fn{1})));
+        rae_filt.(fn{1}) = nan(size(rcae.(fn{1}))); % dims (lat x time)
         rce_filt.(fn{1})(rcae.(fn{1})==1)=1; % set RCE=1, elsewhere nan
         rae_filt.(fn{1})(rcae.(fn{1})==-1)=1; % set RAE=1, elsewhere nan
-        t_rce.(fn{1}) = rce_filt.(fn{1}) .* vertz.t; % filter temperatures in RCE only
-        t_rae.(fn{1}) = rae_filt.(fn{1}) .* vertz.t; % filter temperatures in RAE only
-        ps_rce.(fn{1}) = rce_filt.(fn{1}) .* srfcz.sp; % filter surface pressures in RCE only
-        ps_rae.(fn{1}) = rae_filt.(fn{1}) .* srfcz.sp; % filter surface pressures in RAE only
-        rce_filt_t.(fn{1}) = squeeze(nanmean(rce_filt.(fn{1}), 1)); % take time mean of RCE filter
-        rae_filt_t.(fn{1}) = squeeze(nanmean(rae_filt.(fn{1}), 1)); % take time mean of RAE filter
-        t_rce_t.(fn{1}) = squeeze(nanmean(t_rce.(fn{1}), 1)); % take time mean of temperature
-        t_rae_t.(fn{1}) = squeeze(nanmean(t_rae.(fn{1}), 1)); % take time mean of temperature
-        vert_filt.rce.(fn{1}) = nansum(cosd(lat).*t_rce_t.(fn{1})) / nansum(cosd(lat).*rce_filt_t.(fn{1})'); % area-weighted meridional average
-        vert_filt.rce.tp.(fn{1}) = nansum(cosd(lat(abs(lat)<30)).*t_rce_t.(fn{1})(abs(lat)<30,:)) / nansum(cosd(lat(abs(lat)<30)).*rce_filt_t.(fn{1})(abs(lat)<30)'); % area-weighted meridional average
-        vert_filt.rce.nh.(fn{1}) = nansum(cosd(lat(lat>30)).*t_rce_t.(fn{1})(lat>30,:)) / nansum(cosd(lat(lat>30)).*rce_filt_t.(fn{1})(lat>30)'); % area-weighted meridional average
-        vert_filt.rce.sh.(fn{1}) = nansum(cosd(lat(lat<-30)).*t_rce_t.(fn{1})(lat<-30,:)) / nansum(cosd(lat(lat<-30)).*rce_filt_t.(fn{1})(lat<-30)'); % area-weighted meridional average
-        vert_filt.rae.(fn{1}) = nansum(cosd(lat).*t_rae_t.(fn{1})) / nansum(cosd(lat).*rae_filt_t.(fn{1})'); % area-weighted meridional average
-        vert_filt.rae.nh.(fn{1}) = nansum(cosd(lat(lat>0)).*t_rae_t.(fn{1})(lat>0,:)) / nansum(cosd(lat(lat>0)).*rae_filt_t.(fn{1})(lat>0)'); % area-weighted meridional average
-        vert_filt.rae.sh.(fn{1}) = nansum(cosd(lat(lat<0)).*t_rae_t.(fn{1})(lat<0,:)) / nansum(cosd(lat(lat<0)).*rae_filt_t.(fn{1})(lat<0)'); % area-weighted meridional average
-        vert_filt.rce.(fn{1})(grid.plev*100 > min(min(ps_rce.(fn{1})))) = nan;
-        vert_filt.rce.tp.(fn{1})(grid.plev*100 > min(min(ps_rce.(fn{1})(:,abs(lat)<30)))) = nan;
-        vert_filt.rce.nh.(fn{1})(grid.plev*100 > min(min(ps_rce.(fn{1})(:,lat>30)))) = nan;
-        vert_filt.rce.sh.(fn{1})(grid.plev*100 > min(min(ps_rce.(fn{1})(:,lat<-30)))) = nan;
-        vert_filt.rae.(fn{1})(grid.plev*100 > min(min(ps_rae.(fn{1})))) = nan;
-        vert_filt.rae.nh.(fn{1})(grid.plev*100 > min(min(ps_rae.(fn{1})(:,lat>0)))) = nan;
-        vert_filt.rae.sh.(fn{1})(grid.plev*100 > min(min(ps_rae.(fn{1})(:,lat<0)))) = nan;
+
+        for l = {'lo', 'l', 'o'}; land = l{1}; % over land, ocean, or both?
+
+            for i = {'ann', 'djf', 'jja', 'mam', 'son'}; time = i{1};
+
+                for fn_var = fieldnames(srfc)'
+
+                    srfc_zi.rce.(fn{1}).(land).(fn_var{1}) = rce_filt.(fn{1}) .* srfc_zi.(fn_var{1}).(land); % RCE-filtered values
+                    srfc_zi.rae.(fn{1}).(land).(fn_var{1}) = rae_filt.(fn{1}) .* srfc_zi.(fn_var{1}).(land); % RAE-filtered values
+                    if strcmp(time, 'ann')
+                        rce_filt_t.(fn{1}).(land) = squeeze(nanmean(rce_filt.(fn{1}), 2)); % take time mean of RCE filter
+                        rae_filt_t.(fn{1}).(land) = squeeze(nanmean(rae_filt.(fn{1}), 2)); % take time mean of RAE filter
+                        srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rce.(fn{1}).(land).(fn_var{1}), 2)); % take time mean of temperature
+                        srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rae.(fn{1}).(land).(fn_var{1}), 2)); % take time mean of temperature
+                    elseif strcmp(time, 'djf')
+                        rce_filt_shift.(fn{1}).(land) = circshift(rce_filt.(fn{1}), 1, 2); % shift months by one so I can take DJF average in one go (1:3)
+                        rae_filt_shift.(fn{1}).(land) = circshift(rae_filt.(fn{1}), 1, 2);
+                        srfc_zi_shift.rce.(fn{1}).(land).(fn_var{1}) = circshift(srfc_zi.rce.(fn{1}).(land).(fn_var{1}), 1, 2);
+                        srfc_zi_shift.rae.(fn{1}).(land).(fn_var{1}) = circshift(srfc_zi.rae.(fn{1}).(land).(fn_var{1}), 1, 2);
+                        rce_filt_t.(fn{1}).(land) = squeeze(nanmean(rce_filt_shift.(fn{1}).(land)(:,1:3,:), 2)); % take time mean of RCE filter
+                        rae_filt_t.(fn{1}).(land) = squeeze(nanmean(rae_filt_shift.(fn{1}).(land)(:,1:3,:), 2)); % take time mean of RAE filter
+                        srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi_shift.rce.(fn{1}).(land).(fn_var{1})(:,1:3,:), 2)); % take time mean of temperature
+                        srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi_shift.rae.(fn{1}).(land).(fn_var{1})(:,1:3,:), 2)); % take time mean of temperature
+                    elseif strcmp(time, 'jja')
+                        rce_filt_t.(fn{1}).(land) = squeeze(nanmean(rce_filt.(fn{1})(:,6:8,:), 2)); % take time mean of RCE filter
+                        rae_filt_t.(fn{1}).(land) = squeeze(nanmean(rae_filt.(fn{1})(:,6:8,:), 2)); % take time mean of RAE filter
+                        srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rce.(fn{1}).(land).(fn_var{1})(:,6:8,:), 2)); % take time mean of temperature
+                        srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rae.(fn{1}).(land).(fn_var{1})(:,6:8,:), 2)); % take time mean of temperature
+                    elseif strcmp(time, 'mam')
+                        rce_filt_t.(fn{1}).(land) = squeeze(nanmean(rce_filt.(fn{1})(:,3:5,:), 2)); % take time mean of RCE filter
+                        rae_filt_t.(fn{1}).(land) = squeeze(nanmean(rae_filt.(fn{1})(:,3:5,:), 2)); % take time mean of RAE filter
+                        srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rce.(fn{1}).(land).(fn_var{1})(:,3:5,:), 2)); % take time mean of temperature
+                        srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rae.(fn{1}).(land).(fn_var{1})(:,3:5,:), 2)); % take time mean of temperature
+                    elseif strcmp(time, 'son')
+                        rce_filt_t.(fn{1}).(land) = squeeze(nanmean(rce_filt.(fn{1})(:,9:11,:), 2)); % take time mean of RCE filter
+                        rae_filt_t.(fn{1}).(land) = squeeze(nanmean(rae_filt.(fn{1})(:,9:11,:), 2)); % take time mean of RAE filter
+                        srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rce.(fn{1}).(land).(fn_var{1})(:,9:11,:), 2)); % take time mean of temperature
+                        srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rae.(fn{1}).(land).(fn_var{1})(:,9:11,:), 2)); % take time mean of temperature
+                    end
+
+                    ma.rce.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat).*srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1})) / nansum(cosd(lat).*rce_filt_t.(fn{1}).(land)); % area-weighted meridional average
+                    ma.rce.tp.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat(abs(lat)<30)).*srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1})(abs(lat)<30,:)) / nansum(cosd(lat(abs(lat)<30)).*rce_filt_t.(fn{1}).(land)(abs(lat)<30)); % area-weighted meridional average
+                    ma.rce.nh.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat(lat>30)).*srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1})(lat>30,:)) / nansum(cosd(lat(lat>30)).*rce_filt_t.(fn{1}).(land)(lat>30)); % area-weighted meridional average
+                    ma.rce.sh.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat(lat<-30)).*srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1})(lat<-30,:)) / nansum(cosd(lat(lat<-30)).*rce_filt_t.(fn{1}).(land)(lat<-30)); % area-weighted meridional average
+                    ma.rae.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat).*srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1})) / nansum(cosd(lat).*rae_filt_t.(fn{1}).(land)); % area-weighted meridional average
+                    ma.rae.nh.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat(lat>0)).*srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1})(lat>0,:)) / nansum(cosd(lat(lat>0)).*rae_filt_t.(fn{1}).(land)(lat>0)); % area-weighted meridional average
+                    ma.rae.sh.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat(lat<0)).*srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1})(lat<0,:)) / nansum(cosd(lat(lat<0)).*rae_filt_t.(fn{1}).(land)(lat<0)); % area-weighted meridional average
+
+                end
+
+                if strcmp(type, 'era5') | strcmp(type, 'erai')
+                    ma = calc_ma_dew(ma, grid.dim3.plev, par); % compute moist adiabat with dew point temperature
+                elseif strcmp(type, 'gcm')
+                    ma.rce.(fn{1}).(land).(time).ta = calc_ma_hurs(ma.rce.(fn{1}).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
+                    ma.rce.tp.(fn{1}).(land).(time).ta = calc_ma_hurs(ma.rce.tp.(fn{1}).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
+                    ma.rce.nh.(fn{1}).(land).(time).ta = calc_ma_hurs(ma.rce.nh.(fn{1}).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
+                    ma.rce.sh.(fn{1}).(land).(time).ta = calc_ma_hurs(ma.rce.sh.(fn{1}).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
+                end
+
+            end
+        end
     end
 
-    % save filtered data
-    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/era5/%s/eps_%g/', par.lat_interp, par.ep);
-    printname = [foldername 'vert_filt'];
+
+
+    % save data into mat file
+    printname = [foldername 'ma.mat'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    save(printname, 'vert_filt');
+    save(printname, 'ma');
+
 end
 
-function proc_gcm_temp(par, model)
+function land_mask = remove_land(lat, lon, nt)
 
-    % create surface mask
-    ps_4d = permute(repmat(gcm_2d.ps, [1 1 1 size(gcm_3d.ta, 3)]), [1 2 4 3]);
-    pa_4d = permute(repmat(gcm_3d.plev, [1 size(gcm_2d.ps)]), [2 3 1 4]);
-    surface_mask = nan(size(gcm_3d.ta));
-    surface_mask(pa_4d < ps_4d) = 1;
+	[lat2dgrid, lon2dgrid] = meshgrid(lat, lon - 180);
 
-    % filter all 3D data with surface mask
-    for fn = fieldnames(gcm_3d)'
-        if ~strcmp(fn{1}, {'lon', 'lat', 'plev'})
-            gcm_3d.(fn{1}) = gcm_3d.(fn{1}).*surface_mask;
+	land_mask =~ circshift(landmask(lat2dgrid, lon2dgrid), length(lon)/2, 1);
+	land_mask = double(land_mask);
+	land_mask(land_mask==0) = nan;
+	land_mask = repmat(land_mask, [1 1 nt]); % land mask in dims (lon x lat x time)
+
+end
+function ocean_mask = remove_ocean(lat, lon, nt)
+
+	[lat2dgrid, lon2dgrid] = meshgrid(lat, lon - 180);
+
+	ocean_mask = circshift(landmask(lat2dgrid, lon2dgrid), length(lon)/2, 1);
+	ocean_mask = double(ocean_mask);
+	ocean_mask(ocean_mask==0) = nan;
+	ocean_mask = repmat(ocean_mask, [1 1 nt]); % ocean mask in dims (lon x lat x time)
+
+end
+
+function ma = calc_ma_dew(ma_in, plev, par)
+end
+function ma_out = calc_ma_hurs(ma_in, plev, par)
+    if isnan(ma_in.ps) | isnan(ma_in.tas) | isnan(ma_in.hurs)
+        ma_out = nan(size(plev)); % if any of the initial values are nan, ouput nan profile
+    else
+        pa_cd(1) = ma_in.ps; % set initial pressure
+        ta_cd(1) = ma_in.tas; % set initial temperature
+        esat_cd(1) = calc_esat(ta_cd(1), par.frz); % calculate initial saturation vapor pressure
+        qsat_cd(1) = calc_q(pa_cd(1), esat_cd(1), par); % calculate initial specific humidity
+        rh(1) = ma_in.hurs/100; % set initial relative humidity
+
+        r(1) = par.eps * rh(1) * esat_cd(1) / (pa_cd(1) - rh(1) * esat_cd(1));
+        deriv_dry(1) = dry(pa_cd(1), ta_cd(1), par);
+        [pa_d, ta_pa_d]=ode45(@(pa, T) dry(pa, T, par), par.pa_span, ta_cd(1));
+        i = 2;
+        while rh(i-1) < 1
+            idx_lcl = i;
+            pa_cd(i) = pa_cd(i-1) + par.dpa;
+            ta_cd(i, 1) = ta_cd(i-1) + par.dpa * deriv_dry(i-1);
+            esat_cd(i, 1) = calc_esat(ta_cd(i), par.frz);
+            qsat_cd(i, 1) = calc_q(pa_cd(i), esat_cd(i), par);
+            r(i, 1) = r(i-1);
+            rh(i, 1) = r(i) * pa_cd(i) / (esat_cd(i) * (r(i) + par.eps));
+            deriv_dry(i, 1) = dry(pa_cd(i), ta_cd(i), par);
+            i = i + 1;
         end
+        pa_lcl = pa_cd(end);
+        if strcmp(par.ma_type, 'reversible')
+            par.r_t = r(end); % moisture at LCL is the total moisture of rising parcel
+            [pa_cs, ta_cs] = ode45(@(pa, T) sat_rev(pa, T, par.frz, par), [pa_lcl, par.pa_span(end)], ta_cd(end));
+        elseif strcmp(par.ma_type, 'pseudo')
+            [pa_cs, ta_cs] = ode45(@(pa, T) sat_pseudo(pa, T, par.frz, par), [pa_lcl, par.pa_span(end)], ta_cd(end));
+        elseif strcmp(par.ma_type, 'std')
+            [pa_cs, ta_cs] = ode45(@(pa, T) sat_std(pa, T, par.frz, par), [pa_lcl, par.pa_span(end)], ta_cd(end));
+        else
+            error(sprintf('The chosen moist adiabat type, %s, is not available. Choose between reversible, pseudo, or std.', par.ma_type));
+        end
+        for i = 1:length(pa_cs)
+            if strcmp(par.ma_type, 'reversible')
+                [deriv_cs(i, 1), qsat_cs(i, 1)] = sat_rev(pa_cs(i), ta_cs(i), par.frz, par);
+            elseif strcmp(par.ma_type, 'pseudo')
+                [deriv_cs(i, 1), qsat_cs(i, 1)] = sat_pseudo(pa_cs(i), ta_cs(i), par.frz, par);
+            elseif strcmp(par.ma_type, 'std')
+                [deriv_cs(i, 1), qsat_cs(i, 1)] = sat_std(pa_cs(i), ta_cs(i), par.frz, par);
+            else
+                error(sprintf('The chosen moist adiabat type, %s, is not available. Choose between reversible, pseudo, or std.', par.ma_type));
+            end
+            deriv_csd(i, 1) = dry(pa_cs(i), ta_cs(i), par);
+        end
+        ta_s(:, 1) = [ta_cd; ta_cs(2:end)];
+        pa_s(:, 1) = [pa_cd(:); pa_cs(2:end)];
+        qsat_s(:, 1) = [qsat_cd(:, 1); qsat_cs(2:end)];
+        dtadpa_s(:, 1) = [deriv_dry; deriv_cs(2:end)];
+
+        ta_s = interp1(pa_s, ta_s, plev, 'spline', nan);
+        qsat_s = interp1(pa_s, qsat_s, plev, 'spline', nan);
+        dtadpa_s = interp1(pa_s, dtadpa_s, plev, 'spline', nan);
+
+        % OUTPUT
+        ma_out = ta_s;
     end
-    pa_4d = pa_4d.*surface_mask;
 
 end
