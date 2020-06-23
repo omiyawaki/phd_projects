@@ -96,8 +96,8 @@ end
 
 function choose_plots_ep(type, par)
     % plot_rcae_mon_lat(type, par) % plot RCE/RAE regimes
-    % plot_temp(type, par) % plot temperature profiles
-    plot_ma_diff(type, par) % plot difference of temperature profile from moist adiabat
+    plot_temp(type, par) % plot temperature profiles
+    % plot_ma_diff(type, par) % plot difference of temperature profile from moist adiabat
 end
 function plot_rcae_mon_lat(type, par)
     % load data
@@ -178,7 +178,7 @@ function plot_temp(type, par)
                 h_rae_sh = plot(ta.rae.sh.(crit).(land).(time), plev, '--', 'color', par.blue);
                 xlabel('T (K)'); ylabel('p (hPa)');
                 title(sprintf('%s, %s', upper(time), land_text));
-                % legend([h_rce_tp h_rce_nh h_rce_sh h_rae_nh h_rae_sh], 'Tropical RCE', 'NH ML RCE', 'SH ML RCE', 'NH RAE', 'SH RAE', 'location', 'eastoutside');
+                legend([h_rce_tp h_rce_nh h_rce_sh h_rae_nh h_rae_sh], 'Tropical RCE', 'NH ML RCE', 'SH ML RCE', 'NH RAE', 'SH RAE', 'location', 'northeast');
                 axis('tight');
                 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
                 set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
@@ -187,10 +187,15 @@ function plot_temp(type, par)
                 close;
             % Tropical RCE compared with moist adiabat
                 figure(); clf; hold all;
-                h_rce_tp = plot(ta.rce.tp.(crit).(land).(time), plev, 'color', par.maroon);
-                h_rce_tp = plot(ma.rce.tp.(crit).(land).(time).ta, plev, ':', 'color', par.maroon);
+                h_rce = plot(ta.rce.tp.(crit).(land).(time), plev, 'color', par.maroon);
+                h_rce_ma = plot(ma.rce.tp.(crit).(land).(time).ta, plev, ':', 'color', par.maroon);
                 xlabel('T (K)'); ylabel('p (hPa)');
                 title(sprintf('Tropical RCE, %s, %s', upper(time), land_text));
+                if strcmp(type, 'era5') | strcmp(type, 'erai')
+                    legend([h_rce, h_rce_ma], upper(type), 'Moist adiabat', 'location', 'southwest');
+                elseif strcmp(type, 'gcm')
+                    legend([h_rce, h_rce_ma], par.model, 'Moist adiabat', 'location', 'southwest');
+                end
                 axis('tight');
                 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
                 set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
@@ -199,10 +204,15 @@ function plot_temp(type, par)
                 close;
             % NH RCE compared with moist adiabat
                 figure(); clf; hold all;
-                h_rce_nh = plot(ta.rce.nh.(crit).(land).(time), plev, 'color', par.orange);
-                h_rce_nh = plot(ma.rce.nh.(crit).(land).(time).ta, plev, ':', 'color', par.orange);
+                h_rce = plot(ta.rce.nh.(crit).(land).(time), plev, 'color', par.orange);
+                h_rce_ma = plot(ma.rce.nh.(crit).(land).(time).ta, plev, ':', 'color', par.orange);
                 xlabel('T (K)'); ylabel('p (hPa)');
                 title(sprintf('NH ML RCE, %s, %s', upper(time), land_text));
+                if strcmp(type, 'era5') | strcmp(type, 'erai')
+                    legend([h_rce, h_rce_ma], upper(type), 'Moist adiabat', 'location', 'southwest');
+                elseif strcmp(type, 'gcm')
+                    legend([h_rce, h_rce_ma], par.model, 'Moist adiabat', 'location', 'southwest');
+                end
                 axis('tight');
                 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
                 set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
@@ -211,10 +221,15 @@ function plot_temp(type, par)
                 close;
             % SH RCE compared with moist adiabat
                 figure(); clf; hold all;
-                h_rce_sh = plot(ta.rce.sh.(crit).(land).(time), plev, 'color', par.orange);
-                h_rce_sh = plot(ma.rce.sh.(crit).(land).(time).ta, plev, ':', 'color', par.orange);
+                h_rce = plot(ta.rce.sh.(crit).(land).(time), plev, 'color', par.orange);
+                h_rce_ma = plot(ma.rce.sh.(crit).(land).(time).ta, plev, ':', 'color', par.orange);
                 xlabel('T (K)'); ylabel('p (hPa)');
                 title(sprintf('SH ML RCE, %s, %s', upper(time), land_text));
+                if strcmp(type, 'era5') | strcmp(type, 'erai')
+                    legend([h_rce, h_rce_ma], upper(type), 'Moist adiabat', 'location', 'southwest');
+                elseif strcmp(type, 'gcm')
+                    legend([h_rce, h_rce_ma], par.model, 'Moist adiabat', 'location', 'southwest');
+                end
                 axis('tight');
                 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
                 set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
