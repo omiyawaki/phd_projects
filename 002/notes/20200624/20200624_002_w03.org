@@ -1,0 +1,50 @@
+#+title: Research Notes
+#+author: Osamu Miyawaki
+#+date: June 24, 2020
+#+options: toc:nil
+
+* Introduction
+Action items from our previous meeting are:
+- Understand why $R_a$ is more negative in ERA reanalysis compared to Fig. 6.1 in cite:hartmann_global_2016.
+  - Confirm radiative energy flux terms in ERA with other sources:
+    - CERES
+    - Donohoe and Battisti (2013)
+- Until the $R_a$ problem in ERA is resolved, make progress using GCM data. We will start with MPI-ESM-LR since we intend to run simulations with ECHAM6 later on (also noted below).
+- Analyze the vertical temperature profiles.
+  - Compare the RCE temperature profile to a moist adiabat.
+    - Do regions of RCE as diagnosed from the vertically-integrated MSE equation correspond to regions where the temperature profile is close to a moist adiabat?
+    - Is the temperature profile in midlatitude RCE moist adiabatic? Does separating land vs ocean make a difference?
+  - Compare the RAE temperature profile to existing observational datasets.
+    - e.g., compare SH RAE to radiosonde data in Antarctica.
+
+* Methods
+** MPI-ESM-LR
+I compute the monthly climatology of the energy fluxes and other variables of interest in MPI-ESM-LR over the last 30 years of the piControl simulation.
+
+** Moist adiabat
+I calculate the moist adiabat using the 2 m temperature, relative humidity, and surface pressure data. MPI-ESM-LR is one of the few GCMs in the CMIP archive that does not report 2 m relative humidity, so I interpolate the 3D relative humidity data to surface pressure. Wherever the surface pressure exceeds 1000 hPa, I linearly extrapolate to surface pressure from the 1000 hPa value. I assume a dry adiabatic ascent conserving vapor mixing ratio ($r_v$) up to LCL. Above the LCL, I follow a simplified pseudoadiabat where $r_v \ll 1$.
+
+* Results
+** MPI-ESM-LR
+*** Energy fluxes
+
+#+caption: Annually-averaged energy fluxes in the vertically-integrated MSE budget in MPI-ESM-LR. Blue is latent heat, orange is sensible heat, red is MSE flux divergence, and gray is atmospheric radiative cooling. MSE flux divergence is inferred as the residual of the other terms.
+#+label: fig:repro
+[[../../figures/gcm/MPI-ESM-LR/std/energy-fluxes.png]]
+
+#+caption: Reprint of Fig. 6.1 from cite:hartmann_global_2016 showing the energy flux terms in the vertically-integrated MSE budget. LE is latent heat, SH is sensible heat, $\Delta F_a$ is MSE flux divergence, and $R_a$ is atmospheric radiative cooling.
+#+label: fig:hartmann
+[[../../../prospectus/figs/fig-6-1-hartmann.png]]
+
+#+caption: Northward MSE transport in ERA5 is not 0 at the North Pole. The transport is calculated by integrating the MSE flux divergence, which is inferred as the residual of atmospheric radiative cooling and surface turbulent fluxes.
+#+label: fig:vh
+[[../../figures/era5/std/vh.png]]
+
+** RCE and RAE regimes in ERA5
+
+
+* Next Steps
+- Understand why there is no near-surface inversion in the SH RAE in MPI-ESM-LR. Try converting to z coordinate to see if averaging over a range of surface pressures is the issue.
+
+bibliographystyle:apalike
+bibliography:~/Sync/Papers/references.bib
