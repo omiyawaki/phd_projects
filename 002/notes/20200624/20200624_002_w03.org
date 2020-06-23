@@ -19,14 +19,15 @@ Action items from our previous meeting are:
 
 * Methods
 ** MPI-ESM-LR
-I compute the monthly climatology of the energy fluxes and other variables of interest in MPI-ESM-LR over the last 30 years of the piControl simulation.
+I compute the monthly climatology of the energy fluxes and other variables of interest in MPI-ESM-LR over the last 30 years of the piControl simulation. I infer MSE flux divergence as the residual of atmospheric radiative cooling and surface turbulent fluxes.
 
 ** Moist adiabat
-I calculate the moist adiabat using the 2 m temperature, relative humidity, and surface pressure data. MPI-ESM-LR is one of the few GCMs in the CMIP archive that does not report 2 m relative humidity, so I interpolate the 3D relative humidity data to surface pressure. Wherever the surface pressure exceeds 1000 hPa, I linearly extrapolate to surface pressure from the 1000 hPa value. I assume a dry adiabatic ascent conserving vapor mixing ratio ($r_v$) up to LCL. Above the LCL, I follow a simplified pseudoadiabat where $r_v \ll 1$.
+I calculate the moist adiabat using the 2 m temperature, relative humidity, and surface pressure data. MPI-ESM-LR is one of the few GCMs in the CMIP archive that does not report 2 m relative humidity, so I interpolate the 3D relative humidity data to surface pressure. Wherever the surface pressure exceeds 1000 hPa, I linearly extrapolate to surface pressure from the 1000 hPa value. I assume a dry adiabatic ascent conserving vapor mixing ratio ($r_v$) up to LCL. Above the LCL, I follow a simplified pseudoadiabat where $r_v \ll 1$. I compare the difference between the GCM temperature ($T$) and the moist adiabatic temperature ($T_m$) at 3 pressure levels: 300, 400, and 500 hPa.
 
 * Results
 ** MPI-ESM-LR
 *** Energy fluxes
+Atmospheric radiative cooling is also stronger in MPI-ESM-LR (gray line in Fig. [[fig:repro]]) compared to cite:hartmann_global_2016 (reprinted in Fig. [[fig:hartmann]]). Correspondingly, MSE flux divergence as inferred as the residual of atmospheric radiative cooling and the surface turbulent fluxes in MPI-ESM-LR is shifted down (e.g., red line is around 50 Wm$^{-2}$ at maximum, -120 Wm$^{-2}$ at minimum) compared to that in Hartmann (70 Wm$^{-2}$ at maximum, -90 Wm$^{-2}$ at minimum). The inferred MSE flux divergence in MPI-ESM-LR integrates close to 0 at the poles (Fig. [[fig:vh]]), indicating that there is only a small net energy imbalance in the atmosphere. This suggests that the flux divergence in Hartmann's Fig. 6.1 does not integrate to 0.
 
 #+caption: Annually-averaged energy fluxes in the vertically-integrated MSE budget in MPI-ESM-LR. Blue is latent heat, orange is sensible heat, red is MSE flux divergence, and gray is atmospheric radiative cooling. MSE flux divergence is inferred as the residual of the other terms.
 #+label: fig:repro
@@ -36,15 +37,35 @@ I calculate the moist adiabat using the 2 m temperature, relative humidity, and 
 #+label: fig:hartmann
 [[../../../prospectus/figs/fig-6-1-hartmann.png]]
 
-#+caption: Northward MSE transport in ERA5 is not 0 at the North Pole. The transport is calculated by integrating the MSE flux divergence, which is inferred as the residual of atmospheric radiative cooling and surface turbulent fluxes.
+#+caption: Northward MSE transport in MPI-ESM-LR is close to 0 at the North Pole. The transport is calculated by integrating the MSE flux divergence, which is inferred as the residual of atmospheric radiative cooling and surface turbulent fluxes.
 #+label: fig:vh
-[[../../figures/era5/std/vh.png]]
+[[../../figures/gcm/MPI-ESM-LR/std/mse-transport.png]]
 
-** RCE and RAE regimes in ERA5
+*** RCE and RAE regimes
+The RCE and RAE regimes in MPI-ESM-LR are similar to those we saw with the ERA-Interim and ERA5 data (Fig. [[fig:rcae-def]]). That is, there is a narrow band of RCE in the deep tropics, RCE that migrates seasonally in the midlatitudes, and RAE at the high latitudes.
 
+Regions of RCE as diagnosed from the MSE budget are generally regions where the temperature profile is close to a moist adiabat at 300 hPa (lighter shades in Fig. [[fig:ma-diff-300]]). The first pattern we see in Fig. [[fig:ma-diff-300]] is that the GCM temperature profile is cooler (blue) than the moist adiabat in the tropics, whereas the GCM temperature profile is warmer (red) than the moist adiabat in the extratropics. This is consistent with the expectation that atmospheric heat transport stabilizes the atmosphere (in the context of convection) in the extratropics. Because of this transition from a negative to positive difference, there exists a region at the edge of the tropics where the difference is 0 (white in Fig. [[fig:ma-diff-300]]). The second feature we find in Fig. [[fig:ma-diff-300]] is that there is thin band near the equator where the temperature profile is closer to the moist adiabat (lighter shade of blue) than at nearby latitudes away from the equator. The first feature is that the boundary that separates the region of moderate temperature difference from a moist adiabat (light red in Fig. [[fig:ma-diff-300]]) from large temperature temperature difference (dark red) in the extratropics closely follows the boudary of RCE as diagnosed from the MSE budget (upper boundary of RCE in the NH and lower boundary of RCE in the SH in Fig. [[fig:rcae-def]]). Namely, it captures the high seasonality of RCE in the NH (extent of region close to moist adiabat migrates poleward in the NH summer in Fig. [[fig:ma-diff-300]]) and low seasonality of RCE in the SH (extent of region close to moist adiabat remains constant around -60 S yearround in Fig. [[fig:ma-diff-300]]).
+
+When the temperature difference between the GCM profile and the moist adiabat is evaluated at different pressure levels (at 400 hPa in Fig. [[fig:ma-diff-400]] and at 500 hPa in Fig. [[fig:ma-diff-500]]), the overall magnitude of the difference changes, but the patterns described in the previous paragraph remain.
+
+#+caption: Regions of RCE in orange and RAE in blue in MPI-ESM-LR as diagnosed from the vertically-integrated MSE budget. Here, RCE is defined as where $R_1 < 0.3$ and RAE as where $R_2 < 0.3$.
+#+label: fig:rcae-def
+[[../../figures/gcm/MPI-ESM-LR/std/eps_0.3/def/rcae_mon_lat.png]]
+
+#+caption: The temperature difference between the MPI-ESM-LR GCM temperature profile ($T$) and the moist adiabat ($T_m$) evaluated at 300 hPa.
+#+label: fig:ma-diff-300
+[[../../figures/gcm/MPI-ESM-LR/std/ma_diff/plev_300/lo/ma_diff_lat_lon.png]]
+
+#+caption: Same as Fig. [[fig:ma-diff-300]], but the temperature difference evaluated at 400 hPa.
+#+label: fig:ma-diff-400
+[[../../figures/gcm/MPI-ESM-LR/std/ma_diff/plev_400/lo/ma_diff_lat_lon.png]]
+
+#+caption: Same as Fig. [[fig:ma-diff-300]], but the temperature difference evaluated at 500 hPa.
+#+label: fig:ma-diff-500
+[[../../figures/gcm/MPI-ESM-LR/std/ma_diff/plev_500/lo/ma_diff_lat_lon.png]]
 
 * Next Steps
 - Understand why there is no near-surface inversion in the SH RAE in MPI-ESM-LR. Try converting to z coordinate to see if averaging over a range of surface pressures is the issue.
 
 bibliographystyle:apalike
-bibliography:~/Sync/Papers/references.bib
+bibliography:~/Sync/papers/references.bib
