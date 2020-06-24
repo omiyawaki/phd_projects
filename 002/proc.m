@@ -19,7 +19,7 @@ type = 'era5'; % data type to run analysis on
 % choose_proc(type, par)
 for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
     type = 'gcm';
-    % choose_proc(type, par)
+    choose_proc(type, par)
 end
 
 for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
@@ -27,7 +27,7 @@ for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
     % choose_proc_ep(type, par)
     for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
         type = 'gcm';
-        choose_proc_ep(type, par)
+        % choose_proc_ep(type, par)
     end
 end
 
@@ -40,14 +40,17 @@ end
 function proc_flux(type, par)
     if strcmp(type, 'era5')
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.lat_interp);
     elseif strcmp(type, 'gcm')
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.lat_interp);
     end
 
     load(sprintf('%s/grid.mat', prefix)) % read grid data
     load(sprintf('%s/rad.mat', prefix)) % read radiation data
     load(sprintf('%s/pe.mat', prefix)) % read hydrology data
     load(sprintf('%s/stf.mat', prefix)) % read surface turbulent flux data
+    load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
 
     lat = par.lat_std;
     % interpolate onto std lat x lon grid
@@ -82,45 +85,123 @@ function proc_flux(type, par)
     for f = {'mse', 'dse'}; fw = f{1};
         flux.res.(fw) = flux.ra + flux.stf.(fw); % infer MSE tendency and flux divergence as residuals
         % compute northward MSE transport using the residual data
-        tediv_t = squeeze(nanmean(flux.res.(fw), 3)); % take time average
-        tediv_tz = trapz(deg2rad(grid.dim2.lon), tediv_t, 1); % zonally integrate
-        vh.(fw) = cumtrapz(deg2rad(lat), par.a^2*cosd(lat).*tediv_tz'); % cumulatively integrate in latitude
+        for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+            if strcmp(time, 'ann')
+                tediv_t = squeeze(nanmean(flux.res.(fw), 3)); % take time average
+            elseif strcmp(time, 'djf')
+                flux_shift.res = circshift(flux.res.(fw), 1, 3); % shift month by 1 to allow for djf average
+                tediv_t = squeeze(nanmean(flux_shift.res(:,:,1:3), 3)); % take time average
+            elseif strcmp(time, 'jja')
+                tediv_t = squeeze(nanmean(flux.res.(fw)(:,:,6:8), 3)); % take time average
+            elseif strcmp(time, 'mam')
+                tediv_t = squeeze(nanmean(flux.res.(fw)(:,:,3:5), 3)); % take time average
+            elseif strcmp(time, 'son')
+                tediv_t = squeeze(nanmean(flux.res.(fw)(:,:,9:11), 3)); % take time average
+            end
+            tediv_tz = trapz(deg2rad(grid.dim2.lon), tediv_t, 1); % zonally integrate
+            vh.(time).(fw) = cumtrapz(deg2rad(lat), par.a^2*cosd(lat).*tediv_tz'); % cumulatively integrate in latitude
+        end
         flux.r1.(fw) = (flux.res.(fw))./flux.ra; % calculate nondimensional number R1 disregarding MSE budget closure
         flux.r2.(fw) = flux.stf.(fw)./flux.ra; % calculate nondimensional number R2 disregarding MSE budget closure
     end
 
     if strcmp(type, 'era5') | strcmp(type, 'erai')
-        % take zonal averages
-        for fn = {'ra', 'sshf', 'slhf', 'cp', 'lsp', 'e'}
-            flux_z.(fn{1}) = squeeze(nanmean(flux.(fn{1}), 1));
+        for fn = {'ra', 'sshf', 'slhf', 'cp', 'lsp', 'e'}; fname = fn{1};
+            % take zonal averages
+            flux_z.(fname) = squeeze(nanmean(flux.(fname), 1));
+            % take time averages
+            for l = {'lo', 'l', 'o'}; land = l{1};
+                if strcmp(land, 'lo'); flux_n.(land).(fname) = flux.(fname);
+                elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
+                elseif strcmp(land, 'o'); flux_n.(land).(fname) = flux.(fname) .*mask.land;
+                end
+
+                for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+                    if strcmp(time, 'ann')
+                        flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname), 3);
+                    elseif strcmp(time, 'djf')
+                        flux_shift.(land).(fname) = circshift(flux_n.(land).(fname), 1, 3);
+                        flux_t.(land).(time).(fname) = nanmean(flux_shift.(land).(fname)(:,:,1:3), 3);
+                    elseif strcmp(time, 'jja')
+                        flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,6:8), 3);
+                    elseif strcmp(time, 'mam')
+                        flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,3:5), 3);
+                    elseif strcmp(time, 'son')
+                        flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,9:11), 3);
+                    end
+                    flux_zt.(land).(time).(fname) = squeeze(nanmean(flux_t.(land).(time).(fname), 1));
+                end
+            end
         end
         foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
     elseif strcmp(type, 'gcm')
-        % take zonal averages
-        for fn = {'ra', 'hfls', 'hfss', 'prc', 'pr', 'evspsbl'}
-            flux_z.(fn{1}) = squeeze(nanmean(flux.(fn{1}), 1));
+        for fn = {'ra', 'hfls', 'hfss', 'prc', 'pr', 'evspsbl'}; fname = fn{1};
+            % take zonal averages
+            flux_z.(fname) = squeeze(nanmean(flux.(fname), 1));
+
+            % take time averages
+            for l = {'lo', 'l', 'o'}; land = l{1};
+                if strcmp(land, 'lo'); flux_n.(land).(fname) = flux.(fname);
+                elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
+                elseif strcmp(land, 'o'); flux_n.(land).(fname) = flux.(fname) .*mask.land;
+                end
+
+                for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+                    if strcmp(time, 'ann')
+                        flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname), 3);
+                    elseif strcmp(time, 'djf')
+                        flux_shift.(land).(fname) = circshift(flux_n.(land).(fname), 1, 3);
+                        flux_t.(land).(time).(fname) = nanmean(flux_shift.(land).(fname)(:,:,1:3), 3);
+                    elseif strcmp(time, 'jja')
+                        flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,6:8), 3);
+                    elseif strcmp(time, 'mam')
+                        flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,3:5), 3);
+                    elseif strcmp(time, 'son')
+                        flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,9:11), 3);
+                    end
+                    flux_zt.(land).(time).(fname) = squeeze(nanmean(flux_t.(land).(time).(fname), 1));
+                end
+            end
         end
         foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.model, par.lat_interp);
     end
-    for fn = {'stf', 'res', 'r1', 'r2'}
+    for fn = {'stf', 'res', 'r1', 'r2'}; fname = fn{1};
         for f = {'mse', 'dse'}; fw = f{1};
-            flux_z.(fn{1}).(fw) = squeeze(nanmean(flux.(fn{1}).(fw), 1));
+            % take zonal average
+            flux_z.(fname).(fw) = squeeze(nanmean(flux.(fname).(fw), 1));
+            % take time averages
+            for l = {'lo', 'l', 'o'}; land = l{1};
+                if strcmp(land, 'lo'); flux_n.(land).(fname).(fw) = flux.(fname).(fw);
+                elseif strcmp(land, 'l'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.ocean;
+                elseif strcmp(land, 'o'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.land;
+                end
+
+                for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+                    if strcmp(time, 'ann')
+                        flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw), 3);
+                    elseif strcmp(time, 'djf')
+                        flux_shift.(land).(fname).(fw) = circshift(flux_n.(land).(fname).(fw), 1, 3);
+                        flux_t.(land).(time).(fname).(fw) = nanmean(flux_shift.(land).(fname).(fw)(:,:,1:3), 3);
+                    elseif strcmp(time, 'jja')
+                        flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,6:8), 3);
+                    elseif strcmp(time, 'mam')
+                        flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,3:5), 3);
+                    elseif strcmp(time, 'son')
+                        flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,9:11), 3);
+                    end
+                    flux_zt.(land).(time).(fname).(fw) = squeeze(nanmean(flux_t.(land).(time).(fname).(fw), 1));
+                end
+            end
         end
     end
 
     % save energy flux data into mat file
-    printname = [foldername 'flux.mat'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    save(printname, 'flux', 'lat');
-
-    % save energy flux data into mat file
-    printname = [foldername 'flux_z.mat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
+    for v = {'flux', 'flux_t', 'flux_z', 'flux_zt', 'vh'}; varname = v{1};
+        save(sprintf('%s%s', foldername, varname), varname, 'lat');
     end
-    save(printname, 'flux_z', 'vh', 'lat');
 
 end
 function proc_net_flux(type, par)

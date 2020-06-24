@@ -45,7 +45,7 @@ type = 'era5';
 % choose_plots(type, par);
 for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
     type = 'gcm';
-    % choose_plots(type, par);
+    choose_plots(type, par);
 end
 
 % sweep through various threshold values
@@ -54,7 +54,7 @@ for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
     % choose_plots_ep(type, par)
     for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
         type = 'gcm';
-        choose_plots_ep(type, par)
+        % choose_plots_ep(type, par)
     end
 end
 
@@ -64,63 +64,76 @@ function choose_plots(type, par)
 end
 function plot_energy_lat(type, par) % latitude vs energy flux line plots, comparable to Hartmann (2016)
     [flux, vh, lat, par] = load_flux(type, par); % load data
-    for f = {'mse', 'dse'}; fw = f{1};
+
+    for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+        for f = {'mse', 'dse'}; fw = f{1};
+            for l = {'lo', 'l', 'o'}; land = l{1};
+                if strcmp(land, 'lo'); land_text = 'Land + Ocean';
+                elseif strcmp(land, 'l'); land_text = 'Land';
+                elseif strcmp(land, 'o'); land_text = 'Ocean';
+                end
+
+                figure(); clf; hold all;
+                line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+                plot(lat, flux.(land).(time).ra, 'color', par.gray); text(0, 0.75*interp1(lat,flux.(land).(time).ra,0), '\boldmath{$R_a$}', 'color', par.gray);
+                if strcmp(fw, 'mse'); plot(lat,flux.(land).(time).res.mse, 'color', par.maroon); text(-42, 2*interp1(lat,flux.(land).(time).res.mse,-42), '\boldmath{$\nabla\cdot(F_m)$}', 'color', par.maroon);
+                elseif strcmp(fw, 'dse'); plot(lat,flux.(land).(time).res.dse, '--', 'color', par.maroon); text(-30, 2*interp1(lat,flux.(land).(time).res.dse,-30), '\boldmath{$\nabla\cdot(F_s)$}', 'color', par.maroon);
+                end
+                if strcmp(type, 'era5') | strcmp(type, 'erai')
+                    if strcmp(fw, 'mse'); plot(lat, -flux.(land).(time).slhf, 'color', par.blue); text(20, interp1(lat, -1.2*flux.(land).(time).slhf,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                    elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux.(land).(time).cp+flux.(land).(time).lsp), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux.(land).(time).cp+flux.(land).(time).lsp),15), '\boldmath{$LP$}', 'color', par.blue);
+                    end
+                    plot(lat, -flux.(land).(time).sshf, 'color', par.orange); text(80, interp1(lat, flux.(land).(time).hfss, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                elseif strcmp(type, 'gcm')
+                    if strcmp(fw, 'mse'); plot(lat, flux.(land).(time).hfls, 'color', par.blue); text(20, 1.2*interp1(lat, flux.(land).(time).hfls,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                    elseif strcmp(fw, 'dse'); plot(lat, par.L*flux.(land).(time).pr, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux.(land).(time).pr,15), '\boldmath{$LP$}', 'color', par.blue);
+                    end
+                    plot(lat, flux.(land).(time).hfss, 'color', par.orange); text(80, interp1(lat, flux.(land).(time).hfss, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                end
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, %s', upper(type), upper(fw), upper(time), land_text));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, %s', par.model, upper(fw), upper(time), land_text));
+                end
+                xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
+                axis('tight');
+                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+                set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+                if strcmp(fw, 'mse') & strcmp(time, 'ann'); set(gca, 'ylim', [-inf 150]); end
+                print(sprintf('%s/energy-flux/%s/%s/%s', par.plotdir, land, time, fw), '-dpng', '-r300');
+                close;
+            end % land
+        % northward M/DSE transport
+            figure(); clf; hold all;
+            line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+            line([0 0], [min(vh.(time).(fw)) max(vh.(time).(fw))]*10^-15, 'linewidth', 0.5, 'color', 'k');
+            if strcmp(fw, 'mse'); plot(lat, vh.(time).(fw)*10^-15, 'color', par.maroon);
+            elseif strcmp(fw, 'dse'); plot(lat, vh.(time).(fw)*10^-15, '--', 'color', par.maroon);
+            end
+            xlabel('latitude (deg)'); ylabel('PW')
+            title(sprintf('Northward %s Transport, %s', upper(fw), upper(time)));
+            axis('tight');
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+            set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+            if strcmp(fw, 'dse'); set(gca, 'ytick', [-5:5]); end;
+            print(sprintf('%s/transport/%s/%s', par.plotdir, time, fw), '-dpng', '-r300');
+            close;
+        end % end mse/dse loop
+
+        % MSE/DSE transport plotted together
         figure(); clf; hold all;
         line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-        plot(lat,nanmean(flux.ra,2), 'color', par.gray); text(0, 0.75*interp1(lat,nanmean(flux.ra,2),0), '\boldmath{$R_a$}', 'color', par.gray);
-        if strcmp(fw, 'mse'); plot(lat,nanmean(flux.res.mse,2), 'color', par.maroon); text(-42, 2*interp1(lat,nanmean(flux.res.mse,2),-42), '\boldmath{$\nabla\cdot(F_m)$}', 'color', par.maroon);
-        elseif strcmp(fw, 'dse'); plot(lat,nanmean(flux.res.dse,2), '--', 'color', par.maroon); text(-30, 2*interp1(lat,nanmean(flux.res.dse,2),-30), '\boldmath{$\nabla\cdot(F_s)$}', 'color', par.maroon);
-        end
-        if strcmp(type, 'era5') | strcmp(type, 'erai')
-            if strcmp(fw, 'mse'); plot(lat, -nanmean(flux.slhf,2), 'color', par.blue); text(20, interp1(lat, -1.2*nanmean(flux.slhf,2),20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
-            elseif strcmp(fw, 'dse'); plot(lat, nanmean(par.L*(flux.cp+flux.lsp),2), '--', 'color', par.blue); text(15, 1.5*interp1(lat, nanmean(par.L*(flux.cp+flux.lsp),2),15), '\boldmath{$LP$}', 'color', par.blue);
-            end
-            plot(lat, -nanmean(flux.sshf,2), 'color', par.orange); text(80, interp1(lat, nanmean(flux.hfss,2), 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
-        elseif strcmp(type, 'gcm')
-            if strcmp(fw, 'mse'); plot(lat, nanmean(flux.hfls,2), 'color', par.blue); text(20, 1.2*interp1(lat, nanmean(flux.hfls,2),20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
-            elseif strcmp(fw, 'dse'); plot(lat, nanmean(par.L*flux.pr,2), '--', 'color', par.blue); text(15, 1.5*interp1(lat, nanmean(par.L*flux.pr,2),15), '\boldmath{$LP$}', 'color', par.blue);
-            end
-            plot(lat, nanmean(flux.hfss,2), 'color', par.orange); text(80, interp1(lat, nanmean(flux.hfss,2), 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
-        end
-        title(sprintf('Fluxes in the %s equation', upper(fw)));
-        xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
-        axis('tight');
-        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-        set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
-        if strcmp(fw, 'mse'); set(gca, 'ylim', [-inf 150]); end
-        print(sprintf('%s/energy-flux-%s', par.plotdir, fw), '-dpng', '-r300');
-        close;
-    % northward M/DSE transport
-        figure(); clf; hold all;
-        line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-        line([0 0], [min(vh.(fw)) max(vh.(fw))]*10^-15, 'linewidth', 0.5, 'color', 'k');
-        if strcmp(fw, 'mse'); plot(lat, vh.(fw)*10^-15, 'color', par.maroon);
-        elseif strcmp(fw, 'dse'); plot(lat, vh.(fw)*10^-15, '--', 'color', par.maroon);
-        end
+        line([0 0], [min([vh.(time).mse; vh.(time).dse; vh.(time).mse-vh.(time).dse]) max([vh.(time).mse; vh.(time).dse; vh.(time).mse-vh.(time).dse])]*10^-15, 'linewidth', 0.5, 'color', 'k');
+        h.mse = plot(lat, vh.(time).mse*10^-15, 'color', par.maroon); text();
+        h.dse = plot(lat, vh.(time).dse*10^-15, '--', 'color', par.maroon);
+        h.lh = plot(lat, (vh.(time).mse-vh.(time).dse)*10^-15, ':', 'color', par.maroon);
+        legend([h.mse h.dse h.lh], '$F_m$', '$F_s$', '$F_{m}-F_{s}$', 'location', 'eastoutside');
         xlabel('latitude (deg)'); ylabel('PW')
-        title(sprintf('Northward %s Energy Transport', upper(fw)));
+        title(sprintf('Northward Energy Transport, %s', upper(time)));
         axis('tight');
-        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
         set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
-        if strcmp(fw, 'dse'); set(gca, 'ytick', [-5:5]); end;
-        print(sprintf('%s/transport-%s', par.plotdir, fw), '-dpng', '-r300');
+        print(sprintf('%s/transport/%s/all', par.plotdir, time), '-dpng', '-r300');
         close;
-    end
-    % MSE/DSE transport plotted together
-    figure(); clf; hold all;
-    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-    line([0 0], [min(vh.mse) max(vh.mse)]*10^-15, 'linewidth', 0.5, 'color', 'k');
-    h.mse = plot(lat, vh.mse*10^-15, 'color', par.maroon); text();
-    h.dse = plot(lat, vh.dse*10^-15, '--', 'color', par.maroon);
-    h.lh = plot(lat, (vh.mse-vh.dse)*10^-15, ':', 'color', par.maroon);
-    legend([h.mse h.dse h.lh], '$F_m$', '$F_s$', '$F_{m}-F_{s}$', 'location', 'eastoutside');
-    xlabel('latitude (deg)'); ylabel('PW')
-    title(sprintf('Northward Energy Transport'));
-    axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
-    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
-    print(sprintf('%s/transport', par.plotdir), '-dpng', '-r300');
-    close;
+    end % time
 end
 
 function choose_plots_ep(type, par)
@@ -349,13 +362,15 @@ function plot_ma_diff(type, par)
     end
 end
 
-function [flux_z, vh, lat, par] = load_flux(type, par)
+function [flux_zt, vh, lat, par] = load_flux(type, par)
     % load processed data/proc
     if strcmp(type, 'era5') | strcmp(type, 'erai')
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/flux_z.mat', type, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/flux_zt.mat', type, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/vh.mat', type, par.lat_interp));
         par.plotdir = sprintf('./figures/%s/%s', type, par.lat_interp);
     elseif strcmp(type, 'gcm')
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/flux_z.mat', type, par.model, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/flux_zt.mat', type, par.model, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/vh.mat', type, par.model, par.lat_interp));
         par.plotdir = sprintf('./figures/%s/%s/%s', type, par.model, par.lat_interp);
     end
 
@@ -380,6 +395,14 @@ function [flux_z, vh, lat, par] = load_flux(type, par)
         for plev_eval = [300:100:500]
             if ~exist(sprintf('%s/ma_diff/plev_%g/%s', par.plotdir, plev_eval, land), 'dir')
                 mkdir(sprintf('%s/ma_diff/plev_%g/%s', par.plotdir, plev_eval, land));
+            end
+        end
+        for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+            if ~exist(sprintf('%s/energy-flux/%s/%s', par.plotdir, land, time), 'dir')
+                mkdir(sprintf('%s/energy-flux/%s/%s', par.plotdir, land, time));
+            end
+            if ~exist(sprintf('%s/transport/%s/%s', par.plotdir, time), 'dir')
+                mkdir(sprintf('%s/transport/%s/%s', par.plotdir, time));
             end
         end
     end
