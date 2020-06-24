@@ -5,7 +5,7 @@ addpath(genpath('/project2/tas1/miyawaki/matlab'));
 %% set parameters
 % lat grid type
 par.lat_interp = 'std'; % don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
-par.ep_swp = 0.3; % threshold value for determining RCE and RAE
+par.ep_swp = 0.3; %[0.25 0.3 0.35]; % threshold value for determining RCE and RAE
 % set how to close energy budget
 % if == teten, use TETEN data from Donohoe to close energy budget (option for ERA-Interim)
 % if == stf, use SH and LH data from ERA-Interim to close energy budget (option for ERA-Interim)
@@ -45,7 +45,7 @@ type = 'era5';
 % choose_plots(type, par);
 for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
     type = 'gcm';
-    choose_plots(type, par);
+    % choose_plots(type, par);
 end
 
 % sweep through various threshold values
@@ -54,7 +54,7 @@ for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
     % choose_plots_ep(type, par)
     for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
         type = 'gcm';
-        % choose_plots_ep(type, par)
+        choose_plots_ep(type, par)
     end
 end
 
@@ -98,7 +98,25 @@ function plot_energy_lat(type, par) % latitude vs energy flux line plots, compar
                 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
                 set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
                 if strcmp(fw, 'mse') & strcmp(time, 'ann'); set(gca, 'ylim', [-inf 150]); end
-                print(sprintf('%s/energy-flux/%s/%s/%s', par.plotdir, land, time, fw), '-dpng', '-r300');
+                print(sprintf('%s/energy-flux/%s/%s/%s-all', par.plotdir, land, time, fw), '-dpng', '-r300');
+                close;
+
+                figure(); clf; hold all;
+                line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+                line([-90 90], [1 1]*par.ep, 'linewidth', 0.5, 'color', par.orange);
+                line([-90 90], -[1 1]*par.ep, 'linewidth', 0.5, 'color', par.orange);
+                line([-90 90], [1 1]*(1-par.ep), 'linewidth', 0.5, 'color', par.blue);
+                if strcmp(fw, 'mse'); plot(lat,flux.(land).(time).r1.mse, '-k');
+                elseif strcmp(fw, 'dse'); plot(lat,flux.(land).(time).r1.dse, '--k');
+                end
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, %s', upper(type), upper(fw), upper(time), land_text));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, %s', par.model, upper(fw), upper(time), land_text));
+                end
+                xlabel('latitude (deg)'); ylabel('$R_1$ (unitless)');
+                axis('tight');
+                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+                set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+                print(sprintf('%s/energy-flux/%s/%s/%s-r1', par.plotdir, land, time, fw), '-dpng', '-r300');
                 close;
             end % land
         % northward M/DSE transport
@@ -229,6 +247,20 @@ function plot_temp(type, par)
                     hline(0, '-k');
                     print(sprintf('%s/eps_%g/%s/%s/%s/%s/temp/rcae_all', par.plotdir, par.ep, fw, crit, land, time), '-dpng', '-r300');
                     close;
+                % Difference between RCE temperature profile and moist adiabat
+                    figure(); clf; hold all;
+                    h_rce_tp = plot(ta.rce.tp.(fw).(crit).(land).(time)-ma.rce.tp.(fw).(crit).(land).(time).ta, plev, 'color', par.maroon);
+                    h_rce_nh = plot(ta.rce.nh.(fw).(crit).(land).(time)-ma.rce.nh.(fw).(crit).(land).(time).ta, plev, 'color', par.orange);
+                    h_rce_sh = plot(ta.rce.sh.(fw).(crit).(land).(time)-ma.rce.sh.(fw).(crit).(land).(time).ta, plev, '--', 'color', par.orange);
+                    xlabel('$T-T_m$ (K)'); ylabel('p (hPa)');
+                    title(sprintf('Tropical RCE, %s, %s', upper(time), land_text));
+                    legend([h_rce_tp, h_rce_nh, h_rce_sh], 'Tropics', 'NH ML', 'SH ML', 'location', 'southeast');
+                    axis('tight');
+                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+                    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [100 1000], 'xminortick', 'on')
+                    hline(0, '-k');
+                    print(sprintf('%s/eps_%g/%s/%s/%s/%s/temp/rce_diff', par.plotdir, par.ep, fw, crit, land, time), '-dpng', '-r300');
+                    close;
                 % Tropical RCE compared with moist adiabat
                     figure(); clf; hold all;
                     h_rce = plot(ta.rce.tp.(fw).(crit).(land).(time), plev, 'color', par.maroon);
@@ -281,6 +313,19 @@ function plot_temp(type, par)
                     print(sprintf('%s/eps_%g/%s/%s/%s/%s/temp/rce_sh', par.plotdir, par.ep, fw, crit, land, time), '-dpng', '-r300');
                     close;
                 end % land
+                % Difference between RCE temperature profile and moist adiabat
+                    figure(); clf; hold all;
+                    h_rce_l = plot(ta.rce.nh.(fw).(crit).l.(time)-ma.rce.nh.(fw).(crit).l.(time).ta, plev, 'color', par.orange);
+                    h_rce_o = plot(ta.rce.nh.(fw).(crit).o.(time)-ma.rce.nh.(fw).(crit).o.(time).ta, plev, ':', 'color', par.orange);
+                    xlabel('$T-T_m$ (K)'); ylabel('p (hPa)');
+                    title(sprintf('Tropical RCE, %s, %s', upper(time), land_text));
+                    legend([h_rce_l, h_rce_o], 'Land', 'Ocean', 'location', 'southeast');
+                    axis('tight');
+                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+                    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [100 1000], 'xminortick', 'on')
+                    hline(0, '-k');
+                    print(sprintf('%s/eps_%g/%s/%s/%s/%s/temp/rce_lo_diff', par.plotdir, par.ep, fw, crit, 'lo', time), '-dpng', '-r300');
+                    close;
             end % time avg
         end % RCE/RAE definition
     end % MSE/DSE framework

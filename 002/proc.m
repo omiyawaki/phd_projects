@@ -5,7 +5,7 @@ addpath(genpath('/project2/tas1/miyawaki/matlab'));
 %% set parameters
 par.lat_interp = 'std'; % which latitudinal grid to interpolate to: don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
 par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' interpolation
-par.ep_swp = 0.3; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
+par.ep_swp = [0.25 0.3 0.35]; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
 par.ep_cp = 0.5; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
 par.ma_type = 'std'; % choose the type of moist adiabat: reversible, pseudo, or std
 par.frz = 0; % consider latent heat of fusion in moist adiabat?
@@ -27,7 +27,7 @@ for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
     % choose_proc_ep(type, par)
     for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
         type = 'gcm';
-        % choose_proc_ep(type, par)
+        choose_proc_ep(type, par)
     end
 end
 
@@ -269,7 +269,7 @@ end
 
 function choose_proc_ep(type, par)
     % proc_rcae(type, par) % calculate RCE and RAE regimes
-    % proc_temp(type, par) % calculate RCE and RAE temperature profiles
+    proc_temp(type, par) % calculate RCE and RAE temperature profiles
     proc_ma(type, par) % calculate moist adiabats corresponding to RCE profiles
     % proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
     % proc_ma_mon_lat(type, par) % calculate mon x lat moist adiabats
