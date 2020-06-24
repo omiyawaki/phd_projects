@@ -33,9 +33,9 @@ end
 
 %% define functions
 function choose_proc(type, par)
-    % proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+    proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
     % proc_net_flux(type, par) % calculate net energy fluxes at TOA and surface
-    save_mask(type, par) % save land and ocean masks once (faster than creating mask every time I need it)
+    % save_mask(type, par) % save land and ocean masks once (faster than creating mask every time I need it)
 end
 function proc_flux(type, par)
     if strcmp(type, 'era5')
@@ -71,32 +71,41 @@ function proc_flux(type, par)
         flux.ra = flux.tsr - flux.ssr + flux.ttr - flux.str; % compute net radiative cooling from radiative fluxes
         % compute surface turbulent fluxes directly from INTP data
         % multiply by negative to define flux from surface to atmosphere as positive
-        flux.stf = -( flux.sshf + flux.slhf );
+        flux.stf.mse = -( flux.sshf + flux.slhf );
+        flux.stf.dse = par.L*(flux.cp+flux.lsp) - flux.slhf;
     elseif strcmp(type, 'gcm')
         flux.ra = flux.rsdt - flux.rsut + flux.rsus - flux.rsds + flux.rlus - flux.rlds - flux.rlut; % calculate atmospheric radiative cooling
-        flux.stf = flux.hfls + flux.hfss;
+        flux.stf.mse = flux.hfls + flux.hfss;
+        flux.stf.dse = par.L*flux.pr + flux.hfss;
     end
 
-    flux.res = flux.ra + flux.stf; % infer MSE tendency and flux divergence as residuals
-    % compute northward MSE transport using the residual data
-    tediv_t = squeeze(nanmean(flux.res, 3)); % take time average
-    tediv_tz = trapz(deg2rad(grid.dim2.lon), tediv_t, 1); % zonally integrate
-    vh = cumtrapz(deg2rad(lat), par.a^2*cosd(lat).*tediv_tz'); % cumulatively integrate in latitude
-    flux.r1 = (flux.res)./flux.ra; % calculate nondimensional number R1 disregarding MSE budget closure
-    flux.r2 = flux.stf./flux.ra; % calculate nondimensional number R2 disregarding MSE budget closure
+    for f = {'mse', 'dse'}; fw = f{1};
+        flux.res.(fw) = flux.ra + flux.stf.(fw); % infer MSE tendency and flux divergence as residuals
+        % compute northward MSE transport using the residual data
+        tediv_t = squeeze(nanmean(flux.res.(fw), 3)); % take time average
+        tediv_tz = trapz(deg2rad(grid.dim2.lon), tediv_t, 1); % zonally integrate
+        vh.(fw) = cumtrapz(deg2rad(lat), par.a^2*cosd(lat).*tediv_tz'); % cumulatively integrate in latitude
+        flux.r1.(fw) = (flux.res.(fw))./flux.ra; % calculate nondimensional number R1 disregarding MSE budget closure
+        flux.r2.(fw) = flux.stf.(fw)./flux.ra; % calculate nondimensional number R2 disregarding MSE budget closure
+    end
 
     if strcmp(type, 'era5') | strcmp(type, 'erai')
         % take zonal averages
-        for fn = {'ra', 'stf', 'sshf', 'slhf', 'res', 'r1', 'r2', 'cp', 'lsp', 'e'}
+        for fn = {'ra', 'sshf', 'slhf', 'cp', 'lsp', 'e'}
             flux_z.(fn{1}) = squeeze(nanmean(flux.(fn{1}), 1));
         end
         foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
     elseif strcmp(type, 'gcm')
         % take zonal averages
-        for fn = {'ra', 'stf', 'hfls', 'hfss', 'res', 'r1', 'r2', 'prc', 'pr', 'evspsbl'}
+        for fn = {'ra', 'hfls', 'hfss', 'prc', 'pr', 'evspsbl'}
             flux_z.(fn{1}) = squeeze(nanmean(flux.(fn{1}), 1));
         end
         foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.model, par.lat_interp);
+    end
+    for fn = {'stf', 'res', 'r1', 'r2'}
+        for f = {'mse', 'dse'}; fw = f{1};
+            flux_z.(fn{1}).(fw) = squeeze(nanmean(flux.(fn{1}).(fw), 1));
+        end
     end
 
     % save energy flux data into mat file
@@ -104,7 +113,6 @@ function proc_flux(type, par)
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    % save only what is necessary
     save(printname, 'flux', 'lat');
 
     % save energy flux data into mat file
@@ -181,8 +189,8 @@ end
 function choose_proc_ep(type, par)
     % proc_rcae(type, par) % calculate RCE and RAE regimes
     % proc_temp(type, par) % calculate RCE and RAE temperature profiles
-    % proc_ma(type, par) % calculate moist adiabats corresponding to RCE profiles
-    proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
+    proc_ma(type, par) % calculate moist adiabats corresponding to RCE profiles
+    % proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
     % proc_ma_mon_lat(type, par) % calculate mon x lat moist adiabats
 end
 function proc_rcae(type, par)
@@ -211,26 +219,52 @@ function proc_rcae(type, par)
 
             for l = {'lo', 'l', 'o'}; land = l{1};
                 for fn = fieldnames(flux)'; fname = fn{1};
-                    if strcmp(land, 'lo'); flux_n.(land).(fname) = flux.(fname);
-                    elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
-                    elseif strcmp(land, 'o'); flux_n.(land).(fname) = flux.(fname) .*mask.land;
+                    if any(strcmp(fname, {'stf', 'res', 'r1', 'r2'}))
+                        for f = {'mse', 'dse'}; fw = f{1};
+                            if strcmp(land, 'lo'); flux_n.(land).(fname).(fw) = flux.(fname).(fw);
+                            elseif strcmp(land, 'l'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.ocean;
+                            elseif strcmp(land, 'o'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.land;
+                            end
+                        end
+                    else
+                        if strcmp(land, 'lo'); flux_n.(land).(fname) = flux.(fname);
+                        elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
+                        elseif strcmp(land, 'o'); flux_n.(land).(fname) = flux.(fname) .*mask.land;
+                        end
                     end
                 end
 
                 % lon x lat structure over various time averages
                 for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
                     for fn = fieldnames(flux)'; fname = fn{1};
-                        if strcmp(time, 'ann')
-                            flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname), 3);
-                        elseif strcmp(time, 'djf')
-                            flux_shift.(land).(fname) = circshift(flux_n.(land).(fname), 1, 3);
-                            flux_t.(land).(time).(fname) = nanmean(flux_shift.(land).(fname)(:,:,1:3), 3);
-                        elseif strcmp(time, 'jja')
-                            flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,6:8), 3);
-                        elseif strcmp(time, 'mam')
-                            flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,3:5), 3);
-                        elseif strcmp(time, 'son')
-                            flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,9:11), 3);
+                        if any(strcmp(fname, {'stf', 'res', 'r1', 'r2'}))
+                            for f = {'mse', 'dse'}; fw = f{1};
+                                if strcmp(time, 'ann')
+                                    flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw), 3);
+                                elseif strcmp(time, 'djf')
+                                    flux_shift.(land).(fname).(fw) = circshift(flux_n.(land).(fname).(fw), 1, 3);
+                                    flux_t.(land).(time).(fname).(fw) = nanmean(flux_shift.(land).(fname).(fw)(:,:,1:3), 3);
+                                elseif strcmp(time, 'jja')
+                                    flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,6:8), 3);
+                                elseif strcmp(time, 'mam')
+                                    flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,3:5), 3);
+                                elseif strcmp(time, 'son')
+                                    flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,9:11), 3);
+                                end
+                            end
+                        else
+                            if strcmp(time, 'ann')
+                                flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname), 3);
+                            elseif strcmp(time, 'djf')
+                                flux_shift.(land).(fname) = circshift(flux_n.(land).(fname), 1, 3);
+                                flux_t.(land).(time).(fname) = nanmean(flux_shift.(land).(fname)(:,:,1:3), 3);
+                            elseif strcmp(time, 'jja')
+                                flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,6:8), 3);
+                            elseif strcmp(time, 'mam')
+                                flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,3:5), 3);
+                            elseif strcmp(time, 'son')
+                                flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,9:11), 3);
+                            end
                         end
                     end
                     rcae_t.(land).(time) = def_rcae(type, flux_t.(land).(time), par);
@@ -332,71 +366,73 @@ function proc_temp(type, par)
 
     mask_t.land = nanmean(mask.land, 3);
     mask_t.ocean = nanmean(mask.ocean, 3);
-    for fn = fieldnames(rcae_t.lo.ann)'
-        for l = {'lo', 'l', 'o'}; land = l{1}; % over land, over ocean, or both
-            for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
-                for re = {'rce', 'rae'}; regime = re{1};
-                    if strcmp(time, 'ann')
-                        temp_n.(land).(time) = squeeze(nanmean(temp_sm.(land), 3));
-                    elseif strcmp(time, 'djf')
-                        temp_shift = circshift(temp_sm.(land), 1, 3);
-                        temp_n.(land).(time) = squeeze(nanmean(temp_shift(:,:,1:3,:), 3));
-                    elseif strcmp(time, 'jja')
-                        temp_n.(land).(time) = squeeze(nanmean(temp_sm.(land)(:,:,6:8,:), 3));
-                    elseif strcmp(time, 'mam')
-                        temp_n.(land).(time) = squeeze(nanmean(temp_sm.(land)(:,:,3:5,:), 3));
-                    elseif strcmp(time, 'son')
-                        temp_n.(land).(time) = squeeze(nanmean(temp_sm.(land)(:,:,9:11,:), 3));
-                    end
-
-                    filt.(land).(time).(fn{1}).(regime) = nan(size(rcae_t.(land).(time).(fn{1}))); % create empty arrays to store filtering array
-                    if strcmp(regime, 'rce'); filt.(land).(time).(fn{1}).(regime)(rcae_t.(land).(time).(fn{1})==1)=1; % set RCE=1, elsewhere nan
-                    elseif strcmp(regime, 'rae'); filt.(land).(time).(fn{1}).(regime)(rcae_t.(land).(time).(fn{1})==-1)=1; % set RAE=1, elsewhere nan
-                    end
-
-                    temp_t.(land).(time).(fn{1}).(regime) = temp_n.(land).(time) .* filt.(land).(time).(fn{1}).(regime);
-
-                    nanfilt.(regime) = nan(size(temp_t.(land).(time).(fn{1}).(regime)));
-                    nanfilt.(regime)(~isnan(temp_t.(land).(time).(fn{1}).(regime))) = 1;
-
-                    % take cosine-weighted meridional average
-                    for d = {'all', 'nh', 'sh', 'tp'}; domain = d{1};
-                        if strcmp(regime, 'rce')
-                            if strcmp(domain, 'all')
-                                cosw = repmat(cosd(lat)', [size(nanfilt.(regime), 1) 1]);
-                                denm = temp_t.(land).(time).(fn{1}).(regime);
-                                nume = nanfilt.(regime);
-                            elseif strcmp(domain, 'nh')
-                                cosw = repmat(cosd(lat(lat>30))', [size(nanfilt.(regime), 1) 1]);
-                                denm = temp_t.(land).(time).(fn{1}).(regime)(:,lat>30,:);
-                                nume = nanfilt.(regime)(:,lat>30,:);
-                            elseif strcmp(domain, 'sh')
-                                cosw = repmat(cosd(lat(lat<-30))', [size(nanfilt.(regime), 1) 1]);
-                                denm = temp_t.(land).(time).(fn{1}).(regime)(:,lat<-30,:);
-                                nume = nanfilt.(regime)(:,lat<-30,:);
-                            elseif strcmp(domain, 'tp')
-                                cosw = repmat(cosd(lat(abs(lat)<30))', [size(nanfilt.(regime), 1) 1]);
-                                denm = temp_t.(land).(time).(fn{1}).(regime)(:,abs(lat)<30,:);
-                                nume = nanfilt.(regime)(:,abs(lat)<30,:);
-                            end
-                        elseif strcmp(regime, 'rae')
-                            if strcmp(domain, 'all')
-                                cosw = repmat(cosd(lat)', [size(nanfilt.(regime), 1) 1]);
-                                denm = temp_t.(land).(time).(fn{1}).(regime);
-                                nume = nanfilt.(regime);
-                            elseif strcmp(domain, 'nh')
-                                cosw = repmat(cosd(lat(lat>0))', [size(nanfilt.(regime), 1) 1]);
-                                denm = temp_t.(land).(time).(fn{1}).(regime)(:,lat>0,:);
-                                nume = nanfilt.(regime)(:,lat>0,:);
-                            elseif strcmp(domain, 'sh')
-                                cosw = repmat(cosd(lat(lat<-0))', [size(nanfilt.(regime), 1) 1]);
-                                denm = temp_t.(land).(time).(fn{1}).(regime)(:,lat<-0,:);
-                                nume = nanfilt.(regime)(:,lat<-0,:);
-                            end
+    for f = {'mse', 'dse'}; fw = f{1};
+        for c = fieldnames(rcae_t.lo.ann.(fw))'; crit = c{1};
+            for l = {'lo', 'l', 'o'}; land = l{1}; % over land, over ocean, or both
+                for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+                    for re = {'rce', 'rae'}; regime = re{1};
+                        if strcmp(time, 'ann')
+                            temp_n.(land).(time) = squeeze(nanmean(temp_sm.(land), 3));
+                        elseif strcmp(time, 'djf')
+                            temp_shift = circshift(temp_sm.(land), 1, 3);
+                            temp_n.(land).(time) = squeeze(nanmean(temp_shift(:,:,1:3,:), 3));
+                        elseif strcmp(time, 'jja')
+                            temp_n.(land).(time) = squeeze(nanmean(temp_sm.(land)(:,:,6:8,:), 3));
+                        elseif strcmp(time, 'mam')
+                            temp_n.(land).(time) = squeeze(nanmean(temp_sm.(land)(:,:,3:5,:), 3));
+                        elseif strcmp(time, 'son')
+                            temp_n.(land).(time) = squeeze(nanmean(temp_sm.(land)(:,:,9:11,:), 3));
                         end
 
-                        ta.(regime).(domain).(fn{1}).(land).(time) = nansum(cosw.*denm, 2) ./ nansum(cosw.*nume, 2); % area-weighted meridional average
-                        ta.(regime).(domain).(fn{1}).(land).(time) = squeeze(nanmean(ta.(regime).(domain).(fn{1}).(land).(time), 1));
+                        filt.(land).(time).(fw).(crit).(regime) = nan(size(rcae_t.(land).(time).(fw).(crit))); % create empty arrays to store filtering array
+                        if strcmp(regime, 'rce'); filt.(land).(time).(fw).(crit).(regime)(rcae_t.(land).(time).(fw).(crit)==1)=1; % set RCE=1, elsewhere nan
+                        elseif strcmp(regime, 'rae'); filt.(land).(time).(fw).(crit).(regime)(rcae_t.(land).(time).(fw).(crit)==-1)=1; % set RAE=1, elsewhere nan
+                        end
+
+                        temp_t.(land).(time).(fw).(crit).(regime) = temp_n.(land).(time) .* filt.(land).(time).(fw).(crit).(regime);
+
+                        nanfilt.(regime) = nan(size(temp_t.(land).(time).(fw).(crit).(regime)));
+                        nanfilt.(regime)(~isnan(temp_t.(land).(time).(fw).(crit).(regime))) = 1;
+
+                        % take cosine-weighted meridional average
+                        for d = {'all', 'nh', 'sh', 'tp'}; domain = d{1};
+                            if strcmp(regime, 'rce')
+                                if strcmp(domain, 'all')
+                                    cosw = repmat(cosd(lat)', [size(nanfilt.(regime), 1) 1]);
+                                    denm = temp_t.(land).(time).(fw).(crit).(regime);
+                                    nume = nanfilt.(regime);
+                                elseif strcmp(domain, 'nh')
+                                    cosw = repmat(cosd(lat(lat>30))', [size(nanfilt.(regime), 1) 1]);
+                                    denm = temp_t.(land).(time).(fw).(crit).(regime)(:,lat>30,:);
+                                    nume = nanfilt.(regime)(:,lat>30,:);
+                                elseif strcmp(domain, 'sh')
+                                    cosw = repmat(cosd(lat(lat<-30))', [size(nanfilt.(regime), 1) 1]);
+                                    denm = temp_t.(land).(time).(fw).(crit).(regime)(:,lat<-30,:);
+                                    nume = nanfilt.(regime)(:,lat<-30,:);
+                                elseif strcmp(domain, 'tp')
+                                    cosw = repmat(cosd(lat(abs(lat)<30))', [size(nanfilt.(regime), 1) 1]);
+                                    denm = temp_t.(land).(time).(fw).(crit).(regime)(:,abs(lat)<30,:);
+                                    nume = nanfilt.(regime)(:,abs(lat)<30,:);
+                                end
+                            elseif strcmp(regime, 'rae')
+                                if strcmp(domain, 'all')
+                                    cosw = repmat(cosd(lat)', [size(nanfilt.(regime), 1) 1]);
+                                    denm = temp_t.(land).(time).(fw).(crit).(regime);
+                                    nume = nanfilt.(regime);
+                                elseif strcmp(domain, 'nh')
+                                    cosw = repmat(cosd(lat(lat>0))', [size(nanfilt.(regime), 1) 1]);
+                                    denm = temp_t.(land).(time).(fw).(crit).(regime)(:,lat>0,:);
+                                    nume = nanfilt.(regime)(:,lat>0,:);
+                                elseif strcmp(domain, 'sh')
+                                    cosw = repmat(cosd(lat(lat<-0))', [size(nanfilt.(regime), 1) 1]);
+                                    denm = temp_t.(land).(time).(fw).(crit).(regime)(:,lat<-0,:);
+                                    nume = nanfilt.(regime)(:,lat<-0,:);
+                                end
+                            end
+
+                            ta.(regime).(domain).(fw).(crit).(land).(time) = nansum(cosw.*denm, 2) ./ nansum(cosw.*nume, 2); % area-weighted meridional average
+                            ta.(regime).(domain).(fw).(crit).(land).(time) = squeeze(nanmean(ta.(regime).(domain).(fw).(crit).(land).(time), 1));
+                        end
                     end
                 end
             end
@@ -509,164 +545,94 @@ function proc_ma(type, par)
             elseif strcmp(land, 'l'); srfc_n.(fn{1}).(land) = srfc.(fn{1}).*mask.ocean; % filter out ocean
             elseif strcmp(land, 'o'); srfc_n.(fn{1}).(land) = srfc.(fn{1}).*mask.land; % filter out land
             end
-
-            % srfc_z.(fn{1}).(land) = squeeze(nanmean(srfc_n.(fn{1}).(land), 1)); % zonal mean
-            % srfc_zi.(fn{1}).(land) = interp1(grid.dim2.lat, srfc_z.(fn{1}).(land), lat); % interpolate to standard lat grid
         end
     end
 
-    for fn = fieldnames(rcae_t.lo.ann)'
-        for l = {'lo', 'l', 'o'}; land = l{1};
-            for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
-                for re = {'rce', 'rae'}; regime = re{1};
-                    for fn_var = fieldnames(srfc)'
-                        if strcmp(time, 'ann')
-                            srfc_t.(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_n.(fn_var{1}).(land), 3));
-                        elseif strcmp(time, 'djf')
-                            srfc_shift = circshift(srfc_n.(fn_var{1}).(land), 1, 3);
-                            srfc_t.(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_shift(:,:,1:3), 3));
-                        elseif strcmp(time, 'jja')
-                            srfc_t.(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_n.(fn_var{1}).(land)(:,:,6:8), 3));
-                        elseif strcmp(time, 'mam')
-                            srfc_t.(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_n.(fn_var{1}).(land)(:,:,3:5), 3));
-                        elseif strcmp(time, 'son')
-                            srfc_t.(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_n.(fn_var{1}).(land)(:,:,9:11), 3));
-                        end
-
-                        filt.(land).(time).(fn{1}).(regime) = nan(size(rcae_t.(land).(time).(fn{1})));
-                        if strcmp(regime, 'rce'); filt.(land).(time).(fn{1}).(regime)(rcae_t.(land).(time).(fn{1})==1)=1; % set RCE=1, elsewhere nan
-                        elseif strcmp(regime, 'rae'); filt.(land).(time).(fn{1}).(regime)(rcae_t.(land).(time).(fn{1})==-1)=1; % set RAE=1, elsewhere nan
-                        end
-
-                        srfc_tf.(land).(time).(fn{1}).(regime).(fn_var{1}) = srfc_t.(land).(time).(fn_var{1}) .* filt.(land).(time).(fn{1}).(regime);
-
-                        nanfilt.(regime) = nan(size(srfc_tf.(land).(time).(fn{1}).(regime).(fn_var{1})));
-                        nanfilt.(regime)(~isnan(srfc_tf.(land).(time).(fn{1}).(regime).(fn_var{1}))) = 1;
-                      
-                        % take cosine-weighted average
-                        for d = {'all', 'nh', 'sh', 'tp'}; domain = d{1};
-                            if strcmp(regime, 'rce')
-                                if strcmp(domain, 'all')
-                                    cosw = repmat(cosd(lat)', [size(nanfilt.(regime), 1) 1]);
-                                    denm = srfc_tf.(land).(time).(fn{1}).(regime).(fn_var{1});
-                                    nume = nanfilt.(regime);
-                                elseif strcmp(domain, 'nh')
-                                    cosw = repmat(cosd(lat(lat>30))', [size(nanfilt.(regime), 1) 1]);
-                                    denm = srfc_tf.(land).(time).(fn{1}).(regime).(fn_var{1})(:, lat>30);
-                                    nume = nanfilt.(regime)(:, lat>30);
-                                elseif strcmp(domain, 'sh')
-                                    cosw = repmat(cosd(lat(lat<-30))', [size(nanfilt.(regime), 1) 1]);
-                                    denm = srfc_tf.(land).(time).(fn{1}).(regime).(fn_var{1})(:, lat<-30);
-                                    nume = nanfilt.(regime)(:, lat<-30);
-                                elseif strcmp(domain, 'tp')
-                                    cosw = repmat(cosd(lat(abs(lat)<30))', [size(nanfilt.(regime), 1) 1]);
-                                    denm = srfc_tf.(land).(time).(fn{1}).(regime).(fn_var{1})(:, abs(lat)<30);
-                                    nume = nanfilt.(regime)(:, abs(lat)<30);
-                                end
-                            elseif strcmp(regime, 'rae')
-                                if strcmp(domain, 'all')
-                                    cosw = repmat(cosd(lat)', [size(nanfilt.(regime), 1) 1]);
-                                    denm = srfc_tf.(land).(time).(fn{1}).(regime).(fn_var{1});
-                                    nume = nanfilt.(regime);
-                                elseif strcmp(domain, 'nh')
-                                    cosw = repmat(cosd(lat(lat>0))', [size(nanfilt.(regime), 1) 1]);
-                                    denm = srfc_tf.(land).(time).(fn{1}).(regime).(fn_var{1})(:, lat>0);
-                                    nume = nanfilt.(regime)(:, lat>0);
-                                elseif strcmp(domain, 'sh')
-                                    cosw = repmat(cosd(lat(lat<0))', [size(nanfilt.(regime), 1) 1]);
-                                    denm = srfc_tf.(land).(time).(fn{1}).(regime).(fn_var{1})(:, lat<0);
-                                    nume = nanfilt.(regime)(:, lat<0);
-                                end
+    for f = {'mse', 'dse'}; fw = f{1};
+        for c = fieldnames(rcae_t.lo.ann.(fw))'; crit = c{1};
+            for l = {'lo', 'l', 'o'}; land = l{1};
+                for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+                    for re = {'rce', 'rae'}; regime = re{1};
+                        for v = fieldnames(srfc)'; vname = v{1};
+                            if strcmp(time, 'ann')
+                                srfc_t.(land).(time).(vname) = squeeze(nanmean(srfc_n.(vname).(land), 3));
+                            elseif strcmp(time, 'djf')
+                                srfc_shift = circshift(srfc_n.(vname).(land), 1, 3);
+                                srfc_t.(land).(time).(vname) = squeeze(nanmean(srfc_shift(:,:,1:3), 3));
+                            elseif strcmp(time, 'jja')
+                                srfc_t.(land).(time).(vname) = squeeze(nanmean(srfc_n.(vname).(land)(:,:,6:8), 3));
+                            elseif strcmp(time, 'mam')
+                                srfc_t.(land).(time).(vname) = squeeze(nanmean(srfc_n.(vname).(land)(:,:,3:5), 3));
+                            elseif strcmp(time, 'son')
+                                srfc_t.(land).(time).(vname) = squeeze(nanmean(srfc_n.(vname).(land)(:,:,9:11), 3));
                             end
 
-                            ma.(regime).(domain).(fn{1}).(land).(time).(fn_var{1}) = nansum(cosw.*denm, 2) ./ nansum(cosw.*nume, 2); % weighted meridional average
-                            ma.(regime).(domain).(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(ma.(regime).(domain).(fn{1}).(land).(time).(fn_var{1}), 1)); % zonal average
+                            filt.(land).(time).(fw).(crit).(regime) = nan(size(rcae_t.(land).(time).(fw).(crit)));
+                            if strcmp(regime, 'rce'); filt.(land).(time).(fw).(crit).(regime)(rcae_t.(land).(time).(fw).(crit)==1)=1; % set RCE=1, elsewhere nan
+                            elseif strcmp(regime, 'rae'); filt.(land).(time).(fw).(crit).(regime)(rcae_t.(land).(time).(fw).(crit)==-1)=1; % set RAE=1, elsewhere nan
+                            end
 
-                        end % end domain loop
-                    end % end srfc variables loop
+                            srfc_tf.(land).(time).(fw).(crit).(regime).(vname) = srfc_t.(land).(time).(vname) .* filt.(land).(time).(fw).(crit).(regime);
 
-                    if strcmp(type, 'era5') | strcmp(type, 'erai')
-                        % ma = calc_ma_dew(ma, grid.dim3.plev, par); % compute moist adiabat with dew point temperature
-                    elseif strcmp(type, 'gcm')
-                        ma.rce.all.(fn{1}).(land).(time).ta = calc_ma_hurs(ma.rce.all.(fn{1}).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
-                        ma.rce.tp.(fn{1}).(land).(time).ta = calc_ma_hurs(ma.rce.tp.(fn{1}).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
-                        ma.rce.nh.(fn{1}).(land).(time).ta = calc_ma_hurs(ma.rce.nh.(fn{1}).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
-                        ma.rce.sh.(fn{1}).(land).(time).ta = calc_ma_hurs(ma.rce.sh.(fn{1}).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
-                    end
+                            nanfilt.(regime) = nan(size(srfc_tf.(land).(time).(fw).(crit).(regime).(vname)));
+                            nanfilt.(regime)(~isnan(srfc_tf.(land).(time).(fw).(crit).(regime).(vname))) = 1;
 
-                end % end RCE/RAE regime loop
-            end % end time average loop
-        end % end land option loop
-    end % end RCAE definition loop
+                            % take cosine-weighted average
+                            for d = {'all', 'nh', 'sh', 'tp'}; domain = d{1};
+                                if strcmp(regime, 'rce')
+                                    if strcmp(domain, 'all')
+                                        cosw = repmat(cosd(lat)', [size(nanfilt.(regime), 1) 1]);
+                                        denm = srfc_tf.(land).(time).(fw).(crit).(regime).(vname);
+                                        nume = nanfilt.(regime);
+                                    elseif strcmp(domain, 'nh')
+                                        cosw = repmat(cosd(lat(lat>30))', [size(nanfilt.(regime), 1) 1]);
+                                        denm = srfc_tf.(land).(time).(fw).(crit).(regime).(vname)(:, lat>30);
+                                        nume = nanfilt.(regime)(:, lat>30);
+                                    elseif strcmp(domain, 'sh')
+                                        cosw = repmat(cosd(lat(lat<-30))', [size(nanfilt.(regime), 1) 1]);
+                                        denm = srfc_tf.(land).(time).(fw).(crit).(regime).(vname)(:, lat<-30);
+                                        nume = nanfilt.(regime)(:, lat<-30);
+                                    elseif strcmp(domain, 'tp')
+                                        cosw = repmat(cosd(lat(abs(lat)<30))', [size(nanfilt.(regime), 1) 1]);
+                                        denm = srfc_tf.(land).(time).(fw).(crit).(regime).(vname)(:, abs(lat)<30);
+                                        nume = nanfilt.(regime)(:, abs(lat)<30);
+                                    end
+                                elseif strcmp(regime, 'rae')
+                                    if strcmp(domain, 'all')
+                                        cosw = repmat(cosd(lat)', [size(nanfilt.(regime), 1) 1]);
+                                        denm = srfc_tf.(land).(time).(fw).(crit).(regime).(vname);
+                                        nume = nanfilt.(regime);
+                                    elseif strcmp(domain, 'nh')
+                                        cosw = repmat(cosd(lat(lat>0))', [size(nanfilt.(regime), 1) 1]);
+                                        denm = srfc_tf.(land).(time).(fw).(crit).(regime).(vname)(:, lat>0);
+                                        nume = nanfilt.(regime)(:, lat>0);
+                                    elseif strcmp(domain, 'sh')
+                                        cosw = repmat(cosd(lat(lat<0))', [size(nanfilt.(regime), 1) 1]);
+                                        denm = srfc_tf.(land).(time).(fw).(crit).(regime).(vname)(:, lat<0);
+                                        nume = nanfilt.(regime)(:, lat<0);
+                                    end
+                                end
 
+                                ma.(regime).(domain).(fw).(crit).(land).(time).(vname) = nansum(cosw.*denm, 2) ./ nansum(cosw.*nume, 2); % weighted meridional average
+                                ma.(regime).(domain).(fw).(crit).(land).(time).(vname) = squeeze(nanmean(ma.(regime).(domain).(fw).(crit).(land).(time).(vname), 1)); % zonal average
 
-    % for fn = fieldnames(rcae)'
-    %     rce_filt.(fn{1}) = nan(size(rcae.(fn{1}))); % create empty arrays to store filtering array
-    %     rae_filt.(fn{1}) = nan(size(rcae.(fn{1}))); % dims (lon x lat x time)
-    %     rce_filt.(fn{1})(rcae.(fn{1})==1)=1; % set RCE=1, elsewhere nan
-    %     rae_filt.(fn{1})(rcae.(fn{1})==-1)=1; % set RAE=1, elsewhere nan
+                            end % end domain loop
+                        end % end srfc variables loop
 
-    %     for l = {'lo', 'l', 'o'}; land = l{1}; % over land, ocean, or both?
+                        if strcmp(type, 'era5') | strcmp(type, 'erai')
+                            % ma = calc_ma_dew(ma, grid.dim3.plev, par); % compute moist adiabat with dew point temperature
+                        elseif strcmp(type, 'gcm')
+                            ma.rce.all.(fw).(crit).(land).(time).ta = calc_ma_hurs(ma.rce.all.(fw).(crit).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
+                            ma.rce.tp.(fw).(crit).(land).(time).ta = calc_ma_hurs(ma.rce.tp.(fw).(crit).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
+                            ma.rce.nh.(fw).(crit).(land).(time).ta = calc_ma_hurs(ma.rce.nh.(fw).(crit).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
+                            ma.rce.sh.(fw).(crit).(land).(time).ta = calc_ma_hurs(ma.rce.sh.(fw).(crit).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
+                        end
 
-    %         for i = {'ann', 'djf', 'jja', 'mam', 'son'}; time = i{1};
-
-    %             for fn_var = fieldnames(srfc)'
-
-    %                 srfc_zi.rce.(fn{1}).(land).(fn_var{1}) = rce_filt.(fn{1}) .* srfc_zi.(fn_var{1}).(land); % RCE-filtered values
-    %                 srfc_zi.rae.(fn{1}).(land).(fn_var{1}) = rae_filt.(fn{1}) .* srfc_zi.(fn_var{1}).(land); % RAE-filtered values
-    %                 if strcmp(time, 'ann')
-    %                     rce_filt_t.(fn{1}).(land) = squeeze(nanmean(rce_filt.(fn{1}), 2)); % take time mean of RCE filter
-    %                     rae_filt_t.(fn{1}).(land) = squeeze(nanmean(rae_filt.(fn{1}), 2)); % take time mean of RAE filter
-    %                     srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rce.(fn{1}).(land).(fn_var{1}), 2)); % take time mean of temperature
-    %                     srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rae.(fn{1}).(land).(fn_var{1}), 2)); % take time mean of temperature
-    %                 elseif strcmp(time, 'djf')
-    %                     rce_filt_shift.(fn{1}).(land) = circshift(rce_filt.(fn{1}), 1, 2); % shift months by one so I can take DJF average in one go (1:3)
-    %                     rae_filt_shift.(fn{1}).(land) = circshift(rae_filt.(fn{1}), 1, 2);
-    %                     srfc_zi_shift.rce.(fn{1}).(land).(fn_var{1}) = circshift(srfc_zi.rce.(fn{1}).(land).(fn_var{1}), 1, 2);
-    %                     srfc_zi_shift.rae.(fn{1}).(land).(fn_var{1}) = circshift(srfc_zi.rae.(fn{1}).(land).(fn_var{1}), 1, 2);
-    %                     rce_filt_t.(fn{1}).(land) = squeeze(nanmean(rce_filt_shift.(fn{1}).(land)(:,1:3,:), 2)); % take time mean of RCE filter
-    %                     rae_filt_t.(fn{1}).(land) = squeeze(nanmean(rae_filt_shift.(fn{1}).(land)(:,1:3,:), 2)); % take time mean of RAE filter
-    %                     srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi_shift.rce.(fn{1}).(land).(fn_var{1})(:,1:3,:), 2)); % take time mean of temperature
-    %                     srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi_shift.rae.(fn{1}).(land).(fn_var{1})(:,1:3,:), 2)); % take time mean of temperature
-    %                 elseif strcmp(time, 'jja')
-    %                     rce_filt_t.(fn{1}).(land) = squeeze(nanmean(rce_filt.(fn{1})(:,6:8,:), 2)); % take time mean of RCE filter
-    %                     rae_filt_t.(fn{1}).(land) = squeeze(nanmean(rae_filt.(fn{1})(:,6:8,:), 2)); % take time mean of RAE filter
-    %                     srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rce.(fn{1}).(land).(fn_var{1})(:,6:8,:), 2)); % take time mean of temperature
-    %                     srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rae.(fn{1}).(land).(fn_var{1})(:,6:8,:), 2)); % take time mean of temperature
-    %                 elseif strcmp(time, 'mam')
-    %                     rce_filt_t.(fn{1}).(land) = squeeze(nanmean(rce_filt.(fn{1})(:,3:5,:), 2)); % take time mean of RCE filter
-    %                     rae_filt_t.(fn{1}).(land) = squeeze(nanmean(rae_filt.(fn{1})(:,3:5,:), 2)); % take time mean of RAE filter
-    %                     srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rce.(fn{1}).(land).(fn_var{1})(:,3:5,:), 2)); % take time mean of temperature
-    %                     srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rae.(fn{1}).(land).(fn_var{1})(:,3:5,:), 2)); % take time mean of temperature
-    %                 elseif strcmp(time, 'son')
-    %                     rce_filt_t.(fn{1}).(land) = squeeze(nanmean(rce_filt.(fn{1})(:,9:11,:), 2)); % take time mean of RCE filter
-    %                     rae_filt_t.(fn{1}).(land) = squeeze(nanmean(rae_filt.(fn{1})(:,9:11,:), 2)); % take time mean of RAE filter
-    %                     srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rce.(fn{1}).(land).(fn_var{1})(:,9:11,:), 2)); % take time mean of temperature
-    %                     srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1}) = squeeze(nanmean(srfc_zi.rae.(fn{1}).(land).(fn_var{1})(:,9:11,:), 2)); % take time mean of temperature
-    %                 end
-
-    %                 ma.rce.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat).*srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1})) / nansum(cosd(lat).*rce_filt_t.(fn{1}).(land)); % area-weighted meridional average
-    %                 ma.rce.tp.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat(abs(lat)<30)).*srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1})(abs(lat)<30,:)) / nansum(cosd(lat(abs(lat)<30)).*rce_filt_t.(fn{1}).(land)(abs(lat)<30)); % area-weighted meridional average
-    %                 ma.rce.nh.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat(lat>30)).*srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1})(lat>30,:)) / nansum(cosd(lat(lat>30)).*rce_filt_t.(fn{1}).(land)(lat>30)); % area-weighted meridional average
-    %                 ma.rce.sh.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat(lat<-30)).*srfc_zit.rce.(fn{1}).(land).(time).(fn_var{1})(lat<-30,:)) / nansum(cosd(lat(lat<-30)).*rce_filt_t.(fn{1}).(land)(lat<-30)); % area-weighted meridional average
-    %                 ma.rae.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat).*srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1})) / nansum(cosd(lat).*rae_filt_t.(fn{1}).(land)); % area-weighted meridional average
-    %                 ma.rae.nh.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat(lat>0)).*srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1})(lat>0,:)) / nansum(cosd(lat(lat>0)).*rae_filt_t.(fn{1}).(land)(lat>0)); % area-weighted meridional average
-    %                 ma.rae.sh.(fn{1}).(land).(time).(fn_var{1}) = nansum(cosd(lat(lat<0)).*srfc_zit.rae.(fn{1}).(land).(time).(fn_var{1})(lat<0,:)) / nansum(cosd(lat(lat<0)).*rae_filt_t.(fn{1}).(land)(lat<0)); % area-weighted meridional average
-
-    %             end
-
-    %             if strcmp(type, 'era5') | strcmp(type, 'erai')
-    %                 ma = calc_ma_dew(ma, grid.dim3.plev, par); % compute moist adiabat with dew point temperature
-    %             elseif strcmp(type, 'gcm')
-    %                 ma.rce.(fn{1}).(land).(time).ta = calc_ma_hurs(ma.rce.(fn{1}).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
-    %                 ma.rce.tp.(fn{1}).(land).(time).ta = calc_ma_hurs(ma.rce.tp.(fn{1}).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
-    %                 ma.rce.nh.(fn{1}).(land).(time).ta = calc_ma_hurs(ma.rce.nh.(fn{1}).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
-    %                 ma.rce.sh.(fn{1}).(land).(time).ta = calc_ma_hurs(ma.rce.sh.(fn{1}).(land).(time), grid.dim3.plev, par); % compute moist adiabat with RH
-    %             end
-
-    %         end
-    %     end
-    % end
+                    end % end RCE/RAE regime loop
+                end % end time average loop
+            end % end land option loop
+        end % end RCAE definition loop
+    end % end MSE/DSE framework loop
 
     % save data into mat file
     printname = [foldername 'ma.mat'];
@@ -737,29 +703,31 @@ end
 
 % helper functions
 function rcae = def_rcae(type, flux, par)
-    % identify locations of RCE using threshold epsilon (ep)
-    rcae.def = zeros(size(flux.r1));
-    rcae.def(abs(flux.r1) < par.ep) = 1;
-    % identify locations of RAE using threshold gamma (ga)
-    rcae.def(flux.r1 > par.ga) = -1;
+    for f = {'mse', 'dse'}; fw = f{1};
+        % identify locations of RCE using threshold epsilon (ep)
+        rcae.(fw).def = zeros(size(flux.r1.(fw)));
+        rcae.(fw).def(abs(flux.r1.(fw)) < par.ep) = 1;
+        % identify locations of RAE using threshold gamma (ga)
+        rcae.(fw).def(flux.r1.(fw) > par.ga) = -1;
 
-    % add additional criteria for RCE that P-E>0
-    rcae.pe = zeros(size(flux.r1));
-    if strcmp(type, 'era5') | strcmp(type, 'erai')
-        rcae.pe(abs(flux.r1) < par.ep & (flux.cp+flux.lsp+flux.e>0)) = 1; % note that evap is defined negative into atmosphere
-    elseif strcmp(type, 'gcm')
-        rcae.pe(abs(flux.r1) < par.ep & (flux.pr-flux.evspsbl>0)) = 1;
-    end
-    rcae.pe(flux.r1 > par.ga) = -1;
+        % add additional criteria for RCE that P-E>0
+        rcae.(fw).pe = zeros(size(flux.r1.(fw)));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).pe(abs(flux.r1.(fw)) < par.ep & (flux.cp+flux.lsp+flux.e>0)) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).pe(abs(flux.r1.(fw)) < par.ep & (flux.pr-flux.evspsbl>0)) = 1;
+        end
+        rcae.(fw).pe(flux.r1.(fw) > par.ga) = -1;
 
-    % add additional criteria for RCE that (P_ls - E)<<1
-    rcae.cp = zeros(size(flux.r1));
-    if strcmp(type, 'era5') | strcmp(type, 'erai')
-        rcae.cp(abs(flux.r1) < par.ep & abs(flux.lsp./flux.cp<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
-    elseif strcmp(type, 'gcm')
-        rcae.cp(abs(flux.r1) < par.ep & abs((flux.pr-flux.prc)./flux.prc<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
+        % add additional criteria for RCE that (P_ls - E)<<1
+        rcae.(fw).cp = zeros(size(flux.r1.(fw)));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).cp(abs(flux.r1.(fw)) < par.ep & abs(flux.lsp./flux.cp<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).cp(abs(flux.r1.(fw)) < par.ep & abs((flux.pr-flux.prc)./flux.prc<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
+        end
+        rcae.(fw).cp(flux.r1.(fw) > par.ga) = -1;
     end
-    rcae.cp(flux.r1 > par.ga) = -1;
 end
 function land_mask = remove_land(lat, lon, nt)
 

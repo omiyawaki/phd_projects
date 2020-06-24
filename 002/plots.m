@@ -11,6 +11,7 @@ par.ep_swp = 0.3; % threshold value for determining RCE and RAE
 % if == stf, use SH and LH data from ERA-Interim to close energy budget (option for ERA-Interim)
 % if == era5, use ERA5 radiative cooling and surface turbulent fluxes to close energy budget (only option for ERA5)
 par.closure = 'era5';
+par.cpd = 1005.7; par.Rd = 287; par.Rv = 461; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3; par.eps = 0.622; % common constants, all in SI units for brevity
 % set default figure parameters
 if 1
     par.ppos = [0 0 10/3 7/3];
@@ -63,34 +64,62 @@ function choose_plots(type, par)
 end
 function plot_energy_lat(type, par) % latitude vs energy flux line plots, comparable to Hartmann (2016)
     [flux, vh, lat, par] = load_flux(type, par); % load data
-    figure(); clf; hold all;
-    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-    plot(lat,nanmean(flux.ra,2), 'color', par.gray)
-    plot(lat,nanmean(flux.res,2), 'color', par.maroon)
-    if strcmp(type, 'era5') | strcmp(type, 'erai')
-        plot(lat, -nanmean(flux.slhf,2), 'color', par.blue)
-        plot(lat, -nanmean(flux.sshf,2), 'color', par.orange)
-    elseif strcmp(type, 'gcm')
-        plot(lat, nanmean(flux.hfls,2), 'color', par.blue)
-        plot(lat, nanmean(flux.hfss,2), 'color', par.orange)
+    for f = {'mse', 'dse'}; fw = f{1};
+        figure(); clf; hold all;
+        line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+        plot(lat,nanmean(flux.ra,2), 'color', par.gray); text(0, 0.75*interp1(lat,nanmean(flux.ra,2),0), '\boldmath{$R_a$}', 'color', par.gray);
+        if strcmp(fw, 'mse'); plot(lat,nanmean(flux.res.mse,2), 'color', par.maroon); text(-42, 2*interp1(lat,nanmean(flux.res.mse,2),-42), '\boldmath{$\nabla\cdot(F_m)$}', 'color', par.maroon);
+        elseif strcmp(fw, 'dse'); plot(lat,nanmean(flux.res.dse,2), '--', 'color', par.maroon); text(-30, 2*interp1(lat,nanmean(flux.res.dse,2),-30), '\boldmath{$\nabla\cdot(F_s)$}', 'color', par.maroon);
+        end
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            if strcmp(fw, 'mse'); plot(lat, -nanmean(flux.slhf,2), 'color', par.blue); text(20, interp1(lat, -1.2*nanmean(flux.slhf,2),20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+            elseif strcmp(fw, 'dse'); plot(lat, nanmean(par.L*(flux.cp+flux.lsp),2), '--', 'color', par.blue); text(15, 1.5*interp1(lat, nanmean(par.L*(flux.cp+flux.lsp),2),15), '\boldmath{$LP$}', 'color', par.blue);
+            end
+            plot(lat, -nanmean(flux.sshf,2), 'color', par.orange); text(80, interp1(lat, nanmean(flux.hfss,2), 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+        elseif strcmp(type, 'gcm')
+            if strcmp(fw, 'mse'); plot(lat, nanmean(flux.hfls,2), 'color', par.blue); text(20, 1.2*interp1(lat, nanmean(flux.hfls,2),20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+            elseif strcmp(fw, 'dse'); plot(lat, nanmean(par.L*flux.pr,2), '--', 'color', par.blue); text(15, 1.5*interp1(lat, nanmean(par.L*flux.pr,2),15), '\boldmath{$LP$}', 'color', par.blue);
+            end
+            plot(lat, nanmean(flux.hfss,2), 'color', par.orange); text(80, interp1(lat, nanmean(flux.hfss,2), 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+        end
+        title(sprintf('Fluxes in the %s equation', upper(fw)));
+        xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
+        axis('tight');
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+        set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+        if strcmp(fw, 'mse'); set(gca, 'ylim', [-inf 150]); end
+        print(sprintf('%s/energy-flux-%s', par.plotdir, fw), '-dpng', '-r300');
+        close;
+    % northward M/DSE transport
+        figure(); clf; hold all;
+        line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+        line([0 0], [min(vh.(fw)) max(vh.(fw))]*10^-15, 'linewidth', 0.5, 'color', 'k');
+        if strcmp(fw, 'mse'); plot(lat, vh.(fw)*10^-15, 'color', par.maroon);
+        elseif strcmp(fw, 'dse'); plot(lat, vh.(fw)*10^-15, '--', 'color', par.maroon);
+        end
+        xlabel('latitude (deg)'); ylabel('PW')
+        title(sprintf('Northward %s Energy Transport', upper(fw)));
+        axis('tight');
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+        set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+        if strcmp(fw, 'dse'); set(gca, 'ytick', [-5:5]); end;
+        print(sprintf('%s/transport-%s', par.plotdir, fw), '-dpng', '-r300');
+        close;
     end
-    xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
-    axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-    set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'ylim', [-inf 150], 'xminortick', 'on', 'yminortick', 'on')
-    print(sprintf('%s/energy-flux', par.plotdir), '-dpng', '-r300');
-    close;
-% northward MSE transport
+    % MSE/DSE transport plotted together
     figure(); clf; hold all;
     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-    line([0 0], [min(vh) max(vh)]*10^-15, 'linewidth', 0.5, 'color', 'k');
-    plot(lat, vh*10^-15, 'color', par.maroon);
+    line([0 0], [min(vh.mse) max(vh.mse)]*10^-15, 'linewidth', 0.5, 'color', 'k');
+    h.mse = plot(lat, vh.mse*10^-15, 'color', par.maroon); text();
+    h.dse = plot(lat, vh.dse*10^-15, '--', 'color', par.maroon);
+    h.lh = plot(lat, (vh.mse-vh.dse)*10^-15, ':', 'color', par.maroon);
+    legend([h.mse h.dse h.lh], '$F_m$', '$F_s$', '$F_{m}-F_{s}$', 'location', 'eastoutside');
     xlabel('latitude (deg)'); ylabel('PW')
-    title('Northward MSE Energy Transport');
+    title(sprintf('Northward Energy Transport'));
     axis('tight');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
     set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
-    print([par.plotdir '/mse-transport'], '-dpng', '-r300');
+    print(sprintf('%s/transport', par.plotdir), '-dpng', '-r300');
     close;
 end
 
@@ -113,39 +142,40 @@ function plot_rcae_mon_lat(type, par)
     load(sprintf('%s/%s/eps_%g/rcae_z.mat', prefix_proc, par.lat_interp, par.ep)); % load lat x mon RCAE data
     load(sprintf('%s/%s/eps_%g/rcae_t.mat', prefix_proc, par.lat_interp, par.ep)); % load lat x lon RCAE data
 
-    for fn = fieldnames(rcae_z)'; crit = fn{1};
-        % lat x mon dependence of RCE and RAE
-        figure(); clf; hold all;
-        cmp = colCog(10);
-        colormap(cmp);
-        imagesc([1 12], [lat(1) lat(end)], rcae_z.(crit));
-        caxis([-2 2]);
-        xlabel('Month'); ylabel('Latitude (deg)');
-        set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-        print(sprintf('%s/eps_%g/%s/rcae_mon_lat', par.plotdir, par.ep, crit), '-dpng', '-r300');
-        close;
+    for f = {'mse', 'dse'}; fw = f{1};
+        for fn = fieldnames(rcae_z.(fw))'; crit = fn{1};
+            % lat x mon dependence of RCE and RAE
+            figure(); clf; hold all;
+            cmp = colCog(10);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], rcae_z.(fw).(crit));
+            caxis([-2 2]);
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/eps_%g/%s/%s/rcae_mon_lat', par.plotdir, par.ep, fw, crit), '-dpng', '-r300');
+            close;
 
-        for l = {'lo', 'l', 'o'}; land = l{1};
-            if strcmp(land, 'lo'); land_text = 'Land + Ocean';
-            elseif strcmp(land, 'l'); land_text = 'Land';
-            elseif strcmp(land, 'o'); land_text = 'Ocean';
-            end
+            for l = {'lo', 'l', 'o'}; land = l{1};
+                if strcmp(land, 'lo'); land_text = 'Land + Ocean';
+                elseif strcmp(land, 'l'); land_text = 'Land';
+                elseif strcmp(land, 'o'); land_text = 'Ocean';
+                end
 
-            for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
-                % lat x lon of RCE and RAE
-                figure(); clf; hold all;
-                cmp = colCog(10);
-                colormap(cmp);
-                imagesc([grid.dim3.lon(1) grid.dim3.lon(end)], [lat(1) lat(end)], rcae_t.(land).(time).(crit)');
-                caxis([-2 2]);
-                title(sprintf('%s, %s', upper(time), land_text));
-                xlabel('Month'); ylabel('Latitude (deg)');
-                set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/eps_%g/%s/%s/%s/rcae_lat_lon', par.plotdir, par.ep, crit, land, time), '-dpng', '-r300');
-                close;
+                for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+                    % lat x lon of RCE and RAE
+                    figure(); clf; hold all;
+                    cmp = colCog(10);
+                    colormap(cmp);
+                    imagesc([grid.dim3.lon(1) grid.dim3.lon(end)], [lat(1) lat(end)], rcae_t.(land).(time).(fw).(crit)');
+                    caxis([-2 2]);
+                    title(sprintf('%s, %s', upper(time), land_text));
+                    xlabel('Month'); ylabel('Latitude (deg)');
+                    set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                    print(sprintf('%s/eps_%g/%s/%s/%s/%s/rcae_lat_lon', par.plotdir, par.ep, fw, crit, land, time), '-dpng', '-r300');
+                    close;
+                end
             end
         end
-
     end
 end
 function plot_temp(type, par)
@@ -161,91 +191,93 @@ function plot_temp(type, par)
         load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g/ma.mat', type, par.model, par.lat_interp, par.ep));
         plev = grid.dim3.plev/100;
     end
-    for i = {'def', 'pe', 'cp'}; crit = i{1};
-        for j = {'ann', 'djf', 'jja', 'mam', 'son'}; time = j{1};
-            for l = {'lo', 'l', 'o'}; land = l{1};
-                if strcmp(land, 'lo'); land_text = 'Land + Ocean';
-                elseif strcmp(land, 'l'); land_text = 'Land';
-                elseif strcmp(land, 'o'); land_text = 'Ocean';
-                end
+    for f = {'mse', 'dse'}; fw = f{1};
+        for c = fieldnames(ta.rce.tp.(fw))'; crit = c{1};
+            for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+                for l = {'lo', 'l', 'o'}; land = l{1};
+                    if strcmp(land, 'lo'); land_text = 'Land + Ocean';
+                    elseif strcmp(land, 'l'); land_text = 'Land';
+                    elseif strcmp(land, 'o'); land_text = 'Ocean';
+                    end
 
-            % RCE and RAE separated into NH and SH
-                figure(); clf; hold all;
-                h_rce_tp = plot(ta.rce.tp.(crit).(land).(time), plev, 'color', par.maroon);
-                h_rce_nh = plot(ta.rce.nh.(crit).(land).(time), plev, '-', 'color', par.orange);
-                h_rce_sh = plot(ta.rce.sh.(crit).(land).(time), plev, '--', 'color', par.orange);
-                h_rae_nh = plot(ta.rae.nh.(crit).(land).(time), plev, '-', 'color', par.blue);
-                h_rae_sh = plot(ta.rae.sh.(crit).(land).(time), plev, '--', 'color', par.blue);
-                xlabel('T (K)'); ylabel('p (hPa)');
-                title(sprintf('%s, %s', upper(time), land_text));
-                legend([h_rce_tp h_rce_nh h_rce_sh h_rae_nh h_rae_sh], 'Tropical RCE', 'NH ML RCE', 'SH ML RCE', 'NH RAE', 'SH RAE', 'location', 'northeast');
-                axis('tight');
-                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-                set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
-                hline(0, '-k');
-                print(sprintf('%s/eps_%g/%s/%s/%s/temp/rcae_all', par.plotdir, par.ep, crit, land, time), '-dpng', '-r300');
-                close;
-            % Tropical RCE compared with moist adiabat
-                figure(); clf; hold all;
-                h_rce = plot(ta.rce.tp.(crit).(land).(time), plev, 'color', par.maroon);
-                h_rce_ma = plot(ma.rce.tp.(crit).(land).(time).ta, plev, ':', 'color', par.maroon);
-                xlabel('T (K)'); ylabel('p (hPa)');
-                title(sprintf('Tropical RCE, %s, %s', upper(time), land_text));
-                if strcmp(type, 'era5') | strcmp(type, 'erai')
-                    legend([h_rce, h_rce_ma], upper(type), 'Moist adiabat', 'location', 'southwest');
-                elseif strcmp(type, 'gcm')
-                    legend([h_rce, h_rce_ma], par.model, 'Moist adiabat', 'location', 'southwest');
-                end
-                axis('tight');
-                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-                set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
-                hline(0, '-k');
-                print(sprintf('%s/eps_%g/%s/%s/%s/temp/rce_tp', par.plotdir, par.ep, crit, land, time), '-dpng', '-r300');
-                close;
-            % NH RCE compared with moist adiabat
-                figure(); clf; hold all;
-                h_rce = plot(ta.rce.nh.(crit).(land).(time), plev, 'color', par.orange);
-                h_rce_ma = plot(ma.rce.nh.(crit).(land).(time).ta, plev, ':', 'color', par.orange);
-                xlabel('T (K)'); ylabel('p (hPa)');
-                title(sprintf('NH ML RCE, %s, %s', upper(time), land_text));
-                if strcmp(type, 'era5') | strcmp(type, 'erai')
-                    legend([h_rce, h_rce_ma], upper(type), 'Moist adiabat', 'location', 'southwest');
-                elseif strcmp(type, 'gcm')
-                    legend([h_rce, h_rce_ma], par.model, 'Moist adiabat', 'location', 'southwest');
-                end
-                axis('tight');
-                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-                set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
-                hline(0, '-k');
-                print(sprintf('%s/eps_%g/%s/%s/%s/temp/rce_nh', par.plotdir, par.ep, crit, land, time), '-dpng', '-r300');
-                close;
-            % SH RCE compared with moist adiabat
-                figure(); clf; hold all;
-                h_rce = plot(ta.rce.sh.(crit).(land).(time), plev, 'color', par.orange);
-                h_rce_ma = plot(ma.rce.sh.(crit).(land).(time).ta, plev, ':', 'color', par.orange);
-                xlabel('T (K)'); ylabel('p (hPa)');
-                title(sprintf('SH ML RCE, %s, %s', upper(time), land_text));
-                if strcmp(type, 'era5') | strcmp(type, 'erai')
-                    legend([h_rce, h_rce_ma], upper(type), 'Moist adiabat', 'location', 'southwest');
-                elseif strcmp(type, 'gcm')
-                    legend([h_rce, h_rce_ma], par.model, 'Moist adiabat', 'location', 'southwest');
-                end
-                axis('tight');
-                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
-                set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
-                hline(0, '-k');
-                print(sprintf('%s/eps_%g/%s/%s/%s/temp/rce_sh', par.plotdir, par.ep, crit, land, time), '-dpng', '-r300');
-                close;
-            end
-        end
-    end
+                % RCE and RAE separated into NH and SH
+                    figure(); clf; hold all;
+                    h_rce_tp = plot(ta.rce.tp.(fw).(crit).(land).(time), plev, 'color', par.maroon);
+                    h_rce_nh = plot(ta.rce.nh.(fw).(crit).(land).(time), plev, '-', 'color', par.orange);
+                    h_rce_sh = plot(ta.rce.sh.(fw).(crit).(land).(time), plev, '--', 'color', par.orange);
+                    h_rae_nh = plot(ta.rae.nh.(fw).(crit).(land).(time), plev, '-', 'color', par.blue);
+                    h_rae_sh = plot(ta.rae.sh.(fw).(crit).(land).(time), plev, '--', 'color', par.blue);
+                    xlabel('T (K)'); ylabel('p (hPa)');
+                    title(sprintf('%s, %s', upper(time), land_text));
+                    legend([h_rce_tp h_rce_nh h_rce_sh h_rae_nh h_rae_sh], 'Tropical RCE', 'NH ML RCE', 'SH ML RCE', 'NH RAE', 'SH RAE', 'location', 'northeast');
+                    axis('tight');
+                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+                    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+                    hline(0, '-k');
+                    print(sprintf('%s/eps_%g/%s/%s/%s/%s/temp/rcae_all', par.plotdir, par.ep, fw, crit, land, time), '-dpng', '-r300');
+                    close;
+                % Tropical RCE compared with moist adiabat
+                    figure(); clf; hold all;
+                    h_rce = plot(ta.rce.tp.(fw).(crit).(land).(time), plev, 'color', par.maroon);
+                    h_rce_ma = plot(ma.rce.tp.(fw).(crit).(land).(time).ta, plev, ':', 'color', par.maroon);
+                    xlabel('T (K)'); ylabel('p (hPa)');
+                    title(sprintf('Tropical RCE, %s, %s', upper(time), land_text));
+                    if strcmp(type, 'era5') | strcmp(type, 'erai')
+                        legend([h_rce, h_rce_ma], upper(type), 'Moist adiabat', 'location', 'southwest');
+                    elseif strcmp(type, 'gcm')
+                        legend([h_rce, h_rce_ma], par.model, 'Moist adiabat', 'location', 'southwest');
+                    end
+                    axis('tight');
+                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+                    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+                    hline(0, '-k');
+                    print(sprintf('%s/eps_%g/%s/%s/%s/%s/temp/rce_tp', par.plotdir, par.ep, fw, crit, land, time), '-dpng', '-r300');
+                    close;
+                % NH RCE compared with moist adiabat
+                    figure(); clf; hold all;
+                    h_rce = plot(ta.rce.nh.(fw).(crit).(land).(time), plev, 'color', par.orange);
+                    h_rce_ma = plot(ma.rce.nh.(fw).(crit).(land).(time).ta, plev, ':', 'color', par.orange);
+                    xlabel('T (K)'); ylabel('p (hPa)');
+                    title(sprintf('NH ML RCE, %s, %s', upper(time), land_text));
+                    if strcmp(type, 'era5') | strcmp(type, 'erai')
+                        legend([h_rce, h_rce_ma], upper(type), 'Moist adiabat', 'location', 'southwest');
+                    elseif strcmp(type, 'gcm')
+                        legend([h_rce, h_rce_ma], par.model, 'Moist adiabat', 'location', 'southwest');
+                    end
+                    axis('tight');
+                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+                    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+                    hline(0, '-k');
+                    print(sprintf('%s/eps_%g/%s/%s/%s/%s/temp/rce_nh', par.plotdir, par.ep, fw, crit, land, time), '-dpng', '-r300');
+                    close;
+                % SH RCE compared with moist adiabat
+                    figure(); clf; hold all;
+                    h_rce = plot(ta.rce.sh.(fw).(crit).(land).(time), plev, 'color', par.orange);
+                    h_rce_ma = plot(ma.rce.sh.(fw).(crit).(land).(time).ta, plev, ':', 'color', par.orange);
+                    xlabel('T (K)'); ylabel('p (hPa)');
+                    title(sprintf('SH ML RCE, %s, %s', upper(time), land_text));
+                    if strcmp(type, 'era5') | strcmp(type, 'erai')
+                        legend([h_rce, h_rce_ma], upper(type), 'Moist adiabat', 'location', 'southwest');
+                    elseif strcmp(type, 'gcm')
+                        legend([h_rce, h_rce_ma], par.model, 'Moist adiabat', 'location', 'southwest');
+                    end
+                    axis('tight');
+                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+                    set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'log', 'ytick', [10 20 50 100 200 300 400:200:1000], 'ylim', [10 1000], 'xminortick', 'on')
+                    hline(0, '-k');
+                    print(sprintf('%s/eps_%g/%s/%s/%s/%s/temp/rce_sh', par.plotdir, par.ep, fw, crit, land, time), '-dpng', '-r300');
+                    close;
+                end % land
+            end % time avg
+        end % RCE/RAE definition
+    end % MSE/DSE framework
     % Legend for RCE and RAE separated into NH and SH
     figure(); clf; hold all;
-    h_rce_tp = plot(ta.rce.tp.def.lo.ann, plev, 'color', par.maroon);
-    h_rce_nh = plot(ta.rce.nh.def.lo.ann, plev, '-', 'color', par.orange);
-    h_rce_sh = plot(ta.rce.sh.def.lo.ann, plev, '--', 'color', par.orange);
-    h_rae_nh = plot(ta.rae.nh.def.lo.ann, plev, '-', 'color', par.blue);
-    h_rae_sh = plot(ta.rae.sh.def.lo.ann, plev, '--', 'color', par.blue);
+    h_rce_tp = plot(ta.rce.tp.(fw).(crit).(land).(time), plev, 'color', par.maroon);
+    h_rce_nh = plot(ta.rce.nh.(fw).(crit).(land).(time), plev, '-', 'color', par.orange);
+    h_rce_sh = plot(ta.rce.sh.(fw).(crit).(land).(time), plev, '--', 'color', par.orange);
+    h_rae_nh = plot(ta.rae.nh.(fw).(crit).(land).(time), plev, '-', 'color', par.blue);
+    h_rae_sh = plot(ta.rae.sh.(fw).(crit).(land).(time), plev, '--', 'color', par.blue);
     xlabel('T (K)'); ylabel('p (hPa)');
     legend([h_rce_tp h_rce_nh h_rce_sh h_rae_nh h_rae_sh], 'Tropical RCE ($\pm 30^\circ$)', 'NH ML RCE ($>+30^\circ$)', 'SH ML RCE ($<-30^\circ$)', 'NH RAE', 'SH RAE', 'location', 'eastoutside');
     axis('tight');
@@ -256,8 +288,8 @@ function plot_temp(type, par)
     close;
     % Legend for moist adiabat comparisons
     figure(); clf; hold all;
-    h_rce_tp = plot(ta.rce.tp.(crit).(land).(time), plev, '-k');
-    h_rce_tp_ma = plot(ma.rce.tp.(crit).(land).(time).ta, plev, ':k');
+    h_rce_tp = plot(ta.rce.tp.(fw).(crit).(land).(time), plev, '-k');
+    h_rce_tp_ma = plot(ma.rce.tp.(fw).(crit).(land).(time).ta, plev, ':k');
     xlabel('T (K)'); ylabel('p (hPa)');
     if strcmp(type, 'era5') | strcmp(type, 'erai')
         legend([h_rce_tp h_rce_tp_ma], upper(type), 'Moist adiabat', 'location', 'eastoutside');
@@ -332,11 +364,13 @@ function [flux_z, vh, lat, par] = load_flux(type, par)
 
     % make figure directories if it does not exist
     for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
-        for j = {'def', 'pe', 'cp'}; crit = j{1};
-            for l = {'lo', 'l', 'o'}; land = l{1};
-                for k = {'ann', 'djf', 'jja', 'mam', 'son'}; time = k{1};
-                    if ~exist(sprintf('%s/eps_%g/%s/%s/%s/temp', par.plotdir, par.ep, crit, land, time), 'dir')
-                        mkdir(sprintf('%s/eps_%g/%s/%s/%s/temp', par.plotdir, par.ep, crit, land, time));
+        for f = {'mse', 'dse'}; fw = f{1};
+            for j = {'def', 'pe', 'cp'}; crit = j{1};
+                for l = {'lo', 'l', 'o'}; land = l{1};
+                    for k = {'ann', 'djf', 'jja', 'mam', 'son'}; time = k{1};
+                        if ~exist(sprintf('%s/eps_%g/%s/%s/%s/%s/temp', par.plotdir, par.ep, fw, crit, land, time), 'dir')
+                            mkdir(sprintf('%s/eps_%g/%s/%s/%s/%s/temp', par.plotdir, par.ep, fw, crit, land, time));
+                        end
                     end
                 end
             end
