@@ -41,6 +41,9 @@ end
 gcm_info
 
 %% call functions
+plot_rad_lat(par)
+% plot_rad_lon_lat(par)
+
 type = 'era5';
 % choose_plots(type, par);
 for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
@@ -54,7 +57,7 @@ for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
     % choose_plots_ep(type, par)
     for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
         type = 'gcm';
-        choose_plots_ep(type, par)
+        % choose_plots_ep(type, par)
     end
 end
 
@@ -155,11 +158,11 @@ function plot_energy_lat(type, par) % latitude vs energy flux line plots, compar
 end
 
 function choose_plots_ep(type, par)
-    % plot_rcae_mon_lat(type, par) % plot RCE/RAE regimes
+    % plot_rcae(type, par) % plot RCE/RAE regimes
     plot_temp(type, par) % plot temperature profiles
     % plot_ma_diff(type, par) % plot difference of temperature profile from moist adiabat
 end
-function plot_rcae_mon_lat(type, par)
+function plot_rcae(type, par)
     % load data
     [~, ~, lat, par] = load_flux(type, par);
     if strcmp(type, 'era5') | strcmp(type, 'erai')
@@ -172,6 +175,8 @@ function plot_rcae_mon_lat(type, par)
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/%s/eps_%g/rcae_z.mat', prefix_proc, par.lat_interp, par.ep)); % load lat x mon RCAE data
     load(sprintf('%s/%s/eps_%g/rcae_t.mat', prefix_proc, par.lat_interp, par.ep)); % load lat x lon RCAE data
+    landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
+    par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
 
     for f = {'mse', 'dse'}; fw = f{1};
         for fn = fieldnames(rcae_z.(fw))'; crit = fn{1};
@@ -200,7 +205,7 @@ function plot_rcae_mon_lat(type, par)
                     imagesc([grid.dim3.lon(1) grid.dim3.lon(end)], [lat(1) lat(end)], rcae_t.(land).(time).(fw).(crit)');
                     caxis([-2 2]);
                     title(sprintf('%s, %s', upper(time), land_text));
-                    xlabel('Month'); ylabel('Latitude (deg)');
+                    xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
                     set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
                     print(sprintf('%s/eps_%g/%s/%s/%s/%s/rcae_lat_lon', par.plotdir, par.ep, fw, crit, land, time), '-dpng', '-r300');
                     close;
@@ -390,21 +395,106 @@ function plot_ma_diff(type, par)
             colormap(cmp);
             imagesc([1:12], [lat(1) lat(end)], diff);
             caxis([-20 20]);
-            xlabel('Month'); ylabel('Latitude (deg)');
+            xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
             if strcmp(type, 'era5') | strcmp(type, 'erai')
                 title(sprintf('%s, %s', upper(type), land_text));
             elseif strcmp(type, 'gcm')
                 title(sprintf('%s, %s', par.model, land_text));
             end
             cb = colorbar('limits', [-20 20], 'ytick', [-20:5:20], 'location', 'eastoutside');
-            cb.TickLabelInterpreter = 'latex';
-            cb.Label.Interpreter = 'latex';
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
             ylabel(cb, sprintf('$(T - T_m)_{%g \\,\\mathrm{hPa}}$ (K)', plev_eval));
             set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
             print(sprintf('%s/ma_diff/plev_%g/%s/ma_diff_lat_lon', par.plotdir, plev_eval, land), '-dpng', '-r300');
             close;
         end
     end
+end
+
+function plot_rad_lat(par)
+    load('/project2/tas1/miyawaki/projects/002/data/proc/comp/comp_zt.mat');
+
+    for fn = {'tsr', 'ttr', 'net', 'ssr', 'swabs', 'str', 'ra', 'surface_turbulent_plus_LW'}; fname = fn{1};
+        if strcmp(fname, 'tsr'); ytext = 'Net SW TOA';
+        elseif strcmp(fname, 'ttr'); ytext = 'OLR';
+        elseif strcmp(fname, 'net'); ytext = 'Net TOA';
+        elseif strcmp(fname, 'ssr'); ytext = 'Net SW SFC';
+        elseif strcmp(fname, 'str'); ytext = 'Net LW SFC';
+        elseif strcmp(fname, 'swabs'); ytext = 'SWABS';
+        elseif strcmp(fname, 'ra'); ytext = '$R_a$';
+        elseif strcmp(fname, 'surface_turbulent_plus_LW'); ytext = 'LH + SH + Net LW SFC';
+        end
+
+        figure(); clf; hold all;
+        line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+        h.erai = plot(lat, erai_zt.rad.(fname), 'color', par.yellow);
+        h.era5 = plot(lat, era5_zt.rad.(fname), 'color', par.orange);
+        if ~strcmp(fname, 'surface_turbulent_plus_LW'); h.ceres = plot(lat, ceres_zt.rad.(fname), 'color', par.green); end;
+        if ~any(strcmp(fname, {'str', 'ra'})); h.don = plot(lat, don_zt.(fname), 'color', par.blue); end;
+        xlabel('latitude (deg)'); ylabel(sprintf('%s (Wm$^{-2}$)', ytext));
+        if any(strcmp(fname, {'str', 'ra'})); legend([h.erai h.era5 h.ceres], 'ERA-I', 'ERA5', 'CERES4.1', 'location', 'eastoutside');
+        elseif strcmp(fname, 'surface_turbulent_plus_LW'); legend([h.erai h.era5 h.don], 'ERA-I', 'ERA5', 'DB13', 'location', 'eastoutside');
+        else legend([h.erai h.era5 h.ceres h.don], 'ERA-I', 'ERA5', 'CERES4.1', 'DB13', 'location', 'eastoutside'); end;
+        axis('tight');
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+        set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+        print(sprintf('/project2/tas1/miyawaki/projects/002/figures/comp/lat/%s', fname), '-dpng', '-r300');
+        close;
+
+        if ~any(strcmp(fname, {'str', 'ra'}));
+            figure(); clf; hold all;
+            line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+            h.erai = plot(lat, erai_zt.rad.(fname) - don_zt.(fname), 'color', par.yellow);
+            h.era5 = plot(lat, era5_zt.rad.(fname) - don_zt.(fname), 'color', par.orange);
+            if ~strcmp(fname, 'surface_turbulent_plus_LW'); h.ceres = plot(lat, ceres_zt.rad.(fname) - don_zt.(fname), 'color', par.green); end;
+            xlabel('latitude (deg)'); ylabel(sprintf('$\\Delta$ (%s) (Wm$^{-2}$)', ytext));
+            if ~strcmp(fname, 'surface_turbulent_plus_LW'); legend([h.erai h.era5 h.ceres], 'ERA-I $-$ DB13', 'ERA5 $-$ DB13', 'CERES4.1 $-$ DB13', 'location', 'eastoutside');
+            else; legend([h.erai h.era5], 'ERA-I $-$ DB13', 'ERA5 $-$ DB13', 'location', 'eastoutside'); end;
+            axis('tight');
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+            set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+            print(sprintf('/project2/tas1/miyawaki/projects/002/figures/comp/lat/%s-diff-db13', fname), '-dpng', '-r300');
+            close;
+        else
+            figure(); clf; hold all;
+            line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+            h.erai = plot(lat, erai_zt.rad.(fname) - ceres_zt.rad.(fname), 'color', par.yellow);
+            h.era5 = plot(lat, era5_zt.rad.(fname) - ceres_zt.rad.(fname), 'color', par.orange);
+            xlabel('latitude (deg)'); ylabel(sprintf('$\\Delta$ (%s) (Wm$^{-2}$)', ytext));
+            legend([h.erai h.era5], 'ERA-I $-$ CERES4.1', 'ERA5 $-$ CERES4.1', 'location', 'eastoutside')
+            axis('tight');
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+            set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+            print(sprintf('/project2/tas1/miyawaki/projects/002/figures/comp/lat/%s-diff-ceres', fname), '-dpng', '-r300');
+            close;
+        end
+
+    end
+
+end
+function plot_rad_lon_lat(par)
+    load('/project2/tas1/miyawaki/projects/002/data/proc/comp/comp_t.mat');
+    landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
+    par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
+
+    [mesh_lat, mesh_lon] = meshgrid(grid.ceres.dim2.lon, lat);
+
+    figure(); clf; hold all;
+    cmp = colCog(48);
+    colormap(cmp);
+    contourf(mesh_lat, mesh_lon, ceres_t.rad.ra', [-360 -240:60:-120 -90:30:-30 -15], 'linecolor', 'none');
+    contour(par.landlon+180, par.landlat, par.land, [1 1], 'linecolor', 0.3*[1 1 1], 'linewidth', 0.5);
+    caxis([-360 360]);
+    xlabel('longitude (deg)'); ylabel('latitude (deg)');
+    cb = colorbar('limits', [-360 -15], 'ytick', [-360 -240:60:-120 -90:30:-30 -15], 'location', 'eastoutside');
+    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    ylabel(cb, sprintf('$R_a$ (Wm$^{-2}$)'));
+    axis('tight');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+    set(gca, 'fontsize', par.fs, 'xtick', [0:60:360], 'xminortick', 'on', 'ytick', [-90:30:90], 'yminortick', 'on')
+    print(sprintf('/project2/tas1/miyawaki/projects/002/figures/comp/lon_lat/ra_ceres'), '-dpng', '-r300');
+    close;
+
 end
 
 function [flux_zt, vh, lat, par] = load_flux(type, par)
@@ -418,9 +508,6 @@ function [flux_zt, vh, lat, par] = load_flux(type, par)
         load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/vh.mat', type, par.model, par.lat_interp));
         par.plotdir = sprintf('./figures/%s/%s/%s', type, par.model, par.lat_interp);
     end
-
-    % create a mon x lat meshgrid for contour plots
-    [par.mesh_lat, par.mesh_mon] = meshgrid(1:12, lat);
 
     % make figure directories if it does not exist
     for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);

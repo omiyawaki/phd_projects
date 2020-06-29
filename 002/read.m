@@ -3,10 +3,10 @@ clc; clear variables; close all;
 addpath(genpath('/project2/tas1/miyawaki/matlab'));
 
 %% set parameters
-par.erai.yr_span = 2000:2012; % spanning years for ERA-Interim
-par.erai.yr_text = cellstr(num2str(par.erai.yr_span'))';
+par.erai.yr_span = '2000_2012'; % spanning years for ERA-Interim
 par.era5.yr_span = '1979_2019'; % spanning years for ERA5
-par.gcm.yr_span = 50; % number of years that I am considering in the GCM climatology
+par.gcm.yr_span = 30; % number of years that I am considering in the GCM climatology
+par.ceres.yr_span = '200003-201302'; % spanning years for ERA5
 par.era.vars.rad = {'ssr', 'str', 'tsr', 'ttr'}; % radiation variables to read
 par.era.vars.pe = {'cp', 'lsp', 'e'}; % radiation variables to read
 par.era.vars.stf = {'sshf', 'slhf'}; % surface turbulent flux variables to read
@@ -17,16 +17,18 @@ par.gcm.vars.pe = {'prc', 'pr', 'evspsbl'}; % radiation variables to read
 par.gcm.vars.stf = {'hfss', 'hfls'}; % surface turbulent flux variables to read
 par.gcm.vars.vert = {'ta'}; % 3d variables to read (t = temp)
 par.gcm.vars.srfc = {'ps', 'tas', 'hurs'}; % surface variables to read (sp = surface pressure, t2m = 2m temp, d2m = 2m dew point temp)
+par.ceres.vars.rad = {'sfc_net_sw_all_mon', 'sfc_net_lw_all_mon', 'toa_sw_all_mon', 'solar_mon', 'toa_lw_all_mon'}; % radiation variables to read
+par.ceres.vars.rad_txt = {'ssr', 'str', 'tsur', 'tsdr', 'ttr'}; % radiation variables to read
 gcm_info
 % useful constants
 par.cpd = 1005.7; par.Rd = 287; par.L = 2.501e6; par.g = 9.81;
 
 %% call functions
 type='era5';
-% run_func(type, par);
+run_func(type, par);
 for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
     type='gcm';
-    run_func(type, par);
+    % run_func(type, par);
 end
 
 %% define functions
@@ -34,24 +36,18 @@ function run_func(type, par)
     % read_grid(type, par) % grid, i.e. lon, lat, plev
     % read_rad(type, par) % radiation fluxes
     % read_pe(type, par) % hydrological variables, e.g. precip, evap
-    % read_stf(type, par) % surface turbulent fluxes
-    read_srfc(type, par) % other surface variables, e.g. 2-m temperature, surface pressure
+    read_stf(type, par) % surface turbulent fluxes
+    % read_srfc(type, par) % other surface variables, e.g. 2-m temperature, surface pressure
 end
 function read_grid(type, par)
     % read data net SW and LW radiation data downloaded from Era5
     % first read lon and lat vectors since this is different from the Donohoe grid
-    if strcmp(type, 'era5')
-        grid.dim2.lon = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era5/rad/era5_rad_1979_2019.nc', 'longitude');
-        grid.dim2.lat = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era5/rad/era5_rad_1979_2019.nc', 'latitude');
+    if any(strcmp(type, {'era5', 'erai'}))
+        grid.dim2.lon = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s.ymonmean.nc', type, type, par.(type).yr_span), 'longitude');
+        grid.dim2.lat = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s.ymonmean.nc', type, type, par.(type).yr_span), 'latitude');
         grid.dim3 = grid.dim2;
-        grid.dim3.plev =  ncread('/project2/tas1/miyawaki/projects/002/data/raw/era5/temp/era5_temp_1979_2019.nc', 'level');
-        save('/project2/tas1/miyawaki/projects/002/data/read/era5/grid.mat', 'grid')
-    elseif strcmp(type, 'erai')
-        grid.dim2.lon = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/interim_rad_2000.nc', 'longitude');
-        grid.dim2.lat = ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/rad/interim_rad_2000.nc', 'latitude');
-        grid.dim3 = grid.dim2;
-        grid.dim3.plev =  ncread('/project2/tas1/miyawaki/projects/002/data/raw/era-interim/temp/interim_temp_2000.nc', 'level');
-        save('/project2/tas1/miyawaki/projects/002/data/read/era-interim/grid.mat', 'lat_era', 'lon_era', 'plev_era')
+        grid.dim3.plev =  ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span), 'level');
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type), 'grid')
     elseif strcmp(type, 'gcm')
         file.dim2=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.nc', par.model, 'tas', par.model));
         file.dim3=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.nc', par.model, 'ta', par.model));
@@ -66,6 +62,10 @@ function read_grid(type, par)
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename='grid.mat';
         save(sprintf('%s/%s', newdir, filename), 'grid');
+    elseif strcmp(type, 'ceres')
+        grid.dim2.lon = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/CERES_EBAF_Ed4.1_Subset_%s.ymonmean.nc', type, par.(type).yr_span), 'lon');
+        grid.dim2.lat = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/CERES_EBAF_Ed4.1_Subset_%s.ymonmean.nc', type, par.(type).yr_span), 'lat');
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type), 'grid')
     end
 
     % save grid
@@ -83,6 +83,13 @@ function read_rad(type, par)
             rad.(rad_vars{i}) = rad.(rad_vars{i})/86400;
         end
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/rad.mat', type), 'rad', 'rad_vars');
+        if strcmp(type, 'era5')
+            for i=1:length(rad_vars)
+                rad.(rad_vars{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s.ymonmean.nc', type, type, par.erai.yr_span), rad_vars{i});
+                rad.(rad_vars{i}) = rad.(rad_vars{i})/86400;
+            end
+            save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/rad_2000_2012.mat', type), 'rad', 'rad_vars');
+        end
     elseif strcmp(type, 'gcm')
         rad_vars=par.gcm.vars.rad;
         for i=1:length(par.gcm.vars.rad); var = par.gcm.vars.rad{i};
@@ -94,6 +101,18 @@ function read_rad(type, par)
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename='rad.mat';
         save(sprintf('%s/%s', newdir, filename), 'rad', 'rad_vars');
+    elseif strcmp(type, 'ceres')
+        rad_vars = par.ceres.vars.rad;
+        rad_vars_txt = par.ceres.vars.rad_txt;
+        for i=1:length(rad_vars)
+            rad.(rad_vars_txt{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/CERES_EBAF_Ed4.1_Subset_%s.ymonmean.nc', type, par.(type).yr_span), rad_vars{i});
+        end
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/rad.mat', type), 'rad');
+
+        for i=1:length(rad_vars)
+            rad.(rad_vars_txt{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/CERES_EBAF_Ed4.1_Subset_200101-200912.ymonmean.nc', type), rad_vars{i});
+        end
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/rad_2001_2009.mat', type), 'rad');
     end
 end
 function read_pe(type, par)
@@ -133,8 +152,15 @@ function read_stf(type, par)
             % over the full day
             stf.(stf_vars{i}) = stf.(stf_vars{i})/86400;
         end
-        save('/project2/tas1/miyawaki/projects/002/data/read/era5/stf.mat', 'stf', 'stf_vars');
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/stf.mat', type), 'stf', 'stf_vars');
 
+        if strcmp(type, 'era5')
+            for i=1:length(stf_vars)
+                stf.(stf_vars{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/stf/%s_stf_%s.ymonmean.nc', type, type, par.erai.yr_span), stf_vars{i});
+                stf.(stf_vars{i}) = stf.(stf_vars{i})/86400;
+            end
+            save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/stf_2000_2012.mat', type), 'stf', 'stf_vars');
+        end
     elseif strcmp(type, 'gcm')
         stf_vars=par.gcm.vars.stf;
         for i=1:length(par.gcm.vars.stf); var = par.gcm.vars.stf{i};
@@ -155,7 +181,7 @@ function read_srfc(type, par)
             % dimensions are (lat x time); note that the data is already zonally averaged
             srfc.(srfc_vars{i}) = squeeze(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_srfc_%s.ymonmean.nc', type, type, par.(type).yr_span), srfc_vars{i}));
         end
-        save('/project2/tas1/miyawaki/projects/002/data/read/era5/srfc.mat', 'srfc', 'srfc_vars');
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/srfc.mat', type), 'srfc', 'srfc_vars');
 
     elseif strcmp(type, 'gcm')
         srfc_vars=par.gcm.vars.srfc;
