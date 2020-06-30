@@ -24,7 +24,7 @@ gcm_info
 par.cpd = 1005.7; par.Rd = 287; par.L = 2.501e6; par.g = 9.81;
 
 %% call functions
-type='era5';
+type='ceres';
 run_func(type, par);
 for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
     type='gcm';
@@ -34,19 +34,19 @@ end
 %% define functions
 function run_func(type, par)
     % read_grid(type, par) % grid, i.e. lon, lat, plev
-    % read_rad(type, par) % radiation fluxes
+    read_rad(type, par) % radiation fluxes
     % read_pe(type, par) % hydrological variables, e.g. precip, evap
-    read_stf(type, par) % surface turbulent fluxes
+    % read_stf(type, par) % surface turbulent fluxes
     % read_srfc(type, par) % other surface variables, e.g. 2-m temperature, surface pressure
 end
 function read_grid(type, par)
     % read data net SW and LW radiation data downloaded from Era5
     % first read lon and lat vectors since this is different from the Donohoe grid
     if any(strcmp(type, {'era5', 'erai'}))
-        grid.dim2.lon = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s.ymonmean.nc', type, type, par.(type).yr_span), 'longitude');
-        grid.dim2.lat = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s.ymonmean.nc', type, type, par.(type).yr_span), 'latitude');
+        grid.dim2.lon = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s.ymonmean.nc', type, type, par.(type).yr_span), 'longitude'));
+        grid.dim2.lat = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s.ymonmean.nc', type, type, par.(type).yr_span), 'latitude'));
         grid.dim3 = grid.dim2;
-        grid.dim3.plev =  ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span), 'level');
+        grid.dim3.plev =  double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span), 'level'));
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type), 'grid')
     elseif strcmp(type, 'gcm')
         file.dim2=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.nc', par.model, 'tas', par.model));
@@ -76,7 +76,7 @@ function read_rad(type, par)
         for i=1:length(rad_vars)
             % dimensions are (lon x lat x time)
             % time is sequenced as id(1) = jan, step 00-12, id(2) = jan, step 12-24, id(3) = feb, step 00-12, etc.
-            rad.(rad_vars{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s.ymonmean.nc', type, type, par.(type).yr_span), rad_vars{i});
+            rad.(rad_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s.ymonmean.nc', type, type, par.(type).yr_span), rad_vars{i}));
             % the data is originally reported as J m^-2 per day, so
             % divide by 86400 s to get the conventional W m^-2 flux
             % over the full day
@@ -120,11 +120,11 @@ function read_pe(type, par)
         pe_vars=par.era.vars.pe;
         for i=1:length(pe_vars)
             % dimensions are (lon x lat x time)
-            pe.(pe_vars{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/pe/%s_pe_%s.ymonmean.nc', type, type, par.(type).yr_span), pe_vars{i});
-            % the data is originally reported as J m^-2 per day, so
-            % divide by 86400 s to get the conventional W m^-2 flux
-            % over the full day
-            pe.(pe_vars{i}) = pe.(pe_vars{i})/86400;
+            pe.(pe_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/pe/%s_pe_%s.ymonmean.nc', type, type, par.(type).yr_span), pe_vars{i}));
+            % the data is originally reported as m (depth) per day, so
+            % divide by 86400 s and multiply by 1000 kg/m^3 to get the
+            % conventional kg/m^2/s mass flux over the full day
+            pe.(pe_vars{i}) = pe.(pe_vars{i})/86400*1e3;
         end
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/pe.mat', type), 'pe', 'pe_vars');
 
@@ -146,7 +146,7 @@ function read_stf(type, par)
         stf_vars=par.era.vars.stf;
         for i=1:length(stf_vars)
             % dimensions are (lon x lat x time)
-            stf.(stf_vars{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/stf/%s_stf_%s.ymonmean.nc', type, type, par.(type).yr_span), stf_vars{i});
+            stf.(stf_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/stf/%s_stf_%s.ymonmean.nc', type, type, par.(type).yr_span), stf_vars{i}));
             % the data is originally reported as J m^-2 per day, so
             % divide by 86400 s to get the conventional W m^-2 flux
             % over the full day
@@ -179,7 +179,7 @@ function read_srfc(type, par)
         srfc_vars=par.era.vars.srfc;
         for i=1:length(srfc_vars)
             % dimensions are (lat x time); note that the data is already zonally averaged
-            srfc.(srfc_vars{i}) = squeeze(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_srfc_%s.ymonmean.nc', type, type, par.(type).yr_span), srfc_vars{i}));
+            srfc.(srfc_vars{i}) = double(squeeze(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_srfc_%s.ymonmean.nc', type, type, par.(type).yr_span), srfc_vars{i})));
         end
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/srfc.mat', type), 'srfc', 'srfc_vars');
 

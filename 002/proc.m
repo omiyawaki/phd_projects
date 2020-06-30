@@ -16,7 +16,8 @@ gcm_info
 
 %% call functions
 % comp_flux(par)
-disp_global_flux(par)
+% ceres_flux(par)
+% choose_disp(par)
 
 type = 'era5'; % data type to run analysis on
 % choose_proc(type, par)
@@ -30,23 +31,53 @@ for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = 1-par.ep;
     % choose_proc_ep(type, par)
     for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
         type = 'gcm';
-        % choose_proc_ep(type, par)
+        choose_proc_ep(type, par)
     end
 end
 
 %% define functions
 function choose_proc(type, par)
+    % save_mask(type, par) % save land and ocean masks once (faster than creating mask every time I need it)
     proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
     % proc_net_flux(type, par) % calculate net energy fluxes at TOA and surface
-    % save_mask(type, par) % save land and ocean masks once (faster than creating mask every time I need it)
+end
+function save_mask(type, par)
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.model, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+    end
+
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+
+    lat = par.lat_std;
+
+    mask.land = remove_land(lat, grid.dim3.lon, 12);
+    mask.ocean = remove_ocean(lat, grid.dim3.lon, 12);
+
+    % save masks
+    printname = [foldername 'masks'];
+    if ~exist(foldername, 'dir')
+        mkdir(foldername)
+    end
+    save(printname, 'mask');
+
 end
 function proc_flux(type, par)
-    if strcmp(type, 'era5')
+    if any(strcmp(type, {'era5', 'erai'}))
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
         prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.lat_interp);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/w500/%s_w500_*.ymonmean.nc', type, type));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        w500 = ncread(fullpath, 'w');
     elseif strcmp(type, 'gcm')
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
         prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.lat_interp);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, 'w500', par.model)); % load w500
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        w500 = squeeze(ncread(fullpath, 'wap'));
     end
 
     load(sprintf('%s/grid.mat', prefix)) % read grid data
@@ -72,13 +103,16 @@ function proc_flux(type, par)
         flux.(fn{1}) = interp1(grid.dim2.lat, flux.(fn{1}), par.lat_std, 'spline');
         flux.(fn{1}) = permute(flux.(fn{1}), [2 1 3]);
     end
+    flux.w500 = permute(w500, [2 1 3]);
+    flux.w500 = interp1(grid.dim3.lat, flux.w500, par.lat_std, 'spline');
+    flux.w500 = permute(flux.w500, [2 1 3]);
 
     if strcmp(type, 'era5') | strcmp(type, 'erai')
         flux.ra = flux.tsr - flux.ssr + flux.ttr - flux.str; % compute net radiative cooling from radiative fluxes
         % compute surface turbulent fluxes directly from INTP data
         % multiply by negative to define flux from surface to atmosphere as positive
         flux.stf.mse = -( flux.sshf + flux.slhf );
-        flux.stf.dse = par.L*(flux.cp+flux.lsp) - flux.slhf;
+        flux.stf.dse = par.L*(flux.cp+flux.lsp) - flux.sshf;
     elseif strcmp(type, 'gcm')
         flux.ra = flux.rsdt - flux.rsut + flux.rsus - flux.rsds + flux.rlus - flux.rlds - flux.rlut; % calculate atmospheric radiative cooling
         flux.stf.mse = flux.hfls + flux.hfss;
@@ -87,38 +121,22 @@ function proc_flux(type, par)
 
     for f = {'mse', 'dse'}; fw = f{1};
         flux.res.(fw) = flux.ra + flux.stf.(fw); % infer MSE tendency and flux divergence as residuals
-        % compute northward MSE transport using the residual data
-        for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
-            if strcmp(time, 'ann')
-                tediv_t = squeeze(nanmean(flux.res.(fw), 3)); % take time average
-            elseif strcmp(time, 'djf')
-                flux_shift.res = circshift(flux.res.(fw), 1, 3); % shift month by 1 to allow for djf average
-                tediv_t = squeeze(nanmean(flux_shift.res(:,:,1:3), 3)); % take time average
-            elseif strcmp(time, 'jja')
-                tediv_t = squeeze(nanmean(flux.res.(fw)(:,:,6:8), 3)); % take time average
-            elseif strcmp(time, 'mam')
-                tediv_t = squeeze(nanmean(flux.res.(fw)(:,:,3:5), 3)); % take time average
-            elseif strcmp(time, 'son')
-                tediv_t = squeeze(nanmean(flux.res.(fw)(:,:,9:11), 3)); % take time average
-            end
-            tediv_tz = trapz(deg2rad(grid.dim2.lon), tediv_t, 1); % zonally integrate
-            vh.(time).(fw) = cumtrapz(deg2rad(lat), par.a^2*cosd(lat).*tediv_tz'); % cumulatively integrate in latitude
-        end
         flux.r1.(fw) = (flux.res.(fw))./flux.ra; % calculate nondimensional number R1 disregarding MSE budget closure
         flux.r2.(fw) = flux.stf.(fw)./flux.ra; % calculate nondimensional number R2 disregarding MSE budget closure
     end
 
     if strcmp(type, 'era5') | strcmp(type, 'erai')
-        for fn = {'ra', 'sshf', 'slhf', 'cp', 'lsp', 'e'}; fname = fn{1};
-            % take zonal averages
-            flux_z.(fname) = squeeze(nanmean(flux.(fname), 1));
-            % take time averages
+        for fn = {'ra', 'sshf', 'slhf', 'cp', 'lsp', 'e', 'w500'}; fname = fn{1};
             for l = {'lo', 'l', 'o'}; land = l{1};
                 if strcmp(land, 'lo'); flux_n.(land).(fname) = flux.(fname);
                 elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
                 elseif strcmp(land, 'o'); flux_n.(land).(fname) = flux.(fname) .*mask.land;
                 end
 
+                % take zonal averages
+                flux_z.(land).(fname) = squeeze(nanmean(flux_n.(land).(fname), 1));
+
+                % take time averages
                 for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
                     if strcmp(time, 'ann')
                         flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname), 3);
@@ -138,17 +156,17 @@ function proc_flux(type, par)
         end
         foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
     elseif strcmp(type, 'gcm')
-        for fn = {'ra', 'hfls', 'hfss', 'prc', 'pr', 'evspsbl'}; fname = fn{1};
-            % take zonal averages
-            flux_z.(fname) = squeeze(nanmean(flux.(fname), 1));
-
-            % take time averages
+        for fn = {'ra', 'hfls', 'hfss', 'prc', 'pr', 'evspsbl', 'w500'}; fname = fn{1};
             for l = {'lo', 'l', 'o'}; land = l{1};
                 if strcmp(land, 'lo'); flux_n.(land).(fname) = flux.(fname);
                 elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
                 elseif strcmp(land, 'o'); flux_n.(land).(fname) = flux.(fname) .*mask.land;
                 end
 
+                % take zonal averages
+                flux_z.(land).(fname) = squeeze(nanmean(flux_n.(land).(fname), 1));
+
+                % take time averages
                 for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
                     if strcmp(time, 'ann')
                         flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname), 3);
@@ -170,15 +188,39 @@ function proc_flux(type, par)
     end
     for fn = {'stf', 'res', 'r1', 'r2'}; fname = fn{1};
         for f = {'mse', 'dse'}; fw = f{1};
-            % take zonal average
-            flux_z.(fname).(fw) = squeeze(nanmean(flux.(fname).(fw), 1));
-            % take time averages
             for l = {'lo', 'l', 'o'}; land = l{1};
                 if strcmp(land, 'lo'); flux_n.(land).(fname).(fw) = flux.(fname).(fw);
                 elseif strcmp(land, 'l'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.ocean;
                 elseif strcmp(land, 'o'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.land;
                 end
 
+                if strcmp(fname, 'res')
+                    % compute northward MSE transport using the residual data
+                    flux_n.(land).res.(fw)(isnan(flux_n.(land).res.(fw))) = 0; % replace nans with zeros
+                    tediv_z = squeeze(trapz(deg2rad(grid.dim2.lon), flux_n.(land).res.(fw), 1)); % zonally integrate
+                    vh_mon.(land).(fw) = cumtrapz(deg2rad(lat), par.a^2*cosd(lat).*tediv_z); % cumulatively integrate
+                    for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+                        if strcmp(time, 'ann')
+                            tediv_t = squeeze(nanmean(flux_n.(land).res.(fw), 3)); % take time average
+                        elseif strcmp(time, 'djf')
+                            flux_n_shift.(land).res = circshift(flux_n.(land).res.(fw), 1, 3); % shift month by 1 to allow for djf average
+                            tediv_t = squeeze(nanmean(flux_n_shift.(land).res(:,:,1:3), 3)); % take time average
+                        elseif strcmp(time, 'jja')
+                            tediv_t = squeeze(nanmean(flux_n.(land).res.(fw)(:,:,6:8), 3)); % take time average
+                        elseif strcmp(time, 'mam')
+                            tediv_t = squeeze(nanmean(flux_n.(land).res.(fw)(:,:,3:5), 3)); % take time average
+                        elseif strcmp(time, 'son')
+                            tediv_t = squeeze(nanmean(flux_n.(land).res.(fw)(:,:,9:11), 3)); % take time average
+                        end
+                        tediv_tz = trapz(deg2rad(grid.dim2.lon), tediv_t, 1); % zonally integrate
+                        vh.(land).(time).(fw) = cumtrapz(deg2rad(lat), par.a^2*cosd(lat).*tediv_tz'); % cumulatively integrate in latitude
+                    end
+                end
+
+                % take zonal average
+                flux_z.(land).(fname).(fw) = squeeze(nanmean(flux_n.(land).(fname).(fw), 1));
+
+                % take time averages
                 for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
                     if strcmp(time, 'ann')
                         flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw), 3);
@@ -202,7 +244,7 @@ function proc_flux(type, par)
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    for v = {'flux', 'flux_t', 'flux_z', 'flux_zt', 'vh'}; varname = v{1};
+    for v = {'flux', 'flux_t', 'flux_z', 'flux_zt', 'vh', 'vh_mon'}; varname = v{1};
         save(sprintf('%s%s', foldername, varname), varname, 'lat');
     end
 
@@ -245,40 +287,16 @@ function proc_net_flux(type, par)
         disp( sprintf('The net radiative imbalance in %s at the surface is %g Wm^-2.', par.model, net_sfc) );
     end
 end
-function save_mask(type, par)
-    if strcmp(type, 'era5') | strcmp(type, 'erai')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
-    elseif strcmp(type, 'gcm')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.model, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
-    end
-
-    load(sprintf('%s/grid.mat', prefix)); % read grid data
-
-    lat = par.lat_std;
-
-    mask.land = remove_land(lat, grid.dim3.lon, 12);
-    mask.ocean = remove_ocean(lat, grid.dim3.lon, 12);
-
-    % save masks
-    printname = [foldername 'masks'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
-    save(printname, 'mask');
-
-end
 
 function choose_proc_ep(type, par)
-    % proc_rcae(type, par) % calculate RCE and RAE regimes
-    proc_temp(type, par) % calculate RCE and RAE temperature profiles
-    proc_ma(type, par) % calculate moist adiabats corresponding to RCE profiles
+    proc_rcae(type, par) % calculate RCE and RAE regimes
+    % proc_temp(type, par) % calculate RCE and RAE temperature profiles
+    % proc_ma(type, par) % calculate moist adiabats corresponding to RCE profiles
     % proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
     % proc_ma_mon_lat(type, par) % calculate mon x lat moist adiabats
 end
 function proc_rcae(type, par)
-    for f = {'flux', 'flux_z'}; ftype = f{1};
+    for f = {'flux', 'flux_t', 'flux_z'}; ftype = f{1};
         if strcmp(type, 'era5') | strcmp(type, 'erai')
             filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s.mat', type, par.lat_interp, ftype); % read ERA5 zonally averaged flux
             foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g/', type, par.lat_interp, par.ep);
@@ -295,82 +313,82 @@ function proc_rcae(type, par)
         end
 
         load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
+        load(sprintf('%s/vh_mon.mat', prefix_proc)); % load atmospheric heat transport
 
         % identify locations of RCE and RAE
         if strcmp(ftype, 'flux')
-            rcae = def_rcae(type, flux, par); % lon x lat x time structure
+            rcae = def_rcae(type, flux, vh_mon, par); % lon x lat x time structure
             printname = [foldername 'rcae.mat'];
-
+        elseif strcmp(ftype, 'flux_t')
             for l = {'lo', 'l', 'o'}; land = l{1};
-                for fn = fieldnames(flux)'; fname = fn{1};
-                    if any(strcmp(fname, {'stf', 'res', 'r1', 'r2'}))
-                        for f = {'mse', 'dse'}; fw = f{1};
-                            if strcmp(land, 'lo'); flux_n.(land).(fname).(fw) = flux.(fname).(fw);
-                            elseif strcmp(land, 'l'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.ocean;
-                            elseif strcmp(land, 'o'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.land;
-                            end
-                        end
-                    else
-                        if strcmp(land, 'lo'); flux_n.(land).(fname) = flux.(fname);
-                        elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
-                        elseif strcmp(land, 'o'); flux_n.(land).(fname) = flux.(fname) .*mask.land;
-                        end
-                    end
-                end
+                % for fn = fieldnames(flux)'; fname = fn{1};
+                %     if any(strcmp(fname, {'stf', 'res', 'r1', 'r2'}))
+                %         for f = {'mse', 'dse'}; fw = f{1};
+                %             if strcmp(land, 'lo'); flux_n.(land).(fname).(fw) = flux.(fname).(fw);
+                %             elseif strcmp(land, 'l'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.ocean;
+                %             elseif strcmp(land, 'o'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.land;
+                %             end
+                %         end
+                %     else
+                %         if strcmp(land, 'lo'); flux_n.(land).(fname) = flux.(fname);
+                %         elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
+                %         elseif strcmp(land, 'o'); flux_n.(land).(fname) = flux.(fname) .*mask.land;
+                %         end
+                %     end
+                % end
 
                 % lon x lat structure over various time averages
                 for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
-                    for fn = fieldnames(flux)'; fname = fn{1};
-                        if any(strcmp(fname, {'stf', 'res', 'r1', 'r2'}))
-                            for f = {'mse', 'dse'}; fw = f{1};
-                                if strcmp(time, 'ann')
-                                    flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw), 3);
-                                elseif strcmp(time, 'djf')
-                                    flux_shift.(land).(fname).(fw) = circshift(flux_n.(land).(fname).(fw), 1, 3);
-                                    flux_t.(land).(time).(fname).(fw) = nanmean(flux_shift.(land).(fname).(fw)(:,:,1:3), 3);
-                                elseif strcmp(time, 'jja')
-                                    flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,6:8), 3);
-                                elseif strcmp(time, 'mam')
-                                    flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,3:5), 3);
-                                elseif strcmp(time, 'son')
-                                    flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,9:11), 3);
-                                end
-                            end
-                        else
-                            if strcmp(time, 'ann')
-                                flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname), 3);
-                            elseif strcmp(time, 'djf')
-                                flux_shift.(land).(fname) = circshift(flux_n.(land).(fname), 1, 3);
-                                flux_t.(land).(time).(fname) = nanmean(flux_shift.(land).(fname)(:,:,1:3), 3);
-                            elseif strcmp(time, 'jja')
-                                flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,6:8), 3);
-                            elseif strcmp(time, 'mam')
-                                flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,3:5), 3);
-                            elseif strcmp(time, 'son')
-                                flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,9:11), 3);
-                            end
-                        end
-                    end
-                    rcae_t.(land).(time) = def_rcae(type, flux_t.(land).(time), par);
-                end
-            end
+                    % for fn = fieldnames(flux)'; fname = fn{1};
+                        % if any(strcmp(fname, {'stf', 'res', 'r1', 'r2'}))
+                        %     for f = {'mse', 'dse'}; fw = f{1};
+                        %         if strcmp(time, 'ann')
+                        %             flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw), 3);
+                        %         elseif strcmp(time, 'djf')
+                        %             flux_shift.(land).(fname).(fw) = circshift(flux_n.(land).(fname).(fw), 1, 3);
+                        %             flux_t.(land).(time).(fname).(fw) = nanmean(flux_shift.(land).(fname).(fw)(:,:,1:3), 3);
+                        %         elseif strcmp(time, 'jja')
+                        %             flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,6:8), 3);
+                        %         elseif strcmp(time, 'mam')
+                        %             flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,3:5), 3);
+                        %         elseif strcmp(time, 'son')
+                        %             flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,9:11), 3);
+                        %         end
+                        %     end
+                        % else
+                        %     if strcmp(time, 'ann')
+                        %         flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname), 3);
+                        %     elseif strcmp(time, 'djf')
+                        %         flux_shift.(land).(fname) = circshift(flux_n.(land).(fname), 1, 3);
+                        %         flux_t.(land).(time).(fname) = nanmean(flux_shift.(land).(fname)(:,:,1:3), 3);
+                        %     elseif strcmp(time, 'jja')
+                        %         flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,6:8), 3);
+                        %     elseif strcmp(time, 'mam')
+                        %         flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,3:5), 3);
+                        %     elseif strcmp(time, 'son')
+                        %         flux_t.(land).(time).(fname) = nanmean(flux_n.(land).(fname)(:,:,9:11), 3);
+                        %     end
+                        % end
+                    % end
+                    rcae_t.(land).(time) = def_rcae(type, flux_t.(land).(time), vh_mon.(land), par);
+                end % time
+            end % land
 
-            printname_t = [foldername 'rcae_t.mat'];
+            printname = [foldername 'rcae_t.mat'];
         elseif strcmp(ftype, 'flux_z') % show lat x mon structure of RCAE
-            rcae_z = def_rcae(type, flux_z, par);
-            printname = [foldername 'rcae_z.mat'];
+            for l = {'lo', 'l', 'o'}; land = l{1};
+                rcae_z.(land) = def_rcae(type, flux_z.(land), vh_mon.(land), par);
+                printname = [foldername 'rcae_z.mat'];
+            end
         end
 
         % save rcae data
         if ~exist(foldername, 'dir')
             mkdir(foldername)
         end
-        if strcmp(ftype, 'flux')
-            save(printname, 'rcae', 'lat');
-            save(printname_t, 'rcae_t', 'lat');
-        elseif strcmp(ftype, 'flux_z')
-            save(printname, 'rcae_z', 'lat');
-        end
+        if strcmp(ftype, 'flux'); save(printname, 'rcae', 'lat');
+        elseif strcmp(ftype, 'flux_t'); save(printname, 'rcae_t', 'lat');
+        elseif strcmp(ftype, 'flux_z'); save(printname, 'rcae_z', 'lat'); end
     end
 
 end
@@ -785,7 +803,7 @@ function proc_ma_mon_lat(type, par)
 
 end
 
-function comp_flux(par)
+function comp_rad(par)
     root = '/project2/tas1/miyawaki/projects/002/data';
     don = load(sprintf('%s/raw/don/radiation_dynamics_climatology.mat', root));
     grid.don.lat = don.lat; grid.don.lon = don.lon;
@@ -862,11 +880,39 @@ function comp_flux(par)
     save(sprintf('%s/proc/comp/comp_z', root), 'don_z', 'ceres_z', 'erai_z', 'era5_z', 'grid', 'lat')
     save(sprintf('%s/proc/comp/comp_t', root), 'don_t', 'ceres_t', 'erai_t', 'era5_t', 'grid', 'lat')
 end
-function disp_global_flux(par)
+function ceres_rad(par)
+    root = '/project2/tas1/miyawaki/projects/002/data';
+    tmp = load(sprintf('%s/read/ceres/rad_2001_2009.mat', root)); ceres.rad = tmp.rad; clear tmp;
+    ceres.rad.tsr = ceres.rad.tsdr - ceres.rad.tsur; ceres.rad.net = ceres.rad.tsr - ceres.rad.ttr;
+    ceres.rad.swabs = ceres.rad.tsr - ceres.rad.ssr;
+    ceres.rad.str = -ceres.rad.str;
+    ceres.rad.ra = ceres.rad.tsr - ceres.rad.ssr + ceres.rad.str - ceres.rad.ttr;
+    tmp = load(sprintf('%s/read/ceres/grid.mat', root)); grid.ceres = tmp.grid; clear tmp;
+
+    lat = par.lat_std;
+
+    % take zonal and time averages
+    for d = {'rad'}; dtype = d{1};
+        for fn = fieldnames(ceres.(dtype))'; fname = fn{1};
+            ceres_z.(dtype).(fname) = interp1(grid.ceres.dim2.lat, squeeze(nanmean(ceres.(dtype).(fname), 1)), lat);
+            ceres_t.(dtype).(fname) = squeeze(nanmean(ceres.(dtype).(fname), 3));
+            ceres_t.(dtype).(fname) = permute(ceres_t.(dtype).(fname), [2 1]);
+            ceres_t.(dtype).(fname) = interp1(grid.ceres.dim2.lat, ceres_t.(dtype).(fname), lat);
+            ceres_t.(dtype).(fname) = permute(ceres_t.(dtype).(fname), [2 1]);
+            ceres_zt.(dtype).(fname) = squeeze(nanmean(ceres_z.(dtype).(fname), 2));
+        end
+    end
+
+    save(sprintf('%s/proc/comp/ceres_2001_2009.mat', root), 'ceres_z', 'ceres_t', 'ceres_zt', 'grid', 'lat')
+end
+
+function choose_disp(par)
+    % disp_global_rad(par)
+    disp_global_stf(par)
+end
+function disp_global_rad(par)
     root = '/project2/tas1/miyawaki/projects/002/data';
     load(sprintf('%s/proc/comp/comp_zt', root));
-    load(sprintf('%s/proc/comp/comp_z', root));
-    load(sprintf('%s/proc/comp/comp_t', root));
 
     % output global averages
     for fn = {'tsr', 'ssr', 'ttr', 'str'}; fname = fn{1};
@@ -875,15 +921,29 @@ function disp_global_flux(par)
         disp( sprintf('ERA5 %s is %g Wm^-2', upper(fname), nansum(cosd(lat).*era5_zt.rad.(fname))/nansum(cosd(lat))) );
     end
 end
+function disp_global_stf(par)
+    root = '/project2/tas1/miyawaki/projects/002/data';
+
+    for t = {'erai', 'era5'}; type = t{1};
+        load(sprintf('%s/proc/%s/%s/flux_zt.mat', root, type, par.lat_interp));
+
+        for l = {'lo', 'l', 'o'}; land = l{1}; disp(sprintf('---------- %s ----------',land));
+            % output global averages
+            for fn = {'slhf', 'sshf'}; fname = fn{1};
+                disp( sprintf('%s %s is %g Wm^-2', upper(type), upper(fname), nansum(cosd(lat).*flux_zt.(land).ann.(fname)')/nansum(cosd(lat))) );
+            end
+        end
+    end
+end
 
 % helper functions
-function rcae = def_rcae(type, flux, par)
+function rcae = def_rcae(type, flux, vh, par)
     for f = {'mse', 'dse'}; fw = f{1};
         % identify locations of RCE using threshold epsilon (ep)
         rcae.(fw).def = zeros(size(flux.r1.(fw)));
         rcae.(fw).def(abs(flux.r1.(fw)) < par.ep) = 1;
         % identify locations of RAE using threshold gamma (ga)
-        rcae.(fw).def(flux.r1.(fw) > par.ga) = -1;
+        rcae.(fw).def(flux.r1.mse > par.ga) = -1; % always use MSE for RAE
 
         % add additional criteria for RCE that P-E>0
         rcae.(fw).pe = zeros(size(flux.r1.(fw)));
@@ -892,7 +952,7 @@ function rcae = def_rcae(type, flux, par)
         elseif strcmp(type, 'gcm')
             rcae.(fw).pe(abs(flux.r1.(fw)) < par.ep & (flux.pr-flux.evspsbl>0)) = 1;
         end
-        rcae.(fw).pe(flux.r1.(fw) > par.ga) = -1;
+        rcae.(fw).pe(flux.r1.mse > par.ga) = -1;
 
         % add additional criteria for RCE that (P_ls - E)<<1
         rcae.(fw).cp = zeros(size(flux.r1.(fw)));
@@ -901,7 +961,36 @@ function rcae = def_rcae(type, flux, par)
         elseif strcmp(type, 'gcm')
             rcae.(fw).cp(abs(flux.r1.(fw)) < par.ep & abs((flux.pr-flux.prc)./flux.prc<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
         end
-        rcae.(fw).cp(flux.r1.(fw) > par.ga) = -1;
+        rcae.(fw).cp(flux.r1.mse > par.ga) = -1;
+
+        % add additional criteria for RCE that w500<0 (ascent)
+        rcae.(fw).w500 = zeros(size(flux.r1.(fw)));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).w500(abs(flux.r1.(fw)) < par.ep & flux.w500 < 0) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).w500(abs(flux.r1.(fw)) < par.ep & flux.w500 < 0) = 1; % note that evap is defined negative into atmosphere
+        end
+        rcae.(fw).w500(flux.r1.mse > par.ga) = -1;
+
+        if size(flux.r1.(fw), 1)==length(par.lat_std) & size(flux.r1.(fw), 2)==12 % this criteria only works for zonally and time averaged data because vh is only a function of lat
+            % add additional criteria for RCE that horizontal transport is weak
+            rcae.(fw).vh2 = zeros(size(flux.r1.(fw)));
+            if strcmp(type, 'era5') | strcmp(type, 'erai')
+                rcae.(fw).vh2(abs(flux.r1.(fw)) < par.ep & vh.(fw) < nanmax(nanmax(abs(vh.(fw))))/2 ) = 1;
+            elseif strcmp(type, 'gcm')
+                rcae.(fw).vh2(abs(flux.r1.(fw)) < par.ep & vh.(fw) < nanmax(nanmax(abs(vh.(fw))))/2 ) = 1;
+            end
+            rcae.(fw).vh2(flux.r1.mse > par.ga) = -1;
+
+            rcae.(fw).vh4 = zeros(size(flux.r1.(fw)));
+            if strcmp(type, 'era5') | strcmp(type, 'erai')
+                rcae.(fw).vh4(abs(flux.r1.(fw)) < par.ep & vh.(fw) < nanmax(nanmax(abs(vh.(fw))))/4 ) = 1;
+            elseif strcmp(type, 'gcm')
+                rcae.(fw).vh4(abs(flux.r1.(fw)) < par.ep & vh.(fw) < nanmax(nanmax(abs(vh.(fw))))/4 ) = 1;
+            end
+            rcae.(fw).vh4(flux.r1.mse > par.ga) = -1;
+        end
+
     end
 end
 function land_mask = remove_land(lat, lon, nt)

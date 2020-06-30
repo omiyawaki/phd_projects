@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-declare -a vars_gcm=("ta" "hur" "ps" "hurs" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
+declare -a vars_gcm=("wap" "ta" "hur" "ps" "hurs" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
 
 cwd=$(pwd) # save current working directory
 cd ../gcm_raw # switch to directory with raw data
@@ -41,9 +41,14 @@ for dirs in MPI-ESM-LR/; do # for MPI-ESM-LR only (test run)
                 sel30="${common}${yr_m30}01-${yr_end}12" # write file name with last 30 years
                 cdo mergetime $(ls ${vars}_*) $cwd/$dirs/$merge.nc # combine multiple files into one
                 cdo seldate,${yr_m30}-01,$((yr_end+1))-01 $cwd/$dirs/$merge.nc $cwd/$dirs/$sel30.nc # select last 30 years
-                cdo ymonmean $cwd/$dirs/$sel30.nc $cwd/$dirs$sel30.ymonmean.nc # take multi-year monthly climatology and save
+                cdo ymonmean $cwd/$dirs/$sel30.nc $cwd/$dirs/$sel30.ymonmean.nc # take multi-year monthly climatology and save
                 rm $cwd/$dirs/$merge.nc # delete temporary merged file
                 rm $cwd/$dirs/$sel30.nc # delete temporary 30 year file
+                if [ "$vars" = "wap" ]; then # we don't need full wap profile, just at 500 hPa
+                    new30="${sel30//wap/w500}"
+                    cdo sellevel,500 $cwd/$dirs/$sel30.ymonmean.nc $cwd/$dirs/$new30.ymonmean.nc # extract 500 hPa data only
+                    rm $cwd/$dirs/$sel30.ymonmean.nc # delete wap
+                fi
             fi
         fi
     done
