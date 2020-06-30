@@ -1,0 +1,195 @@
+% Created 2020-06-23 Tue 17:04
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Osamu Miyawaki}
+\date{June 24, 2020}
+\title{Research Notes}
+\hypersetup{
+ pdfauthor={Osamu Miyawaki},
+ pdftitle={Research Notes},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:org5b0c5a8}
+Action items from our previous meeting are:
+\begin{itemize}
+\item Understand why \(R_a\) is more negative in ERA reanalysis compared to Fig. 6.1 in \cite{hartmann_global_2016}.
+\begin{itemize}
+\item Confirm radiative energy flux terms in ERA with other sources:
+\begin{itemize}
+\item CERES
+\item Donohoe and Battisti (2013)
+\end{itemize}
+\end{itemize}
+\item Until the \(R_a\) problem in ERA is resolved, make progress using GCM data. We will start with MPI-ESM-LR since we intend to run simulations with ECHAM6 later on (also noted below).
+\item Analyze the vertical temperature profiles.
+\begin{itemize}
+\item Compare the RCE temperature profile to a moist adiabat.
+\begin{itemize}
+\item Do regions of RCE as diagnosed from the vertically-integrated MSE equation correspond to regions where the temperature profile is close to a moist adiabat?
+\item Is the temperature profile in midlatitude RCE moist adiabatic? Does separating land vs ocean make a difference?
+\end{itemize}
+\item Compare the RAE temperature profile to existing observational datasets.
+\begin{itemize}
+\item e.g., compare SH RAE to radiosonde data in Antarctica.
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\section{Methods}
+\label{sec:org3369ab4}
+\subsection{MPI-ESM-LR}
+\label{sec:org1696e63}
+I compute the monthly climatology of the energy fluxes and other variables of interest in MPI-ESM-LR over the last 30 years of the piControl simulation. I infer MSE flux divergence as the residual of atmospheric radiative cooling and surface turbulent fluxes.
+
+\subsection{Moist adiabat}
+\label{sec:orgbd50b9c}
+I calculate the moist adiabat using the 2 m temperature, relative humidity, and surface pressure data. MPI-ESM-LR is one of the few GCMs in the CMIP archive that does not report 2 m relative humidity, so I interpolate the 3D relative humidity data to surface pressure. Wherever the surface pressure exceeds 1000 hPa, I linearly extrapolate to surface pressure from the 1000 hPa value. I assume a dry adiabatic ascent conserving vapor mixing ratio (\(r_v\)) up to LCL. Above the LCL, I follow a simplified pseudoadiabat where \(r_v \ll 1\). I compare the difference between the GCM temperature (\(T\)) and the moist adiabatic temperature (\(T_m\)) at 3 pressure levels: 300, 400, and 500 hPa.
+
+\section{Results}
+\label{sec:org63cddb1}
+\subsection{Energy fluxes}
+\label{sec:org042757e}
+Atmospheric radiative cooling is also stronger in MPI-ESM-LR (gray line in Fig. \ref{fig:org5f2a2e6}) compared to \cite{hartmann_global_2016} (reprinted in Fig. \ref{fig:org60d8d59}). Correspondingly, MSE flux divergence as inferred as the residual of atmospheric radiative cooling and the surface turbulent fluxes in MPI-ESM-LR is shifted down (e.g., red line is around 50 Wm\(^{-2}\) at maximum, -120 Wm\(^{-2}\) at minimum) compared to that in Hartmann (70 Wm\(^{-2}\) at maximum, -90 Wm\(^{-2}\) at minimum). The inferred MSE flux divergence in MPI-ESM-LR integrates close to 0 at the poles (Fig. \ref{fig:org61089fa}), indicating that there is only a small net energy imbalance in the atmosphere. This suggests that the flux divergence in Hartmann's Fig. 6.1 does not integrate to 0.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/energy-fluxes.png}
+\caption{\label{fig:org5f2a2e6}Annually-averaged energy fluxes in the vertically-integrated MSE budget in MPI-ESM-LR. Blue is latent heat, orange is sensible heat, red is MSE flux divergence, and gray is atmospheric radiative cooling. MSE flux divergence is inferred as the residual of the other terms.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../../prospectus/figs/fig-6-1-hartmann.png}
+\caption{\label{fig:org60d8d59}Reprint of Fig. 6.1 from \cite{hartmann_global_2016} showing the energy flux terms in the vertically-integrated MSE budget. LE is latent heat, SH is sensible heat, \(\Delta F_a\) is MSE flux divergence, and \(R_a\) is atmospheric radiative cooling.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/mse-transport.png}
+\caption{\label{fig:org61089fa}Northward MSE transport in MPI-ESM-LR is close to 0 at the North Pole. The transport is calculated by integrating the MSE flux divergence, which is inferred as the residual of atmospheric radiative cooling and surface turbulent fluxes.}
+\end{figure}
+
+\subsection{Latitudinal and seasonal dependence of RCE and RAE regimes}
+\label{sec:orgd8a4e8b}
+The RCE and RAE regimes in MPI-ESM-LR are similar to those we saw with the ERA-Interim and ERA5 data (Fig. \ref{fig:org883ac76}). That is, there is a narrow band of RCE in the deep tropics, RCE that migrates seasonally in the midlatitudes, and RAE at the high latitudes.
+
+Regions of RCE as diagnosed from the MSE budget are generally regions where the temperature profile is close to a moist adiabat at 300 hPa (lighter shades in Fig. \ref{fig:org91f707c}). The first pattern we see in Fig. \ref{fig:org91f707c} is that the GCM temperature profile is cooler (blue) than the moist adiabat in the tropics, whereas the GCM temperature profile is warmer (red) than the moist adiabat in the extratropics. This is consistent with the expectation that atmospheric heat transport stabilizes the atmosphere (in the context of convection) in the extratropics. Because of this transition from a negative to positive difference, there exists a region at the edge of the tropics where the difference is 0 (white in Fig. \ref{fig:org91f707c}). The second feature we find in Fig. \ref{fig:org91f707c} is that there is thin band near the equator where the temperature profile is closer to the moist adiabat (lighter shade of blue) than at nearby latitudes away from the equator. The first feature is that the boundary that separates the region of moderate temperature difference from a moist adiabat (light red in Fig. \ref{fig:org91f707c}) from large temperature temperature difference (dark red) in the extratropics closely follows the boudary of RCE as diagnosed from the MSE budget (upper boundary of RCE in the NH and lower boundary of RCE in the SH in Fig. \ref{fig:org883ac76}). Namely, it captures the high seasonality of RCE in the NH (extent of region close to moist adiabat migrates poleward in the NH summer in Fig. \ref{fig:org91f707c}) and low seasonality of RCE in the SH (extent of region close to moist adiabat remains constant around -60 S yearround in Fig. \ref{fig:org91f707c}).
+
+When the temperature difference between the GCM profile and the moist adiabat is evaluated at different pressure levels (at 400 hPa in Fig. \ref{fig:org3778dc0} and at 500 hPa in Fig. \ref{fig:orgea41e15}), the overall magnitude of the difference changes, but the patterns described in the previous paragraph remain.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3/def/rcae_mon_lat.png}
+\caption{\label{fig:org883ac76}Regions of RCE in orange and RAE in blue in MPI-ESM-LR as diagnosed from the vertically-integrated MSE budget. Here, RCE is defined as where \(R_1 < 0.3\) and RAE as where \(R_2 < 0.3\).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/ma_diff/plev_300/lo/ma_diff_lat_lon.png}
+\caption{\label{fig:org91f707c}The temperature difference between the MPI-ESM-LR GCM temperature profile (\(T\)) and the moist adiabat (\(T_m\)) evaluated at 300 hPa.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/ma_diff/plev_400/lo/ma_diff_lat_lon.png}
+\caption{\label{fig:org3778dc0}Same as Fig. \ref{fig:org91f707c}, but the temperature difference evaluated at 400 hPa.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/ma_diff/plev_500/lo/ma_diff_lat_lon.png}
+\caption{\label{fig:orgea41e15}Same as Fig. \ref{fig:org91f707c}, but the temperature difference evaluated at 500 hPa.}
+\end{figure}
+
+\subsection{Temperature profiles of RCE and RAE}
+\label{sec:orgbae45fb}
+The annually-averaged tropical RCE temperature profile (red line in Fig. \ref{fig:org92b6827}) exhibits the highest surface temperature and the coldest tropopause temperature as expected. Midlatitude RCE is cooler and are similar between the NH (solid orange in Fig. \ref{fig:org92b6827}) and the SH (dashed orange). NH RAE (solid blue) exhibits a near-surface inversion, whereas SH RAE does not (dashed blue). This may be due to the various surface pressures over Antarctica. This should be investigated in more detail.
+
+The annually-averaged tropical RCE temperature profile closely follows a moist adiabat up to around 250 hPa (Fig. \ref{fig:org1181672}). The annually-averaged temperature profile in midlatitude RCE for both the NH (Fig. \ref{fig:orga98f121}) and the SH (Fig. \ref{fig:org5641dfd}) are more stable (warmer) than the moist adiabat. The midlatitude RCE temperature profiles in summer are closer to a moist adiabat in the NH (Fig. \ref{fig:orgd6d7b3e}) but not as clear in the SH (Fig. \ref{fig:orgfd57e48}). A possible explanation is that NH RCE is closer to a moist adiabat because there is more land, which absorbs more solar flux at the surface, leading to convection. However, looking at the temperature profile over land (Fig. \ref{fig:org90dd0cf}) and ocean (Fig. \ref{fig:orgfa5ae52}) shows that the ocean temperature is closer to moist adiabatic. This may be due to the availability of near-surface moisture over land vs ocean. This should be investigated in more detail.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3/def/lo/ann/temp/rcae_all.png}
+\caption{\label{fig:org92b6827}Annually-averaged temperature profiles over RCE and RAE in MPI-ESM-LR. Each regime is further categorized into the northern hemisphere (NH) and southern hemisphere (SH). RCE is further categorized into the tropics (defined to be within \(\pm 30^\circ\)) and the midlatitudes (defined to be outside \(30^\circ\)).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3/def/lo/ann/temp/rce_tp.png}
+\caption{\label{fig:org1181672}Annually-averaged tropical RCE temperature profile (solid) in MPI-ESM-LR and the corresponding moist adiabat (dotted).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3/def/lo/ann/temp/rce_nh.png}
+\caption{\label{fig:orga98f121}Annually-averaged midlatitude NH RCE temperature profile (solid) in MPI-ESM-LR and the corresponding moist adiabat (dotted).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3/def/lo/ann/temp/rce_sh.png}
+\caption{\label{fig:org5641dfd}Annually-averaged midlatitude SH RCE temperature profile (solid) in MPI-ESM-LR and the corresponding moist adiabat (dotted).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3/def/lo/jja/temp/rce_nh.png}
+\caption{\label{fig:orgd6d7b3e}Summer midlatitude NH RCE temperature profile (solid) in MPI-ESM-LR and the corresponding moist adiabat (dotted).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3/def/lo/djf/temp/rce_sh.png}
+\caption{\label{fig:orgfd57e48}Summer midlatitude SH RCE temperature profile (solid) in MPI-ESM-LR and the corresponding moist adiabat (dotted).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3/def/l/jja/temp/rce_nh.png}
+\caption{\label{fig:org90dd0cf}Summer midlatitude NH RCE temperature profile (solid) in MPI-ESM-LR and the corresponding moist adiabat (dotted) over land.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3/def/o/jja/temp/rce_nh.png}
+\caption{\label{fig:orgfa5ae52}Summer midlatitude NH RCE temperature profile (solid) in MPI-ESM-LR and the corresponding moist adiabat (dotted) over ocean.}
+\end{figure}
+
+\section{Next Steps}
+\label{sec:org87da570}
+\begin{itemize}
+\item Understand why there is no near-surface inversion in the SH RAE in MPI-ESM-LR.
+\begin{itemize}
+\item Try converting to z coordinate to see if averaging over a range of surface pressures is the issue.
+\end{itemize}
+\item Understand why the temperature profile in NH RCE is closer to a moist adiabat over the ocean than over land.
+\item Compare ERA5 energy fluxes to other sources to identify why the inferred MSE flux divergence is unphysical.
+\item Define RCAE regimes using the vertically-integrated DSE equation and study how it differs from the regimes defined from the MSE equation.
+\item Do a literature search on the other ways RCE may have been defined in past studies.
+\item Apply ongoing analysis to other GCMs in the CMIP5/6 archive.
+\item Understand what causes seasonality in RCE/RAE regimes by using ECHAM6 simulations with various mixed layer depths.
+\end{itemize}
+
+\bibliographystyle{apalike}
+\bibliography{../../../../../Sync/papers/references}
+\end{document}
