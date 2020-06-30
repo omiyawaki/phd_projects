@@ -1,4 +1,4 @@
-% Created 2020-06-16 Tue 14:04
+% Created 2020-06-29 Mon 09:45
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -29,7 +29,7 @@
 \maketitle
 
 \section{Introduction}
-\label{sec:org814162f}
+\label{sec:orgfe30580}
 Action items from our previous meeting are:
 \begin{itemize}
 \item Understand why \(R_a\) is more negative in ERA reanalysis compared to Fig. 6.1 in \cite{hartmann_global_2016}.
@@ -51,13 +51,13 @@ Action items from our previous meeting are:
 \end{itemize}
 
 \section{Methods}
-\label{sec:org73c8bf6}
+\label{sec:orge7a59bf}
 \subsection{ERA5}
-\label{sec:org72e4393}
+\label{sec:org9002395}
 I am now using the radiative fluxes and surface turbulent fluxes from the ERA5 reanalysis, which is the latest ERA data available. The main motivation for this is because ERA-Interim had an issue where the incoming solar flux at TOA was 4 Wm\(^{-2}\) too high. I compute the monthly climatology in ERA5 over 41 years spanning from 1979 through 2019.
 
 \subsection{MSE transport}
-\label{sec:org04d8332}
+\label{sec:org3eea186}
 The vertically-integrated MSE transport should ideally be 0 if integrated over the entire globe. To verify this, I calculate the northward transport by integrating the MSE flux divergence as follows:
 \begin{equation}
 F_a(\phi) = \int_{-\pi}^{\phi}\int_{0}^{2\pi} \!\nabla\cdot(\vec{v}h)a^2\cos{\phi'} \, \mathrm{d}\lambda \mathrm{d}\phi'
@@ -65,44 +65,47 @@ F_a(\phi) = \int_{-\pi}^{\phi}\int_{0}^{2\pi} \!\nabla\cdot(\vec{v}h)a^2\cos{\ph
 where \(a\) is the radius of the Earth, \(\lambda\) is longitude, \(\phi\) is latitude, \(\vec{v}\) is the horizontal wind vector, and \(h\) is MSE. The MSE flux divergence will be inferred as the residual of radiative cooling and surface turbulent fluxes.
 
 \subsection{Additional criteria for RCE}
-\label{sec:orgcb9caed}
+\label{sec:org8d810ee}
 An issue with the current definition of RCE is that it identifies a region near 45 N/S as RCE yearround because the MSE flux divergence is zero. These zeros are unavoidable because MSE flux divergence is positive in the tropics (MSE flux out of the tropics) and negative at high latitudes (MSE flux into the high latitudes). This motivates us to add another criteria for RCE.
 \subsubsection{\(P-E>0\)}
-\label{sec:org0ecf3d9}
+\label{sec:orgeb1a078}
 One way to diagnose convective activity is vertically-integrated moisture convergence. In the absence of moisture storage, this is equal to \(P-E\). Thus, we can consider \(P-E>0\) as a criteria for RCE.
 \subsubsection{\(P_{\mathrm{ls}}/P_{\mathrm{c}} \ll 1\)}
-\label{sec:org477a594}
+\label{sec:org8cf3576}
 A potential problem with \(P-E>\) is that in the midlatitudes, precipitation is dominated by large-scale slantwise ascent rather than vertical convection. Vertical convection is required to set a convective temperature profile. ERA5 records separately the precipitation that originates from the resolved flow (\(P_{\mathrm{ls}}\)) and parameterized convection (\(P_\mathrm{c}\)). Thus, we can consider \(P_{\mathrm{ls}}/P_\mathrm{c} \ll 1\) as a criteria for RCE.
 
 \section{Results}
-\label{sec:org657b9e5}
+\label{sec:orgcb2ee01}
 \subsection{Comparing ERA5 energy fluxes to Hartmann (2016)}
-\label{sec:orga424258}
-Radiative cooling remains large in ERA5 (gray line in Fig. \ref{fig:org50048af}) compared to that in \cite{hartmann_global_2016} (reprinted in Fig. \ref{fig:org2dc7b99}). For example, at 20 S, radiative cooling in ERA5 is \(-120\) Wm\(^{-2}\) compared to \(-90\) Wm\(^{-2}\) in Hartmann Fig. 6.1. The incoming solar flux at TOA in ERA5 was confirmed to be within 0.1 Wm\(^{-2}\) of the raw CERES data, so this discrepancy is not due to my processing of the ERA5 data. The globally-averaged net radiative imbalance at TOA in ERA5 is 0.48 Wm\(^{-2}\), indicating that the atmosphere/land/ocean system is accumulating energy (warming) over time. This is due to the greenhouse effect from increasing CO\(_2\) concentration and is a reasonable value. However, the globally-averaged net energy flux at the surface (positive going into the land/ocean, calculated as the sum of net SW, net LW, LH, and SH) in ERA5 is 6.21 Wm\(^{-2}\). This is unrealistically large compared to observations, which indicate that there is a net energy imbalance at the surface only around 0.9 Wm\(^{-2}\) \cite{trenberth_earths_2009}. Thus, the large (more negative) atmospheric radiative cooling in ERA5 appears to be due to unrealistic radiative fluxes at the surface.
+\label{sec:org3a05cf2}
+Radiative cooling remains large in ERA5 (gray line in Fig. \ref{fig:orga68063a}) compared to that in \cite{hartmann_global_2016} (reprinted in Fig. \ref{fig:org04cdb55}). For example, at 20 S, radiative cooling in ERA5 is \(-120\) Wm\(^{-2}\) compared to \(-90\) Wm\(^{-2}\) in Hartmann Fig. 6.1. The incoming solar flux at TOA in ERA5 was confirmed to be within 0.1 Wm\(^{-2}\) of the raw CERES data, so this discrepancy is not due to my processing of the ERA5 data. The globally-averaged net radiative imbalance at TOA in ERA5 is 0.48 Wm\(^{-2}\), indicating that the atmosphere/land/ocean system is accumulating energy (warming) over time. This is due to the greenhouse effect from increasing CO\(_2\) concentration and is a reasonable value. However, the globally-averaged net energy flux at the surface (positive going into the land/ocean, calculated as the sum of net SW, net LW, LH, and SH) in ERA5 is 6.21 Wm\(^{-2}\). This is unrealistically large compared to observations, which indicate that there is a net energy imbalance at the surface only around 0.9 Wm\(^{-2}\) \cite{trenberth_earths_2009}. Thus, the large (more negative) atmospheric radiative cooling in ERA5 appears to be due to unrealistic radiative fluxes at the surface.
 
-Since I am inferring the MSE flux divergence as the residual of radiative cooling and surface turbulent fluxes, the unrealistically large radiative cooling leads to an unrealistic MSE flux divergence profile as well (red line in Fig. \ref{fig:org50048af}). Specifically, the inferred MSE flux divergence in ERA5 is shifted down by about 30 Wm\(^{-2}\) (Fig. \ref{fig:org50048af}) compared to Hartmann Fig. 6.1 (Fig. \ref{fig:org2dc7b99}). Calculating the northward MSE transport by integrating the inferred MSE flux divergence in ERA5 shows that is indeed unrealistic, because it is significantly non-zero at the North Pole (Fig. \ref{fig:org16f4d65}).
+Since I am inferring the MSE flux divergence as the residual of radiative cooling and surface turbulent fluxes, the unrealistically large radiative cooling leads to an unrealistic MSE flux divergence profile as well (red line in Fig. \ref{fig:orga68063a}). Specifically, the inferred MSE flux divergence in ERA5 is shifted down by about 30 Wm\(^{-2}\) (Fig. \ref{fig:orga68063a}) compared to Hartmann Fig. 6.1 (Fig. \ref{fig:org04cdb55}). Calculating the northward MSE transport by integrating the inferred MSE flux divergence in ERA5 shows that is indeed unrealistic, because it is significantly non-zero at the North Pole (Fig. \ref{fig:org0e8e604}).
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../../figures/era5/std/era-fig-6-1-hartmann.png}
-\caption{\label{fig:org50048af}Annually-averaged energy fluxes in the vertically-integrated MSE budget. Blue is latent heat, orange is sensible heat, red is MSE flux divergence, and gray is atmospheric radiative cooling. MSE flux divergence is inferred as the residual of the other terms.}
+\caption{\label{fig:orga68063a}Annually-averaged energy fluxes in the vertically-integrated MSE budget. Blue is latent heat, orange is sensible heat, red is MSE flux divergence, and gray is atmospheric radiative cooling. MSE flux divergence is inferred as the residual of the other terms.}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../../../prospectus/figs/fig-6-1-hartmann.png}
-\caption{\label{fig:org2dc7b99}Reprint of Fig. 6.1 from \cite{hartmann_global_2016} showing the energy flux terms in the vertically-integrated MSE budget. LE is latent heat, SH is sensible heat, \(\Delta F_a\) is MSE flux divergence, and \(R_a\) is atmospheric radiative cooling.}
+\caption{\label{fig:org04cdb55}Reprint of Fig. 6.1 from \cite{hartmann_global_2016} showing the energy flux terms in the vertically-integrated MSE budget. LE is latent heat, SH is sensible heat, \(\Delta F_a\) is MSE flux divergence, and \(R_a\) is atmospheric radiative cooling.}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../../figures/era5/std/vh.png}
-\caption{\label{fig:org16f4d65}Northward MSE transport in ERA5 is not 0 at the North Pole. The transport is calculated by integrating the MSE flux divergence, which is inferred as the residual of atmospheric radiative cooling and surface turbulent fluxes.}
+\caption{\label{fig:org0e8e604}Northward MSE transport in ERA5 is not 0 at the North Pole. The transport is calculated by integrating the MSE flux divergence, which is inferred as the residual of atmospheric radiative cooling and surface turbulent fluxes.}
 \end{figure}
+
+\subsection{RCE and RAE regimes in ERA5}
+\label{sec:org4a486a4}
 
 
 \section{Next Steps}
-\label{sec:org41380c3}
+\label{sec:orgc196c7a}
 
 \bibliographystyle{apalike}
 \bibliography{../../../../../Sync/Papers/references}
