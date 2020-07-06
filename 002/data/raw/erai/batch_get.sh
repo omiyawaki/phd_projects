@@ -1,6 +1,6 @@
 #!/bin/sh
 
-declare -a vtypes=("rad" "pe" "stf" "temp") # variable type
+declare -a vtypes=("rad" "pe" "stf" "temp" "srfc" "zg" "w500") # variable type
 yr_start=2000
 yr_end=2012
 

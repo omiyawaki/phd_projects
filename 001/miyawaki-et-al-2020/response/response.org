@@ -1,0 +1,4 @@
+#+TITLE:
+#+AUTHOR: Osamu Miyawaki
+#+DATE: July 6, 2020
+#+OPTIONS: author:nil date:nil toc:nil

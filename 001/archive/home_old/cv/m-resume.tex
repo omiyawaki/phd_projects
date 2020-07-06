@@ -1,0 +1,73 @@
+%D \module
+
+\setuppapersize[letter][letter]
+
+\setuplayout[backspace=1.5in,width=5.5in,margin=2.5em]
+
+\setuppagenumbering[location=footer]
+
+\setupinmargin[align=right]
+
+\setupitemize[1][paragraph,atmargin,unpacked][symbol=n,indentnext=no,]
+\setupitemize[2][symbol=a][indentnext=no]
+%\setupitemize[3][symbol=a][indentnext=no]
+
+\definehead[CVHEAD][subject]
+\setuphead[subject][style=\bfa,after={\blank[medium]}]
+
+\definehead[SUBCVHEAD][subsubject]
+\setuphead[subsubject][style=\bf,after={\blank[small]},before={\blank[small]}]
+
+\defineparagraphs[ContactColumns][n=2]
+\setupparagraphs[ContactColumns][each][rule=off,distance=0pt]
+
+\define[2]\CVTITLE{\midaligned{\framed[frame=off,align=middle]
+                                {{\bfa  
+#1}\blank[medium]{\tfb#2}}}\blank[small]}
+
+\define[1]\CVEMAIL{{\bf Email:}{ \type{#1}}\blank}
+
+% \framed is good for testing or fine-tuning \CONTACT
+\define[2]\CONTACT{%\framed[frame=off,width=broad,align=right,strut=no,
+                     %offset=none,height=fit]
+                     %{%
+                    \startalignment[middle]
+                    \startContactColumns
+                     {\bf Office:}\crlf
+                     {#1}
+                     \ContactColumns
+                     {\bf Home:}\crlf
+                     {#2}
+                    \stopContactColumns
+                    \stopalignment}
+                    %}
+
+% \framed is used to prevent pagebreaks within an \<>ITEM<>
+
+\define[5]\EDUITEM{\framed[frame=off,align=right,width=broad]
+                     {{\bf #1}\inmargin{\it #2}\ (#3).\crlf
+                     {\bf #4}, #5.\blank[small]}}
+\define[6]\EDUITEMMA{\framed[frame=off,align=right,width=broad]
+                     {{\bf #1}\inmargin{\it #2}\ (#3).\crlf
+                     {\bf #4}, #5.\crlf
+                     {\bf Thesis:} {\em #6}.
+                     \blank[small]}}
+\define[7]\EDUITEMPHD{\framed[frame=off,align=right,width=broad]
+                     {{\bf #1}\inmargin{\it #2}\ (#3).\crlf
+                     {\bf #4}, #5.\crlf
+                     {\bf Dissertation:} {\em #6}.\crlf
+                     {\bf Advisor:} #7.
+                     \blank[small]}}
+
+\define[4]\ACADITEM{\framed[frame=off,align=right,width=broad]
+                     {{\bf Location:}\inmargin{\it #1}\ #2.\crlf
+                     {\bf Position:} #3.\crlf
+                     {\bf Responsibilities:} #4.
+                     \blank[small]}}
+
+\define[2]\GRANTITEM{\framed[frame=off,align=right,width=broad]
+                     {\inmargin{\it #1} #2.}}
+
+\setupbodyfont[11pt] % 11pt seems pretty standard for cv's
+
+\endinput

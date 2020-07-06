@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-declare -a vars_gcm=("wap" "ta" "hur" "ps" "hurs" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
+declare -a vars_gcm=("va" "zg" "wap" "ta" "hur" "ps" "hurs" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
 
 cwd=$(pwd) # save current working directory
 cd ../gcm_raw # switch to directory with raw data

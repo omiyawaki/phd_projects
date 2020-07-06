@@ -20,11 +20,13 @@ par.gcm.vars.srfc = {'ps', 'tas', 'hurs'}; % surface variables to read (sp = sur
 par.ceres.vars.rad = {'sfc_net_sw_all_mon', 'sfc_net_lw_all_mon', 'toa_sw_all_mon', 'solar_mon', 'toa_lw_all_mon'}; % radiation variables to read
 par.ceres.vars.rad_txt = {'ssr', 'str', 'tsur', 'tsdr', 'ttr'}; % radiation variables to read
 gcm_info
+% standard z coordinate for interpolation
+par.z = [0:500:20e3]';
 % useful constants
 par.cpd = 1005.7; par.Rd = 287; par.L = 2.501e6; par.g = 9.81;
 
 %% call functions
-type='ceres';
+type='era5';
 run_func(type, par);
 for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
     type='gcm';
@@ -33,11 +35,12 @@ end
 
 %% define functions
 function run_func(type, par)
-    % read_grid(type, par) % grid, i.e. lon, lat, plev
-    read_rad(type, par) % radiation fluxes
+    read_grid(type, par) % grid, i.e. lon, lat, plev
+    % read_rad(type, par) % radiation fluxes
     % read_pe(type, par) % hydrological variables, e.g. precip, evap
     % read_stf(type, par) % surface turbulent fluxes
     % read_srfc(type, par) % other surface variables, e.g. 2-m temperature, surface pressure
+    make_tempz(type, par) % convert temp from plev to z
 end
 function read_grid(type, par)
     % read data net SW and LW radiation data downloaded from Era5
@@ -47,6 +50,7 @@ function read_grid(type, par)
         grid.dim2.lat = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s.ymonmean.nc', type, type, par.(type).yr_span), 'latitude'));
         grid.dim3 = grid.dim2;
         grid.dim3.plev =  double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span), 'level'));
+        grid.dim3.z = par.z;
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type), 'grid')
     elseif strcmp(type, 'gcm')
         file.dim2=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.nc', par.model, 'tas', par.model));
@@ -58,6 +62,7 @@ function read_grid(type, par)
         grid.dim2.lat=ncread(fullpath.dim2, 'lat');
         grid.dim3.lat=ncread(fullpath.dim3, 'lat');
         grid.dim3.plev=ncread(fullpath.dim3, 'plev');
+        grid.dim3.z = par.z;
         newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename='grid.mat';
@@ -198,7 +203,6 @@ function read_srfc(type, par)
                     hur=permute(hur, [2 1 3 4]); % bring lat to first dim
                     if ~isequal(grid.dim2.lat, grid.dim3.lat); hur=interp1(grid.dim3.lat, hur, grid.dim2.lat); end;
                     hur=permute(hur, [3 2 1 4]); % bring plev to first dim
-                    size(hur)
                     pb=CmdLineProgressBar("Calculating hurs..."); % track progress of this loop
                     for id_lon=1:length(grid.dim2.lon)
                         pb.print(id_lon, length(grid.dim2.lon));
@@ -213,6 +217,25 @@ function read_srfc(type, par)
                 end
             else
                 srfc.(var)=ncread(fullpath, var);
+
+                if strcmp(var, 'ps'); % create surface geopotential height using surface pressure data
+                    prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+                    load(sprintf('%s/grid.mat', prefix)); % read grid data
+                    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, 'zg', par.model));
+                    fullpath=sprintf('%s/%s', file.folder, file.name);
+                    zg = ncread(fullpath, 'zg');
+                    zg = permute(zg, [3 1 2 4]);
+                    pb=CmdLineProgressBar("Calculating zs..."); % track progress of this loop
+                    for lo = 1:length(grid.dim2.lon)
+                        pb.print(lo, length(grid.dim2.lon));
+                        for la = 1:length(grid.dim2.lat)
+                            for mo = 1:12
+                                srfc.zs(lo,la,mo) = interp1(grid.dim3.plev, zg(:,lo,la,mo), srfc.ps(lo,la,mo), 'linear', 'extrap');
+                            end
+                        end
+                    end
+                end
+
             end
         end
         newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model);
@@ -220,4 +243,50 @@ function read_srfc(type, par)
         filename='srfc.mat';
         save(sprintf('%s/%s', newdir, filename), 'srfc', 'srfc_vars');
     end
+end
+function make_tempz(type, par)
+    if any(strcmp(type, {'era5', 'erai'}))
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        temp = ncread(fullpath, 't');
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, 'z');
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        var = 'ta';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        temp = ncread(fullpath, var);
+        var = 'zg';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, var);
+    end
+
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+
+    temp = permute(temp, [3 1 2 4]);
+    zg = permute(zg, [3 1 2 4]);
+
+    pb=CmdLineProgressBar("Calculating tempz..."); % track progress of this loop
+    for lo = 1:length(grid.dim3.lon)
+        pb.print(lo, length(grid.dim3.lon));
+        for la = 1:length(grid.dim3.lat)
+            for mo = 1:12
+                tempz(:,lo,la,mo) = interp1(zg(:,lo,la,mo), temp(:,lo,la,mo), grid.dim3.z);
+            end
+        end
+    end
+
+    tempz = permute(tempz, [2 3 1 4]); % reorder to lon x lat x z x mon
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='tempz.mat';
+    save(sprintf('%s/%s', newdir, filename), 'tempz', '-v7.3');
 end

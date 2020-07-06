@@ -1,0 +1,196 @@
+\setuppapersize[letter][letter]
+
+\setuplayout[backspace=1.5in,width=5.5in,margin=2.5em]
+
+\setuppagenumbering[location=footer]
+
+\setupinmargin[align=right]
+
+\setupitemize[1][paragraph,atmargin,unpacked][symbol=n,indentnext=no,]
+\setupitemize[2][symbol=a][indentnext=no]
+%\setupitemize[3][symbol=a][indentnext=no]
+
+\definehead[CVHEAD][subject]
+\setuphead[subject][style=\bfa,after={\blank[medium]}]
+
+\definehead[SUBCVHEAD][subsubject]
+\setuphead[subsubject][style=\bf,after={\blank[small]},before={\blank[small]}]
+
+\defineparagraphs[ContactColumns][n=2]
+\setupparagraphs[ContactColumns][each][rule=off,distance=0pt]
+
+\define[2]\CVTITLE{\midaligned{\framed[frame=off,align=middle]
+                                {{\bfa  
+#1}\blank[medium]{\tfb#2}}}\blank[small]}
+
+\define[1]\CVEMAIL{{\bf Email:}{ \type{#1}}\blank}
+
+% \framed is good for testing or fine-tuning \CONTACT
+\define[2]\CONTACT{%\framed[frame=off,width=broad,align=right,strut=no,
+                     %offset=none,height=fit]
+                     %{%
+                    \startalignment[middle]
+                    \startContactColumns
+                     {\bf Office:}\crlf
+                     {#1}
+                     \ContactColumns
+                     {\bf Home:}\crlf
+                     {#2}
+                    \stopContactColumns
+                    \stopalignment}
+                    %}
+
+% \framed is used to prevent pagebreaks within an \<>ITEM<>
+
+\define[5]\EDUITEM{\framed[frame=off,align=right,width=broad]
+                     {{\bf #1}\inmargin{\it #2}\ (#3).\crlf
+                     {\bf #4}, #5.\blank[small]}}
+\define[6]\EDUITEMMA{\framed[frame=off,align=right,width=broad]
+                     {{\bf #1}\inmargin{\it #2}\ (#3).\crlf
+                     {\bf #4}, #5.\crlf
+
+\starttext
+
+\CVTITLE{Curriculum Vitae}{Idris Samawi Hamid}
+
+\CONTACT{Department of \TeX\ Studies\crlf
+          % 221 Eddy Hall\crlf
+          \TeX\ State University\crlf
+          Fort Collins, CO 80523 \crlf USA\crlf
+          (970) 491-2406/6315
+         }
+         {1234 \TeX\ Road\crlf
+          \TeX{}ville, CO 80555 \crlf USA\crlf
+          (800) TEX-5555\crlf}
+
+\CVEMAIL{ishamid  texstate.edu}
+
+\CVHEAD{Education}
+
+\EDUITEMPHD
+     {PhD}
+     {2007}
+     {\TeX\ Studies}
+     {\TeX\ University}
+     {Amherst, NY}
+     {Arabic Critical Editions}
+     {\TeX\ Distinguished Professor Hans Hagen}
+
+\EDUITEMMA
+     {MA}
+     {1996}
+     {Physics}
+     {University at Buffalo, State University of New York}
+     {Amherst, NY}
+     {G\"{o}del's Universe, the Mach Principle, and the Cosmological  
+Principle:
+     Considerations for the Philosophy of Physics}
+
+\EDUITEM{BSc}{1990}{Physics; minor, Mathematics}{Georgia State
+University}{Atlanta, GA}
+
+%% positions
+% academic positions
+\CVHEAD{Academic Positions}
+
+\ACADITEM
+     {2001--2007}
+     {\TeX\ State University, \TeX{}ville, CO}
+     {Associate Professor}
+     {Instruction and research, especially
+     the development of upper-level courses in \TeX\ and \Context}
+
+\CVHEAD{Areas of Specialization}
+
+Metaphysics of \TeX, Islamic Philosophy, Philosophy of Mysticism,
+Philosophy of Science.
+
+\CVHEAD{Philosophic Interests}
+
+\TeX\ Logic, Category Theory, Chinese Philosophy.
+
+% other skills
+
+\CVHEAD{Languages and Technical Skills}
+
+Arabic, French, and the professional computer typesetting language
+\TeX, including the major dialects \LaTeX, \Context, as well as
+the minor dialects Arab\TeX (for typesetting in Arabic script) and
+EDMAC (for critical edition typesetting). I am also developing a
+new Arabic-script system for scholarly typesetting, {\sc Oriental
+\TeX}, based upon \TeX\ and \Context.
+
+% patents
+
+\CVHEAD{Publications}
+
+\SUBCVHEAD{Books Authored}
+
+\startitemize
+
+\item Idris Samawi Hamid, 2006, {\it The Cosmology of \TeX}, \TeX\
+University Press, 240 pp.
+
+\stopitemize
+
+\SUBCVHEAD{Articles}
+
+\startitemize
+
+\item Idris Samawi Hamid,  2005, {\it Installing Expert Fonts:
+Minion Pro}. In {\it MAPS}, Issue~33; pp.~19--35. Published by the
+Nederlandstalige \TEX\ Gebruikersgroep (NTG), Netherlands.
+
+\stopitemize
+
+\CVHEAD{Grants}
+
+\GRANTITEM{2006--2007} {{\it Oriental \TeX: A New Direction in
+Scholarly Complex-Script Typesetting}; Academic Enrichment
+Program, College of Liberal Arts, CSU; \$42,927}
+
+\CVHEAD{Presentations}
+
+\startitemize
+     \item 2007, ``Oriental \TeX'', 1\high{st} Annual \Context\ Conference,
+     Epen, the Netherlands.
+
+\stopitemize
+
+\CVHEAD{Service}
+
+\SUBCVHEAD{Profession}
+
+\startitemize
+
+\item The \TeX\ Users Group.
+
+\stopitemize
+
+\SUBCVHEAD{Department}
+
+\startitemize
+     \item Graduate Committee,  2002--2005, 2006--2007.
+     \item Advisory Committee,  2005--2006.
+\stopitemize
+
+\SUBCVHEAD{College}
+
+\startitemize
+     \item \TeX\ Studies Committee, 2001--2006.
+\stopitemize
+
+\SUBCVHEAD{University}
+
+\startitemize
+     \item Faculty Council, Fall 2005.
+\stopitemize
+
+\CVHEAD{Thesis/Dissertation Direction}
+
+\startitemize
+     \item  Joseph Ramagli (MA), ``\TeX\ Theology in Context'',
+     in progress.
+\stopitemize
+
+\stoptext

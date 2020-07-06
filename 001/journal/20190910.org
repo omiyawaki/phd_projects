@@ -1,0 +1,16 @@
+* DONE Change TFREEZE
+* TODO Can we change L from a constant to L(T) in RAS?
+* DONE Make schematic (a la expo talk) to illustrate hypothesis in a simple way
+	- i.e., if L changes from condensation to sublimation at freezing, kink would be expected from shift in freezing level
+	- likewise for entrainment - if tokioka parameter is altered, what do we expect?
+* DONE prioritize looking at cli on CMIP models
+	- in particular look at models with a large kink
+* TODO look at entrainment and freezing separately in temperature coordinates
+* DONE contact doug about quals: set a date for written exam
+	- brainstorm ideas for the prospectus: set an internal deadline to complete a draft by mid-October
+	- revise prospectus with tiffany and complete by end of October
+	- take written exam by mid November (before thanksgiving)
+	- oral exam in mid december
+* maybe contact zhihong about am2 abrupt4xco2?
+* look at gfdl am3 results
+

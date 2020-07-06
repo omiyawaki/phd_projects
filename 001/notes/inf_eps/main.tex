@@ -1,0 +1,109 @@
+\documentclass{article}
+
+\usepackage{natbib}
+\bibliographystyle{humannat}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amsfonts,amssymb}
+
+\title{Notes on the bulk-plume entraining adiabat model\\ and its use in inferring entrainment from CMIP data}
+\author{Osamu Miyawaki}
+\date{Feb 4, 2020}
+
+\begin{document}
+\maketitle
+\section{Introduction}
+The goal of this model is to incorporate the effect of lateral entrainment in the moist adiabatic lapse rate in a simple way. To do this, I use the zero-buoyancy bulk-plume model developed by \citet{singh-ogorman-2013}. The big-picture strategy is to solve for $\Gamma$ in the equation of the vertical derivative of the saturated moist static energy $h^*$,
+\begin{equation}
+\frac{\partial h^*}{\partial z} = - c_p \Gamma + g + L \frac{\partial q^*}{\partial z} \, .
+\end{equation}
+Instead of assuming that $h^*$ is constant with height as is the case for the non-entraining moist adiabat, we will consider the effect that entrainment has on the vertical derivative of $h^*$.
+
+\section{Derivation}
+We begin with the conservation of mass of a convecting plume in the $z$ coordinate.
+\begin{equation}
+\label{eqmass}
+\frac{\partial M}{\partial z} = e - d \, .
+\end{equation}
+Here, $M$ is the cumulus mass flux in $\mathrm{kg\,m^{-2}\,s^{-1}}$ and $e$ and $d$ are entrainment and detrainment rates in $\mathrm{kg\,m^{-3}\,s^{-1}}$. Because convection and subsidence are each represented by single columns of equal area, the conservation of mass of a subsiding plume is mathematically identical:
+\begin{equation}
+-\frac{\partial M}{\partial z} = d - e \, .
+\end{equation}
+Treating $h^*$ as a passive tracer, we can write its conservation equation as
+\begin{equation}
+\frac{\partial Mh^*}{\partial z} = eh - dh^* \, .
+\end{equation}
+Distribute the vertical derivative:
+\begin{equation}
+M\frac{\partial h^*}{\partial z} + h^*\frac{\partial M}{\partial z} = eh - dh^* \, .
+\end{equation}
+Substitute eq.~\ref{eqmass} to get an equation for $\partial_z h^*$.
+\begin{align}
+M\frac{\partial h^*}{\partial z} + h^*(e - d) &= eh - dh^* \, . \\
+\frac{\partial h^*}{\partial z} &= \frac{e}{M}(h - h^*) \, . 
+\end{align}
+Here, we assume that the temperature of the convecting plume is the same as that of the environment at all altitudes (zero-buoyancy approximation). Then,
+\begin{equation}
+\frac{\partial h^*}{\partial z} = \frac{eL}{M}(q - q^*) \, .
+\end{equation}
+We write this equation in terms of pressure by applying the chain rule for the vertical derivative and assuming hydrostatic balance. 
+\begin{equation}
+-\frac{\partial h^*}{\partial p} = \frac{eL}{\rho gM}(q - q^*) \, . 
+\end{equation}
+Define fractional entrainment rate\footnote{The fractional entrainment in $z$ coordinates is defined as $\epsilon = \frac{e}{M}$. Thus, to convert between $\tilde{\epsilon}$ and $\epsilon$, we multiply/divide by the factor $\rho g$.} $\tilde{\epsilon}$ as
+\begin{equation}
+\tilde{\epsilon} = \frac{e}{\rho gM} \, ,
+\end{equation}
+which has units of $\mathrm{Pa^{-1}}$. Rewrite $q$ using relative humidity $\mathcal{H}$.
+\begin{equation}
+\label{eqh1}
+-\frac{\partial h^*}{\partial p} = \tilde{\epsilon}Lq^*(\mathcal{H} - 1) \, .
+\end{equation}
+
+Next, we obtain a second equation for $\partial_p h^*$ by taking the vertical derivative of $h^*$:
+\begin{equation}
+\label{eqh3}
+\frac{\partial h^*}{\partial p} = c_p\tilde{\Gamma} + g\frac{\partial z}{\partial p} + L\frac{\partial q^*}{\partial p} \, . 
+\end{equation}
+We use the Clausius-Clapeyron relation to calculate the vertical derivative of $q^*$. Starting with the equation in terms of saturation partial pressure $e^*$,
+\begin{equation}
+\frac{1}{e^*}\frac{\mathrm{d}e^*}{\mathrm{d}T} = \frac{L}{R_vT^2} \, .
+\end{equation}
+We are particularly interested in the vertical changes of $q^*$:
+\begin{equation}
+\frac{1}{e^*}\frac{\partial e^*}{\partial p} = \frac{L\tilde{\Gamma}}{R_vT^2} \, ,
+\end{equation}
+where $\tilde{\Gamma} = \partial_p T$, the lapse rate in pressure coordinates. We convert partial pressure to specific humidity $q^*$ via the definition of specific humidity.
+\begin{equation}
+q^* = \frac{\rho_v^*}{\rho} = \frac{\frac{e}{R_vT}}{\frac{p}{R_dT}} = \frac{R_d}{R_v}\frac{e}{p} \, .
+\end{equation}
+Above, we ignored the virtual effect of water vapor on the gas constant of air for simplicity.
+\begin{align}
+\frac{1}{q^*p}\frac{\partial q^*p}{\partial p} &= \frac{L\tilde{\Gamma}}{R_vT^2} \, . \\
+\frac{1}{q^*}\frac{\partial q^*}{\partial p} + \frac{1}{p} &= \frac{L\tilde{\Gamma}}{R_vT^2} \, . \\
+\tilde{\gamma} \equiv \frac{1}{q^*}\frac{\partial q^*}{\partial p} &= \frac{L\tilde{\Gamma}}{R_vT^2} - \frac{1}{p} \, .
+\end{align}
+Above, we introduced a variable $\tilde{\gamma}$ to refer to the fractional lapse rate of saturation specific humidity. Using this notation and hydrostatic balance, we can rewrite eq.~\ref{eqh3}.
+\begin{align}
+\label{eqh4}
+\frac{\partial h^*}{\partial p} &= c_p\tilde{\Gamma} - \frac{1}{\rho} + \tilde{\gamma} Lq^* \, . \\
+\label{eqh5}
+&= c_p\tilde{\Gamma} - \frac{R_dT}{p} + \tilde{\gamma} Lq^* \, .
+\end{align}
+
+Using eq.~\ref{eqh1} and \ref{eqh5}, we obtain an expression for the lapse rate of an entraining moist adiabat.
+\begin{equation}
+\label{eqentadb}
+\tilde{\Gamma} = \frac{R_dT}{c_pp} \, \frac{1 + \frac{Lq^*}{R_dT}\left( 1 + \tilde{\epsilon}p(1-\mathcal{H}) \right)}{1 + \frac{L^2q^*}{c_pR_vT^2}} = \tilde{\Gamma}_d \, \frac{1 + \frac{Lq^*}{R_dT}\left( 1 + \tilde{\epsilon}p(1-\mathcal{H}) \right)}{1 + \frac{L^2q^*}{c_pR_vT^2}} \, .
+\end{equation}
+Above, $\Gamma_d$ is the dry adiabatic lapse rate in pressure coordinates. In the limiting case of zero entrainment ($\tilde{\epsilon}=0$), this lapse rate converges to a saturated pseudoadiabat.
+
+\section{Inferring entrainment in CMIP models}
+We can solve eq.~\ref{eqentadb} for entrainment and calculate it for any CMIP model using the vertical profiles of temperature and relative humidity.
+\begin{equation}
+\tilde{\epsilon} = \frac{c_p \tilde{\Gamma} + Lq^*\tilde{\gamma} - \frac{R_dT}{p} }{Lq^* (1 - \mathcal{H})}
+\end{equation}
+
+\bibliography{biblio}
+
+\end{document}

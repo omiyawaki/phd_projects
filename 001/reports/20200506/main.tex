@@ -1,0 +1,107 @@
+\documentclass{article}
+
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{graphicx}
+
+\title{Research Update}
+\author{Osamu Miyawaki}
+\date{May 7, 2020}
+
+\begin{document}
+\maketitle
+
+\section{Background}
+The moist adiabat overpredicts the tropical upper tropospheric warming response across the model hierarchy (Figure~\ref{fig:spread}). The first half of our paper explores why overprediction varies across the hierarchy. Important differences in the configuration of the models across the hierarchy include:
+\begin{itemize}
+    \item Type of forcing (increase CO$_2$ vs prescribed SST warming)
+    \item Surface boundary condition (no dynamic ocean for AMIP/aquaplanet, no land for aquaplanet)
+\end{itemize}
+One of the consequences of the zonally-symmetric boundary condition of the aquaplanet is that the large-scale circulation is also zonally-symmetric. That is, it lacks regions of mean descent in the deep tropics.  Since the moist adiabat is a model of a convecting parcel, we expect overprediction to be greater over regions of mean descent. This may explain why the aqua4K response has the smallest mean overprediction in the hierarchy. 
+
+Abrupt4$\times$CO$_2$ is unique among the models in (Figure~\ref{fig:spread}) as it is forced with an increasing CO$_2$ concentration and has fully interactive surface temperatures. The direct effect of CO$_2$ may contribute to the rather large mean overprediction of the abrupt4$\times$CO$_2$ response because a previous study found that the direct effect of CO$_2$ on tropospheric warming is mostly uniform with height \cite{he-soden-2015}. This effect is not predicted by the moist adiabat, which does not consider radiation when calculating the temperature profile.
+
+Motivated by the above reasons, we quantify the existence of non-convective regions and the direct effect of CO$_2$ on overprediction.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{/home/miyawaki/public_html/projects/proj1/p/cmip5/quad_all/synth_cmip_amp_uni_10/eps_850_200/pc_type_op_notbox_10.png}
+    \caption{Intermodel spread of overprediction across the model hierarchy. For each model configuration, black dots denote overprediction of individual models, the red horizontal bar is the mean, the red vertical bar is the standard error of the mean, and the blue vertical bar is the standard deviation.}
+    \label{fig:spread}
+\end{figure}
+
+
+\section{Effect of CO$_2$ and non-convective regions on overprediction}
+
+To identify regions of mean strong ascent, we use the 75th percentile of $-\omega_{500}$ following \cite{sherwood-et-al-2014}. The contribution of overprediction from regions outside of strong mean ascent can then be quantified as the difference between overprediction averaged everywhere between $10^\circ$N/S and overprediction averaged only over regions of strong mean ascent. This difference is calculated for each model separately and plotted in Figure~\ref{fig:contrib-ascent}. As expected, regions outside of strong mean ascent increases the overprediction for models that have zonally-asymmetric circulations (abrupt4$\times$CO$_2$, amipFuture, amip4K). A one-sample t-test for a null-hypothesis that the direct effect of CO$_2$ is zero gives p-values of 0.0000 for abrupt4$\times$CO$_2$, 0.0007 for amipFuture, and 0.0146 for amip4K. Thus, the increase in overprediction is statistically significant using the conventional p-value threshold of 0.05. The negligible effect of filtering by strong mean ascent in the aquaplanet response suggests that weakly-convecting regions (i.e., 50th to 75th percentile $-\omega_{500}$) do not strongly contribute to overprediction.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{/home/miyawaki/public_html/projects/proj1/p/cmip5/quad_all/synth_cmip_amp_idxcomp_uni_10/eps_850_200/pc_type_op_notbox_ascent_10.png}
+    \caption{Contribution of overprediction from regions outside of strong mean ascent. This contribution is quantified as the difference between overprediction averaged everywhere between $10^\circ$N/S and overprediction averaged only over regions of strong mean ascent.}
+    \label{fig:contrib-ascent}
+\end{figure}
+
+To include the direct effect of CO$_2$ in the 3 simpler model configurations, we use the 4$\times$CO$_2$ runs of the AMIP and aquaplanet configurations and add them to their corresponding SST responses. The contribution of overprediction from the direct effect of CO$_2$ can then be quantified as the difference between overprediction of models run with both the SST warming and 4$\times$CO$_2$ response and overprediction of models run with only the SSt warming. We find that the direct effect of CO$_2$ indeed increases the overprediction (Figure~\ref{fig:contrib-co2}). The mean increase in overprediction due to CO$_2$ is 3.8\%. This increase is statistically significant with p-values of 0.0044 for amipFuture, 0.0043 for amip4K, and 0.0228 for aqua4K.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{/home/miyawaki/public_html/projects/proj1/p/cmip5/quad_all/synth_cmip_amp_fullcomp_uni_10/eps_850_200/pc_type_op_notbox_co2_10.png}
+    \caption{Contribution of overprediction from the direct effect of CO$_2$. This contribution is quantified as the difference between overprediction of models run with both the SST warming and 4$\times$CO$_2$ response and overprediction of models run with only the SST warming.}
+    \label{fig:contrib-co2}
+\end{figure}
+
+\section{Revisiting the differences in overprediction across the model hierarchy}
+The statisical significance tests used above are one-sample t-tests for the null hypothesis that the contribution of regions outside of strong mean ascent and CO$_2$ are zero. My previous analyses on testing the statistical significance of the differences in mean overprediction across the model hierarchy were two-sample t-tests. One of the assumptions one makes when doing a two-sample t-test is that the population of the two groups are independent. This is not the case across the model hierarchy because each model from an institution uses the same atmospheric GCM across the hierarchy. The more appropriate statistical test is the one-sample t-test like the one I performed above, by taking the difference in overprediction across the model hierarchy for each model and then determining if the differences are significantly distinguishable from zero. The main disadvantage of this method is that we can only run the analysis for models that have simulations across the hierarchy (i.e., many of the abrupt4$\times$CO$_2$ data cannot be used because they do not have corresponding AMIP and aquaplanet simulations).
+
+The one-sample t-test tells us that the difference in mean overpredictions between the abrupt4$\times$CO$_2$ response and that of the simpler configurations are indeed statistically significant (Table~\ref{tab:vanilla}). Next, evaluating the differences in mean overprediction over regions of strong ascent brings down the difference between abrupt4$\times$CO$_2$ and aqua4K (Table~\ref{tab:ascent}). The differences in mean overprediction between abrupt4$\times$CO$_2$ and the AMIP runs are not as noticeable because these models all have regions of mean descent and their contribution to overprediction is comparable (Figure~\ref{fig:contrib-ascent}). So far, the one-sample t-tests are in agreement with that of the two-sample t-test. This changes when we evaluate the differences in mean overprediction between abrupt4$\times$CO$_2$ and the AMIP and aquaplanet responses with the CO$_2$ effect included (Table~\ref{tab:co2}). Including the CO$_2$ effect in the simpler models reduces the differences in mean overprediction between them and abrupt4$\times$CO$_2$ as expected. However, the difference between mean overprediction in the abrupt4$\times$CO$_2$ and amipF+4$\times$CO$_2$ responses remain statistically significant, with a p-value of 0.0050. This is in contrast to the two-sample t-test, which previously told us that the differences between all model configurations were indistinguishable after the direct effect of CO$_2$ was taken into account. Even after combining both the effects of non-convecting regions and the direct effect of CO$_2$, the difference in mean overprediction between abrupt4$\times$CO$_2$ and amipF+4$\times$CO$_2$ remains statistically significant with a p-value of 0.0168 (Table~\ref{tab:both}). Thus, some physical mechanism other than mean descent and the direct effect of CO$_2$ is responsible for this difference. This is difficult to understand because I expect the amipFuture to be most similar to that of abrupt4$\times$CO$_2$ compared to amip4K and aqua4K.
+
+\begin{table}
+\caption{Differences in mean overprediction between abrupt4$\times$CO$_2$ and simpler models are statistically significant. Lower and upper bounds are defined as 5\% and 95\% confidence intervals around the mean difference in overprediction. Statistically significant p-values are indicated in bold.}
+\begin{tabular}{l c c c c} \hline
+& Lower Bound & Mean & Upper Bound & p-value \\ \hline
+abrupt4$\times$CO$_2$ - amipFuture & 4.85 & 7.10 & 9.35 & \textbf{3.58E-5} \\
+abrupt4$\times$CO$_2$ - amip4K & 4.01 & 6.69 & 9.37 & \textbf{2.41E-4} \\
+abrupt4$\times$CO$_2$ - aqua4K & 2.61 & 11.96 & 21.31 & \textbf{0.0185} \\ \hline
+\end{tabular}
+\label{tab:vanilla}
+\end{table}
+
+\begin{table}
+\caption{Same as Table~\ref{tab:vanilla}, except that overprediction is evaluated only over regions of strong mean ascent (denoted by asterisk).}
+\begin{tabular}{l c c c c} \hline
+& Lower Bound & Mean & Upper Bound & p-value \\ \hline
+abrupt4$\times$CO$_2^*$ - amipFuture$^*$ & 4.52 & 7.22 & 9.92 & \textbf{0.0001} \\
+abrupt4$\times$CO$_2^*$ - amip4K$^*$ & 0.06 & 3.16 & 6.26 & \textbf{0.0466} \\
+abrupt4$\times$CO$_2^*$ - aqua4K$^*$ & -0.06 & 6.55 & 13.15 & 0.0516 \\ \hline
+\end{tabular}
+\label{tab:ascent}
+\end{table}
+
+\begin{table}
+\caption{Same as Table~\ref{tab:vanilla}, except that overprediction is evaluated for the simpler models with the direct effect of CO$_2$ included.}
+\begin{tabular}{l c c c c} \hline
+& Lower Bound & Mean & Upper Bound & p-value \\ \hline
+abrupt4$\times$CO$_2$ - amipF+4$\times$CO$_2$ & 1.36 & 3.59 & 5.83 & \textbf{0.0050} \\
+abrupt4$\times$CO$_2$ - amip4K+4$\times$CO$_2$ & -0.14 & 2.62 & 5.39 & 0.0606 \\
+abrupt4$\times$CO$_2$ - aqua4K+4$\times$CO$_2$ & -0.30 & 8.24 & 16.77 & 0.0566 \\ \hline
+\end{tabular}
+\label{tab:co2}
+\end{table}
+
+\begin{table}
+\caption{Same as Table~\ref{tab:vanilla}, except that overprediction is evaluated only over regions of strong mean ascent (denoted by asterisk) and overprediction is evaluated for the simpler models with the direct effect of CO$_2$ included.}
+\begin{tabular}{l c c c c} \hline
+& Lower Bound & Mean & Upper Bound & p-value \\ \hline
+abrupt4$\times$CO$_2^*$ - amipFuture+4$\times$CO$_2^*$ & 0.80 & 3.60 & 6.39 & \textbf{0.0168} \\
+abrupt4$\times$CO$_2^*$ - amip4K+4$\times$CO$_2^*$ & -3.30 & -0.78 & 1.75 & 0.5097 \\
+abrupt4$\times$CO$_2^*$ - aqua4K+4$\times$CO$_2^*$ & -2.51 & 3.40 & 9.30 & 0.2211 \\ \hline
+\end{tabular}
+\label{tab:both}
+\end{table}
+
+I attempted to explain this difference by correcting for the differences in the control climate temperature and humidities (which we discussed a few weeks ago). Applying the correction (on top of evaluting over regions of ascent only and including the direct effect of CO$_2$) makes the mean overprediction between abrupt4$\times$CO$_2$ and amipFuture indistinguishable but doesn't fully solve this problem because the mean overprediction between abrupt4$\times$CO$_2$ and amip4K become statistically different. Furthermore, I have some reservations about using this correction technique as I make many assumptions along the way and I have not had much success validating the accuracy of the assumptions. I am now attempting to understand this by separating the contribution of overprediction into differences in the amplification predicted by the moist adiabat (the first term in the definition of overprediction) and the differences in the amplification simulated by GCMs (the second term). I should have some results from this analysis by the time we meet on Friday morning.
+
+\bibliographystyle{unsrt}
+\bibliography{biblio}
+
+\end{document}

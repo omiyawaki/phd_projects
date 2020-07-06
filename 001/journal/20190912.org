@@ -1,0 +1,4 @@
+* TODO read seeley and romps paper on ice
+* DONE try more intermediate values of TFREEZE
+* TODO plot cli and dtadpa in temperature coordinates
+* TODO try tfreeze simulations with very high tokioka parameter to force large scale condensation

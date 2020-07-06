@@ -1,0 +1,151 @@
+\documentclass{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amsfonts,amssymb}
+
+\title{Notes on the bulk-plume entraining adiabat model\\ and its use in inferring entrainment from CMIP data}
+\author{Osamu Miyawaki}
+\date{Jan 28, 2020}
+
+\begin{document}
+\maketitle
+\section{Introduction}
+The goal of this model is to incorporate the effect of lateral entrainment in the moist adiabatic lapse rate in a simple way. The big-picture strategy is to solve for $\Gamma$ in the equation of the vertical derivative of the saturated moist static energy $h^*$,
+\begin{equation}
+\frac{\partial h^*}{\partial z} = - c_p \Gamma + g + L \frac{\partial q^*}{\partial z} \, .
+\end{equation}
+Instead of assuming that $h^*$ is constant with height as is the case for the non-entraining moist adiabat, we will consider the effect that entrainment has on the vertical derivative of $h^*$.
+
+\section{Derivation}
+We begin with the conservation of mass of a convecting plume in the $z$ coordinate.
+\begin{equation}
+\frac{\partial M}{\partial z} = e - d \, .
+\end{equation}
+Here, $M$ is the cumulus mass flux in $\mathrm{kg\,m^{-2}\,s^{-1}}$ and $e$ and $d$ are entrainment and detrainment rates in $\mathrm{kg\,m^{-3}\,s^{-1}}$. Because convection and subsidence are each represented by single columns of equal area, the conservation of mass of a subsiding plume is mathematically identical:
+\begin{equation}
+-\frac{\partial M}{\partial z} = d - e \, .
+\end{equation}
+Treating $h^*$ as a passive tracer, we can write its conservation equation as
+\begin{equation}
+\frac{\partial Mh^*}{\partial z} = eh - dh^* \, .
+\end{equation}
+Here, we make two simplifying assumptions: 1) cumulus mass flux is constant with height (i.e., entrainment equals detrainment at all altitudes), and 2) the temperature of the convecting plume is the same as that of the environment at all altitudes (zero-buoyancy approximation). Then,
+\begin{equation}
+\frac{\partial h^*}{\partial z} = \frac{eL}{M}(q - q^*) \, .
+\end{equation}
+To make progress, we need to calculate the saturation deficit $q - q^*$ at every level. To do so, we refer to the conservation of moisture. In the convecting plume,
+\begin{equation}
+\frac{\partial q^*}{\partial z} = \frac{e}{M}(q - q^*) - \frac{c}{M} \, .
+\end{equation}
+$q$ is the specific humidity in $\mathrm{kg\,kg^{-1}}$. $c$ represents the sink of water vapor due to condensation in $\mathrm{kg\,m^{-3}\,s^{-1}}$. Similarly, we write the conservation of moisture for the subsiding plume.
+\begin{equation}
+-\frac{\partial q}{\partial z} = \frac{e}{M}(q^* - q) + \alpha\frac{c}{M} \, .
+\end{equation}
+Note that a fraction $\alpha$ of the condensed water re-evaporates in the subsiding plume. The remaining $1-\alpha$ of water instantaneously precipitates out of the column. Thus, we refer to $1-\alpha$ as precipitation efficiency.
+
+We write the above equations in terms of pressure by applying the chain rule for the vertical derivative and assuming hydrostatic balance. 
+\begin{align}
+-\frac{\partial h^*}{\partial p} &= \frac{eL}{\rho gM}(q - q^*) \, . \\
+-\frac{\partial q^*}{\partial p} &= \frac{e}{\rho gM}(q - q^*) - \frac{c}{\rho gM} \, . \\
+\frac{\partial q}{\partial p} &= \frac{e}{\rho gM}(q^* - q) + \frac{\alpha c}{\rho gM} \, .
+\end{align}
+Define fractional entrainment rate\footnote{The fractional entrainment in $z$ coordinates is defined as $\epsilon = \frac{e}{M}$. Thus, to convert between $\tilde{\epsilon}$ and $\epsilon$, we multiply/divide by the factor $\rho g$.} $\tilde{\epsilon}$ as
+\begin{equation}
+\tilde{\epsilon} = \frac{e}{\rho gM} \, ,
+\end{equation}
+which has units of $\mathrm{Pa^{-1}}$. Similarly, we define fractional condensation rate $\tilde{c}$. Then, we write equations for $h^*$, $q^*$, and $q$ as
+\begin{align}
+-\frac{\partial h^*}{\partial p} &= \tilde{\epsilon}L(q - q^*) \, . \\
+-\frac{\partial q^*}{\partial p} &= \tilde{\epsilon}(q - q^*) - \tilde{c} \, . \\
+\frac{\partial q}{\partial p} &= \tilde{\epsilon}(q^* - q) + \alpha\tilde{c} \, .
+\end{align}
+Rewrite $q$ using relative humidity $\mathcal{H}$.
+\begin{align}
+\label{eqh1}
+-\frac{\partial h^*}{\partial p} &= \tilde{\epsilon}Lq^*(\mathcal{H} - 1) \, . \\
+\label{eqconv1}
+-\frac{\partial q^*}{\partial p} &= \tilde{\epsilon}q^*(\mathcal{H} - 1) - \tilde{c} \, . \\
+\label{eqsub1}
+\frac{\partial q^* \mathcal{H}}{\partial p} &= \tilde{\epsilon}q^*(1 - \mathcal{H}) + \alpha\tilde{c} \, .
+\end{align}
+Distribute the derivative in eq.~\ref{eqsub1}.
+\begin{equation}
+\mathcal{H}\frac{\partial q^*}{\partial p} + q^*\frac{\partial \mathcal{H}}{\partial p} = \tilde{\epsilon}q^*(1 - \mathcal{H}) + \alpha\tilde{c} \, .
+\end{equation}
+As changes in $\mathcal{H}$ are relatively small compared to that of $q^*$, we drop the second term on the LHS:
+\begin{equation}
+\label{eqsub2}
+\mathcal{H}\frac{\partial q^*}{\partial p} = \tilde{\epsilon}q^*(1 - \mathcal{H}) + \alpha\tilde{c} \, .
+\end{equation}
+Using eq.~\ref{eqconv1} and \ref{eqsub2}, we can solve for $\mathcal{H}$:
+\begin{equation}
+\mathcal{H} = \frac{\tilde{\epsilon}(1-\alpha) + \alpha \frac{1}{q^*}\frac{\partial q^*}{\partial p}}{\tilde{\epsilon}(1-\alpha) + \frac{1}{q^*}\frac{\partial q^*}{\partial p}} \, . 
+\end{equation}
+We use the Clausius-Clapeyron relation to calculate the vertical derivative of $q^*$. Starting with the equation in terms of saturation partial pressure $e^*$,
+\begin{equation}
+\frac{1}{e^*}\frac{\mathrm{d}e^*}{\mathrm{d}T} = \frac{L}{R_vT^2} \, .
+\end{equation}
+We are particularly interested in the vertical changes of $q^*$:
+\begin{equation}
+\frac{1}{e^*}\frac{\partial e^*}{\partial p} = \frac{L\tilde{\Gamma}}{R_vT^2} \, ,
+\end{equation}
+where $\tilde{\Gamma} = \partial_p T$, the lapse rate in pressure coordinates. We convert partial pressure to specific humidity $q^*$ via the definition of specific humidity.
+\begin{equation}
+q^* = \frac{\rho_v^*}{\rho} = \frac{\frac{e}{R_vT}}{\frac{p}{R_dT}} = \frac{R_d}{R_v}\frac{e}{p} \, .
+\end{equation}
+Above, we ignored the virtual effect of water vapor on the gas constant of air for simplicity.
+\begin{align}
+\frac{1}{q^*p}\frac{\partial q^*p}{\partial p} &= \frac{L\tilde{\Gamma}}{R_vT^2} \, . \\
+\frac{1}{q^*}\frac{\partial q^*}{\partial p} + \frac{1}{p} &= \frac{L\tilde{\Gamma}}{R_vT^2} \, . \\
+\gamma \equiv \frac{1}{q^*}\frac{\partial q^*}{\partial p} &= \frac{L\tilde{\Gamma}}{R_vT^2} - \frac{1}{p} \, .
+\end{align}
+Above, we introduced a variable $\gamma$ to refer to the fractional lapse rate of saturation specific humidity. Using this notation, we can rewrite the previous expression for $\mathcal{H}$:
+\begin{equation}
+\mathcal{H} = \frac{\tilde{\epsilon}(1-\alpha) + \alpha\gamma}{\tilde{\epsilon}(1-\alpha)+\gamma} \, .
+\end{equation}
+Furthermore, we introduce a parameter $a$, where
+\begin{equation}
+\label{eqdefa}
+a = \frac{\tilde{\epsilon}(1-\alpha)}{\gamma} \, ,
+\end{equation}
+such that
+\begin{equation}
+\mathcal{H} = \frac{a + \alpha}{a + 1} \, .
+\end{equation}
+Now rewrite $\tilde{\epsilon}$ and $\mathcal{H}$ in eq.~\ref{eqh1}:
+\begin{equation}
+\label{eqh2}
+\frac{\partial h^*}{\partial p} = \frac{a\gamma}{1-\alpha}Lq^*\left(\frac{a+\alpha}{a+1}-1\right) = -\frac{a}{a+1}\gamma Lq^* \, .
+\end{equation}
+
+Next, we obtain a second equation for $\partial_p h^*$ by taking the vertical derivative of $h^*$:
+\begin{align}
+\label{eqh3}
+\frac{\partial h^*}{\partial p} &= c_p\tilde{\Gamma} - g\frac{\partial z}{\partial p} + L\frac{\partial q^*}{\partial p} \, . \\
+\label{eqh4}
+&= c_p\tilde{\Gamma} + \frac{1}{\rho} + \gamma Lq^* \, . \\
+\label{eqh5}
+&= c_p\tilde{\Gamma} + \frac{R_dT}{p} + \gamma Lq^* \, .
+\end{align}
+Using eq.~\ref{eqh2} and \ref{eqh5}, we obtain an expression for the lapse rate of an entraining moist adiabat.
+\begin{equation}
+\tilde{\Gamma} = \frac{R_dT}{c_pp}\frac{1 + a + \frac{Lq^*}{R_dT}}{1 + a + \frac{L^2q^*}{c_pR_vT^2}} = \tilde{\Gamma}_d\frac{1 + a + \frac{Lq^*}{R_dT}}{1 + a + \frac{L^2q^*}{c_pR_vT^2}} \, .
+\end{equation}
+Above, $\Gamma_d$ is the dry adiabatic lapse rate in pressure coordinates. In this model, entrainment (proportional to $\alpha$, see definition in eq.~\ref{eqdefa}) sets the lapse rate somewhere in between the dry and saturated moist adiabatic lapse rates. In the limiting case of zero entrainment ($a=0$), this lapse rate converges to a saturated pseudoadiabat. In the limiting case of infinite entrainment ($a\rightarrow\infty$), the lapse rate approaches the dry adiabatic lapse rate.
+
+\section{Inferring entrainment in CMIP models}
+For any lapse rate profile that lies between the dry and moist adiabats, we can quantify the magnitude of entrainment assuming that entrainment is the only mechanism responsible the deviation away from the moist adiabat. To do this, I use the parcel method (dry adiabat up to LCL, moist adiabat above) to calculate the saturated temperature profile, $T_s(p)$. Using this temperature and the corresponding lapse rate profile, I calculate $q^*_s$ and $\gamma_s$. I then solve for the required value of $a$ to match the ``actual'' (model output from CMIP) lapse rate, $\Gamma_a$. That is,
+\begin{equation}
+a = \frac{\Gamma_d\left(1+\frac{Lq_s^*}{R_dT_s}\right) - \Gamma_a\left(1+\frac{L^2q_s^*}{c_pR_vT_s^2}\right)}{\Gamma_a - \Gamma_d} \, ,
+\end{equation}
+where
+\begin{equation}
+\Gamma_d = \frac{R_dT_s}{c_pp}
+\end{equation}
+We can calculate the fractional entrainment profile $\tilde{\epsilon}$ from $a$ as follows:
+\begin{equation}
+\tilde{\epsilon} = \frac{a\gamma_s}{1-\alpha}
+\end{equation}
+In my calculations, I assume a precipitation efficiency of 25\%, or $\alpha=0.75$.
+
+\end{document}

@@ -1,0 +1,11 @@
+#+TITLE: Notes on Rotstayn (1992)
+
+* Key points
+
+- new cloud scheme retains physical realism while being more computationally light
+
+* Introduction
+
+- switch from diagnostic cloud scheme (e.g., clouds generated based on RH) to a prognostic scheme (computes time evolution of variables like cloud liquid or ice)
+
+

@@ -1,0 +1,374 @@
+%% Version 5.5, 2 January 2020
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TemplateV5.tex --  LaTeX-based template for submissions to the 
+% American Meteorological Society
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PREAMBLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Start with one of the following:
+% DOUBLE-SPACED VERSION FOR SUBMISSION TO THE AMS
+\documentclass{ametsocV5}
+
+% TWO-COLUMN JOURNAL PAGE LAYOUT---FOR AUTHOR USE ONLY
+% \documentclass[twocol]{ametsocV5}
+
+
+% Enter packages here. If too many math alphabets are used,
+% remove unnecessary packages or define hmmax and bmmax as necessary.
+
+%\newcommand{\hmmax}{0}
+%\newcommand{\bmmax}{0}
+\usepackage{amsmath,amsfonts,amssymb,bm}
+\usepackage{mathptmx}%{times}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% To be entered by author:
+
+%% May use \\ to break lines in title:
+
+\title{OUTLINE\\The role of spatial heterogeneity and entrainment on the deviation of the tropical temperature from a moist adiabat in response to warming} 
+
+%%% Enter authors' names, as you see in this example:
+%%% Use \correspondingauthor{} and \thanks{Current Affiliation:...}
+%%% immediately following the appropriate author.
+%%%
+%%% Note that the \correspondingauthor{} command is NECESSARY.
+%%% The \thanks{} commands are OPTIONAL.
+
+    %\authors{Author One\correspondingauthor{Author name, email address}
+% and Author Two\thanks{Current affiliation: American Meteorological Society, 
+    % Boston, Massachusetts.}}
+
+\authors{Osamu Miyawaki\correspondingauthor{O. Miyawaki, miyawaki@uchicago.edu}}
+\affiliation{Department of the Geophysical Sciences, The University of Chicago}
+
+\extraauthor{Zhihong Tan}
+\extraaffil{Geophysical Fluid Dynamics Laboratory, Princeton University}
+
+\extraauthor{Tiffany A. Shaw}
+\extraaffil{Department of the Geophysical Sciences, The University of Chicago}
+
+\extraauthor{Malte F. Jansen}
+\extraaffil{Department of the Geophysical Sciences, The University of Chicago}
+
+%% Follow this form:
+    % \affiliation{American Meteorological Society, 
+    % Boston, Massachusetts}
+
+%% If appropriate, add additional authors, different affiliations:
+    %\extraauthor{Extra Author}
+    %\extraaffil{Affiliation, City, State/Province, Country}
+
+%\extraauthor{}
+%\extraaffil{}
+
+%% May repeat for a additional authors/affiliations:
+
+%\extraauthor{}
+%\extraaffil{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ABSTRACT
+%
+% Enter your abstract here
+% Abstracts should not exceed 250 words in length!
+%
+ 
+\abstract{Climate models project the tropical temperature response to increased CO$_2$ is amplified in the upper troposphere. This amplification aloft is expected following moist adiabatic adjustment and the Clausius-Clapeyron relation. Here we show across the CMIP5 model hierarchy that moist adiabatic adjustment overpredicts the multi-model mean temperature at 300 hPa by 5.6 -- 13.5\% with more complex models having more overprediction. In addition, we show this range is influenced by at least two factors: 1) spatial heterogeneity and 2) convective entrainment. More specifically, when evaluated over regions of strong climatological mean ascent, overprediction decreases to 4.8 -- 8.8\% across the model hierarchy. This highlights the importance of using near-surface temperature and humidity over regions of strong mean ascent when predicting the tropical mean temperature response. Varying the entrainment rate in idealized aquaplanet simulations via the Tokioka parameter leads to an overprediction range of 2.9 -- 7.9\%. Thus, the tropical temperature response deviates away from the moist adiabat as entrainment increases.} 
+
+\begin{document}
+
+%% Necessary!
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SIGNIFICANCE STATEMENT/CAPSULE SUMMARY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% If you are including an optional significance statement for a journal article or a required capsule summary for BAMS 
+% (see www.ametsoc.org/ams/index.cfm/publications/authors/journal-and-bams-authors/formatting-and-manuscript-components for details), 
+% please apply the necessary command as shown below:
+%
+% \statement
+% Significance statement here.
+%
+% \capsule
+% Capsule summary here.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MAIN BODY OF PAPER
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+%% In all cases, if there is only one entry of this type within
+%% the higher level heading, use the star form: 
+%%
+% \section{Section title}
+% \subsection*{subsection}
+% text...
+% \section{Section title}
+
+%vs
+
+% \section{Section title}
+% \subsection{subsection one}
+% text...
+% \subsection{subsection two}
+% \section{Section title}
+
+%%%
+% \section{First primary heading}
+
+% \subsection{First secondary heading}
+
+% \subsubsection{First tertiary heading}
+
+% \paragraph{First quaternary heading}
+
+\section{Introduction}
+
+\begin{itemize}
+\item One of the robust responses to an increase in CO$_2$ concentrations is amplified warming in the tropical upper troposphere \citep{vallis-et-al-2015}.
+\item Understanding this warming profile is important because it sets the:
+\begin{enumerate}
+\item static stability in the tropics, which influences the average strength of deep convective storms \citep{seeley-romps-2015}.
+\item meridional temperature gradient (baroclinicity), which influences the position of the Hadley Cell edge and subtropical jet \citep{shaw-et-al-2016}.
+\item lapse rate feedback in the tropics, which exerts a strong influence on the global climate sensitivity owing to the large areal fraction of the tropics \citep{po-chedley-et-al-2018}.
+\end{enumerate}
+\item Quasi-equilibrium thinking offers a simple theory of the tropical temperature profile.
+\begin{itemize}
+\item \citet{arakawa-schubert-1974} proposed that over a sufficiently long time scale (longer than the time scale of convective adjustment) and large spatial scale (larger than the spatial scale of an ensemble of cumulus clouds) the destabilizing force of radiative cooling balances the stabilizing response of convection.
+\item \citet{bretherton-smolarkiewicz-1989} showed that even regions of subsidence follows the temperature profile set by convection due to gravity waves.
+\item The moist adiabat is a useful first-order representation of a convective temperature profile because the moist adiabatic lapse rate has an analytical form \citep{emanuel-1994}.
+\item Observational studies show that the tropical temperature profile is indeed close to moist adiabatic \citep{betts-1982, xu-emanuel-1989}.
+\end{itemize}
+\item We focus on the tropical temperature response and show that overprediction varies across the CMIP5 climate model hierarchy.
+\item Here we perform perturbed physics experiments with an aquaplanet GCM to study how entrainment cause the temperature response to deviate away from the moist adiabat.
+
+\end{itemize}
+
+\section{Methods} \label{methods}
+
+\subsection{Data across model hierarchy} \label{data-hierarchy}
+
+\begin{itemize}
+\item We consider models of varying complexity to test the robustness of the warming response to various boundary conditions.
+\begin{itemize}
+\item abrupt4$\times$CO$_2$ $-$ piControl (29 models): state-of-the-art climate models with interactive land and ocean temperatures.
+\item AMIPFuture $-$ AMIP (10 models): atmosphere general circulation model (AGCM) with spatially heterogeneous sea-surface temperature (SST) warming and interactive land temperature (no ocean dynamics).
+\item AMIP4K $-$ AMIP (10 models): atmosphere general circulation model (AGCM) with spatially uniform SST warming and interactive land temperature (no ocean dynamics).
+\item aqua4K $-$ aqua (9 models): AGCM with prescribed SST everywhere (zonally symmetric climatology, no ocean dynamics, and no land).
+\item GFDLaqua4K $-$ GFDLaqua: GFDL AM2.1 AGCM configured similarly to the standard aquaplanet experiment above. Details are described in Section~\ref{methods}.\ref{gfdl}.
+\item GFDLrce4K $-$ GFDLrce: same as above, but with prescribed uniform SST.
+\end{itemize}
+\end{itemize}
+
+\subsection{Calculating the moist adiabat}
+\begin{itemize}
+\item We calculate the moist adiabat at every column of the GCM grid.
+\item We calculate the parcel temperature following the dry adiabat up to the lifted condensation level (LCL) and the moist pseudoadiabat (following \citet{emanuel-1994}) above the LCL.
+\item We use the 2 m temperature, relative humidity, and surface pressure to calculate the LCL. For models that do not have the 2 m data, we interpolate the 3-D temperature and relative humidity field to estimate their values at the surface using the surface pressure field. 
+\end{itemize}
+
+\subsection{GFDL AM2.1 aquaplanet GCM} \label{gfdl}
+\begin{itemize}
+\item To study the influence of entrainment on the temperature response, we configure GFDL AM2.1 with various Tokioka parameters $\tau$.
+\item $\tau$ controls the minimum entrainment rate in the Relaxed Arakawa Schubert (RAS) convection scheme \citep{moorthi-suarez-1992, tokioka-et-al-1988}.
+\item We configure the surface boundary condition in two ways:
+\begin{itemize}
+\item Prescribed SST with a meridional gradient specified by the qObs profile (following standard aquaplanet experiment protocol).
+\item Prescribed uniform SST to represent radiative-convective equilibrium (RCE) (following \citet{wing-et-al-2018})
+\end{itemize}
+\item Uses an improved radiation transfer scheme (RRTMG) as described in \citet{tan-et-al-2019}.
+\item No sea ice because it is not important for studying the tropical temperature response.
+\item Greenhouse gases are specified as follows:
+\begin{itemize}
+\item CO$_2$ = 355 ppmv
+\item CH$_4$ = 1700 ppbv
+\item N$_2$O = 320 ppbv
+\item O$_3$ = 0
+\end{itemize}
+\end{itemize}
+
+\section{Results}
+
+\subsection{Moist adiabat overpredicts response across the model hierarchy}
+
+\begin{itemize}
+\item Moist adiabat overpredicts the tropical temperature response as simulated by AOGCMs by 13.5\% at 300 hPa (Figure~\ref{fig:aogcm-op}a). This discrepancy is consistent with the moist adiabat overpredicting the temperature trend in observational data \citep{ogorman-singh-2013, flannaghan-et-al-2014}.
+\item Overprediction decreases across the model hierarchy, down to 5.6\% for the aquaplanet configuration (Figures~\ref{fig:aogcm-op}b--d).
+\item The difference in mean overprediction between CMIP and amip/aqua models are significant as the median lies outside of the IQR of CMIP (Figure~\ref{fig:scatter}a).
+\end{itemize}
+
+\subsection{Spatial heterogeneity of overprediction}
+\begin{itemize}
+\item Figure~\ref{fig:ascent_mask} shows the spatial structure of the overprediction at 300 hPa across the model hierarchy.
+\item For CMIP and amipFuture configurations, the overprediction shows strong spatial heterogeneity (Figure~\ref{fig:ascent_mask}a and b).
+\item The temperature profile in the tropical free troposphere is set by regions of deep convection \citep{bretherton-smolarkiewicz-1989, fueglistaler-et-al-2015, andrews-webb-2018}. Thus, we investigate how close the temperature response is to moist adiabatic when we subsample over regions of strong mean ascent.
+\item Following \citet{sherwood-et-al-2014}, we define regions of strong mean ascent as places exceeding the upper 75th percentile of the climatological 500 hPa pressure velocity.
+\item The red contour line in Figure~\ref{fig:ascent_mask} denotes the region of strong mean ascent as defined above.
+\item Over strongly convecting regions, the moist adiabat overpredicts the CMIP5 mean by 8.8\%, accounting for 40\% of the discrepancy. This is illustrated in Figure~\ref{fig:aogcm-op-idx}a.
+\item Figures~\ref{fig:aogcm-op-idx} c and d show that overprediction in convecting regions for the amip4K (7.0\%) and aqua4K (6.0\%) multi-model mean are comparable to that for the CMIP multi-model mean (8.8\%). (Overprediction in convecting regions for the amipFuture multi-model mean (4.8\%) is particularly small for reasons that are not yet clear.)
+\item This suggests that the remaining $\approx$6\% overprediction in regions of strong mean ascent is due to physical processes in the convection parameterization that are not represented in the moist adiabat. Previous work by \citet{tripati-et-al-2014}, \citet{po-chedley-et-al-2019}, and \citet{zhou-xie-2019} suggest that entrainment in particular is the missing mechanism in the moist adiabat. Thus, we focus on how the strength of entrainment in the parameterized convection scheme affects the magnitude of the overprediction using one aquaplanet GCM, the GFDL aquaplanet.
+\end{itemize}
+
+\subsection{Parameterized entrainment controls magnitude of overprediction in GFDL AM2.1}
+\begin{itemize}
+\item Moist adiabat also overpredicts response in the GFDL AM2.1 (with the default Tokioka parameter) for both the aquaplanet and RCE configurations (Figure~\ref{fig:aogcm-op}e and f) by 6.5\% and 5.3\%, respectively. The magnitude of the overprediction is similar to that of the aquaplanet multi-model mean, making GFDL AM2.1 a good representation of the average aquaplanet response.
+\item The similarity of the overprediction between the standard aquaplanet and RCE configuration of GFDL AM2.1 suggests that the presence of a large-scale circulation does not significantly influence the vertical structure of the tropical temperature response.
+\item As we constrain GFDL AM2.1 to use larger entrainment rates, the amplified warming in the upper troposphere weakens (Figure~\ref{fig:entrain}a and b). Overprediction of the moist adiabat increases from 3.9\% (for $\tau = 0$) to 6.5\% (for $\tau = 0.025$) for the aquaplanet configuration and from 2.9\% ($\tau = 0$) to 7.9\% ($\tau = 0.1$) for the RCE configuration.
+\item In particular, the overprediction at 300 hPa scales nearly linearly with the logarithm of the vertically integrated entrainment rate $\langle \epsilon \rangle$ (Figure~\ref{fig:entrain}c and d).
+\item This result holds for both the aquaplanet and RCE configurations. 
+\end{itemize}
+
+\section{Summary and Discussion}
+
+\begin{itemize}
+\item Moist adiabat overpredicts the tropical temperature response as simulated by GCMs across the model hierarchy.
+\item Overprediction decreases by 60\% from AOGCMs to aquaplanet GCMs, suggesting the importance of spatial heterogeneity of the near-surface temperature and humidity response as a source of the overprediction.
+\item Overprediction decreases by 40\% in AOGCMs when averaged over regions of strong mean ascent.
+\item This highlights the importance of using near-surface temperature and humidity over regions of strong mean ascent when using the moist adiabat to predict the tropical mean temperature response.
+\item To understand the remaining overprediction in regions of ascent, we studied the influence of entrainment on the deviation of the temperature response away from a moist adiabat.
+\item We find that the overprediction scales with the logarithm of the vertically-averaged entrainment rate in the RAS scheme.
+\item Future work should investigate the source of intermodel spread of overprediction. For example, one could compare the diagnosed convective entrainment rate across various models if/when such data becomes available.
+\item To establish the robustness of our result, a similar perturbed physics experiment should be performed with different GCMs.
+\item The entrainment hypothesis should also be tested with a cloud resolving model, where deep convection is resolved by the grid-scale flow.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DATA AVAILABILITY STATEMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The data availability statement is where authors should describe how the data underlying the findings within the article can be accessed and reused. 
+% Authors should attempt to provide unrestricted access to all data and materials underlying reported findings. If data access is restricted, 
+% authors must mention this in the statement.
+%
+\datastatement
+Start data availability statement here.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ACKNOWLEDGMENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\acknowledgments
+Start acknowledgments here.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIXES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Use \appendix if there is only one appendix.
+%\appendix
+
+% Use \appendix[A], \appendix[B], if you have multiple appendixes.
+%\appendix[A]
+
+%% Appendix title is necessary! For appendix title:
+%\appendixtitle{}
+
+%%% Appendix section numbering (note, skip \section and begin with \subsection)
+% \subsection{First primary heading}
+
+% \subsubsection{First secondary heading}
+
+% \paragraph{First tertiary heading}
+
+%% Important!
+%\appendcaption{<appendix letter and number>}{<caption>} 
+%must be used for figures and tables in appendixes, e.g.,
+%
+%\begin{figure}
+%\noindent\includegraphics[width=19pc,angle=0]{figure01.pdf}\\
+%\appendcaption{A1}{Caption here.}
+%\end{figure}
+%
+% All appendix figures/tables should be placed in order AFTER the main figures/tables, i.e., tables, appendix tables, figures, appendix figures.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% REFERENCES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Make your BibTeX bibliography by using these commands:
+\bibliographystyle{ametsoc2014}
+\bibliography{biblio}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TABLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Enter tables at the end of the document, before figures.
+%%
+%
+%\begin{table}[t]
+%\caption{This is a sample table caption and table layout.  Enter as many tables as
+%  necessary at the end of your manuscript. Table from Lorenz (1963).}\label{t1}
+%\begin{center}
+%\begin{tabular}{ccccrrcrc}
+%\hline\hline
+%$N$ & $X$ & $Y$ & $Z$\\
+%\hline
+% 0000 & 0000 & 0010 & 0000 \\
+% 0005 & 0004 & 0012 & 0000 \\
+% 0010 & 0009 & 0020 & 0000 \\
+% 0015 & 0016 & 0036 & 0002 \\
+% 0020 & 0030 & 0066 & 0007 \\
+% 0025 & 0054 & 0115 & 0024 \\
+%\hline
+%\end{tabular}
+%\end{center}
+%\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FIGURES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Enter figures at the end of the document, after tables.
+%%
+%
+%\begin{figure}[t]
+%  \noindent\includegraphics[width=19pc,angle=0]{figure01.pdf}\\
+%  \caption{Enter the caption for your figure here.  Repeat as
+%  necessary for each of your figures. Figure from \protect\citep{Knutti2008}.}\label{f1}
+%\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figs/aogcm-op.png}
+\caption{a) Temperature response over the tropics (defined as $\pm 10^\circ$ latitude) for the CMIP5 multi-model mean (black) and the prediction based on a moist adiabat (orange). The moist adiabat overpredicts the CMIP5 response by 13.5\% at 300 hPa. b)--d) are the same for the amipFuture, amip4K, and aqua4K multi-model mean responses, respectively. e) and f) are the same for GFDL AM2.1 run in the standard aquaplanet and RCE configurations, respectively.}
+\label{fig:aogcm-op}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{figs/ascent_mask.png}
+\caption{a) Spatial structure of the overprediction of the moist adiabat at 300 hPa in response to CO$_2$ changes for the CMIP5 multi-model mean. The red contour denotes the boundary of the region of strong mean ascent as described in the text. b)--d) are the same for the amipFuture, amip4K, and aqua4K multi-model mean responses, respectively. e) and f) are the same for GFDL AM2.1 run in the standard aquaplanet and RCE configurations, respectively.}
+\label{fig:ascent_mask}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figs/aogcm-op-idx.png}
+\caption{a) Temperature response over regions of strong mean ascent in the tropics (see text for details on the selected region) for the CMIP5 multi-model mean (black) and the prediction based on a moist adiabat (orange). The moist adiabat overpredicts the CMIP5 response by 8.8\% at 300 hPa. b)--d) are the same but for the amipFuture, amip4K, and aqua4K multi-model mean responses, respectively. e) and f) are the same for GFDL AM2.1 run in the standard aquaplanet and RCE configurations, respectively.}
+\label{fig:aogcm-op-idx}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figs/scatter.png}
+\caption{Intermodel spread of overprediction across the model hierarchy and the spread of overprediction obtained from varying the Tokioka parameter in GFDLaqua and GFDLrce. a) Overprediction calculated over all tropics ($\pm10^\circ$) and b) over regions of strong mean ascent.}
+\label{fig:scatter}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figs/entrain.png}
+\caption{\textbf{Upper panels:} The amplified warming in the upper troposphere weakens with the strength of entrainment in GFDL AM2.1. We control entrainment with the Tokioka parameter $\tau$, which sets the minimum entrainment rate in the RAS convection scheme. a) GFDL AM2.1 in the standard aquaplanet configuration. b) GFDL AM2.1 in RCE. \textbf{Lower panels:} Overprediction of the moist adiabat scales with the strength of entrainment in GFDL AM2.1. When GFDL AM2.1 is configured with a larger Tokioka parameter $\tau$ (which sets the minimum entrainment rate), the overprediction increases. c) GFDL AM2.1 in the standard aquaplanet configuration. d) GFDL AM2.1 in RCE.}
+\label{fig:entrain}
+\end{figure}
+
+\end{document}

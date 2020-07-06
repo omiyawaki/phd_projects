@@ -1,0 +1,4 @@
+* TODO do CMIP5 models output snow in 3D grid?
+* DONE read O'Gorman snowfall paper
+* DONE start with the time averaged field and then do the ranking
+* TODO do the binning across different models (careful about averaging different grid sizes)
