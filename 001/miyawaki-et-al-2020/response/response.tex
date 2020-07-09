@@ -1,4 +1,4 @@
-% Created 2020-07-08 Wed 16:02
+% Created 2020-07-09 Thu 08:56
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -28,7 +28,7 @@
 
 
 \section*{Reviewer 1}
-\label{sec:org70fe662}
+\label{sec:org1f02072}
 Framing the large scale circulation: I did not understand what was meant when you wrote that the ``large-scale circulation'' contributed to the over-prediction, even after reading lines 65--78 (which I had interpreted as a useful summary of interesting/relevant results by others). I initially thought you were referring to the CO\(_2\) effect on the circulation change. But the ``large-scale circulation'' simply means that a moist adiabatic response should really only be expected in regions of deep convection (and not in regions of large-scale descent). It wasn't until Section 3.2 that I understood what as meant and my reaction to Figure 2 was that ``no one expects a moist adiabatic scaling relative to the eastern Pacific surface temperature response.'' Perhaps making the meaning of ``large-scale circulation'' more clear with something like this (perhaps the topic sentence(s) or concluding sentence(s) 65--78): ``The tropical atmospheric circulation is zonally asymmetric with regions of climatological ascent and descent. Since the tropospheric temperature is only expected to be coupled to the surface temperature in regions of deep atmospheric convection, a moist adiabatic temperature scaling does not necessarily hold in areas of large scale descent or in the tropical average. As such, the presence of the tropical atmospheric circulation may influence the scaling between tropical tropospheric and surface temperature change. In contrast, aquaplanets do not include a tropical, zonally symmetric circulation, and may adhere more closely to moist adiabatic warming throughout the tropics.''
 
 This manuscript includes a tremendous amount of information. At times, the many complementary (and subtly different) comparisons can dilute the take home messages. I think it would be extremely useful to try to incorporate the findings into a summary figure that could illustrate the estimated contribution that each process makes to the moist adiabatic warming over-estimation. For example, it is very helpful that you state the contribution to the over-prediction from the circulation and CO\(_2\) in the abstract. I don't think you actually state how you arrive at these estimates in the main text. I've constructed a schematic of the type of figure I was thinking of (you could include other simulations, but I think the key is to allow the reader to see the contribution each process makes to the over-prediction). This would essentially combine the information of Figure 1 and 3.
@@ -196,13 +196,15 @@ Line 240--241: Please state the experiment you are using. I assume these are the
 
 Line 246: Consider replacing ``non-zero'' with ``the''
 
+\textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
+
 Figure 4: Consider plotting the moist adiabat for reference.
 
 \textbf{revise plot.}
 
 Line 269: Do you know why this scales with the logarithm of entrainment?
 
-\textbf{discuss and respond.}
+\textbf{We are not sure why overprediction scales with the logarithm of entrainment in GFDL. As the moist adiabatic and bulk-plume temperature profiles must be numerically integrated, we are unaware of how to derive an analytical relationship between between overprediction and entrainment.}
 
 Line 289: It would be worthwhile to quantify the average contribution of the circulation by taking the difference of the over-prediction in the tropical average and the ascent region. Actually, I see you do this in the abstract, so it should also be quantified in the text/conclusion.
 
@@ -225,7 +227,21 @@ Figure S5 and similar box and whisker plots: Is the range of the blue lines the 
 \textbf{The caption labels are correct. The \(5\)--\(95\%\) confidence interval (CI) of the mean is related to the standard deviation \(\sigma\), mean \(\mu\), and sample size \(n\) as} \(\mu\pm1.96\frac{\sigma}{\sqrt{n}}\). \textbf{In Figure S5, the sample sizes are close to 9, so the CI is approximately} \(\mu\pm\frac{2}{3}\sigma\). \textbf{Thus, it makes sense that the CI of the mean is smaller than the standard deviation.}
 
 \section*{Reviewer 2}
-\label{sec:orgf0edd62}
+\label{sec:orge12eff7}
+
+The paper investigates the deviation in the upper-troposphere warming from a simple moist-adiabat prediction. It shows that moist adiabat over-predicts the upper-tropospheric warming because of effects from large-scale circulation, direct CO\(_2\) effect, and entrainment. The results are overall convincing but there are a few key points that need to be clarified.
+
+Line 170: The moist adiabatic profile is sensitive to where the air parcel is initially lifted from. The paper chooses the 2 m level. What if using the boundary-layer mean or 950 hPa. The paper should discuss about this sensitivity.
+
+Line 240--243: I am confused about why the direct CO\(_2\) effect increases over-prediction. The direct CO\(_2\) warms the tropospheric temperature but has little effect on the surface temperature. It indicates that direct CO\(_2\) effect will reduce the over-prediction. I then look at Fig. S2. It shows that while the near-surface temperature only warms by \(\approx0.1\) C, the upper tropospheric temperature following the moist adiabat warms by \(0.5\) C. This amplification (5 times) is much larger than the 2.5 times amplification in other cases (Fig. S1). Why the moist adiabatic amplification is so different?
+
+Line 155: I am not sure if the zero-buoyancy bulk-plume model is sufficient or accurate enough to explain the temperature deviation in models. By assuming a bulk-plume with constant entrainment rate, the model does not predict the right vertical profile of the temperature deviation from the moist adiabat (see Fig. 2 of \cite{zhou_conceptual_2019} for details). In particular, it predicts largest temperature deviation from the moist adiabat in the tropopause, while in reality the tropopause temperature is close to the moist adiabat (that is, overprediction should be nearly zero in the tropopause). It makes more sense to understand the GCM results using the spectral-plume model, as in \cite{zhou_conceptual_2019}.
+
+\textbf{We agree that the spectral-plume model of} \cite{zhou_conceptual_2019} \textbf{(abbreviated as ZX19) better represents the temperature profile near the tropopause compared to the bulk-plume models of SO13, R14, and R16. We added the predictions of the ZX19 model with the vertical profile of entrainment set to the power of} \(k=0.5\) \textbf{to best fit the GFDLrce results (Line insert line number, Fig. 4c,d). We find that ZX19 exhibits a similar sensitivity of overprediction to entrainment compared to the bulk-plume models of SO13 and R14. Our interpretation of this is that the pressure level we evaluate the overprediction (300 hPa) is sufficiently below the tropopause that the bulk-plume models are also accurate for predicting the temperature response in RCE.}
+
+Line 142: How is the convective entrainment quantified at each level?
+
+Line 243: Will it be better to put Fig. 3 together with Fig. 1a,b to better illustrate the changes.
 
 \bibliographystyle{apalike}
 \bibliography{../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references}

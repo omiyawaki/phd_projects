@@ -33,8 +33,8 @@
     "geometry"
     "parskip")
    (LaTeX-add-labels
-    "sec:org70fe662"
-    "sec:orgf0edd62")
+    "sec:org1f02072"
+    "sec:orge12eff7")
    (LaTeX-add-bibliographies
     "../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references"))
  :latex)

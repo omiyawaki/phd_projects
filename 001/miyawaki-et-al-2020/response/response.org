@@ -202,5 +202,21 @@ Figure S5 and similar box and whisker plots: Is the range of the blue lines the 
 
 * Reviewer 2
 
+The paper investigates the deviation in the upper-troposphere warming from a simple moist-adiabat prediction. It shows that moist adiabat over-predicts the upper-tropospheric warming because of effects from large-scale circulation, direct CO\(_2\) effect, and entrainment. The results are overall convincing but there are a few key points that need to be clarified.
+
+Line 170: The moist adiabatic profile is sensitive to where the air parcel is initially lifted from. The paper chooses the 2 m level. What if using the boundary-layer mean or 950 hPa. The paper should discuss about this sensitivity.
+
+Line 240--243: I am confused about why the direct CO\(_2\) effect increases over-prediction. The direct CO\(_2\) warms the tropospheric temperature but has little effect on the surface temperature. It indicates that direct CO\(_2\) effect will reduce the over-prediction. I then look at Fig. S2. It shows that while the near-surface temperature only warms by \(\approx0.1\) C, the upper tropospheric temperature following the moist adiabat warms by \(0.5\) C. This amplification (5 times) is much larger than the 2.5 times amplification in other cases (Fig. S1). Why the moist adiabatic amplification is so different?
+
+Line 155: I am not sure if the zero-buoyancy bulk-plume model is sufficient or accurate enough to explain the temperature deviation in models. By assuming a bulk-plume with constant entrainment rate, the model does not predict the right vertical profile of the temperature deviation from the moist adiabat (see Fig. 2 of cite:zhou_conceptual_2019 for details). In particular, it predicts largest temperature deviation from the moist adiabat in the tropopause, while in reality the tropopause temperature is close to the moist adiabat (that is, overprediction should be nearly zero in the tropopause). It makes more sense to understand the GCM results using the spectral-plume model, as in cite:zhou_conceptual_2019.
+
+\textbf{We agree that the spectral-plume model of} cite:zhou_conceptual_2019 \textbf{(abbreviated as ZX19) better represents the temperature profile near the tropopause compared to the bulk-plume models of SO13, R14, and R16. We added the predictions of the ZX19 model with the vertical profile of entrainment set to the power of} \(k=0.5\) \textbf{to best fit the GFDLrce results (Line insert line number, Fig. 4c,d, Fig. S insert new supplementary figure number here). We find that ZX19 exhibits a similar sensitivity of overprediction to entrainment compared to the bulk-plume models of SO13 and R14. Our interpretation of this is that the pressure level we evaluate the overprediction (300 hPa) is sufficiently below the tropopause that the bulk-plume models are also accurate for predicting the temperature response in RCE.}
+
+Line 142: How is the convective entrainment quantified at each level?
+
+\textbf{We use convective entrainment that is output directly by the RAS scheme. This output is already reported in 1/m at the standard output pressure levels for the GFDL model. We rephrased "quantify" to "record" to better reflect this procedure.}
+
+Line 243: Will it be better to put Fig. 3 together with Fig. 1a,b to better illustrate the changes.
+
 bibliographystyle:apalike
 bibliography:/mnt/c/Users/omiyawaki/Sync/papers/references.bib
