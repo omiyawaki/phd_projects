@@ -1,32 +1,58 @@
-#+TITLE:
-#+AUTHOR: Osamu Miyawaki
-#+DATE: July 6, 2020
-#+OPTIONS: author:nil date:nil toc:nil num:nil
-#+LATEX_HEADER: \usepackage[margin=1in]{geometry} \usepackage[parfill]{parskip}
+% Created 2020-07-08 Wed 16:02
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry} \usepackage[parfill]{parskip}
+\date{}
+\title{}
+\hypersetup{
+ pdfauthor={Osamu Miyawaki},
+ pdftitle={},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.4)}, 
+ pdflang={English}}
+\begin{document}
 
-* Reviewer 1
-Framing the large scale circulation: I did not understand what was meant when you wrote that the "large-scale circulation" contributed to the over-prediction, even after reading lines 65--78 (which I had interpreted as a useful summary of interesting/relevant results by others). I initially thought you were referring to the CO\(_2\) effect on the circulation change. But the "large-scale circulation" simply means that a moist adiabatic response should really only be expected in regions of deep convection (and not in regions of large-scale descent). It wasn't until Section 3.2 that I understood what as meant and my reaction to Figure 2 was that "no one expects a moist adiabatic scaling relative to the eastern Pacific surface temperature response." Perhaps making the meaning of "large-scale circulation" more clear with something like this (perhaps the topic sentence(s) or concluding sentence(s) 65--78): "The tropical atmospheric circulation is zonally asymmetric with regions of climatological ascent and descent. Since the tropospheric temperature is only expected to be coupled to the surface temperature in regions of deep atmospheric convection, a moist adiabatic temperature scaling does not necessarily hold in areas of large scale descent or in the tropical average. As such, the presence of the tropical atmospheric circulation may influence the scaling between tropical tropospheric and surface temperature change. In contrast, aquaplanets do not include a tropical, zonally symmetric circulation, and may adhere more closely to moist adiabatic warming throughout the tropics."
+
+\section*{Reviewer 1}
+\label{sec:org70fe662}
+Framing the large scale circulation: I did not understand what was meant when you wrote that the ``large-scale circulation'' contributed to the over-prediction, even after reading lines 65--78 (which I had interpreted as a useful summary of interesting/relevant results by others). I initially thought you were referring to the CO\(_2\) effect on the circulation change. But the ``large-scale circulation'' simply means that a moist adiabatic response should really only be expected in regions of deep convection (and not in regions of large-scale descent). It wasn't until Section 3.2 that I understood what as meant and my reaction to Figure 2 was that ``no one expects a moist adiabatic scaling relative to the eastern Pacific surface temperature response.'' Perhaps making the meaning of ``large-scale circulation'' more clear with something like this (perhaps the topic sentence(s) or concluding sentence(s) 65--78): ``The tropical atmospheric circulation is zonally asymmetric with regions of climatological ascent and descent. Since the tropospheric temperature is only expected to be coupled to the surface temperature in regions of deep atmospheric convection, a moist adiabatic temperature scaling does not necessarily hold in areas of large scale descent or in the tropical average. As such, the presence of the tropical atmospheric circulation may influence the scaling between tropical tropospheric and surface temperature change. In contrast, aquaplanets do not include a tropical, zonally symmetric circulation, and may adhere more closely to moist adiabatic warming throughout the tropics.''
 
 This manuscript includes a tremendous amount of information. At times, the many complementary (and subtly different) comparisons can dilute the take home messages. I think it would be extremely useful to try to incorporate the findings into a summary figure that could illustrate the estimated contribution that each process makes to the moist adiabatic warming over-estimation. For example, it is very helpful that you state the contribution to the over-prediction from the circulation and CO\(_2\) in the abstract. I don't think you actually state how you arrive at these estimates in the main text. I've constructed a schematic of the type of figure I was thinking of (you could include other simulations, but I think the key is to allow the reader to see the contribution each process makes to the over-prediction). This would essentially combine the information of Figure 1 and 3.
 
 A similar comment regarding the presentation in the text. The average over-prediction values are listed in Sections 3.1--3.3 (rather than the estimate change attributed to each physical process). It would be extremely helpful to 1) re-order the presentation of experiments into a more linear narrative, 2) emphasize a subset of the experiments (and use the others of further evidence of your claims), and 3) focus more on the impact of each process (rather than the mean over-prediction for each experiment). For example, you could:
-- start by stating in Section 3.1 that the over-prediction is \(23.7\%\) in abrupt4\(\times\)CO\(_2\) and the magnitude is similar in amipFuture+4\(\times\)CO\(_2\) and amip4K+4\(\times\)CO\(_2\) runs (\(20.1\) and \(21.1\%\)).
-- then in Section 3.2, you could state that when you look in regions of deep convection, the abrupt4\(\times\)CO\(_2\) over-prediction drops by \(7.1\%\) to \(16.6\%\). This is supported by the results from the amipFuture+4\(\times\)CO\(_2\) and amip4K simulations where the overprediction drops by \(7.1\) and \(3.8\%\). Last, you could point out that the over-prediction in aqua4K+4\(\times\)CO\(_2\) is similar to the amipFuture+4\(\times\)CO\(_2\) and amip4K+4\(\times\)CO\(_2\) simulations (as you do in lines 292--294).
-- in Section 3.3, you could shift your focus to the amipFuture+4\(\times\)CO\(_2\)/amipFuture simulations and state that when you remove the direct effect of CO\(_2\) the overprediction falls by \(3.7\%\) to \(9.3\%\). As support, you could note that AMIP and aqua simulations also show declines in the over-prediction when the effects of CO\(_2\) changes are removed.
-- in section 3.4 you could state that entrainment also contributes to the over-prediction (and perhaps state an estimate from the GFDL model experiments).
-- this narrative would mean that in each section, you are removing one piece of complexity (first circulation, then CO\(_2\), then entrainment) and emphasizing a subset of experiments (e.g., abrupt+amip, and using the others to bolster your claims, e.g., aqua). I think this would make it a bit easier to follow an dunderstand what the many experiments are telling us.
+\begin{itemize}
+\item start by stating in Section 3.1 that the over-prediction is \(23.7\%\) in abrupt4\(\times\)CO\(_2\) and the magnitude is similar in amipFuture+4\(\times\)CO\(_2\) and amip4K+4\(\times\)CO\(_2\) runs (\(20.1\) and \(21.1\%\)).
+\item then in Section 3.2, you could state that when you look in regions of deep convection, the abrupt4\(\times\)CO\(_2\) over-prediction drops by \(7.1\%\) to \(16.6\%\). This is supported by the results from the amipFuture+4\(\times\)CO\(_2\) and amip4K simulations where the overprediction drops by \(7.1\) and \(3.8\%\). Last, you could point out that the over-prediction in aqua4K+4\(\times\)CO\(_2\) is similar to the amipFuture+4\(\times\)CO\(_2\) and amip4K+4\(\times\)CO\(_2\) simulations (as you do in lines 292--294).
+\item in Section 3.3, you could shift your focus to the amipFuture+4\(\times\)CO\(_2\)/amipFuture simulations and state that when you remove the direct effect of CO\(_2\) the overprediction falls by \(3.7\%\) to \(9.3\%\). As support, you could note that AMIP and aqua simulations also show declines in the over-prediction when the effects of CO\(_2\) changes are removed.
+\item in section 3.4 you could state that entrainment also contributes to the over-prediction (and perhaps state an estimate from the GFDL model experiments).
+\item this narrative would mean that in each section, you are removing one piece of complexity (first circulation, then CO\(_2\), then entrainment) and emphasizing a subset of experiments (e.g., abrupt+amip, and using the others to bolster your claims, e.g., aqua). I think this would make it a bit easier to follow an dunderstand what the many experiments are telling us.
+\end{itemize}
 
 \textbf{TODO: discuss and respond.}
 
-Title: You do a bit more than "quantify." You could consider noting that you identify key processes contributing to the over-estimation.
+Title: You do a bit more than ``quantify.'' You could consider noting that you identify key processes contributing to the over-estimation.
 
 \textbf{TODO: discuss and respond.}
 
-Key Point 2 / Line 19: Consider "after accounting for the presence of a large-scale climatological circulation and the direct effect of CO\(_2\) on circulation changes".
+Key Point 2 / Line 19: Consider ``after accounting for the presence of a large-scale climatological circulation and the direct effect of CO\(_2\) on circulation changes''.
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
-Line 15: Consider making it clear that warming is amplified relative to the surface (or lower troposphere) by inserting "surface." Here you say that the amplification is in response to CO\(_2\) increases, but in other places you are careful to say that it is due to surface warming (and not the direct effect of CO\(_2\)). Maybe you could address this subtlety with "greenhouse warming" in place of "increased CO\(_2\)"?
+Line 15: Consider making it clear that warming is amplified relative to the surface (or lower troposphere) by inserting ``surface.'' Here you say that the amplification is in response to CO\(_2\) increases, but in other places you are careful to say that it is due to surface warming (and not the direct effect of CO\(_2\)). Maybe you could address this subtlety with ``greenhouse warming'' in place of ``increased CO\(_2\)''?
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
@@ -34,11 +60,11 @@ Line 21: It wasn't immediately clear how to interpret these numbers, because the
 
 \textbf{TODO: discuss and respond.}
 
-Plain Language Summary: There are some places where this reads a bit jargon-y and emphasizes detailed, field specific results rather than broader take-home messages. Consider simplifying this a bit and/or focusing on the implications for the research. For example, you could center the discussion around rising plumes (which leads to thermodynamic heating as water vapor condenses into clouds and rain droplets). This would allow you to substitute out some specialty-specific language such as "mixing of dry environmental air into moist ascent" into something like "dry air mixes into the rising plume, which dilutes the water vapor content and reduces warming from condensation." I view this as an optional editorial comment since plain-language summaries are new enough where there isn't a standard on which audience these should be geared to.
+Plain Language Summary: There are some places where this reads a bit jargon-y and emphasizes detailed, field specific results rather than broader take-home messages. Consider simplifying this a bit and/or focusing on the implications for the research. For example, you could center the discussion around rising plumes (which leads to thermodynamic heating as water vapor condenses into clouds and rain droplets). This would allow you to substitute out some specialty-specific language such as ``mixing of dry environmental air into moist ascent'' into something like ``dry air mixes into the rising plume, which dilutes the water vapor content and reduces warming from condensation.'' I view this as an optional editorial comment since plain-language summaries are new enough where there isn't a standard on which audience these should be geared to.
 
 \textbf{TODO: discuss and respond.}
 
-Line 16, 30, 47: Consider in one or more places clarifying that this is increased "atmospheric" CO\(_2\).
+Line 16, 30, 47: Consider in one or more places clarifying that this is increased ``atmospheric'' CO\(_2\).
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
@@ -46,31 +72,31 @@ Line 21: I wasn't initially sure how to interpret this. It would be helpful to s
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
-Line 50: One paper that is useful to demonstrating this in models is cite:santer_amplification_2005, because it shows that amplification occurs relative to surface warming irrespective of timescale.
+Line 50: One paper that is useful to demonstrating this in models is \cite{santer_amplification_2005}, because it shows that amplification occurs relative to surface warming irrespective of timescale.
 
 \textbf{Added reference following the reviewer's suggestion. TODO: refer to edited line number.}
 
-Line 48--51: Use a comma in place of the first and ("and" is used twice in this sentence). Consider inserting "...and *high-resolution* cloud-resolving models (CRMs)..."
+Line 48--51: Use a comma in place of the first and (``and'' is used twice in this sentence). Consider inserting ``\ldots{}and \textbf{high-resolution} cloud-resolving models (CRMs)\ldots{}''
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
-Line 53: Here or at the discussion of the cite:andrews_dependence_2018 paper. I think a useful point to add that the stability also affects the cloud response (e.g., cite:zhou_impact_2016).
+Line 53: Here or at the discussion of the \cite{andrews_dependence_2018} paper. I think a useful point to add that the stability also affects the cloud response (e.g., \cite{zhou_impact_2016}).
 
 \textbf{Revised text and added reference following the reviewer's suggestion. TODO: refer to edited line number.}
 
-Line 60--62: This is a useful example, but will be sensitive to the assumptions (e.g., boundary layer relative humidity and the surface temperature). Consider appending your assumptions, e.g., ("...predicts warming aloft of 10 K (for a typical tropical surface temperature of XXX K and a relative humidity of YY%.)")
+Line 60--62: This is a useful example, but will be sensitive to the assumptions (e.g., boundary layer relative humidity and the surface temperature). Consider appending your assumptions, e.g., (``\ldots{}predicts warming aloft of 10 K (for a typical tropical surface temperature of XXX K and a relative humidity of YY\%.)'')
 
 \textbf{Revised text following the reviewer's suggestion. Note that previously, we computed the predicted warming of 10 K aloft by inputing the CMIP5 multi-model mean response of surface temperature and relative humidity. In the revised text, the predicted warming of 9 K corresponds to the simpler assumption of 4 K warming starting at a surface temperature of 298 K and a fixed relative humidity of \(80\%\).  TODO: refer to edited line number.}
 
-Line 68: Consider referencing cite:sobel_enso_2002, which I believe motivated some of the work that you cite.
+Line 68: Consider referencing \cite{sobel_enso_2002}, which I believe motivated some of the work that you cite.
 
 \textbf{TODO: read paper and respond.}
 
-Line 75--76: Consider inserting "*largely* confined" since this isn't evident from their Figure 5 (though they do say "largely confined" in their text).
+Line 75--76: Consider inserting ``\textbf{largely} confined'' since this isn't evident from their Figure 5 (though they do say ``largely confined'' in their text).
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
-Line 79 onwards: I was unclear about what you meant by the "direct effect of CO\(_2\)." Is this the "fast response"? I don't think this was adequately defined. You might re-frame this, while simultaneously defining what you mean by the direct effect: "Changes in carbon dioxide result in changes in precipitation and the atmospheric circulation in the absence of surface temperature change cite:bony_robust_2013. This so-called direct effect of CO\(_2\) on atmospheric temperature change is nearly uniform in height..."
+Line 79 onwards: I was unclear about what you meant by the ``direct effect of CO\(_2\).'' Is this the ``fast response''? I don't think this was adequately defined. You might re-frame this, while simultaneously defining what you mean by the direct effect: ``Changes in carbon dioxide result in changes in precipitation and the atmospheric circulation in the absence of surface temperature change \cite{bony_robust_2013}. This so-called direct effect of CO\(_2\) on atmospheric temperature change is nearly uniform in height\ldots{}''
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
@@ -78,11 +104,11 @@ Line 79--84: Should this be described as a circulation/precipitation response? T
 
 \textbf{TODO: discuss and respond}
 
-Line 90--91: Consider "unvarying" instead of "climatological"
+Line 90--91: Consider ``unvarying'' instead of ``climatological''
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
-Line 98: Consider inserting "...in response to *greenhouse gas-induced surface* warming" [I realize you don't force all experiments with CO\(_2\) changes, but you classify the AMIP style experiments as characterizing the "indirect effect of CO\(_2\) change" so I think this may still apply]
+Line 98: Consider inserting ``\ldots{}in response to \textbf{greenhouse gas-induced surface} warming'' [I realize you don't force all experiments with CO\(_2\) changes, but you classify the AMIP style experiments as characterizing the ``indirect effect of CO\(_2\) change'' so I think this may still apply]
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
@@ -90,19 +116,19 @@ Line 107: Define CMIP5
 
 \textbf{Defined the acronym CMIP5. TODO: refer to edited line number.}
 
-Line 107--109: Consider clarifying these are experiments, with language like "...in 29 models using the abrupt\(4\times\)CO\(_2\) and piControl experiments, respectively."
+Line 107--109: Consider clarifying these are experiments, with language like ``\ldots{}in 29 models using the abrupt\(4\times\)CO\(_2\) and piControl experiments, respectively.''
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
-Line 113--114: It isn't clear what "indirect effect" of CO\(_2\) increase is and this is the first time you use the term. Perhaps you could explain the meaning in the introduction (I assume it is the surface warming response to CO\(_2\)).
+Line 113--114: It isn't clear what ``indirect effect'' of CO\(_2\) increase is and this is the first time you use the term. Perhaps you could explain the meaning in the introduction (I assume it is the surface warming response to CO\(_2\)).
 
 \textbf{The indirect effect indeed refers to the surface warming effect. We revised the introduction (insert line number here) to clarify this terminology. TODO: refer to edited line number.}
 
-Line 115: I was confused by amipF. Is this officially "amipFuture"?
+Line 115: I was confused by amipF. Is this officially ``amipFuture''?
 
 \textbf{We use amipF as an abbreviation for amipFuture. As this is not an official acronym, we clarified this in the text (insert line number here). TODO: refer to edited line number.}
 
-Line 115--119: Similar to the comment at line 107, perhaps you could simply add "experiment," e.g., "(amip4K *experiment*)"
+Line 115--119: Similar to the comment at line 107, perhaps you could simply add ``experiment,'' e.g., ``(amip4K \textbf{experiment})''
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
@@ -110,7 +136,7 @@ Line 123: This is a little unclear. Is the qObs information important to note he
 
 \textbf{TODO: discuss and respond.}
 
-Line 135--136: This is a useful point to make and a good way to motivate the values you chose. Consider including other works here or perhaps in the introduction (cite:jang_simulation_2013, cite:ham_what_2013, cite:kim_ninosouthern_2011).
+Line 135--136: This is a useful point to make and a good way to motivate the values you chose. Consider including other works here or perhaps in the introduction (\cite{jang_simulation_2013}, \cite{ham_what_2013}, \cite{kim_ninosouthern_2011}).
 
 \textbf{Revised text and added references following the reviewer's suggestion. TODO: refer to edited line number.}
 
@@ -118,15 +144,15 @@ Line 142--143: Above, you say that this parameter only comes into play for plume
 
 \textbf{As $\alpha$ only sets the minimum entrainment rate, there are significant variations in entrainment below 500 hPa as well (TODO: attach figure). In addition, it is also important to consider the entrainment profile below 500 hPa for the zero-buoyancy bulk-plume models, where entrainment rates are varied throughout the entire troposphere.}
 
-Line 155--158: Consider breaking this into two sentences: "We compare the tropical tropospheric temperature response to surface warming in aquaplanet models and zero-buoyancy bulk-plume models subject to varying entrainment rates. We consider bulk-plume models from ..."
+Line 155--158: Consider breaking this into two sentences: ``We compare the tropical tropospheric temperature response to surface warming in aquaplanet models and zero-buoyancy bulk-plume models subject to varying entrainment rates. We consider bulk-plume models from \ldots{}''
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
-Line 166: Consider replacing "to be" with "which is" or "so that the R16 model is"
+Line 166: Consider replacing ``to be'' with ``which is'' or ``so that the R16 model is''
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
-Line 168: Replace "the literature." with "each model's respective publication." (assuming this is the case)
+Line 168: Replace ``the literature.'' with ``each model's respective publication.'' (assuming this is the case)
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
@@ -138,11 +164,11 @@ Eq. 2: This isn't exactly what is on the AMS website, but I trust that it is equ
 
 \textbf{The two equations are mathematically equivalent as} \(\Gamma_d=\frac{g}{c_{pd}}\) \textbf{in height coordinates. We choose to write the equation this way as it is also valid in pressure coordinates, where} \(\Gamma_d=\frac{R_dT}{pc_{pd}}\).
 
-SI Table 2, 4, 5: should this be "indistinguishable from zero"?
+SI Table 2, 4, 5: should this be ``indistinguishable from zero''?
 
 \textbf{Corrected captions for SI Tables 2, 4, and 5.}
 
-Line 185--186: It would be very useful to look at this and include a statement that this assumption does not matter. I think cite:flannaghan_tropical_2014 include the effects of freezing in their appendix.
+Line 185--186: It would be very useful to look at this and include a statement that this assumption does not matter. I think \cite{flannaghan_tropical_2014} include the effects of freezing in their appendix.
 
 \textbf{show effect of freezing and respond.}
 
@@ -158,7 +184,7 @@ Line 209 / Figure 1: I would encourage you to start with the amipFuture\(+4\time
 
 \textbf{discuss with major comments and respond.}
 
-Line 222: Consider saying "smaller" in regions of deep convection (since you go on to show that other factors matter and there is still substantive over-prediction).
+Line 222: Consider saying ``smaller'' in regions of deep convection (since you go on to show that other factors matter and there is still substantive over-prediction).
 
 \textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
 
@@ -168,9 +194,7 @@ Line 240--241: Please state the experiment you are using. I assume these are the
 
 \textbf{revisit after discussing major comments and respond.}
 
-Line 246: Consider replacing "non-zero" with "the"
-
-\textbf{Revised text following the reviewer's suggestion. TODO: refer to edited line number.}
+Line 246: Consider replacing ``non-zero'' with ``the''
 
 Figure 4: Consider plotting the moist adiabat for reference.
 
@@ -178,7 +202,7 @@ Figure 4: Consider plotting the moist adiabat for reference.
 
 Line 269: Do you know why this scales with the logarithm of entrainment?
 
-\textbf{We are not sure why overprediction scales with the logarithm of entrainment in GFDL. As the moist adiabatic and bulk-plume temperature profiles must be numerically integrated, we are unaware of how to derive an analytical relationship between between overprediction and entrainment.}
+\textbf{discuss and respond.}
 
 Line 289: It would be worthwhile to quantify the average contribution of the circulation by taking the difference of the over-prediction in the tropical average and the ascent region. Actually, I see you do this in the abstract, so it should also be quantified in the text/conclusion.
 
@@ -200,7 +224,9 @@ Figure S5 and similar box and whisker plots: Is the range of the blue lines the 
 
 \textbf{The caption labels are correct. The \(5\)--\(95\%\) confidence interval (CI) of the mean is related to the standard deviation \(\sigma\), mean \(\mu\), and sample size \(n\) as} \(\mu\pm1.96\frac{\sigma}{\sqrt{n}}\). \textbf{In Figure S5, the sample sizes are close to 9, so the CI is approximately} \(\mu\pm\frac{2}{3}\sigma\). \textbf{Thus, it makes sense that the CI of the mean is smaller than the standard deviation.}
 
-* Reviewer 2
+\section*{Reviewer 2}
+\label{sec:orgf0edd62}
 
-bibliographystyle:apalike
-bibliography:/mnt/c/Users/omiyawaki/Sync/papers/references.bib
+\bibliographystyle{apalike}
+\bibliography{../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references}
+\end{document}
