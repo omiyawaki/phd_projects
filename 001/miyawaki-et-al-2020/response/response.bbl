@@ -41,6 +41,12 @@ Kim, D., Jang, Y.-S., Kim, D.-H., Kim, Y.-H., Watanabe, M., Jin, F.-F., and
   cumulus entrainment in a coupled general circulation model.
 \newblock {\em Journal of Geophysical Research: Atmospheres}, 116(D22).
 
+\bibitem[Neale and Hoskins, 2000]{neale_standard_2000}
+Neale, R.~B. and Hoskins, B.~J. (2000).
+\newblock A standard test for {{AGCMs}} including their physical
+  parametrizations: {{I}}: The proposal.
+\newblock {\em Atmospheric Science Letters}, 1(2):101--107.
+
 \bibitem[Santer et~al., 2005]{santer_amplification_2005}
 Santer, B.~D., Wigley, T. M.~L., Mears, C., Wentz, F.~J., Klein, S.~A., Seidel,
   D.~J., Taylor, K.~E., Thorne, P.~W., Wehner, M.~F., Gleckler, P.~J., Boyle,
@@ -55,6 +61,12 @@ Santer, B.~D., Wigley, T. M.~L., Mears, C., Wentz, F.~J., Klein, S.~A., Seidel,
 Sobel, A.~H., Held, I.~M., and Bretherton, C.~S. (2002).
 \newblock The {{ENSO Signal}} in {{Tropical Tropospheric Temperature}}.
 \newblock {\em Journal of Climate}, 15(18):2702--2706.
+
+\bibitem[Wang and Huang, 2020]{wang_understanding_2020}
+Wang, Y. and Huang, Y. (2020).
+\newblock Understanding the {{Atmospheric Temperature Adjustment}} to {{CO2
+  Perturbation}} at the {{Process Level}}.
+\newblock {\em Journal of Climate}, 33(3):787--803.
 
 \bibitem[Zhou et~al., 2016]{zhou_impact_2016}
 Zhou, C., Zelinka, M.~D., and Klein, S.~A. (2016).
