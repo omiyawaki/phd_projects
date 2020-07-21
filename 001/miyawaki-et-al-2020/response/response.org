@@ -9,7 +9,7 @@ To first order, temperature change in the tropical troposphere scales as a moist
 
 This manuscript represents a useful and fundamental contribution to our understanding of the factors contributing to tropical tropospheric temperature change and will likely be well-cited, even though the topic is rather specialized. I really like this paper. While I do not have substantial technical criticisms of the research, I have made a number of editorial suggestions regarding the presentation, which I think will improve the impact of the manuscript. I view this as a recommendation for major, optional revisions, but would strongly encourage the authors to address the essence of my suggestions (I do not expect that the authors will implement the exact changes I suggest).
 
-\textbf{We thank the reviewer for their helpful comments. We revised the manuscript to address many of the concerns they raised. Our responses to their comments are presented in bold. The line numbers referenced in our responses correspond to the track changes version of our manuscript.}
+\textbf{We thank the reviewer for their helpful comments. We revised the manuscript to address many of the concerns they raised. Our responses to their comments are presented in bold. The line numbers referenced in our response correspond to those in the track-changes version of our manuscript.}
 
 Framing the large scale circulation: I did not understand what was meant when you wrote that the "large-scale circulation" contributed to the over-prediction, even after reading lines 65--78 (which I had interpreted as a useful summary of interesting/relevant results by others). I initially thought you were referring to the CO\(_2\) effect on the circulation change. But the "large-scale circulation" simply means that a moist adiabatic response should really only be expected in regions of deep convection (and not in regions of large-scale descent). It wasn't until Section 3.2 that I understood what as meant and my reaction to Figure 2 was that "no one expects a moist adiabatic scaling relative to the eastern Pacific surface temperature response." Perhaps making the meaning of "large-scale circulation" more clear with something like this (perhaps the topic sentence(s) or concluding sentence(s) 65--78): "The tropical atmospheric circulation is zonally asymmetric with regions of climatological ascent and descent. Since the tropospheric temperature is only expected to be coupled to the surface temperature in regions of deep atmospheric convection, a moist adiabatic temperature scaling does not necessarily hold in areas of large scale descent or in the tropical average. As such, the presence of the tropical atmospheric circulation may influence the scaling between tropical tropospheric and surface temperature change. In contrast, aquaplanets do not include a tropical, zonally symmetric circulation, and may adhere more closely to moist adiabatic warming throughout the tropics."
 
@@ -17,7 +17,7 @@ Framing the large scale circulation: I did not understand what was meant when yo
 
 This manuscript includes a tremendous amount of information. At times, the many complementary (and subtly different) comparisons can dilute the take home messages. I think it would be extremely useful to try to incorporate the findings into a summary figure that could illustrate the estimated contribution that each process makes to the moist adiabatic warming over-estimation. For example, it is very helpful that you state the contribution to the over-prediction from the circulation and CO\(_2\) in the abstract. I don't think you actually state how you arrive at these estimates in the main text. I've constructed a schematic of the type of figure I was thinking of (you could include other simulations, but I think the key is to allow the reader to see the contribution each process makes to the over-prediction). This would essentially combine the information of Figure 1 and 3.
 
-\textbf{We revised Fig. 1 to combine the information of previous Figs. 1 and 3. The text in Sections 3.2 and 3.3 now highlight the difference in overprediction, which can be interpreted as the contributions of the large-scale circulation and the direct CO$_2$ effect on overprediction. We added a new Fig. 4 following the proposed schematic that show the contribution of each of the processes we investigated in this paper on overprediction.}
+\textbf{We revised Fig. 1 to combine the information of previous Figs. 1 and 3. The text in Sections 3.2 and 3.3 now highlight the difference in overprediction, which can be interpreted as the contributions of the large-scale circulation and the direct CO$_2$ effect on overprediction. On the other hand, we cannot interpret the result of our GFDL model experiments as the contribution of entrainment on overprediction as we do not have a simulation with zero convective entrainment. Thus, we prefer to illustrate the effect of entrainment in a separate figure (Fig. 3).}
 
 A similar comment regarding the presentation in the text. The average over-prediction values are listed in Sections 3.1--3.3 (rather than the estimate change attributed to each physical process). It would be extremely helpful to 1) re-order the presentation of experiments into a more linear narrative, 2) emphasize a subset of the experiments (and use the others of further evidence of your claims), and 3) focus more on the impact of each process (rather than the mean over-prediction for each experiment). For example, you could:
 - start by stating in Section 3.1 that the over-prediction is \(23.7\%\) in abrupt4\(\times\)CO\(_2\) and the magnitude is similar in amipFuture+4\(\times\)CO\(_2\) and amip4K+4\(\times\)CO\(_2\) runs (\(20.1\) and \(21.1\%\)).
@@ -34,7 +34,7 @@ Title: You do a bit more than "quantify." You could consider noting that you ide
 
 Key Point 2 / Line 19: Consider "after accounting for the presence of a large-scale climatological circulation and the direct effect of CO\(_2\) on circulation changes".
 
-\textbf{Revised text following the reviewer's suggestion. (Line 10)}
+\textbf{We implemented the first part of the reviewer's suggestion (by adding "the presence of" to clarify the statement) (Line 10) but decided to leave out the second suggestion ("on circulation changes"). As we discuss in the paper, the direct effect of CO\(_2\) also influences the temperature response through changes in the radiative energy balance and convection in addition to changes in the large-scale circulation. As we do not identify which of these processes dominate the direct CO\(_2\) response in this paper, we prefer to keep the text as is to include all possible processes in the direct CO\(_2\) effect.}
 
 Line 15: Consider making it clear that warming is amplified relative to the surface (or lower troposphere) by inserting "surface." Here you say that the amplification is in response to CO\(_2\) increases, but in other places you are careful to say that it is due to surface warming (and not the direct effect of CO\(_2\)). Maybe you could address this subtlety with "greenhouse warming" in place of "increased CO\(_2\)"?
 
@@ -46,7 +46,7 @@ Line 21: It wasn't immediately clear how to interpret these numbers, because the
 
 Plain Language Summary: There are some places where this reads a bit jargon-y and emphasizes detailed, field specific results rather than broader take-home messages. Consider simplifying this a bit and/or focusing on the implications for the research. For example, you could center the discussion around rising plumes (which leads to thermodynamic heating as water vapor condenses into clouds and rain droplets). This would allow you to substitute out some specialty-specific language such as "mixing of dry environmental air into moist ascent" into something like "dry air mixes into the rising plume, which dilutes the water vapor content and reduces warming from condensation." I view this as an optional editorial comment since plain-language summaries are new enough where there isn't a standard on which audience these should be geared to.
 
-\textbf{We prefer to keep the original plain language summary, which we wrote with the intended audience of atmospheric scientists whose expertise lies outside of convection and tropical climatology.}
+\textbf{We revised the Plain Language Summary with a narrative based on rising plumes as the reviewer suggested. The revised summary should be more accesible to a broader audience.}
 
 Line 16, 30, 47: Consider in one or more places clarifying that this is increased "atmospheric" CO\(_2\).
 
@@ -146,7 +146,7 @@ Line 170: I assume this is tropical? 20 N--S? Over land and ocean? Or was this d
 
 Eq. 2: This isn't exactly what is on the AMS website, but I trust that it is equivalent.
 
-\textbf{The two equations are mathematically equivalent as} \(\epsilon=\frac{R_d}{R_v}\) \textbf{and} \(\Gamma_d=\frac{g}{c_{pd}}\)\textbf{.}
+\textbf{The two equations are mathematically equivalent as} \(\epsilon=\frac{R_d}{R_v}\) \textbf{and} \(\Gamma_d=\frac{g}{c_{pd}}\)\textbf{. We now define the expression of \(Gamma_d\) in the text to make this more clear. (Line 210)}
 
 SI Table 2, 4, 5: should this be "indistinguishable from zero"?
 
@@ -216,7 +216,7 @@ Figure S5 and similar box and whisker plots: Is the range of the blue lines the 
 
 The paper investigates the deviation in the upper-troposphere warming from a simple moist-adiabat prediction. It shows that moist adiabat over-predicts the upper-tropospheric warming because of effects from large-scale circulation, direct CO\(_2\) effect, and entrainment. The results are overall convincing but there are a few key points that need to be clarified.
 
-\textbf{We thank the reviewer for their helpful comments. We revised the manuscript to address many of the concerns they raised. Our responses to their comments are presented in bold. The line numbers referenced in our responses correspond to the track changes version of our manuscript.}
+\textbf{We thank the reviewer for their helpful comments. We revised the manuscript to address many of the concerns they raised. Our responses to their comments are presented in bold. The line numbers referenced in our response correspond to those in the track-changes version of our manuscript.}
 
 Line 170: The moist adiabatic profile is sensitive to where the air parcel is initially lifted from. The paper chooses the 2 m level. What if using the boundary-layer mean or 950 hPa. The paper should discuss about this sensitivity.
 
