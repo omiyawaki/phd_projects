@@ -1,0 +1,177 @@
+#+title: Research Notes
+#+author: Osamu Miyawaki
+#+date: August 1, 2020
+#+options: toc:nil
+
+* Introduction
+Action items from our previous meeting are:
+- Plot zonally-averaged temperature profiles for various latitudes. This is to check for the variation in the temperature profile within regions of RCE and RAE. We suspect there is substantial variation in SH RAE, hence we did not see a near-surface inversion in the temperature profile averaged over SH RAE.
+- Understand why there is no near-surface inversion in the SH RAE in MPI-ESM-LR.
+- Explore meridional velocity \(v\) as a criteria for RCE. Specifically, we require RCE to be regions where \(|v|\) is below some threshold value.
+  - Consider various pressure levels of \(v\).
+- Explore sensitivity of RCE to various thresholds of weak DSE flux divergence in the DSE equation. Previously, I only tested \(\nabla\cdot F_s<50\) Wm\(^{-2}\) following cite:jakob_radiative_2019.
+- As the surface turbulent fluxes in ERA-I/ERA5 are unreliable, infer the surface turbulent fluxes as the residual of the MSE flux divergence (using Aaron's data) and radiative cooling (from CERES4.1).
+  - Does ignoring the MSE tendency term make a significant impact on the predicted RCE and RAE regions?
+
+* Methods
+** Data used for radiative fluxes comparison
+Our goal for comparing the radiative fluxes across various datasets is to ensure that the radiative cooling in the ERA reanalyses are trustworthy. Radiative cooling in ERA5 (gray line in Fig. [[fig:repro-era5]]) was previously found to be about 30 Wm$^{-2}$ stronger than in cite:hartmann_global_2016 (gray line in Fig. [[fig:hartmann]]).
+
+#+caption: Annually-averaged energy fluxes in ERA5 in the vertically-integrated MSE budget. Blue is latent heat, orange is sensible heat, red is MSE flux divergence, and gray is atmospheric radiative cooling. MSE flux divergence is inferred as the residual of the other terms.
+#+label: fig:repro-era5
+[[../../figures/era5/std/energy-flux/lo/ann/mse-all.png]]
+
+#+caption: Reprint of Fig. 6.1 from cite:hartmann_global_2016 showing the energy flux terms in the vertically-integrated MSE budget. LE is latent heat, SH is sensible heat, $\Delta F_a$ is MSE flux divergence, and $R_a$ is atmospheric radiative cooling.
+#+label: fig:hartmann
+[[../../../prospectus/figs/fig-6-1-hartmann.png]]
+
+I compare the CERES Ed.4.1 satellite data and ERA-I and ERA5 reanalyses to the dataset used by cite:donohoe_seasonal_2013 (hereafter DB13). DB13 uses the modified CERES TOA data of cite:fasullo_annual_2008. In the paper, DB13 reports to use CERES data spanning from 2000 through 2005, but in the documentation of the processed data, they report using data from 2000 through 2012. I will follow the documentation and average the ERA-I and ERA5 data from January 2000 through December 2012. The earliest data available for CERES4.1 is March 2000, so I cannot make a direct comparison between CERES4.1 and DB13 over the same time period. To be as close to DB13 as possible, I average the data in CERES4.1 from March 2000 through February 2013.
+
+Since DB13 does not include LW radiation at the surface, it is not possible to compute $R_a$ with their dataset. However, we can compare the shortwave flux absorbed by the atmosphere. This is related to $R_a$ as follows:
+\begin{equation}
+R_a = \mathrm{SWABS} - \mathrm{LWEMS}
+\end{equation}
+where SWABS is atmospheric shortwave absorption and LWEMS is longwave emission. The idea here is that if SWABS is similar between various datasets, we can attribute the strong $R_a$ in the ERA reanalyses due to strong LWEMS.
+
+** Additional flags for defining RCE
+Defining RCE using $R_1 \ll 1$ necessarily captures a region in the midlatitudes as RCE where the MSE flux divergence crosses 0. This is problematic because it identifies regions such as the winter midlatitudes as RCE, where we do not observe moist adiabatic temperature profiles. The goal of these flags is to isolate midlatitude RCE only to regions where and when we expect moist adiabatic temperature profiles to exist, such as over land in the summer.
+*** Weak horizontal atmospheric heat transport
+Poleward heat transport by baroclinic eddies stabilize the troposphere, so regions where there is strong baroclinicity tend to be warmer than a moist adiabat. Strong baroclinicity is associated with strong poleward heat transport. Thus, we can require RCE to be regions where horizontal atmospheric heat transport ($F_a$) is small, for example
+\begin{equation}
+    \mathrm{RCE} = (R_1 < \epsilon) \text{ and } \left(F_a < \max\left(\frac{|F_a|}{2}\right)\right)
+\end{equation}
+where above we quantify small $F_a$ as where it is less than half its maximum value.
+*** $\omega500<0$ (ascent)
+The vertically-integrated MSE equation predicts RCE as where radiative cooling is approximately balanced by surface turbulent fluxes. However, this does not necessarily imply that the surface turbulent fluxes are carried upward by convection. A simple flag to ensure that convection is occuring in the column is to require RCE to be regions where the vertically velocity is upward in the mid-troposphere; that is, $\omega500<0$. One drawback of this approach is that it does not distinguish between convective ascent and slantwise ascent. The latter is associated with baroclinic instability, where air rises as it travels poleward.
+* Results
+** Comparing radiative fluxes
+*** CERES, ERA-I, ERA5, and DB13
+ERA-I, ERA5, and CERES4.1 exhibit stronger SWABS than DB13 at most latitudes (Fig. [[fig:swabs]]). The exception is in the SH high latitudes, where DB13 shows stronger SWABS. The difference is on the order of 5--10 Wm$^{-2}$ (Fig. [[fig:swabs-diff]]), which is not negligible as the difference in $R_a$ between ERA5 and cite:hartmann_global_2016 was about 30 Wm$^{-2}$. Furthermore, if ERA and CERES have a positive SWABS bias, then $R_a$ should be weaker (less negative) all else being equal. Thus, this unfortunately does not provide much insight into why $R_a$ is larger in ERA and CERES compared to cite:hartmann_global_2016.
+
+#+caption: Shortwave flux absorbed by the atmosphere (SWABS) for ERA-Interim (ERA-I) reanalysis, ERA5 reanalysis, CERES Ed.4.1 TOA and SFC products, and cite:donohoe_seasonal_2013 dataset.
+#+label: fig:swabs
+[[../../figures/comp/lat/swabs.png]]
+
+#+caption: The difference in shortwave flux absorbed by the atmosphere (SWABS) for ERA-Interim (ERA-I) reanalysis - DB13, ERA5 reanalysis - DB13, and CERES4.1 - DB13.
+#+label: fig:swabs-diff
+[[../../figures/comp/lat/swabs-diff-db13.png]]
+
+*** cite:randall_atmosphere_2012
+cite:randall_atmosphere_2012 provides globally-averaged values of SWABS and LWEMS (reprinted in Table [[tab:randall-ra]]), and the radiative cooling reported there is $-98$ Wm$^{-2}$. Randall does not specify where this data comes from. For comparison, the radiative cooling in ERA-I is $-110$ Wm$^{-2}$, ERA5 is $-105$ Wm$^{-2}$, and CERES4.1 is $-110$ Wm$^{-2}$. Thus, radiative cooling is larger by 5--10 Wm$^{-2}$ for ERA and CERES4.1. This difference is not as large as compared to cite:hartmann_global_2016, where the globally-averaged $R_a$ appears to be around $-80$ Wm$^{-2}$ (gray line in Fig. [[fig:hartmann]]). SWABS is comparable across all datasets (78--80 Wm$^{-2}$) and most of the difference in $R_a$ is due to LWEMS ($-176\text{--}190$ Wm$^{-2}$).
+
+#+caption: Reprint of Table 2.2 in cite:randall_atmosphere_2012. Shortwave (SW) and longwave (LW) fluxes at the top of atmosphere (TOA), surface (SFC), net fluxes through the atmosphere (Atmos.), and radiative cooling ($R_a$) shown in Wm$^{-2}$.
+#+label: tab:randall-ra
+|-------+------+------+--------|
+|       |  TOA |  SFC | Atmos. |
+|-------+------+------+--------|
+| SW    |  239 | -161 |     78 |
+| LW    | -239 |   63 |   -176 |
+|-------+------+------+--------|
+| $R_a$ |      |      |    -98 |
+|-------+------+------+--------|
+
+#+caption: Same as Table [[tab:randall-ra]] but with ERA-I data. Units: Wm$^{-2}$.
+#+label: tab:erai-ra
+|-------+------+------+--------|
+|       |  TOA |  SFC | Atmos. |
+|-------+------+------+--------|
+| SW    |  244 | -164 |     80 |
+| LW    | -246 |   56 |   -190 |
+|-------+------+------+--------|
+| $R_a$ |      |      |   -110 |
+|-------+------+------+--------|
+
+#+caption: Same as Table [[tab:randall-ra]] but with ERA5 data. Units: Wm$^{-2}$.
+#+label: tab:era5-ra
+|-------+------+------+--------|
+|       |  TOA |  SFC | Atmos. |
+|-------+------+------+--------|
+| SW    |  243 | -164 |     79 |
+| LW    | -242 |   58 |   -184 |
+|-------+------+------+--------|
+| $R_a$ |      |      |   -105 |
+|-------+------+------+--------|
+
+#+caption: Same as Table [[tab:randall-ra]] but with CERES4.1 data. Units: Wm$^{-2}$.
+#+label: tab:ceres-ra
+|-------+------+------+--------|
+|       |  TOA |  SFC | Atmos. |
+|-------+------+------+--------|
+| SW    |  241 | -164 |     78 |
+| LW    | -240 |   53 |   -187 |
+|-------+------+------+--------|
+| $R_a$ |      |      |   -110 |
+|-------+------+------+--------|
+
+*** cite:lin_assessment_2008
+cite:lin_assessment_2008 is another source to which we can compare our radiative cooling data. Their data is derived from the Global Energy and Water Cycle Experiment (GEWEX) Surface Radiation Budget (SRB) product. Their analysis shows that globally-averaged radiative cooling is $-112.12$ Wm$^{-2}$ (Fig. [[fig:lin]]), which is comparable to the ERA and CERES data.
+
+#+caption: Reprint of Fig. 2 from cite:lin_assessment_2008 showing the latitudinal structure of the net radiative fluxes at the surface (SFC), top of atmosphere (TOA), and radiative cooling of the atmosphere (Atmo).
+#+label: fig:lin
+[[../../../prospectus/figs/fig-2-lin.jpg]]
+
+*** cite:jakob_radiative_2019
+cite:jakob_radiative_2019 plots the longitude-latitude contour map of atmospheric radiative cooling using CERES4.0 data averaged from 2001 through 2009. Reproducing the same figure using CERES4.1 data also averaged from 2001 through 2009 gives a similar profile (Fig. [[fig:ceres-ra]]). In summary, the magnitude of radiative cooling in ERA and CERES are similar to those reported in the literature, suggesting that the profile shown in cite:hartmann_global_2016 is an anomaly.
+
+#+caption: Reprint of Fig. 1b from cite:jakob_radiative_2019 showing the spatial structure of atmospheric radiative cooling in CERES averaged from 2000 through 2009.
+#+label: fig:jakob-ra
+[[../../figures/ext/fig-1-b-jakob.png]]
+
+#+caption: Same as Fig. [[fig:jakob-ra]], but reproduced using CERES4.1 data.
+#+label: fig:ceres-ra
+[[../../figures/comp/lon_lat/ra_ceres.png]]
+
+** Comparing turbulent fluxes and Net LW at Surface
+If $R_a$ in ERA5 is reasonable, then why does the inferred MSE flux divergence not integrate to 0 at the opposite pole (Fig. [[fig:era5-vh]])? The inferred $-3$ PW transport at the north pole indicates that the MSE flux divergence profile is unrealistically small (more negative, or the red curve is shifted too far down in Fig. [[fig:repro-era5]]). The surface turbulent fluxes are the only remaining terms that could be the cause of this problem. As the MSE flux divergence is inferred as follows,
+\begin{equation}
+\nabla \cdot F_m = R_a + \mathrm{LH} + \mathrm{SH}
+\end{equation}
+a negative bias in MSE flux divergence is associated with a negative bias in the sum of the latent (LH) and sensible (SH) heat fluxes.
+
+To get a better understand the bias in LH and SH in ERA5, I will use the DB13 dataset. However, the DB13 dataset only provides the combined flux of LH, SH, and net LW fluxes at the surface (net LW SFC). Thus, a direct comparison consisting only of the LH and SH is not possible. The following results should be interpreted with caution as differences in net LW SFC between ERA5 and DB13 could also contribute to the difference. With that said, the sum of LH, SH, and net LW SFC has a negative bias in both ERA-I and ERA5 compared to DB13 (Fig. [[fig:comp-stf-lw]]), consistent with the negative bias of the MSE flux divergence. The difference is largest in the extratropics, where the sum of LH, SH, and net LW SFC in ERA-I and ERA5 are about $-20$ Wm$^{-2}$ weaker than in DB13. This warrants further investigation of the ERA surface turbulent fluxes, for example by comparing the ERA fluxes with observed fluxes in the SRB, GSSTF, and OAFLUX datasets.
+
+#+caption: Northward MSE transport in ERA5 is not 0 at the North Pole. The transport is calculated by integrating the MSE flux divergence, which is inferred as the residual of atmospheric radiative cooling and surface turbulent fluxes.
+#+label: fig:era5-vh
+[[../../figures/era5/std/transport/ann/mse.png]]
+
+#+caption: The sum of latent (LH), sensible (SH), and net LW flux at the surface in ERA-Interim (ERA-I), ERA5, and DB13.
+#+label: fig:comp-stf-lw
+[[../../figures/comp/lat/surface_turbulent_plus_LW.png]]
+
+#+caption: The differences in the sum of latent (LH), sensible (SH), and net LW flux at the surface for ERA-Interim (ERA-I) $-$ DB13 and ERA5 $-$ DB13.
+#+label: fig:comp-stf-lw-diff
+[[../../figures/comp/lat/surface_turbulent_plus_LW-diff-db13.png]]
+
+** Comparing MSE flux divergence in MPI-ESM-LR
+I will now shift our attention to MPI-ESM-LR piControl data. As we infer MSE flux divergence as the residual of $R_a$ and surface turbulent fluxes, it's important that we compare and validate the inferred MSE flux divergence profile to those reported in the literature. Of particular importance is the local minimum in MSE flux divergence near the equator, as a weak MSE flux divergence near the equator is a requirement for diagnosing the existence of RCE in the deep tropics.
+*** DB13
+MPI-ESM-LR shows a more pronounced local minimum near the equator (red line in Fig. [[fig:tediv]]) compared to DB13 (blue line). Overall, MPI-ESM-LR shows a larger range of MSE flux divergence (max 50 Wm$^{-2}$, min $-120$ Wm$^{-2}$) compared to DB13 (max 40 Wm$^{-2}$, min $-100$ Wm$^{-2}$).
+
+#+caption: MSE flux divergence in MPI-ESM-LR (inferred) and DB13 (computed from high-frequency wind and MSE data).
+#+label: fig:tediv
+[[../../figures/comp/lat/tediv.png]]
+
+*** cite:trenberth_atmospheric_2001
+cite:trenberth_atmospheric_2001 provides the total energy flux divergence for the NCEP and ECMWF reanalyses (Fig. [[fig:tediv-trenberth-2001]]). The kinetic energy flux divergence is generally thought to be small, so this should be a reasonable comparison to the MSE flux divergence. The total energy flux in both reanalyses exhibit a local minimum near the equator that is close to 0 Wm$^{-2}$ (vertical subplots on the right side of Fig. [[fig:tediv-trenberth-2001]]). Overall, this is similar to the profile in MPI-ESM-LR.
+
+#+caption: Partial reprint of Fig. 1 in cite:trenberth_atmospheric_2001. Total energy divergence (MSE + kinetic energy (KE) flux divergence) over 1979 through 1993 for the NCEP reanalysis (top) and ECMWF (bottom).
+#+label: fig:tediv-trenberth-2001
+[[../../figures/ext/fig-1-ab-trenberth-2001.png]]
+
+*** cite:fasullo_annual_2008-1
+cite:fasullo_annual_2008-1 provides an updated profile of total energy flux divergence. The total energy flux divergence has a local minimum near the equator in all reanalysis and observation combinations (black lines in right panel of Fig. [[fig:tediv-fasullo-2008]]).
+
+#+caption: Reprint of Fig. 3 in cite:fasullo_annual_2008-1. Total energy divergence over the ERBE period (Feb. 1985 through Apr. 1989) and the CERES period (Mar. 2000 through May 2004) for the NCEP-NCAR reanalysis (NRA) and the ECMWF ERA-40 reanalysis.
+#+label: fig:tediv-fasullo-2008
+[[../../figures/ext/fig-3-fasullo-2008-1.png]]
+
+** Effect of adding flags for RCE in MPI-ESM-LR
+
+#+caption: Regions of RCE in orange and RAE in blue in MPI-ESM-LR as diagnosed from the vertically-integrated MSE budget. Here, RCE is defined as where $R_1 < 0.3$ and RAE as where $R_2 < 0.3$.
+#+label: fig:rcae-def
+[[../../figures/gcm/MPI-ESM-LR/std/eps_0.3/def/lo/rcae_mon_lat.png]]
+
+* Next Steps
+
+bibliographystyle:apalike
+bibliography:~/Sync/papers/references.bib
