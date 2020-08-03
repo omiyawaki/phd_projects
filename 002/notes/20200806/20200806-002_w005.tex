@@ -1,0 +1,112 @@
+% Created 2020-08-03 Mon 17:46
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Osamu Miyawaki}
+\date{August 1, 2020}
+\title{Research Notes}
+\hypersetup{
+ pdfauthor={Osamu Miyawaki},
+ pdftitle={Research Notes},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:orgc63b1bb}
+Action items from our previous meeting are:
+\begin{itemize}
+\item Plot zonally-averaged temperature profiles for various latitudes. This is to check for the variation in the temperature profile within regions of RCE and RAE. We suspect there is substantial variation in SH RAE, hence we did not see a near-surface inversion in the temperature profile averaged over SH RAE.
+\item Explore sensitivity of RCE to various thresholds of weak DSE flux divergence in the DSE equation. Previously, I only tested \(\nabla\cdot F_s<50\) Wm\(^{-2}\) following \cite{jakob2019}.
+\item As the surface turbulent fluxes in ERA-I/ERA5 are unreliable, infer the surface turbulent fluxes as the residual of the MSE flux divergence (using Aaron's data) and radiative cooling (from CERES4.1).
+\begin{itemize}
+\item Does ignoring the MSE tendency term make a significant impact on the predicted RCE and RAE regions?
+\end{itemize}
+\end{itemize}
+
+\section{Zonally-averaged temperature profiles}
+\label{sec:org0ace24e}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.8/mse/def/lo/ann/temp/rcae_all.png}
+\caption{\label{fig:org1617712}Annually-averaged temperature profiles over RCE (\(|R_1|<0.3\)) and RAE (\(R_1>0.8\)) in MPI-ESM-LR. Each regime is further categorized into the northern hemisphere (NH) and southern hemisphere (SH). RCE is further categorized into the tropics (defined to be within \(\pm 30^\circ\)) and the midlatitudes (defined to be outside \(30^\circ\)).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/p/sh.png}
+\caption{\label{fig:orgcec0283}Annually and zonally-averaged temperature profiles at various southern hemisphere high latitudes.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/p/nh.png}
+\caption{\label{fig:org1543f05}Annually and zonally-averaged temperature profiles at various northern hemisphere high latitudes.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/p/eq.png}
+\caption{\label{fig:orgbe9e717}Annually and zonally-averaged temperature profiles at various low latitudes.}
+\end{figure}
+
+
+\section{Varying DSE RCE threshold values}
+\label{sec:org8cb184c}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.8/dse/jak/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org1fcf752}Regions of RCE in orange as diagnosed using the vertically-integrated DSE equation with MPI-ESM-LR data. Surface fluxes are inferred as the residual. Here, RCE is defined as where \(|\nabla\cdot F_s| < 50\) W/m\(^2\). Regions of RAE in blue as diagnosed using the MSE equation (\(R_1>0.8\)).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.8/dse/jak30/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org6dc45a1}Same as Fig. \ref{fig:org1fcf752} but where RCE is defined as where \(|\nabla\cdot F_s| < 30\) W/m\(^2\).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.8/dse/jak10/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org864d3b9}Same as Fig. \ref{fig:org1fcf752} but where RCE is defined as where \(|\nabla\cdot F_s| < 10\) W/m\(^2\).}
+\end{figure}
+
+\section{Inferring surface turbulent fluxes as residual}
+\label{sec:org08c094e}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/eps_0.45_ga_0.65/db13/def/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org612054f}Regions of RCE in orange and RAE in blue as diagnosed using CERES radiation and the DB13 MSE flux divergence and tendency data. Surface fluxes are inferred as the residual. Here, RCE is defined as where \(R_1 < 0.45\) and RAE as where \(R_1 > 0.65\).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/eps_0.45_ga_0.65/db13s/def/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:orgeddfbe5}Regions of RCE in orange and RAE in blue as diagnosed using CERES radiation and the DB13 MSE flux divergence data. MSE tendency is ignored. Surface fluxes are inferred as the residual. Here, RCE is defined as where \(R_1 < 0.45\) and RAE as where \(R_1 > 0.65\).}
+\end{figure}
+
+\section{Next Steps}
+\label{sec:orgc7f8b08}
+
+\bibliographystyle{apalike}
+\bibliography{../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references}
+\end{document}

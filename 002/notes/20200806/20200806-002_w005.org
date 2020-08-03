@@ -1,0 +1,59 @@
+#+title: Research Notes
+#+author: Osamu Miyawaki
+#+date: August 1, 2020
+#+options: toc:nil
+
+* Introduction
+Action items from our previous meeting are:
+- Plot zonally-averaged temperature profiles for various latitudes. This is to check for the variation in the temperature profile within regions of RCE and RAE. We suspect there is substantial variation in SH RAE, hence we did not see a near-surface inversion in the temperature profile averaged over SH RAE.
+- Explore sensitivity of RCE to various thresholds of weak DSE flux divergence in the DSE equation. Previously, I only tested \(\nabla\cdot F_s<50\) Wm\(^{-2}\) following cite:jakob2019.
+- As the surface turbulent fluxes in ERA-I/ERA5 are unreliable, infer the surface turbulent fluxes as the residual of the MSE flux divergence (using Aaron's data) and radiative cooling (from CERES4.1).
+  - Does ignoring the MSE tendency term make a significant impact on the predicted RCE and RAE regions?
+
+* Zonally-averaged temperature profiles
+
+#+caption: Annually-averaged temperature profiles over RCE (\(|R_1|<0.3\)) and RAE (\(R_1>0.8\)) in MPI-ESM-LR. Each regime is further categorized into the northern hemisphere (NH) and southern hemisphere (SH). RCE is further categorized into the tropics (defined to be within $\pm 30^\circ$) and the midlatitudes (defined to be outside $30^\circ$).
+#+label: fig:mpi-temp
+[[../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.8/mse/def/lo/ann/temp/rcae_all.png]]
+
+#+caption: Annually and zonally-averaged temperature profiles at various southern hemisphere high latitudes.
+#+label: fig:mpi-sh-temp
+[[../../figures/gcm/MPI-ESM-LR/std/temp_zon/p/sh.png]]
+
+#+caption: Annually and zonally-averaged temperature profiles at various northern hemisphere high latitudes.
+#+label: fig:mpi-nh-temp
+[[../../figures/gcm/MPI-ESM-LR/std/temp_zon/p/nh.png]]
+
+#+caption: Annually and zonally-averaged temperature profiles at various low latitudes.
+#+label: fig:mpi-eq-temp
+[[../../figures/gcm/MPI-ESM-LR/std/temp_zon/p/eq.png]]
+
+
+* Varying DSE RCE threshold values
+
+#+caption: Regions of RCE in orange as diagnosed using the vertically-integrated DSE equation with MPI-ESM-LR data. Surface fluxes are inferred as the residual. Here, RCE is defined as where \(|\nabla\cdot F_s| < 50 \) W/m\(^2\). Regions of RAE in blue as diagnosed using the MSE equation (\(R_1>0.8\)).
+#+label: fig:jak50
+[[../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.8/dse/jak/lo/0_rcae_mon_lat.png]]
+
+#+caption: Same as Fig. [[fig:jak50]] but where RCE is defined as where \(|\nabla\cdot F_s| < 30 \) W/m\(^2\).
+#+label: fig:jak30
+[[../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.8/dse/jak30/lo/0_rcae_mon_lat.png]]
+
+#+caption: Same as Fig. [[fig:jak50]] but where RCE is defined as where \(|\nabla\cdot F_s| < 10 \) W/m\(^2\).
+#+label: fig:jak10
+[[../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.8/dse/jak10/lo/0_rcae_mon_lat.png]]
+
+* Inferring surface turbulent fluxes as residual
+
+#+caption: Regions of RCE in orange and RAE in blue as diagnosed using CERES radiation and the DB13 MSE flux divergence and tendency data. Surface fluxes are inferred as the residual. Here, RCE is defined as where $R_1 < 0.45$ and RAE as where $R_1 > 0.65$.
+#+label: fig:db13-def
+[[../../figures/erai/std/eps_0.45_ga_0.65/db13/def/lo/0_rcae_mon_lat.png]]
+
+#+caption: Regions of RCE in orange and RAE in blue as diagnosed using CERES radiation and the DB13 MSE flux divergence data. MSE tendency is ignored. Surface fluxes are inferred as the residual. Here, RCE is defined as where $R_1 < 0.45$ and RAE as where $R_1 > 0.65$.
+#+label: fig:db13-def
+[[../../figures/erai/std/eps_0.45_ga_0.65/db13s/def/lo/0_rcae_mon_lat.png]]
+
+* Next Steps
+
+bibliographystyle:apalike
+bibliography:/mnt/c/Users/omiyawaki/Sync/papers/references.bib
