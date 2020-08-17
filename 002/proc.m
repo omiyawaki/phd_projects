@@ -7,19 +7,19 @@ par.erai.yr_span = '2000_2012'; % spanning years for ERA-Interim
 par.era5.yr_span = '1979_2019'; % spanning years for ERA5
 par.lat_interp = 'std'; % which latitudinal grid to interpolate to: don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
 par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' interpolation
-par.ep_swp = 0.5; %[0.25 0.3 0.35]; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
-par.ga_swp = 0.9; % optional threshold for RAE. If undefined, the default value is 1-par.ep
+par.ep_swp = 0.3; %[0.25 0.3 0.35]; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
+par.ga_swp = 0.7; % optional threshold for RAE. If undefined, the default value is 1-par.ep
 par.ep_cp = 0.5; % additional flag for RCE definition using convective precipitation. RCE is defined as where lsp/cp < ep_cp
 par.ma_type = 'reversible'; % choose the type of moist adiabat: reversible, pseudo, or std
 par.frz = 0; % consider latent heat of fusion in moist adiabat?
 par.pa_span = [1000 100]*100; % pressure range for calculating moist adiabat
 par.pa = linspace(1000,10,100)*1e2; % high resolution vertical grid to interpolate to
 par.dpa = -10; % pressure increment for integrating dry adiabat section of moist adiabat (matters for how accurately the LCL is computed)
-par.z_span = [0 20]*10^3; % height range for calculating moist adiabat
+par.z_span = [0 40]*10^3; % height range for calculating moist adiabat
 par.dz = 10; % pressure increment for integrating dry adiabat section of moist adiabat (matters for how accurately the LCL is computed)
 par.do_surf = 0; % whether or not to calculate temperature profile in pressure grids including ts and ps data
-par.era.fw = {'mse', 'dse', 'mse2', 'db13', 'db13s', 'div'};
-par.gcm.fw = {'mse', 'dse', 'mse2'};
+par.era.fw = {'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt'};
+par.gcm.fw = {'mse', 'dse'};
 par.cpd = 1005.7; par.cpv = 1870; par.cpl = 4186; par.cpi = 2108; par.Rd = 287; par.Rv = 461; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3; par.eps = 0.622; % common constants, all in SI units for brevity
 gcm_info
 
@@ -28,7 +28,7 @@ gcm_info
 % ceres_flux(par)
 % choose_disp(par)
 
-type = 'era5'; % data type to run analysis on
+type = 'erai'; % data type to run analysis on
 % choose_proc(type, par)
 for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
     type = 'gcm';
@@ -36,7 +36,7 @@ for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
 end
 
 for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
-    type = 'era5';
+    type = 'erai';
     % choose_proc_ep(type, par)
     for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
         type = 'gcm';
@@ -83,15 +83,22 @@ function proc_flux(type, par)
         file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/w500/%s_w500_%s.ymonmean.nc', type, type, par.(type).yr_span));
         fullpath=sprintf('%s/%s', file.folder, file.name);
         w500 = ncread(fullpath, 'w');
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/vas/%s_vas_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        vas = ncread(fullpath, 'v10');
         don = load(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/don/radiation_dynamics_climatology')); % read donohoe data
         prefix_ceres=sprintf('/project2/tas1/miyawaki/projects/002/data/read/ceres'); % prefix for CERES data
         load(sprintf('%s/div.mat', prefix)) % read divergence data
+        load(sprintf('%s/tend.mat', prefix)) % read tendency data
     elseif strcmp(type, 'gcm')
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
         prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.lat_interp);
         file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, 'w500', par.model)); % load w500
         fullpath=sprintf('%s/%s', file.folder, file.name);
         w500 = squeeze(ncread(fullpath, 'wap'));
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, 'vas', par.model)); % load vas
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        vas = squeeze(ncread(fullpath, 'vas'));
     end
 
     load(sprintf('%s/grid.mat', prefix)) % read grid data
@@ -107,10 +114,10 @@ function proc_flux(type, par)
         tmp = load(sprintf('%s/grid.mat', prefix_ceres)); ceres.grid = tmp.grid; % read grid data
         tmp = load(sprintf('%s/rad.mat', prefix_ceres)); ceres.rad = tmp.rad; % read CERES radiation data
         for fn = {'TEDIV', 'TETEN'}; fname = fn{1};
-            don.(fname) = permute(don.(fname), [2 3 1]); % bring lat forward
-            don.(fname) = interp1(don.lat, don.(fname), par.lat_std, 'linear');
-            don.(fname) = permute(don.(fname), [2 1 3]); % bring lon forward
-            don.(fname) = interp1(don.lon, don.(fname), grid.dim2.lon, 'linear');
+            flux.(fname) = permute(don.(fname), [2 3 1]); % bring lat forward
+            flux.(fname) = interp1(don.lat, flux.(fname), par.lat_std, 'linear');
+            flux.(fname) = permute(flux.(fname), [2 1 3]); % bring lon forward
+            flux.(fname) = interp1(don.lon, flux.(fname), grid.dim2.lon, 'linear');
         end
         for fn = fieldnames(ceres.rad)'; fname = fn{1}; % interpolate to std lat and ERA lon
             ceres.(fname) = interp1(ceres.grid.dim2.lon, ceres.rad.(fname), grid.dim2.lon, 'linear');
@@ -137,9 +144,24 @@ function proc_flux(type, par)
         flux.(fname) = interp1(grid.dim2.lat, flux.(fname), par.lat_std, 'linear');
         flux.(fname) = permute(flux.(fname), [2 1 3]);
     end
+    if any(strcmp(type, {'era5', 'erai'}))
+        for fn = tend_vars_txt; fname = fn{1}; % interpolate to std lat
+            flux.(fname) = permute(tend.(fname), [2 1 3]);
+            flux.(fname) = interp1(grid.dim2.lat, flux.(fname), par.lat_std, 'linear');
+            flux.(fname) = permute(flux.(fname), [2 1 3]);
+        end; clear tend
+        for fn = div_vars_txt; fname = fn{1}; % interpolate to std lat
+            flux.(fname) = permute(div.(fname), [2 1 3]);
+            flux.(fname) = interp1(grid.dim2.lat, flux.(fname), par.lat_std, 'linear');
+            flux.(fname) = permute(flux.(fname), [2 1 3]);
+        end; clear div
+    end
     flux.w500 = permute(w500, [2 1 3]);
     flux.w500 = interp1(grid.dim3.lat, flux.w500, par.lat_std, 'linear');
     flux.w500 = permute(flux.w500, [2 1 3]);
+    flux.vas = permute(vas, [2 1 3]);
+    flux.vas = interp1(grid.dim3.lat, flux.vas, par.lat_std, 'linear');
+    flux.vas = permute(flux.vas, [2 1 3]);
 
     if strcmp(type, 'era5') | strcmp(type, 'erai')
         % compute surface turbulent fluxes directly from INTP data
@@ -157,7 +179,7 @@ function proc_flux(type, par)
         if any(strcmp(type, {'era5', 'erai'}));
             flux.lw = flux.ttr - flux.str; flux.sw = flux.tsr-flux.ssr; % compute net shortwave and longwave flux through atmosphere
             if any(strcmp(fw, {'mse', 'dse'})); flux.ra.(fw) = flux.tsr - flux.ssr + flux.ttr - flux.str; % compute net radiative cooling from radiative fluxes
-            elseif contains(fw, 'db13') | strcmp(fw, 'div'); flux.ra.(fw) = ceres.ra; end % use radiative cooling from CERES data
+            elseif contains(fw, 'db13') | contains(fw, 'div'); flux.ra.(fw) = ceres.ra; end % use radiative cooling from CERES data
         elseif strcmp(type, 'gcm');
             flux.lw = flux.rlus - flux.rlds - flux.rlut; flux.sw = flux.rsdt - flux.rsut + flux.rsus - flux.rsds;
             flux.ra.(fw) = flux.rsdt - flux.rsut + flux.rsus - flux.rsds + flux.rlus - flux.rlds - flux.rlut;
@@ -167,13 +189,19 @@ function proc_flux(type, par)
         elseif any(strcmp(fw, {'mse2'}))
             flux.res.(fw) = flux.lw + flux.stf.(fw);
         elseif strcmp(fw, 'db13')
-            flux.res.(fw) = don.TEDIV + don.TETEN; % use MSE tendency and flux divergence from DB13
+            flux.res.(fw) = flux.TEDIV + flux.TETEN; % use MSE tendency and flux divergence from DB13
             flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
         elseif strcmp(fw, 'db13s')
-            flux.res.(fw) = don.TEDIV; % use MSE flux divergence from DB13, ignore MSE tendency term
+            flux.res.(fw) = flux.TEDIV; % use MSE flux divergence from DB13, ignore MSE tendency term
+            flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
+        elseif strcmp(fw, 'db13t')
+            flux.res.(fw) = flux.TEDIV + flux.tend; % use MSE flux divergence from DB13, ignore MSE tendency term
             flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
         elseif strcmp(fw, 'div')
-            flux.res.(fw) = div.divt + div.divg + div.divq*par.L; % use MSE tendency and flux divergence from ERA5 output
+            flux.res.(fw) = flux.divt + flux.divg + flux.divq*par.L; % use MSE tendency and flux divergence from ERA5 output
+            flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
+        elseif strcmp(fw, 'divt')
+            flux.res.(fw) = flux.divt + flux.divg + flux.divq*par.L + flux.tend; % use MSE tendency and flux divergence from ERA5 output
             flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
         end
         if strcmp(fw, 'mse2')
@@ -186,7 +214,7 @@ function proc_flux(type, par)
     end
 
     if strcmp(type, 'era5') | strcmp(type, 'erai')
-        for fn = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'w500', 'lw', 'sw'}; fname = fn{1};
+        for fn = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'w500', 'vas', 'lw', 'sw', 'tend', 'divt', 'divg', 'divq', 'TETEN', 'TEDIV'}; fname = fn{1};
             for l = {'lo', 'l', 'o'}; land = l{1};
                 if strcmp(land, 'lo'); flux_n.(land).(fname) = flux.(fname);
                 elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
@@ -216,7 +244,7 @@ function proc_flux(type, par)
         end
         foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
     elseif strcmp(type, 'gcm')
-        for fn = {'hfls', 'hfss', 'prc', 'pr', 'evspsbl', 'w500', 'lw', 'sw'}; fname = fn{1};
+        for fn = {'hfls', 'hfss', 'prc', 'pr', 'evspsbl', 'w500', 'vas', 'lw', 'sw'}; fname = fn{1};
             for l = {'lo', 'l', 'o'}; land = l{1};
                 if strcmp(land, 'lo'); flux_n.(land).(fname) = flux.(fname);
                 elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
@@ -258,7 +286,7 @@ function proc_flux(type, par)
 
                 if strcmp(fname, 'res')
                     % compute northward MSE transport using the residual data
-                    tediv_0 = fillmissing(flux_n.(land).res.(fw), 'nearest'); % replace nans with zeros
+                    tediv_0 = fillmissing(flux_n.(land).res.(fw), 'constant', 0); % replace nans with 0s so missing data doesn't influence transport
                     tediv_z = squeeze(trapz(deg2rad(grid.dim2.lon), tediv_0, 1)); % zonally integrate
                     vh_mon.(land).(fw) = cumtrapz(deg2rad(lat), par.a^2*cosd(lat).*tediv_z); % cumulatively integrate
                     for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
@@ -275,7 +303,7 @@ function proc_flux(type, par)
                             tediv_t = squeeze(nanmean(flux_n.(land).res.(fw)(:,:,9:11), 3)); % take time average
                         end
                         tediv_tz = trapz(deg2rad(grid.dim2.lon), tediv_t, 1); % zonally integrate
-                        tediv_tz = fillmissing(tediv_tz, 'nearest');
+                        tediv_tz = fillmissing(tediv_tz, 'constant', 0);
                         vh.(land).(time).(fw) = cumtrapz(deg2rad(lat), par.a^2*cosd(lat).*tediv_tz'); % cumulatively integrate in latitude
                     end
                 end
@@ -698,6 +726,7 @@ function proc_rcae(type, par)
         end
 
         load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
+        load(sprintf('%s/vh.mat', prefix_proc)); % load atmospheric heat transport
         load(sprintf('%s/vh_mon.mat', prefix_proc)); % load atmospheric heat transport
 
         % identify locations of RCE and RAE
@@ -710,8 +739,8 @@ function proc_rcae(type, par)
             for l = {'lo', 'l', 'o'}; land = l{1};
                 % lon x lat structure over various time averages
                 for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
-                    rcae_t.(land).(time) = def_rcae(type, flux_t.(land).(time), vh_mon.(land), par);
-                    rcae_rc_t.(land).(time) = def_rcae_recomp_r1(type, flux_t.(land).(time), vh_mon.(land), par);
+                    rcae_t.(land).(time) = def_rcae(type, flux_t.(land).(time), vh.(land).(time), par);
+                    rcae_rc_t.(land).(time) = def_rcae_recomp_r1(type, flux_t.(land).(time), vh.(land).(time), par);
                 end % time
             end % land
 
@@ -846,8 +875,8 @@ function proc_temp(type, par)
 
     mask_t.land = nanmean(mask.land, 3);
     mask_t.ocean = nanmean(mask.ocean, 3);
-    if any(strcmp(type, {'era5', 'erai'})); f_vec = {'mse', 'dse', 'db13', 'db13s', 'div'};
-    elseif strcmp(type, 'gcm'); f_vec = {'mse', 'dse'}; end
+    if any(strcmp(type, {'era5', 'erai'})); f_vec = par.era.fw;
+    elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw; end
     for f = f_vec; fw = f{1};
         for c = fieldnames(rcae_t.lo.ann.(fw))'; crit = c{1};
             for l = {'lo', 'l', 'o'}; land = l{1}; % over land, over ocean, or both
@@ -1269,6 +1298,26 @@ function rcae = def_rcae(type, flux, vh, par)
         if strcmp(fw, 'dse'); rcae.(fw).w500(flux.r1.mse > par.ga) = -1;
         else rcae.(fw).w500(flux.r1.(fw) > par.ga) = -1; end;
 
+        % add additional criteria for RCE that vh<max(vh)/2 (weak meridional velocity)
+        rcae.(fw).vas2 = zeros(size(flux.r1.(fw)));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).vas2(abs(flux.r1.(fw)) < par.ep & abs(flux.vas) < nanmax(nanmax(abs(flux.vas)))/2) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).vas2(abs(flux.r1.(fw)) < par.ep & flux.vas < nanmax(nanmax(abs(flux.vas)))/2) = 1; % note that evap is defined negative into atmosphere
+        end
+        if strcmp(fw, 'dse'); rcae.(fw).vas2(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).vas2(flux.r1.(fw) > par.ga) = -1; end;
+
+        % add additional criteria for RCE that vh<max(vh)/4 (weak meridional velocity)
+        rcae.(fw).vas4 = zeros(size(flux.r1.(fw)));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).vas4(abs(flux.r1.(fw)) < par.ep & abs(flux.vas) < nanmax(nanmax(abs(flux.vas)))/4) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).vas4(abs(flux.r1.(fw)) < par.ep & flux.vas < nanmax(nanmax(abs(flux.vas)))/4) = 1; % note that evap is defined negative into atmosphere
+        end
+        if strcmp(fw, 'dse'); rcae.(fw).vas4(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).vas4(flux.r1.(fw) > par.ga) = -1; end;
+
         if size(flux.r1.(fw), 1)==length(par.lat_std) & size(flux.r1.(fw), 2)==12 % this criteria only works for zonally and time averaged data because vh is only a function of lat
             % add additional criteria for RCE that horizontal transport is weak
             rcae.(fw).vh2 = zeros(size(flux.r1.(fw)));
@@ -1366,6 +1415,26 @@ function rcae = def_rcae_recomp_r1(type, flux, vh, par) % recalculate R1 at this
         end
         if strcmp(fw, 'dse'); rcae.(fw).w500(flux.r1.mse > par.ga) = -1;
         else rcae.(fw).w500(r1 > par.ga) = -1; end;
+
+        % add additional criteria for RCE that vh<max(vh)/2 (weak meridional velocity)
+        rcae.(fw).vas2 = zeros(size(r1));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).vas2(abs(r1) < par.ep & abs(flux.vas) < nanmax(nanmax(abs(flux.vas)))/2) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).vas2(abs(r1) < par.ep & flux.vas < nanmax(nanmax(abs(flux.vas)))/2) = 1; % note that evap is defined negative into atmosphere
+        end
+        if strcmp(fw, 'dse'); rcae.(fw).vas2(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).vas2(r1 > par.ga) = -1; end;
+
+        % add additional criteria for RCE that vh<max(vh)/4 (weak meridional velocity)
+        rcae.(fw).vas4 = zeros(size(r1));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).vas4(abs(r1) < par.ep & abs(flux.vas) < nanmax(nanmax(abs(flux.vas)))/4) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).vas4(abs(r1) < par.ep & flux.vas < nanmax(nanmax(abs(flux.vas)))/4) = 1; % note that evap is defined negative into atmosphere
+        end
+        if strcmp(fw, 'dse'); rcae.(fw).vas4(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).vas4(r1 > par.ga) = -1; end;
 
         if size(r1, 1)==length(par.lat_std) & size(r1, 2)==12 % this criteria only works for zonally and time averaged data because vh is only a function of lat
             % add additional criteria for RCE that horizontal transport is weak

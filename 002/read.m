@@ -14,6 +14,8 @@ par.era.vars.div_txt = {'divg', 'divq', 'divt'}; % radiation variables to read
 par.era.vars.stf = {'sshf', 'slhf'}; % surface turbulent flux variables to read
 par.era.vars.vert = {'t'}; % 3d variables to read (t = temp)
 par.era.vars.srfc = {'sp', 't2m', 'd2m'}; % surface variables to read (sp = surface pressure, t2m = 2m temp, d2m = 2m dew point temp)
+par.era.vars.tend = {'p62.162'}; % 3d variables to read (t = temp)
+par.era.vars.tend_txt = {'tend'}; % 3d variables to read (t = temp)
 par.gcm.vars.rad = {'rsus', 'rsds', 'rlus', 'rlds', 'rsdt', 'rsut', 'rlut'}; % radiation variables to read
 par.gcm.vars.pe = {'prc', 'pr', 'evspsbl'}; % radiation variables to read
 par.gcm.vars.stf = {'hfss', 'hfls'}; % surface turbulent flux variables to read
@@ -23,17 +25,18 @@ par.ceres.vars.rad = {'sfc_net_sw_all_mon', 'sfc_net_lw_all_mon', 'toa_sw_all_mo
 par.ceres.vars.rad_txt = {'ssr', 'str', 'tsur', 'tsdr', 'ttr'}; % radiation variables to read
 gcm_info
 % standard z coordinate for interpolation
-par.z = [0:500:20e3]';
+par.z = [0:500:40e3]';
+par.z_hires = linspace(0,par.z(end),1001); % high resolution grid for computing tropopause
 par.si = linspace(1,1e-2,1e2);
 % useful constants
 par.cpd = 1005.7; par.Rd = 287; par.L = 2.501e6; par.g = 9.81;
 
 %% call functions
-type='era5';
-% run_func(type, par);
+type='erai';
+run_func(type, par);
 for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
     type='gcm';
-    run_func(type, par);
+    % run_func(type, par);
 end
 
 %% define functions
@@ -44,8 +47,13 @@ function run_func(type, par)
     % read_div(type, par) % divergence terms to calculate MSE flux divergence
     % read_stf(type, par) % surface turbulent fluxes
     % read_srfc(type, par) % other surface variables, e.g. 2-m temperature, surface pressure
+    % read_tend(type, par) % mse tendency, only for ERA data
     % make_tempz(type, par) % convert temp from plev to z
-    make_tempsi(type, par) % convert temp from plev to sigma
+    % make_tempsi(type, par) % convert temp from plev to sigma
+    % make_ztrop(type, par) % compute WMO tropopause
+    % make_ztrop_z(type, par) % compute WMO tropopause
+    make_ptrop(type, par) % compute WMO tropopause
+    % make_ptrop_z(type, par) % compute WMO tropopause
 end
 function read_grid(type, par)
     % read data net SW and LW radiation data downloaded from Era5
@@ -154,7 +162,7 @@ function read_pe(type, par)
     end
 end
 function read_div(type, par)
-    if strcmp(type, 'era5')
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
         div_vars=par.era.vars.div;
         div_vars_txt=par.era.vars.div_txt;
         for i=1:length(div_vars)
@@ -162,10 +170,10 @@ function read_div(type, par)
             div.(div_vars_txt{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/div/%s_div_%s.ymonmean.nc', type, type, par.(type).yr_span), div_vars{i}));
             div.(div_vars_txt{i}) = div.(div_vars_txt{i});
         end
-        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/div.mat', type), 'div', 'div_vars');
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/div.mat', type), 'div', 'div_vars_txt');
 
     else
-        error('Divergence data are only available for ERA5.');
+        error('Divergence data are only available for ERA.');
     end
 end
 function read_stf(type, par)
@@ -285,6 +293,24 @@ function read_srfc(type, par)
         save(sprintf('%s/%s', newdir, filename), 'srfc', 'srfc_vars');
     end
 end
+function read_tend(type, par)
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        tend_vars=par.era.vars.tend;
+        tend_vars_txt=par.era.vars.tend_txt;
+        for i=1:length(tend_vars)
+            % dimensions are (lon x lat x time)
+            tend.(tend_vars_txt{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/tend/%s_tend_%s.deltat.ymonmean.nc', type, type, par.(type).yr_span), tend_vars{i}));
+            % the data is originally reported as J m^-2, so
+            % divide by 6 hr (because data is 6 hourly) to
+            % convert to W m^-2.
+            tend.(tend_vars_txt{i}) = tend.(tend_vars_txt{i})/(6*3600);
+        end
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/tend.mat', type), 'tend', 'tend_vars_txt');
+
+    else
+        error('MSE tendency data are read only for ERA data.');
+    end
+end
 function make_tempz(type, par)
     if any(strcmp(type, {'era5', 'erai'}))
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
@@ -294,7 +320,7 @@ function make_tempz(type, par)
         temp = ncread(fullpath, 't');
         file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
         fullpath=sprintf('%s/%s', file.folder, file.name);
-        zg = ncread(fullpath, 'z');
+        zg = ncread(fullpath, 'z'); zg = zg/par.g; % convert from geopotential to height in m
     elseif strcmp(type, 'gcm')
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
         prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
@@ -393,4 +419,169 @@ function make_tempsi(type, par)
     if ~exist(newdir, 'dir'); mkdir(newdir); end
     filename='tempsi.mat';
     save(sprintf('%s/%s', newdir, filename), 'tempsi', '-v7.3');
+end
+function make_ztrop(type, par) % calculate WMO tropopause
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/tempz.mat', prefix)); % read temp in z coordinates
+
+    ga = nan(size(tempz));
+    ztrop = nan([size(tempz,1),size(tempz,2),size(tempz,4)]);
+
+    tempz = permute(tempz, [3 1 2 4]);
+    ga = -1e3*(tempz(2:end,:,:,:)-tempz(1:end-1,:,:,:))./repmat(grid.dim3.z(2:end)-grid.dim3.z(1:end-1), [1,size(tempz,2),size(tempz,3),size(tempz,4)]); % lapse rate in K/km
+    ga = interp1(1/2*(grid.dim3.z(2:end)+grid.dim3.z(1:end-1)), ga, grid.dim3.z);
+
+    clear tempz
+
+    pb=CmdLineProgressBar("Calculating ztrop..."); % track progress of this loop
+    for lo = 1:length(grid.dim3.lon)
+        pb.print(lo, length(grid.dim3.lon));
+        for la = 1:length(grid.dim3.lat)
+            for mo = 1:12
+                ga_hires = interp1(grid.dim3.z, ga(:,lo,la,mo), par.z_hires); % make high-resolution grid for computing tropopause
+                cand = squeeze(ga_hires<=2); % all levels where lapse rate is less than 2 K/km
+                if any(cand)
+                    idx_cand = find(cand); % indices of candidates
+                    i = 1;
+                    while isnan(ztrop(lo,la,mo)) & i<=length(idx_cand)
+                        idx = idx_cand(i);
+                        ztrop_tmp = par.z_hires(idx);
+                        ga_2km = nanmean(interp1(par.z_hires, ga_hires, ztrop_tmp:100:ztrop_tmp+2e3)); % compute average lapse rate from this point to 2 km above it
+                        if ga_2km < 2
+                            ztrop(lo,la,mo) = ztrop_tmp;
+                        end
+                        i=i+1;
+                    end
+                end
+            end
+        end
+    end
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='ztrop.mat';
+    save(sprintf('%s/%s', newdir, filename), 'ztrop', '-v7.3');
+end
+function make_ztrop_z(type, par) % calculate WMO tropopause of latitudinally-averaged data
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/tempz.mat', prefix)); % read temp in z coordinates
+
+    % zonal average
+    tempz = squeeze(nanmean(tempz, 1));
+
+    ga = nan(size(tempz));
+    ztrop_z = nan([size(tempz,1),size(tempz,3)]);
+
+    tempz = permute(tempz, [2 1 3]); % bring levels to the front
+    tempz = fillmissing(tempz, 'nearest');
+    ga = -1e3*(tempz(2:end,:,:)-tempz(1:end-1,:,:))./repmat(grid.dim3.z(2:end)-grid.dim3.z(1:end-1), [1,size(tempz,2),size(tempz,3)]); % lapse rate in K/km
+    ga = interp1(1/2*(grid.dim3.z(2:end)+grid.dim3.z(1:end-1)), ga, grid.dim3.z);
+
+    clear tempz
+
+    pb=CmdLineProgressBar("Calculating ztrop_z..."); % track progress of this loop
+    for la = 1:length(grid.dim3.lat)
+        pb.print(la, length(grid.dim3.lat));
+        for mo = 1:12
+            ga_hires = interp1(grid.dim3.z, ga(:,la,mo), par.z_hires); % make high-resolution grid for computing tropopause
+            cand = squeeze(ga_hires<=2); % all levels where lapse rate is less than 2 K/km
+            if any(cand)
+                idx_cand = find(cand); % indices of candidates
+                i = 1;
+                while isnan(ztrop_z(la,mo)) & i<=length(idx_cand)
+                    idx = idx_cand(i);
+                    ztrop_tmp = par.z_hires(idx);
+                    ga_2km = nanmean(interp1(par.z_hires, ga_hires, ztrop_tmp:100:ztrop_tmp+2e3)); % compute average lapse rate from this point to 2 km above it
+                    if ga_2km < 2
+                        ztrop_z(la,mo) = ztrop_tmp;
+                    end
+                    i=i+1;
+                end
+            end
+        end
+    end
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='ztrop_z.mat';
+    save(sprintf('%s/%s', newdir, filename), 'ztrop_z', '-v7.3');
+end
+function make_ptrop(type, par) % calculate WMO tropopause
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, 'z')/par.g;
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        var = 'zg';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, var);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/ztrop.mat', prefix)); % read z tropopause data
+
+    ptrop = nan(size(ztrop));
+
+    pb=CmdLineProgressBar("Calculating ptrop..."); % track progress of this loop
+    for lo = 1:length(grid.dim3.lon)
+        pb.print(lo, length(grid.dim3.lon));
+        for la = 1:length(grid.dim3.lat)
+            for mo = 1:12
+                ptrop(lo,la,mo) = interp1(squeeze(zg(lo,la,:,mo)), grid.dim3.plev, ztrop(lo,la,mo)); % make high-resolution grid for computing tropopause
+            end
+        end
+    end
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='ptrop.mat';
+    save(sprintf('%s/%s', newdir, filename), 'ptrop', '-v7.3');
+end
+function make_ptrop_z(type, par) % calculate WMO tropopause
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, 'z')/par.g;
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        var = 'zg';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, var);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/ztrop_z.mat', prefix)); % read z tropopause data
+
+    zg_z = squeeze(nanmean(zg,1)); clear zg;
+    ptrop_z = nan(size(ztrop_z));
+
+    pb=CmdLineProgressBar("Calculating ptrop..."); % track progress of this loop
+    for la = 1:length(grid.dim3.lat)
+    pb.print(la, length(grid.dim3.lat));
+        for mo = 1:12
+            ptrop_z(la,mo) = interp1(squeeze(zg_z(la,:,mo)), grid.dim3.plev, ztrop_z(la,mo)); % make high-resolution grid for computing tropopause
+        end
+    end
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='ptrop_z.mat';
+    save(sprintf('%s/%s', newdir, filename), 'ptrop_z', '-v7.3');
 end

@@ -11,6 +11,8 @@ else
         cdo -b F64 mergetime interim_$1_*.nc $filename.nc
     fi
 
-    cdo ymonmean $filename.nc $filename.ymonmean.nc
-    rm $filename.nc
+    if [[ $1 != "tend" ]]; then
+        cdo ymonmean $filename.nc $filename.ymonmean.nc
+        rm $filename.nc
+    fi
 fi

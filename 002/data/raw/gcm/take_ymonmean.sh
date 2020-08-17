@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-declare -a vars_gcm=("va" "zg" "wap" "ta" "hur" "ps" "hurs" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
+declare -a vars_gcm=("va" "zg" "wap" "ta" "hur" "ps" "hurs" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "vas") # list of GCM variables that we want to process
 
 cwd=$(pwd) # save current working directory
 cd ../gcm_raw # switch to directory with raw data
@@ -46,7 +46,7 @@ for dirs in MPI-ESM-LR/; do # for MPI-ESM-LR only (test run)
                 rm $cwd/$dirs/$sel30.nc # delete temporary 30 year file
                 if [ "$vars" = "wap" ]; then # we don't need full wap profile, just at 500 hPa
                     new30="${sel30//wap/w500}"
-                    cdo sellevel,500 $cwd/$dirs/$sel30.ymonmean.nc $cwd/$dirs/$new30.ymonmean.nc # extract 500 hPa data only
+                    cdo sellevel,50000 $cwd/$dirs/$sel30.ymonmean.nc $cwd/$dirs/$new30.ymonmean.nc # extract 500 hPa data only
                     rm $cwd/$dirs/$sel30.ymonmean.nc # delete wap
                 fi
             fi

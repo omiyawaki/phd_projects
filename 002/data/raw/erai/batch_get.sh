@@ -1,6 +1,9 @@
 #!/bin/sh
 
-declare -a vtypes=("rad" "pe" "stf" "temp" "srfc" "zg" "w500") # variable type
+module unload python
+module load python/3.6.1+intel-16.0
+
+declare -a vtypes=("rad" "pe" "stf" "temp" "srfc" "zg" "w500" "tend" "div" "vas") # variable type
 yr_start=2000
 yr_end=2012
 
