@@ -1,0 +1,54 @@
+% Created 2020-08-22 Sat 14:04
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry} \usepackage[parfill]{parskip}
+\date{August 22, 2020}
+\title{Notes on mass flux weighted ensemble entrainment rate for ZX19}
+\hypersetup{
+ pdfauthor={Osamu Miyawaki},
+ pdftitle={Notes on mass flux weighted ensemble entrainment rate for ZX19},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+Zhihong suggested that we weight the fractional entrainment rate \(\epsilon[z_d]\) of individual plumes in ZX19 with their corresponding convective mass flux to calculate the effective bulk-plume entrainment rate. To do so, we start with the continuity equation for a single plume:
+\begin{equation}
+\frac{1}{M[z_d]}\frac{\partial M[z_d]}{\partial z} = \epsilon[z_d] - \delta[z_d],
+\end{equation}
+where \(M[z_d]\) is the convective mass flux (units kg m\(^{-2}\) s\(^{-1}\)) of an individual plume that detrains at \(z_d\) and \(\delta[z_d]\) is the fractional detrainment rate (units m\(^{-1}\)) for the same plume. If we follow \cite{arakawa1974} and \cite{moorthi1992} and assume that detrainment for each plume occurs entirely at the detrainment height \(z_d\),
+\begin{equation}
+\label{eq:org0797e70}
+\frac{1}{M[z_d]}\frac{\partial M[z_d]}{\partial z} = \epsilon[z_d] \quad \mathrm{for} \quad z<z_d.
+\end{equation}
+We can integrate Eq. \ref{eq:org0797e70} from the cloud base height \(z_b\) to some arbitrary height \(z\) to obtain the normalized mass flux profile \(\eta\) for an individual plume:
+\begin{equation}
+\eta[z_d](z) = \frac{M[z_d](z)}{M[z_d](z_b)} = \exp(\epsilon[z_d](z-z_b)).
+\end{equation}
+I then compute the vertically averaged normalized mass flux \(\langle \eta \rangle\) for each plume:
+\begin{equation}
+\langle\eta\rangle[z_d] = \frac{\int_{z_b}^{z_t}\!\eta[z_d](z)\,\mathrm{d}z}{z_t-z_b},
+\end{equation}
+where \(z_t\) is the cloud top height. The effective bulk-plume entrainment rate \(\overline{\epsilon}\) of all plumes that detrain above height \(z\) weighted by the vertically averaged normalized mass flux \(\langle\eta\rangle\) is expressed as
+\begin{equation}
+\overline{\epsilon}(z) = \frac{\int_z^{z_t}\!\langle\eta\rangle[z_d]\epsilon[z_d]\,\mathrm{d}z_d}{\int_z^{z_t}\!\langle\eta\rangle[z_d]\,\mathrm{d}{z_d}}.
+\end{equation}
+
+\bibliographystyle{apalike}
+\bibliography{../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references}
+\end{document}

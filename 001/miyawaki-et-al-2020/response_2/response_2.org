@@ -1,0 +1,159 @@
+#+TITLE:
+#+AUTHOR: Osamu Miyawaki, Zhihong Tan, Tiffany Shaw, Malte Jansen
+#+DATE: August 17, 2020
+#+OPTIONS: author:nil date:nil toc:nil num:nil
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry} \usepackage[parfill]{parskip}
+
+* Reviewer 1
+I am grateful to the authors for their effort in improving the manuscript and for addressing my comments. The reorganization of Figure 1 is very helpful (Figure 4 is a bit duplicative, but I think it helps drive the main points home). I believe this is the first author's first paper. If so, congratulations on a very solid and comprehensive first paper.
+
+One remaining comment on the presentation: In reading this version, I found section 2.1 to be quite compact and it may be difficult to follow for people not already familiar with these experiments. It would be worthwhile to add brief descriptions of the experiments before discussing how you evaluate the various contributions to the overprediction.
+
+\textbf{We thank the reviewer for the additional comments. We revised the manuscript to address the concerns they raised. Our responses to their comments are presented in bold. The line numbers referenced in our response correspond to those in the unannotated version of our revised manuscript.}
+
+Key Point 1: You had written "Moist adiabatic adjustment" in the first draft, which seems more accurate, but I am assuming you ran out of characters. Consider shortening another part of this (e.g., "in climate models" instead of "across the model hierarchy") so that you could use "moist adiabatic adjustment."
+
+\textbf{Revised text following the reviewer's suggestion (see line 8).}
+
+Key Point 3: I think this should be "show that"
+
+\textbf{Revised text following the reviewer's suggestion (see line 12).}
+
+Line 17 (and in other places, e.g., line 99 and 108): You haven't said what the "climate model hierarchy" is --- consider saying something simpler like "in climate models." In other places you say things like "/the/ model hierarchy," but the reader doesn't know what this means exactly. Consider defining the model hierarchy and using "a" instead of "the" in places.
+
+\textbf{We now specifically refer to the climate model hierarchy as the CMIP5 model hierarchy (lines 17, 103, 107).}
+
+Line 23: It might be useful to indicate in the abstract that decreasing entrainment reduces the overprediction (here you discuss that a decreased Tokioka parameter reduces overprediction).
+
+\textbf{Revised text following the reviewer's suggestion (see line 23).}
+
+Line 32: I think you can delete "Understanding".
+
+\textbf{Revised text following the reviewer's suggestion (see line 32).}
+
+Line 54: Is there a problem with this reference? I think it has the author's first initial in the citation.
+
+\textbf{This reference format follows the AGU style guideline}\footnote{https://www.agu.org/Publish-with-AGU/Publish/Author-Resources/Grammar-Style-Guide\#referenceformat}\textbf{, which states that the first initial of the author should be included if two different first authors share the same last name.}
+
+Line 63/177: I think this should be "*surface* relative humidity".
+
+\textbf{We revised line 63 following the reviewer's suggestion. As the SO13 model takes the tropospheric relative humidity profile (not surface relative humidity) as an input, we keep our phrasing as it is in line 182.}
+
+Line 64: I don't think "and humidity" makes sense here (maybe and "humidity change"?)
+
+\textbf{Revised text following the reviewer's suggestion (see line 65).}
+
+Line 73--76: I'm not sure it will be clear what you mean by "can be accounted for." Consider something like "We therefore expect that tropospheric warming would be best approximated by a moist adiabat in regions of deep convection, but may not replicate the scaling between tropical average surface and tropospheric warming. Previous work has shown that changes in tropical tropospheric temperature are closely connected to changes in precipitation-weighted surface temperature, which is a proxy for the surface temperature change in regions of moist convection (...)."
+
+\textbf{We revised lines 73--77 to clarify what the referenced papers show.}
+
+Line 77--81: It might confuse people not familiar with the "direct effect" that it has no effect on global surface temperature and the definition of these terms could easily be missed by readers. Consider reminding the reader about these definitions. "The tropospheric temperature increases in response to grennhouse warming of the Earth's surface (indirect effect). As noted earlier, increasing concentrations of atmospheric carbon dioxide also have a "direct effect" on the tropospheric radiative budget, large-scale circulation, and precipitation. This so-called direct effect of CO\(_2\) can also influence the magnitude of tropical tropospheric warming."
+
+\textbf{We simplified the first sentence in this paragraph to make it more clear that the direct effect does not significantly impact the global surface temperature response (see lines 78--80). We prefer to not reiterate the definition of the indirect effect of CO\(_2\) here as we only focus on the direct effect in this paragraph.}
+
+Line 83--84: On reading this section, I realize that I now have the same question as Reviewer 2 from the last review: If the direct effect leads to enhanced tropospheric warming, why does CO\(_2\) increase the overprediction? You answered this question in the review response. It might be worth alluding to the RH effect in this paragraph.
+
+\textbf{We now discuss the expectation that the moist adiabat predicts no warming aloft in the absence of surface warming (see lines 80--82). We add that the moist adiabat may still overpredict the temperature response due to the surface relative humidity changes induced by  the direct effect of CO\(_2\) (see lines 82--85)}.
+
+Line 93: This was also shown in cite:po-chedley2019 (Figure S2) for CMIP5 historical simulations (as noted in the previous draft). cite:santer2005 also show this.
+
+\textbf{We previously removed the} cite:po-chedley2019 \textbf{reference as entrainment was not the main focus of their paper. However, we agree with the reviewer that Fig. S2 in} cite:po-chedley2019 \textbf{ demonstrate that the temperature response predicted by the moist adiabat overpredicts that of the CMIP5 responses and that the zero-buoyancy bulk-plume model is in better agreement with the GCM temperature responses than a moist adiabat. We now include the} cite:po-chedley2019 \textbf{reference in the introduction (see lines 95--101) and the discussion (see lines 335--338).}
+
+Line 98: Should this be the moist adiabatic prediction in response to /surface temperature and humidity changes/ (rather than CO\(_2\) changes) compared to climate models forced by changes in atmospheric CO\(_2\) concentration?
+
+\textbf{We prefer to keep the original text as the changes in surface temperature and humidity we investigate here are those induced by increases in CO\(_2\).}
+
+Line 110--119: I am familiar with these experiments and initially found this difficult to read (see major comments above). Consider briefly describing the experiments themselves and then how you quantify the different terms. A table could be useful for this section (rather than showing the difference between experiments in-line).
+
+\textbf{We added descriptions for each experiment and formatted the expression for quantifying the total response as equations to improve readability (see lines 111--129).}
+
+Line 111--113: Consider breaking this into 2--3 sentences (the full sentence is trying to explain the total effect, but it is a little confusing).
+
+\textbf{Revised text following the reviewer's suggestion (see line 119--124).}
+
+Line 115--116: Consider alluding to the purpose of these abbreviations by including "patterned" and "uniform" in the description.
+
+\textbf{Revised text following the reviewer's suggestion (see lines 125 and 126).}
+
+Line 120--121: This is a strong statement; consider using language like "is expected to apply..."
+
+\textbf{We removed this sentence in the revised text (see line 130).}
+
+Line 126: From the preceding lines, I thought the criteria was defined using the 75th percentile of vertical velocity? You could reverse the order to make this clear, e.g., We use the criteria of \(-35\) hPa/d... This value corresponds to the 75th percentile in the multimodel average...
+
+\textbf{Revised text following the reviewer's suggestion (see line 130--134).}
+
+Line 135: Consider making this "tropical tropospheric" instead of "tropical"?
+
+\textbf{Revised text following the reviewer's suggestion (see line 143).}
+
+Line 161: Should this be "meridional" instead of "zonal"?
+
+\textbf{While the original phrase was written as intended (zonally symmetric meaning zonally homogeneous), we simplified the text by refering to the prescribed SST profile in GFDLaqua as the same profile used in the CMIP5 AQUA simulations (see lines 160--161).}
+
+Eq. 3: Consider denoting that Delta T is a function of pressure (p) instead of a subscript.
+
+\textbf{Revised text following the reviewer's suggestion (see Eq.~9 and lines 220--222).}
+
+SI Table 5: This was in the middle of the figures rather than with all the other tables in the beginning.
+
+\textbf{We now place Supplementary Table S5 before the Supplementary Figures.}
+
+Line 255: Would "driven by" be more accurate than "amplified by"? My understanding is this is the root cause of the overprediction from the CO\(_2\) effect -- it would be helpful to be more clear about this point.
+
+\textbf{We revised lines 264--267 to clarify the role of the relative humidity change on overprediction. Even when the change in surface relative humidity is ignored, the moist adiabat overpredicts the temperature response at 300 hPa due to the small surface warming associated with the direct effect of CO\(_2\) (see Supplementary Fig. S5). The increase in surface relative humidity further increases the overprediction aloft, which is the reason we choose to describe the role of increasing surface relative humidity as amplifying the overprediction.}
+
+Line 259--260: Consider removing "parameterized" here.
+
+\textbf{Revised text following the reviewer's suggestion (see line 270).}
+
+Line 304: Should you mention "relative humidity" as well? It seems like this is the key for the CO\(_2\) effect.
+
+\textbf{Revised text following the reviewer's suggestion (see line 311).}
+
+\clearpage
+* Reviewer 2
+The authors have addressed some of my concerns. I have following questions about the revision.
+
+Line 142: How is the convective entrainment quantified at each level? /We use the convective entrainment output directly by the RAS scheme in units of 1/m on the standard output pressure levels for the GFDL model. We rephrased this sentence for clarity (see lines 154--156)./
+
+Line 155: ----- It makes more sense to understand the GCM results using the spectral-plume model, as in cite:zhou2019. We added the cite:zhou2019, hereafter ZX19, model to the revised manuscript with the same parameters used in their paper.
+
+The RAS convective scheme assumes a spectrum of convective clouds. Each subgroup is characterized by a single entrainment rate. It is not clear to me what the entrainment rate outputted at each vertical level refers to? Does it mean the average entrainment rate of the convective clouds that pass this level or the entrainment rate of the clouds that detrain at this level? The physical meaning of this output and why its vertical mean can be used as the bulk entrainment in simple plume models need to be clarified. I am also curious why not compute the "bulk" entrainment rate (used in simple bulk-plume models) directly from the average entrainment rate of the ensemble convection (probably prescribed in the model source code).
+
+For ZX19, it closely follows the concept of RAS, assuming a spectrum of convective clouds with distinct entrainment rate. For each subgroup, the entrainment rate determines the level where the convective cloud detrains. The relation between the entrainment rate and the detrainment height of the plume is written as (see Fig. 8 in cite:arakawa1974 for initial motivation of such approximation)
+
+\begin{equation}
+\epsilon = \epsilon_0 f(h/H)
+\end{equation}
+
+where h is the height and H is the tropopause height. f(h/H) decreases with h/H from 1 to 0 (plumes with smaller entrainment rate detrains at higher levels). With f(0)=1, /the entrainment parameter \(\epsilon_0\) in ZX19 refers to the entrainment rate of the cloud that detrains immediately at the lowest model level instead of the mean(\(\epsilon\))./
+
+The paper shows that ZX19 works less well than the bulk-plume model (Fig. 3c; Fig. S6c). This comes as a surprise to me because the ZX19 model is more close to reality by design and works well (better than bulk-plume models) to explain the observed over-prediction. Furthermore, since the ZX19 model closely follows the concept of the RAS scheme, it should reasonably reproduce its behavior.
+
+It is not clear from the paper how the paper change the \(\epsilon_0\) parameter when modifying the Tokioka parameter or if the plume model has been correctly implemented to capture the GCM profile. Such validation can be done by plotting the vertical profiles of the temperature deviation (from moist adiabat estimated in these simple models against those in the GCMs over the regions that are dominated by the entrainment effect).
+
+\textbf{We thank the reviewer for seeking additional clarification of our analysis. We identified and corrected two mistakes in our previous analysis that involved misunderstanding the type of entrainment rate that is output from the RAS scheme and correcting our implementation of ZX19.}
+
+\textbf{The direct output of entrainment from the RAS scheme in GFDL AM2.1 is that of a single plume that detrains at the output vertical level (comparable to \(\epsilon[z_d]\) in ZX19). In order to be able to compare the RAS and ZX19 entrainment to the bulk entrainment rate used in the zero-buoyancy bulk-plume models, we now compute the entrainment rate in the GFDL model using the bulk-plume continuity equation:}
+
+\begin{equation}
+\epsilon = \frac{1}{M}\left(\frac{\partial M}{\partial z}+d\right),
+\end{equation}
+
+\textbf{where \(z\) is height in m, \(M\) is the convective mass flux in kg m}\(^{-2}\) \textbf{s}\(^{-1}\) \textbf{and \(d\) is the detrainment mass flux per unit height in kg m}\(^{-3}\) \textbf{s}\(^{-1}\). \textbf{We use the output of \(M\) and \(d\) from the RAS scheme to compute the bulk-plume entrainment rate \(\epsilon\). As this changed the entrainment--overprediction relationship shown in Fig. 3c, we retuned the parameters for the SO13, R14, and R16 models to best fit this new relationship. We include a discussion of the revised procedure in our revised text (see lines 171--177 and 181--186)}.
+
+\textbf{For the ZX19 model, we now compute the ensemble average entrainment rate} \(\overline{\epsilon}(z)\) \textbf{as the weighted average of \(\epsilon[z_d]\) for plumes that detrain above \(z\). We describe this procedure in lines 187--195.}
+
+\textbf{Furthermore, we identified a mistake in our previous implementation of the ZX19 model where we used the ensemble entrainment rate in the lapse rate equation where the single-plume entrainment rate should have been used. We corrected this error and verified that the temperature deviation from a moist adiabat predicted by the ZX19 model closely follows the C-shape of the temperature deviation of GFDLrce (see Fig. 1d in this document). To best fit the GFDL AM2 climatological temperature profile, we assume a constant relative humidity profile of 80\% and set the level of neutral buoyancy} $\mathbf{z_t=14.6}$ \textbf{km, which corresponds to the level where the convective mass flux first equals 0 kg m}\(^{-2}\) \textbf{s}\(^{-1}\) \textbf{in GFDLrce. In addition, we set the parameter} $\mathbf{k=0.6}$ \textbf{to best fit the entrainment--overprediction relationship obtained in GFDLrce.}
+
+\textbf{After making the above two corrections, the relationship between entrainment and overprediction predicted by the ZX19 model is very close to that obtained with the GFDL model (see Fig. 3c,d and S6c,d in the revised manuscript).}
+
+\textbf{In response to the reviewer's idea about using the ensemble entrainment rate from the RAS scheme as the input for the zero-buoyancy bulk-plume models: this would be useful for  investigating the role of the vertical structure of entrainment on overprediction. However, as we focus simply on the mean strength of entrainment in the free troposphere (hence we vertically average the entrainment rate from 850--200 hPa), we prefer to follow the form of entrainment as prescribed in each model's respective publication.}
+
+#+caption: Temperature deviation from a moist adiabat in GFDLrce for a prescribed SST of 300 K (black dashed) and 304 K (red dashed). The corresponding predictions of the temperature deviations are shown for a) the SO13 zero-buoyancy bulk-plume model for \(\hat{\epsilon}=0.5\) (solid), b) the R14 zero-buoyancy bulk-plume model for \(\epsilon=0.3\) km\(^{-1}\), c) the R16 zero-buoyancy bulk-plume model for \(a=0.25\), and d) the ZX19 spectral-plume model for \(\epsilon_0=0.35\) km\(^{-1}\).
+#+label: fig:deviation
+[[./deviation.png]]
+
+bibliographystyle:apalike
+bibliography:/mnt/c/Users/omiyawaki/Sync/papers/references.bib

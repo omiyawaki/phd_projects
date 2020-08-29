@@ -1,0 +1,34 @@
+#+TITLE: Notes on the entrainment parameter output from the RAS scheme
+#+AUTHOR: Osamu Miyawaki
+#+DATE: August 26, 2020
+#+OPTIONS: author:nil toc:nil num:nil
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry} \usepackage[parfill]{parskip}
+
+I previously mentioned that the RAS scheme outputs the fractional entrainment rate of a plume that detrains at the output level, implying that it is equivalent to \(\epsilon[z_d]\) in ZX19. I take this back as the output from RAS is not \(\epsilon[z_d]\), but rather \(\lambda\) as defined in Equation (1) of cite:moorthi1992, which I repeat here:
+#+NAME: eq:ms92
+\begin{equation}
+\frac{\partial \eta_{\lambda}}{\partial z} = \lambda,
+\end{equation}
+where \(\eta_\lambda\) is the normalized mass flux (relative to the cloud base mass flux \(M(z_b)\)) of a plume characterized by the entrainment /parameter/ \(\lambda\). In comparison, \(\epsilon[z_d]\) is related to the mass flux as
+#+NAME: eq:zx19
+\begin{equation}
+\frac{1}{M[z_d]}\frac{\partial M[z_d]}{\partial z} = \epsilon[z_d] \quad \mathrm{for} \quad z<z_d,
+\end{equation}
+where \(M[z_d]\) is the mass flux of a plume that detrains at \(z_d\). If we rewrite Equation ([[eq:ms92]]) using \(M\),
+#+NAME: eq:ms92-2
+\begin{equation}
+\frac{1}{M(z_b)}\frac{\partial M}{\partial z} = \lambda,
+\end{equation}
+and multiply by \(M/M\),
+#+NAME: eq:ms92-3
+\begin{equation}
+\frac{M}{M(z_b)}\frac{1}{M}\frac{\partial M}{\partial z} = \lambda,
+\end{equation}
+we can substitute Equation ([[eq:zx19]]) into Equation ([[eq:ms92-3]]) to express the relationship between \(\epsilon[z_d]\) and \(\lambda\):
+\begin{equation}
+\eta\epsilon[z_d] = \lambda.
+\end{equation}
+Thus, to make a fair comparison between the direct output of entrainment from RAS (\(\lambda\)) to the entrainment rate in ZX19 (\(\epsilon[z_d]\)), I have to compute \(\lambda/\eta\).
+
+bibliographystyle:apalike
+bibliography:/mnt/c/Users/omiyawaki/Sync/papers/references.bib

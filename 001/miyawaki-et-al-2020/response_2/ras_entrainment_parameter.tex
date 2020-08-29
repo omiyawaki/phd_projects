@@ -1,0 +1,58 @@
+% Created 2020-08-26 Wed 16:04
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry} \usepackage[parfill]{parskip}
+\date{August 26, 2020}
+\title{Notes on the entrainment parameter output from the RAS scheme}
+\hypersetup{
+ pdfauthor={Osamu Miyawaki},
+ pdftitle={Notes on the entrainment parameter output from the RAS scheme},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+I previously mentioned that the RAS scheme outputs the fractional entrainment rate of a plume that detrains at the output level, implying that it is equivalent to \(\epsilon[z_d]\) in ZX19. I take this back as the output from RAS is not \(\epsilon[z_d]\), but rather \(\lambda\) as defined in Equation (1) of \cite{moorthi1992}, which I repeat here:
+\begin{equation}
+\label{eq:org764ddaa}
+\frac{\partial \eta_{\lambda}}{\partial z} = \lambda,
+\end{equation}
+where \(\eta_\lambda\) is the normalized mass flux (relative to the cloud base mass flux \(M(z_b)\)) of a plume characterized by the entrainment \emph{parameter} \(\lambda\). In comparison, \(\epsilon[z_d]\) is related to the mass flux as
+\begin{equation}
+\label{eq:org4d3e7b6}
+\frac{1}{M[z_d]}\frac{\partial M[z_d]}{\partial z} = \epsilon[z_d] \quad \mathrm{for} \quad z<z_d,
+\end{equation}
+where \(M[z_d]\) is the mass flux of a plume that detrains at \(z_d\). If we rewrite Equation (\ref{eq:org764ddaa}) using \(M\),
+\begin{equation}
+\label{eq:org0e319f7}
+\frac{1}{M(z_b)}\frac{\partial M}{\partial z} = \lambda,
+\end{equation}
+and multiply by \(M/M\),
+\begin{equation}
+\label{eq:orgc9eb652}
+\frac{M}{M(z_b)}\frac{1}{M}\frac{\partial M}{\partial z} = \lambda,
+\end{equation}
+we can substitute Equation (\ref{eq:org4d3e7b6}) into Equation (\ref{eq:orgc9eb652}) to express the relationship between \(\epsilon[z_d]\) and \(\lambda\):
+\begin{equation}
+\eta\epsilon[z_d] = \lambda.
+\end{equation}
+Thus, to make a fair comparison between the direct output of entrainment from RAS (\(\lambda\)) to the entrainment rate in ZX19 (\(\epsilon[z_d]\)), I have to compute \(\lambda/\eta\).
+
+\bibliographystyle{apalike}
+\bibliography{../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references}
+\end{document}

@@ -1,0 +1,167 @@
+#+TITLE: Updates on the implementation of R16 and ZX19 models
+#+AUTHOR: Osamu Miyawaki
+#+DATE: August 28, 2020
+#+OPTIONS: author:nil toc:nil num:nil
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry} \usepackage[parfill]{parskip}
+
+I made some changes to the way I vary entrainment in the R16 and ZX19 models that significantly improve their fit to the GFDLrce results. Before going into the details of the changes, I will first provide some background on how these models fit before and go over how I vary the entrainment rate in each model.
+
+* Background
+The latest version of the entrainment--overprediction relationship as obtained from GFDLrce and the various bulk-plume models are shown in Fig. [[fig:fent]]. Here, \(\mathrm{RH}=80\%\) in SO13 (same value as in their paper), \(\alpha=0.78\) in R14, and \(\mathrm{PE}=1\) in R16. The SO13 model can be made to fit the GFDLrce relationship more closely if \(\mathrm{RH}=85\%\), but I am currently refraining from doing this as the RH in GFDLrce averaged through the free-troposphere is only \(65\%\).
+
+Similarly, the spectral entrainment--overprediction relationship for GFDLrce is compared with the ZX19 prediction in Fig. [[fig:epsd]]. ZX19 predicts larger overprediction for a given value of the vertically-averaged spectral entrainment rate \(\epsilon[z_d]\) compared to GFDLrce. Here, I am showing the prediction for \(k=0.6\) and \(\mathrm{RH}=65\%\). I have not been able to significantly improve this fit by varying the choice of parameters (ranging from \(k=0.1\) to 3 and \(\mathrm{RH=50\%}\) to \(85\%\)).
+
+I think one of the possible reasons for the relatively poor fit of the R16 and ZX19 models is that their equation for the entrainment rate depends on variables that change with warming. Thus, if the entrainment rates in R16 and ZX19 are changing with warming, overprediction would not only be a function of the control climate entrainment rate but also of the response of entrainment to warming as well. In the following subsections I describe how the entrainment rates are quantified for each model and show how changing entrainment rates in R16 and ZX19 may be the primary reason why their fit have been poor thus far.
+
+#+caption: Entrainment--overprediction relationship as obtained from GFDLrce (asterisks) and various bulk-plume models (black lines).
+#+label: fig:fent
+[[./corr_c_fent_pc_op_10.png]]
+
+#+caption: Spectral entrainment--overprediction relationship as obtained from GFDLrce (asterisks) and the ZX19 spectral plume model (black line).
+#+label: fig:epsd
+[[./corr_c_epsd_pc_op_10.png]]
+
+** SO13
+The entrainment rate in SO13 is prescribed as an inverse function with height \(z\):
+\begin{equation}
+\epsilon = \frac{\hat{\epsilon}}{z},
+\end{equation}
+where \(\hat{\epsilon}\) is a nondimensional constant that controls the strength of entrainment. The same value of \(\hat{\epsilon}\) is used for both the control and warm climates. I vary the value of \(\hat{\epsilon}\) and compute the corresponding vertically-averaged entrainment rate \(\langle \epsilon \rangle\) to obtain the entrainment--overprediction relationship predicted by SO13.
+
+Since I use the same value of \(\hat{\epsilon}\) for the control and warm climates, SO13 assumes that \(\epsilon\) does not change with warming.
+
+** R14
+The entrainment rate \(\epsilon\) in R14 is prescribed as a constant value. I use the same entrainment rate for both control and warm climates. I vary the value of \(\epsilon\) to obtain the entrainment--overprediction relationship predicted by R14.
+
+As in SO13, since I use the same value of \(\epsilon\) for the control and warm climates, R14 assumes that \(\epsilon\) does not change with warming.
+
+** R16
+The entrainment rate \(\epsilon\) in R16 is diagnosed from Equation (3) in cite:romps2016:
+#+NAME: eq:r16-eps
+\begin{equation}
+\epsilon = \frac{a \gamma}{\mathrm{PE}},
+\end{equation}
+where \(a\) is a constant that controls the strength of entrainment, \(\gamma\) is the fractional saturation specific humidity lapse rate, and PE is the precipitation efficiency. The same values of \(a\) and PE are used for both the control and warm climates. I vary the value of \(a\) and compute the corresponding vertically-averaged entrainment rate \(\langle \epsilon \rangle\) to obtain the entrainment--overprediction relationship predicted by R16.
+
+Here, \(\epsilon\) is subject to change with warming due to its dependence on \(\gamma\). Specifically, R16 predicts that \(\gamma\) decreases with warming (see Fig. [[fig:gamma]]). All other things equal, a decreasing \(\epsilon\) with warming enhances warming aloft because a weaker \(\epsilon\) allows more latent heat to be released. This means that R16 is biased toward weaker overprediction than models that assume \(\epsilon\) does not change with warming. This is consistent with the relatively small overprediction of the R16 model in Fig. [[fig:fent]].
+
+#+caption: Fractional saturation specific humidity lapse rate \(\gamma\) for the control (black) and warm (red) climates predicted by the R16 model.
+#+label: fig:gamma
+[[./ga_r_z.png]]
+
+** ZX19
+The spectral entrainment rate \(\epsilon[z_d]\) in ZX19 is prescribed as a function of the cloud base height \(z_b\) and cloud top height \(z_t\):
+#+NAME: eq:zx19-orig
+\begin{equation}
+\epsilon[z_d] = \epsilon_0 \left(\frac{z_t-z_d}{z_t-z_b}\right)^{k},
+\end{equation}
+where \(k\) is a parameter that controls the vertical shape of \(\epsilon[z_d]\) and \(\epsilon_0\) is the entrainment rate of a plume that detrains immediately above the cloud base. The same values of \(\epsilon_0\) and \(k\) are used for both the control and warm climates. I vary the value of \(\epsilon_0\) and compute the corresponding vertically-averaged spectral entrainment rate \(\langle \epsilon[z_d] \rangle\) to obtain the spectral entrainment--overprediction relationship predicted by ZX19.
+
+\(\epsilon[z_d]\) is subject to change with warming due to its dependence on \(z_t\) and \(z_b\). The lifted condensation level does not change significantly with warming, so \(z_b\) does not lead to significant changes in \(\epsilon[z_d]\) with warming (see plus signs in Fig. [[fig:dev_h]]). However, \(z_t\) significantly increases with warming (see asterisks in Fig. [[fig:dev_h]]). This results in an increase in \(\epsilon[z_d]\) with warming when \(\epsilon_0\) and \(k\) does not change with warming (see Fig. [[fig:epsd_fit]]). All other things equal, an increasing \(\epsilon[z_d]\) with warming decreases warming aloft because a greater \(\epsilon[z_d]\) reduces the latent heat released by the parcel. This means that ZX19 is biased toward stronger overprediction than models that assume \(\epsilon[z_d]\) does not change with warming. Indeed, this is consistent with the relatively large overprediction of the ZX19 model in Fig. [[fig:epsd]].
+
+#+caption: Deviation of the saturated MSE from the moist adiabat in GFDLrce control (black) and warm (red) climates with the default Tokioka parameter. The lifted condensation levels are denoted by plus signs and the levels of neutral buoyancy are denoted by asterisks.
+#+label: fig:dev_h
+[[./pc_dev_h_edef.png]]
+
+#+caption: Profiles of \(\epsilon[z_d]\) for the control (black) and warm (red) climates as inferred from the saturated MSE deviation profile of GFDLrce (solid) and computed from Equation [[eq:zx19-orig]] (dashed) with \(\epsilon_0=0.25\) km\(^{-1}\) and \(k=0.6\).
+#+label: fig:epsd_fit
+[[./pc_epsd_zd_fit_edef.png]]
+
+** Modifying R16 and ZX19 to keep the entrainment rate from changing with warming
+My hypothesis is that the R16 and ZX19 models perform poorly because they predict the vertically-averaged entrainment rate to change whereas the this does not change substantially with warming in GFDLrce. Thus, one way to improve the predictions of the R16 and ZX19 models is to modify their models such that the entrainment rates do not change substantially with warming.
+
+*** Keeping \(\epsilon\) constant with warming in R16
+The lapse rate of the R16 model is provided in Equation (7) of cite:romps2016, which I've written in a slightly modified but mathematically equivalent form here:
+#+NAME: eq:r16-lapse
+\begin{equation}
+\Gamma = \Gamma_d \frac{1 + a + \frac{q^* L}{R_d T} }{ 1 + a + \frac{q^* L^2}{c_p R_v T^2} },
+\end{equation}
+where all variables take their conventional meaning. Naturally, it makes sense to vary \(a\) to study the effect on entrainment in the original formulation of R16. However, we may rewrite the lapse rate equation such that it is a function of \(\epsilon\), rather than \(a\). Substituting Equation ([[eq:r16-eps]]) into ([[eq:r16-lapse]]),
+#+NAME: eq:r16-lapse-2
+\begin{equation}
+\Gamma = \Gamma_d \frac{1 + \frac{\epsilon \mathrm{PE}}{\gamma} + \frac{q^* L}{R_d T} }{ 1 + \frac{\epsilon \mathrm{PE}}{\gamma} + \frac{q^* L^2}{c_p R_v T^2} }.
+\end{equation}
+\(\gamma\) is given by Equation (B5) in cite:romps2016 as:
+#+NAME: eq:r16-gamma
+\begin{equation}
+\gamma = \frac{L\Gamma}{R_v T^2} - \frac{g}{R_d T}.
+\end{equation}
+Substituting Equation ([[eq:r16-gamma]]) into ([[eq:r16-lapse-2]]),
+#+NAME: eq:r16-lapse-3
+\begin{equation}
+\Gamma = \Gamma_d \frac{1 + \frac{\epsilon \mathrm{PE}}{\frac{L\Gamma}{R_v T^2} - \frac{g}{R_d T}} + \frac{q^* L}{R_d T} }{ 1 + \frac{\epsilon \mathrm{PE}}{\frac{L\Gamma}{R_v T^2} - \frac{g}{R_d T}} + \frac{q^* L^2}{c_p R_v T^2} }.
+\end{equation}
+Some tedious algebra results in a quadratic solution for \(\Gamma\):
+\begin{equation}
+\Gamma = \frac{-a_1+\sqrt{a_1^2-4a_2a_0}}{2a_2},
+\end{equation}
+where the second solution is omitted as it is extraneous, and
+\begin{align}
+a_2 &= \frac{LB}{R_v T^2}, \\
+a_1 &= \epsilon \mathrm{PE} - \frac{gB}{R_d T} - \frac{LA}{R_v T^2}\Gamma_d, \\
+a_0 &= -\left(\epsilon \mathrm{PE} - \frac{gA}{R_d T} \right)\Gamma_d,
+\end{align}
+and where
+\begin{align}
+A &= 1 + \frac{q^* L}{R_d T}, \\
+B &= 1 + \frac{q^* L^2}{c_p R_v T^2}.
+\end{align}
+This equation now allows us to use the R16 model with the same value of \(\epsilon\) for both the control and warm climates.
+
+Obtaining the entrainment--overprediction relationship in R16 by varying the control climate \(\epsilon\) (and the same \(\epsilon\) is used for the warm climate) increases the overprediction as expected (see Fig. [[fig:fent-r16new]]). Note that \(\mathrm{PE}=1\) is used here, the the different in the R16 prediction shown in Fig. [[fig:fent]] and [[fig:fent-r16new]] are entirely due to the difference between varying \(a\) and \(\epsilon\), respectively. If we set \(\mathrm{PE}=0.22\) (this is consistent with \(\alpha=0.78\) in R14), the R16 fit is nearly identical to that of R14. The slight difference between the modified R16 and R14 predictions arises due to differences in their assumptions about the detrainment and RH profiles.
+
+#+caption: Entrainment--overprediction relationship as obtained from GFDLrce (asterisks) and various bulk-plume models (black lines). The R16 result shown here now varies \(\epsilon\) instead of \(a\) to obtain the entrainment--overprediction relationship.
+#+label: fig:fent-r16new
+[[./corr_c_fent_pc_op_10_r16new.png]]
+
+#+caption: Entrainment--overprediction relationship as obtained from GFDLrce (asterisks) and various bulk-plume models (black lines). The R16 result shown here now varies \(\epsilon\) instead of \(a\) to obtain the entrainment--overprediction relationship and \(\mathrm{PE}=0.22\).
+#+label: fig:fent-r16new-pe
+[[./corr_c_fent_pc_op_10_r16new-pe.png]]
+
+*** Keeping \(\epsilon[z_d]\) approximately constant with warming in ZX19
+In the original expression for \(\epsilon[z_d]\), ZX19 assumes that the entrainment rate \(\epsilon_0\) of a plume that detrains immediately above the cloud base does not change with warming. We can vary the expression for \(\epsilon[z_d]\) in the following way to generalize which plume \(\epsilon_0\) corresponds to as follows:
+\begin{equation}
+\epsilon[z_d] = \epsilon_0 \left(\frac{z_t - z_d}{z_t - (z_b + \Delta z)}\right)^k,
+\end{equation}
+where \(\epsilon_0\) now corresponds to the spectral entrainment rate of a plume that detrains at height \(\Delta z\) above \(z_b\).
+
+Since the Tokioka parameter controls the entrainment rate of deep convective plumes only, it seems reasonable to set \(\Delta z\) to be somewhere in the upper troposphere but below \(z_t\).
+
+Setting \(\Delta z = 10\) km in the modified ZX19 model reduces the overprediction as expected (see Fig. [[fig:epsd-10km]]). While the magnitude of overprediction in ZX19 is now comparable to the GFDLrce results, the slope of the spectral entrainment--overprediction relationship is much shallower in ZX19 compared to that in GFDLrce. I hypothesize that this is due to the sensitivity of \(z_t\) on \(\epsilon_0\) that is not accounted for the original formulation of ZX19.
+
+#+caption: Spectral entrainment--overprediction relationship as obtained from GFDLrce (asterisks) and the ZX19 spectral plume model (black line). The ZX19 model is modified such that \(\epsilon_0\) corresponds to the spectral entrainment rate of a plume that detrains 10 km above cloud base.
+#+label: fig:epsd-10km
+[[./corr_c_epsd_pc_op_10-10km.png]]
+
+*** Sensitivity of \(z_t\) on \(\epsilon_0\)
+In ZX19, \(z_t\) is only sensitive to the magnitude of surface MSE. However, we find that in GFDLrce, as the Tokioka parameter is decreased, the cloud top height also decreases (see y-intercepts in Fig. [[fig:epsd_zd]]). I hypothesize that the discrepancy in the entrainment--overprediction slope between ZX19 and GFDLrce is due to the lack of sensitivity of \(z_t\) on \(\epsilon_0\).
+
+Lacking any theoretical expectation for the relationship between \(z_t\) and \(\epsilon_0\), I decided to find this relationship empirically. The GFDLrce results show a strong correlation between \(\epsilon_0\) (defined here as the spectral entrainment rate of a plume that detrains 10 km above the cloud base) and \(z_t\). Using the slope of this line, I find that
+\begin{equation}
+\Delta z_t \approx 1.8020\times 10^7 \Delta\epsilon_0.
+\end{equation}
+Thus, the first-order approximation of the sensitivity of \(z_t\) to \(\epsilon_0\) is
+\begin{equation}
+z_t(\epsilon_0) = z_t(\epsilon_{0,\mathrm{ref}}) + 1.8020\times 10^7(\epsilon_0-\epsilon_{0,\mathrm{ref}}),
+\end{equation}
+where \(\epsilon{0,\mathrm{ref}}\) is a some reference spectral entrainment rate. I incorporate this relationship into Equation (3) from ZX19 as follows:
+\begin{equation}
+z_t = \frac{g}{c_p}(h_b - T(z_t)) + 1.8020\times 10^7(\epsilon_0-\epsilon_{0,\mathrm{ref}})
+\end{equation}
+
+Applying this sensitivity of \(z_t\) on \(\epsilon_0\) to the ZX19 prediction makes a modest improvement on the slope of the entrainment--overprediction relationship (see Fig. [[fig:epsd-eps]]). However, the fit is still not as successful as the bulk-plume models. While the added complexity of the ZX19 model has benefits such as being able to correctly predict the C-shape profile of the temperature deviation from a moist adiabat, it also has detriments such as requiring a theory for \(z_t\). The approximation used to compute \(z_t\) is probably not accurate enough to correctly predict the sensitivity obtained in GFDLrce. The only way I have found so far to obtain a better fit in ZX19 is to prescribe how \(\epsilon_0\) changes with warming, but this seems like off limits for a predictive model as we do not have any theory that predicts how entrainment should vary with warming. I will continue to think about other ways we may be able to modify the prescribed \(\epsilon[z_d]\) profile in ZX19 to prevent it from changing with warming.
+
+#+caption: The inferred \(\epsilon[z_d]\) profiles in GFDLrce for simulations with various Tokioka parameters \(\alpha\).
+#+label: fig:epsd_zd
+[[./c_epsd_zd.png]]
+
+#+caption: The relationship between \(\epsilon_0\) and \(z_t\) are shown for various Tokioka parameters in GFDLrce (asterisks). There is a strong correlation between the spectral entrainment rate of a plume that detrains at 10 km above cloud base and the cloud top height \(z_t\). The black line is the best linear fit through the GFDLrce data points.
+#+label: fig:eps0_zt
+[[./c_eps0_zt.png]]
+
+#+caption: Spectral entrainment--overprediction relationship as obtained from GFDLrce (asterisks) and the ZX19 spectral plume model (black line). The ZX19 model is modified such that \(\epsilon_0\) corresponds to the spectral entrainment rate of a plume that detrains 10 km above cloud base and \(z_t\) is sensitive to \(\epsilon_0\) based on an empirically derived linear fit.
+#+label: fig:epsd-eps
+[[./corr_c_epsd_pc_op_10_eps.png]]
+
+bibliographystyle:apalike
+bibliography:/mnt/c/Users/omiyawaki/Sync/papers/references.bib

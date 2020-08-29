@@ -1,5 +1,5 @@
 (TeX-add-style-hook
- "response"
+ "weighted_entrainment_notes"
  (lambda ()
    (TeX-add-to-alist 'LaTeX-provided-class-options
                      '(("article" "11pt")))
@@ -33,8 +33,7 @@
     "geometry"
     "parskip")
    (LaTeX-add-labels
-    "sec:orge3b49b1"
-    "sec:orgf14c331")
+    "eq:org0797e70")
    (LaTeX-add-bibliographies
     "../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references"))
  :latex)
