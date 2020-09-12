@@ -1,0 +1,269 @@
+% Created 2020-08-12 Wed 16:00
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\setcounter{secnumdepth}{2}
+\author{Osamu Miyawaki}
+\date{August 13, 2020}
+\title{Research Notes}
+\hypersetup{
+ pdfauthor={Osamu Miyawaki},
+ pdftitle={Research Notes},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:orgf4b5fd4}
+Action items from our previous meeting are:
+\begin{itemize}
+\item Summarize how various flags alter midlatitude RCE.
+\begin{itemize}
+\item Explore near-surface meridional velocity as an additional flag.
+\end{itemize}
+\item Plot SH RAE profile in \(\sigma\) coordinates to remove the effect of topography.
+\item Compute MSE tendency using high frequency ERA output.
+\end{itemize}
+
+\section{Comparison of RCE flags}
+\label{sec:org202f2f8}
+As MSE flux divergence changes to convergence in the midlatitudes, \(R_1\) is small for a large region in the midlatitudes and is diagnosed as RCE yearround (Fig. \ref{fig:org6bb4767}). This is problematic because we do not expect regions such as the midlatitude winter to follow a convective temperature profile. Thus, we impose additional criteria (flags) with the intention of capturing midlatitude RCE where we suspect the temperature profile is close to moist adiabatic. I evaluate the pros and cons of various flags in what follows.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/def/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org6bb4767}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(|R_1| < 0.3\) and RAE as where \(R_1 > 0.7\).}
+\end{figure}
+
+\clearpage
+\subsection{\(P-E>0\)}
+\label{sec:org54f98fe}
+A simple way to diagnose convective activity is vertically-integrated moisture convergence \cite{neelin1987}. In the absence of moisture storage, this is equal to \(P-E\). Thus, we can consider \(P-E>0\) as a criteria for RCE (Fig. \ref{fig:org43fc374}). \(P-E>0\) in the deep tropics and the midlatitudes, while \(P-E<0\) in the subtropics. Tropical \(P-E>0\) exhibits strong seasonality. As a result, tropical RCE no longer persists yearround when the \(P-E>0\) flag is applied (Fig. \ref{fig:org1fa1e68}).
+\subsubsection*{Pros}
+\label{sec:orgf1e72ac}
+\begin{itemize}
+\item Eliminates subtropical RCE.
+\end{itemize}
+\subsubsection*{Cons}
+\label{sec:orgc858e38}
+\begin{itemize}
+\item Also eliminates tropical RCE during months 1--3 and 7--8.
+\item Narrow band of midlatitude RCE persists yearround around 40 N/S.
+\item In exact RCE, \(P-E=0\) because there is no large-scale circulation to transport moisture through the lateral boundary. Thus, this flag is not consistent with the conceptual picture of RCE.
+\end{itemize}
+
+\clearpage
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/flag/lo/0_pe_mon_lat.png}
+\caption{\label{fig:org43fc374}Spatio-temporal structure of \(P-E\) in MPI-ESM-LR. We use \(P-E>0\) as an additional criteria for RCE.}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/pe/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org1fa1e68}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(|R_1| < 0.3\) and RAE as where \(R_1 > 0.7\). \(P-E>0\) is used as an additional flag for RCE.}
+\end{figure}
+
+\clearpage
+\subsection{\(\omega500<0\)}
+\label{sec:org5643330}
+Another way to diagnose convective activity is upward vertical velocity. In this example, we simply require that air is rising (\(\omega500<0\)) to approximately satisfy RCE. Similar to regions of \(P-E>0\), regions of \(\omega500<0\) are found in the deep tropics and the midlatitudes (Fig. \ref{fig:orga08856b}). As the region of \(\omega500<0\) in the deep tropics migrates seasonally, tropical RCE no longer persists yearround (Fig. \ref{fig:org17106c3}).
+
+\subsubsection*{Pros}
+\label{sec:org61de612}
+\begin{itemize}
+\item Eliminates subtropical RCE.
+\item Midlatitude RCE no longer persists yearround.
+\end{itemize}
+\subsubsection*{Cons}
+\label{sec:org4e21439}
+\begin{itemize}
+\item Midlatitude RCE remains in winter and spring, where we do not expect convective temperature profiles.
+\item Since \(\omega500\) measures large-scale vertical motion in GCMs, it does not necessarily capture convective activity, which typically occurs on the sub-grid scale. Thus, \(\omega500\) captures features such as the Hadley/Ferrel cells and large-scale slantwise ascent.
+\item In exact RCE, \(\omega500=0\) when averaged across the domain because there is no lateral flow through the boundary. Thus, this flag is not consistent with the conceptual picture of RCE.
+\end{itemize}
+
+\clearpage
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/flag/lo/0_w500_mon_lat.png}
+\caption{\label{fig:orga08856b}Spatio-temporal structure of \(\omega500\) in MPI-ESM-LR. We use \(\omega500<0\) as an additional criteria for RCE.}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/w500/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org17106c3}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(|R_1| < 0.3\) and RAE as where \(R_1 > 0.7\). \(\omega500<0\) is used as an additional flag for RCE.}
+\end{figure}
+
+\clearpage
+\subsection{\(|F_m|<\max(|F_m|)/2\)}
+\label{sec:orgece31ed}
+In exact RCE, there is no horizontal heat transport. Thus, we can define an approximate state of RCE as a region where horizontal heat transport is small. Here, I require that the northward MSE transport is less than half its maximum value to approximately satisfy RCE. MSE transport is generally strongest during winter in the midlatitudes (Fig. \ref{fig:org845a067}). The location of zero MSE transport shifts seasonally, but the threshold is lenient enough that it does not significantly affect tropical RCE (Fig. \ref{fig:orgdb46e7a}). When the threshold is set to \(|F_m|<\max(|F_m|)/3\), tropical RCE no longer persists yearround (Fig. \ref{fig:org5617d48}).
+
+\subsubsection*{Pros}
+\label{sec:orgbbb8d7d}
+\begin{itemize}
+\item Eliminates yearround midlatitude RCE. RCE remains in both NH and SH midlatitudes centered around the summer. NH RCE is more prominent than SH RCE.
+\item Does not significantly affect tropical RCE.
+\item The criteria is consistent with the domain-averaged state of RCE in that exact RCE is the limit of this criteria with a threshold value of 0 W.
+\end{itemize}
+\subsubsection*{Cons}
+\label{sec:org817b123}
+\begin{itemize}
+\item It is unclear whether SH midlatitude RCE in the summer should follow a convective temperature profile given the lack of large continents in the SH midlatitudes.
+\item Results are sensitive to the exact threshold chosen.
+\end{itemize}
+
+\clearpage
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/transport/lo/all/mse.png}
+\caption{\label{fig:org845a067}Spatio-temporal structure of \(F_m\) in MPI-ESM-LR. We use \(|F_m|<\max(|F_m|)/2\) as an additional criteria for RCE.}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/vh2/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:orgdb46e7a}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(|R_1| < 0.3\) and RAE as where \(R_1 > 0.7\). \(|F_m|<\max(|F_m|)/2\) is used as an additional flag for RCE.}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/vh3/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org5617d48}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(|R_1| < 0.3\) and RAE as where \(R_1 > 0.7\). \(|F_m|<\max(|F_m|)/3\) is used as an additional flag for RCE.}
+\end{figure}
+
+\clearpage
+\subsection{\(|v_{\,\mathrm{2\,m}}|<\max(|v_{\,\mathrm{2\,m}}|)/2\)}
+\label{sec:org8bd0b2a}
+In exact RCE, there is no horizontal flow through the lateral boundaries. Thus, we can define an approximate state of RCE as regions where horizontal velocity is small. Here, I require that the near-surface meridional velocity \(v_{\,\mathrm{2\,m}}\) is less than half its maximum value to approximately satisfy RCE. \(v_{\,\mathrm{2\,m}}\) is largest in the tropics, associated with the convergence of air toward the ITCZ in the lower branch of the Hadley cell (Fig. \ref{fig:org7193867}). \(v_{\,\mathrm{2\,m}}\) is generally small in the extratropics, although the SH polar branch appears to be strong. Accordingly, this flag does not significantly affect midlatitude RCE and removes tropical RCE during the summer (Fig. \ref{fig:org075c5db}). Setting the threshold to \(|v_{\,\mathrm{2\,m}}|<\max(|v_{\,\mathrm{2\,m}}|)/4\) further removes tropical RCE while not significantly affecting midlatitude RCE (Fig. \ref{fig:org80bb966}).
+
+\subsubsection*{Pros}
+\label{sec:org5fe1813}
+\begin{itemize}
+\item The criteria is consistent with the domain-averaged state of RCE in that exact RCE is the limit of this criteria with a threshold value of 0 m/s.
+\end{itemize}
+\subsubsection*{Cons}
+\label{sec:org0a06548}
+\begin{itemize}
+\item Removes tropical RCE during summer.
+\item Does not significantly affect midlatitude RCE.
+\end{itemize}
+
+\clearpage
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/flag/lo/0_vas_mon_lat.png}
+\caption{\label{fig:org7193867}Spatio-temporal structure of \(v_{\,\mathrm{2\,m}}\) in MPI-ESM-LR. We use \(|v_{\,\mathrm{2\,m}}|<\max(|v_{\,\mathrm{2\,m}}|)/2\) as an additional criteria for RCE.}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/vas2/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org075c5db}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(|R_1| < 0.3\) and RAE as where \(R_1 > 0.7\). \(|v_{\,\mathrm{2\,m}}|<\max(|v_{\,\mathrm{2\,m}}|)/2\) is used as an additional flag for RCE.}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/vas4/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org80bb966}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(|R_1| < 0.3\) and RAE as where \(R_1 > 0.7\). \(|v_{\,\mathrm{2\,m}}|<\max(|v_{\,\mathrm{2\,m}}|)/4\) is used as an additional flag for RCE.}
+\end{figure}
+
+\clearpage
+\section{SH RAE in \(\sigma\) coordinate}
+\label{sec:orgf9e0a67}
+Temperature profiles of SH RAE plotted in pressure coordinates exhibited multiple inversions in the lower troposphere due to the topography over Antartica. To remove the effect of topography, we now use the \(\sigma\) vertical coordinate (\(p/p_s\)) to plot SH RAE. The resulting temperature profile has a clear near-surface inversion at all latitudes shown (Fig. \ref{fig:org323adda}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/lo/ann/si/sh.png}
+\caption{\label{fig:org323adda}Annually and zonally-averaged temperature profiles at various southern hemisphere high latitudes in MPI-ESM-LR.}
+\end{figure}
+
+\section{Diagnosing MSE tendency from 6 hourly ERA-Interim data}
+\label{sec:org172d899}
+We found that MSE tendency influences the diagnosed region of NH RAE, so it is not a good approximation to ignore the tendency term. While MSE flux divergence can be computed from Aaron's MSE transport data through 2018, MSE tendency is only available through 2012. Thus, we calculate MSE tendency from high frequency ERA-Interim output.
+
+ERA-Interim conveniently has vertically-integrated MSE (in units J m\(^{-2}\)) as a standard output. To compute the MSE tendency, I take the finite difference of the vertically-integrated MSE at 6 hourly time steps. In order to make a direct comparison with MSE tendency included in the DB13 data, I compute the monthly climatology from 2000 through 2012.
+
+MSE tendency in DB13 and that computed from 6 hourly ERA-Interim output are similar for the annual mean (Fig. \ref{fig:org41a190c}). DB13 calculates MSE tendency by computing the tendency of temperature and humidity at each level before taking the vertical integral. On the other hand, I compute the tendency of the vertically-integrated MSE. This difference in the order of operations likely results in the small difference. MSE tendencies are also comparable through the seasonal cycle (Figs. \ref{fig:org904dc58}--\ref{fig:org0e7e926}), so I think it's reasonable to proceed with the way I calculate MSE tendency.
+
+The structure of RCE and RAE using MSE tendency calculated using ERA-Interim data (Fig. \ref{fig:org18c58bc}) are similar to that using MSE tendency in DB13 (Fig. \ref{fig:orga993cae}). The most notable difference is in the SH summer RAE, where RAE is further poleward when using the MSE tendency calculated using 6 hourly ERA-Interim data. Another difference is that NH RAE during April is reduced to thin slivers. If these differences are too significant, I can also calculate MSE tendency following the exact procedure used in DB13. However, this will involve significantly more data and processing time (3D vs 2D data).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/energy-flux/lo/ann/tend_comp.png}
+\caption{\label{fig:org41a190c}Annually-averaged MSE tendency in DB13 (blue) and calculated from 6 hourly ERA-Interim data (orange).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/energy-flux/lo/djf/tend_comp.png}
+\caption{\label{fig:org904dc58}MSE tendency in DB13 (blue) and calculated from 6 hourly ERA-Interim data (orange) averaged over DJF.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/energy-flux/lo/mam/tend_comp.png}
+\caption{\label{fig:org8cb1bab}MSE tendency in DB13 (blue) and calculated from 6 hourly ERA-Interim data (orange) averaged over MAM.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/energy-flux/lo/jja/tend_comp.png}
+\caption{\label{fig:orgf9db9e1}MSE tendency in DB13 (blue) and calculated from 6 hourly ERA-Interim data (orange) averaged over JJA.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/energy-flux/lo/son/tend_comp.png}
+\caption{\label{fig:org0e7e926}MSE tendency in DB13 (blue) and calculated from 6 hourly ERA-Interim data (orange) averaged over SON.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/eps_0.3_ga_0.7/db13t/def/lo/0_rcae_rc_mon_lat.png}
+\caption{\label{fig:org18c58bc}Regions of RCE in orange and RAE in blue as diagnosed using radiation from CERES, MSE flux divergence from DB13, and MSE tendency calculated from ERA-Interim. Surface turbulent fluxes are inferred as the residual. Here, RCE is defined as where \(|R_1| < 0.3\) and RAE as where \(R_1 > 0.7\).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/eps_0.3_ga_0.7/db13/def/lo/0_rcae_rc_mon_lat.png}
+\caption{\label{fig:orga993cae}Regions of RCE in orange and RAE in blue as diagnosed using radiation from CERES and MSE flux divergence and tendency from DB13. Surface turbulent fluxes are inferred as the residual. Here, RCE is defined as where \(|R_1| < 0.3\) and RAE as where \(R_1 > 0.7\).}
+\end{figure}
+
+\section{Next Steps}
+\label{sec:org65d6f89}
+\begin{itemize}
+\item Decide on which RCE flag to use and compute averaged temperature profiles over RCE and RAE. Sub-categorize into NH and SH RCE/RAE and into midlatitude and tropical RCE.
+\item Determine how to quantify closeness to a moist adiabat.
+\item Should we plot temperature profiles predicted by the simple RAE model of \cite{cronin2016} and compare it with the GCM/reanalysis temperature profiles in RAE regimes?
+\item Repeat analyses performed on MPI-ESM-LR with ERA data up to the recent past and the remaining GCMs in the CMIP archive.
+\item Test physical mechanisms that control the seasonality of RCE and RAE using slab-ocean aquaplanet experiments.
+\end{itemize}
+
+\bibliographystyle{apalike}
+\bibliography{../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references}
+\end{document}

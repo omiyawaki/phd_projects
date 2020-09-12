@@ -1,4 +1,4 @@
-% Created 2020-08-03 Mon 17:46
+% Created 2020-08-05 Wed 15:35
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -29,7 +29,7 @@
 \maketitle
 
 \section{Introduction}
-\label{sec:orgc63b1bb}
+\label{sec:org75b15d6}
 Action items from our previous meeting are:
 \begin{itemize}
 \item Plot zonally-averaged temperature profiles for various latitudes. This is to check for the variation in the temperature profile within regions of RCE and RAE. We suspect there is substantial variation in SH RAE, hence we did not see a near-surface inversion in the temperature profile averaged over SH RAE.
@@ -41,71 +41,108 @@ Action items from our previous meeting are:
 \end{itemize}
 
 \section{Zonally-averaged temperature profiles}
-\label{sec:org0ace24e}
+\label{sec:org7fea45e}
+Previously, we found that the temperature profile averaged over SH RAE does not show a near-surface inversion in MPI-ESM-LR (see dashed blue line in Fig. \ref{fig:org865427b}). We suspect that this may be due to large spatial variations in surface pressure and temperatures over the Antartic topography, and averaging over these varied temperature profiles blurs out the inversion. To test this idea, we plot the zonally-averaged temperature profiles in the southern high latitudes.
+
+Indeed, there is large variation in the annually and zonally-averaged temperature profiles in the SH high latitudes (Fig. \ref{fig:orgdc967fb}). At 88 and 86 S, the temperature profiles begin around 700 hPa due to the altitude of the Antartic topography. Strangely, of these two profiles, one shows an inversion (88 S) while the other does not (86 S). One possible explanation is the inversion is shallower than the depth between two pressure levels and is not resolved by the coarse vertical grid.
+
+I attempt to recover some of this detail by using the surface temperature (ts) and pressure (ps) data. I do this by adding temperature ts at pressure ps for every latitude, longitude, and month. This produces a vertical grid that varies in space and time, so I interpolate this temperature field to a higher-resolution pressure grid (100 points spaced linearly from 1000 to 10 hPa). I take the annual and zonal average of this field to obtain the temperature profiles.
+
+The resulting temperature profile clearly shows inversions at latitudes poleward of about 80 S (Fig. \ref{fig:orgc342aab}). We also resolve multiple inversions throughout the lower troposphere due to the topography over Antarctica. Moving forward, I propose we include the ts and ps data when calculating the temperature profile as a workaround to resolve inversions in the coarse vertical grid of GCMs.
+
+As expected, the multiple inversion phenomenon goes away when we average the temperature profile only over the ocean (Fig. \ref{fig:org91c292c}). The surface pressure at 85 S appears to be anomalously low compared to the others. This may be due to a mismatch in the GCM coastline and the MATLAB coastline I am using to categorize the data as over land or ocean.
+
+The temperature profiles in the NH high latitudes are less varied (Fig. \ref{fig:orgc52acad}). All latitudes shown include columns that include the 1000 hPa level as there lacks significant topography in the Arctic. Correspondingly, there is only one inversion near the surface.
+
+In the deep tropics, temperature profiles are nearly homogeneous in space as expected from the weak temperature gradient approximation. Here, it is appropriate to average over various latitudes as there is hardly any spatial variation in the zonally-averaged temperature profiles.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.8/mse/def/lo/ann/temp/rcae_all.png}
-\caption{\label{fig:org1617712}Annually-averaged temperature profiles over RCE (\(|R_1|<0.3\)) and RAE (\(R_1>0.8\)) in MPI-ESM-LR. Each regime is further categorized into the northern hemisphere (NH) and southern hemisphere (SH). RCE is further categorized into the tropics (defined to be within \(\pm 30^\circ\)) and the midlatitudes (defined to be outside \(30^\circ\)).}
+\caption{\label{fig:org865427b}Annually-averaged temperature profiles over RCE (\(|R_1|<0.3\)) and RAE (\(R_1>0.8\)) in MPI-ESM-LR. Each regime is further categorized into the northern hemisphere (NH) and southern hemisphere (SH). RCE is further categorized into the tropics (defined to be within \(\pm 30^\circ\)) and the midlatitudes (defined to be outside \(30^\circ\)).}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/p/sh.png}
-\caption{\label{fig:orgcec0283}Annually and zonally-averaged temperature profiles at various southern hemisphere high latitudes.}
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/lo/ann/p/sh.png}
+\caption{\label{fig:orgdc967fb}Annually and zonally-averaged temperature profiles at various southern hemisphere high latitudes in MPI-ESM-LR.}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/p/nh.png}
-\caption{\label{fig:org1543f05}Annually and zonally-averaged temperature profiles at various northern hemisphere high latitudes.}
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/lo/ann/pi/sh.png}
+\caption{\label{fig:orgc342aab}Annually and zonally-averaged temperature profiles at various southern hemisphere high latitudes using the ts and ps data in MPI-ESM-LR.}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/p/eq.png}
-\caption{\label{fig:orgbe9e717}Annually and zonally-averaged temperature profiles at various low latitudes.}
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/o/ann/pi/sh.png}
+\caption{\label{fig:org91c292c}Annually and zonally-averaged temperature profiles at various southern hemisphere high latitudes only over the ocean using the ts and ps data in MPI-ESM-LR.}
 \end{figure}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/lo/ann/pi/nh.png}
+\caption{\label{fig:orgc52acad}Annually and zonally-averaged temperature profiles at various northern hemisphere high latitudes using the ts and ps data in MPI-ESM-LR.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/lo/ann/pi/eq.png}
+\caption{\label{fig:org2c059cb}Annually and zonally-averaged temperature profiles at various tropical latitudes using the ts and ps data in MPI-ESM-LR.}
+\end{figure}
 
 \section{Varying DSE RCE threshold values}
-\label{sec:org8cb184c}
+\label{sec:org6ccb884}
+Using the RCE threshold as in \cite{jakob2019} (\(\nabla\cdot F_s<50\) Wm\(^-2\)) results in most of the midlatitudes diagnosed as RCE. Thus, 50 Wm\(^-2\) appears to be too large for identifying RCE outside of the tropics. 30 Wm\(^-2\) seems to be a sensible threshold (Fig. \ref{fig:org99dcb89}) as lowering it further to 10 Wm\(^-2\) reduces RCE to erratic patches (Fig. \ref{fig:orgcf86695}). A fundamental issue with using the DSE equation to diagnose RCE in the midlatitudes is that the poleward transport of latent energy is not included in \(\nabla\cdot F_s\). Another way to think about this is that the \(LP\) term in the definition of \(R_2\) doesn't distinguish between precipitation due to convection or slant-wise ascent.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.8/dse/jak/lo/0_rcae_mon_lat.png}
-\caption{\label{fig:org1fcf752}Regions of RCE in orange as diagnosed using the vertically-integrated DSE equation with MPI-ESM-LR data. Surface fluxes are inferred as the residual. Here, RCE is defined as where \(|\nabla\cdot F_s| < 50\) W/m\(^2\). Regions of RAE in blue as diagnosed using the MSE equation (\(R_1>0.8\)).}
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/dse/jak/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org5bcf633}Regions of RCE in orange as diagnosed using the vertically-integrated DSE equation with MPI-ESM-LR data. Surface fluxes are inferred as the residual. Here, RCE is defined as where \(|\nabla\cdot F_s| < 50\) W/m\(^2\). Regions of RAE in blue as diagnosed using the MSE equation (\(R_1>0.7\)).}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.8/dse/jak30/lo/0_rcae_mon_lat.png}
-\caption{\label{fig:org6dc45a1}Same as Fig. \ref{fig:org1fcf752} but where RCE is defined as where \(|\nabla\cdot F_s| < 30\) W/m\(^2\).}
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/dse/jak30/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org99dcb89}Same as Fig. \ref{fig:org5bcf633} but where RCE is defined as where \(|\nabla\cdot F_s| < 30\) W/m\(^2\).}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.8/dse/jak10/lo/0_rcae_mon_lat.png}
-\caption{\label{fig:org864d3b9}Same as Fig. \ref{fig:org1fcf752} but where RCE is defined as where \(|\nabla\cdot F_s| < 10\) W/m\(^2\).}
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/dse/jak10/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:orgcf86695}Same as Fig. \ref{fig:org5bcf633} but where RCE is defined as where \(|\nabla\cdot F_s| < 10\) W/m\(^2\).}
 \end{figure}
 
 \section{Inferring surface turbulent fluxes as residual}
-\label{sec:org08c094e}
+\label{sec:orga4e0468}
+We previously found that the inferred MSE flux divergence in ERA-Interim and ERA5 are unphysical because the flux divergence does not integrate to 0 at the pole. This problem arises due to the lack of reliable observations of surface turbulent fluxes and that energy is not conserved in reanalysis models.
+
+An alternative way to diagnose RCE and RAE using observation and reanalysis data is to use CERES radiation data to obtain radiative cooling, calculate the MSE flux divergence and tendency terms from high frequency reanalysis output, and infer the surface turbulent fluxes as the residual. Calculating the MSE flux divergence from high frequency data output will take time, so we prefer to use available MSE flux divergence and tendency data if possible. MSE flux divergence and tendency are available from the DB13 dataset, but this data only goes up to 2012. Tiffany previously reported that northward MSE transport data produced by Aaron Donohoe is available through 2019. We can compute the flux divergence field from this MSE transport data. However, MSE tendency is not available through 2019. This motivates us to see whether ignoring the MSE tendency term is acceptable.
+
+To test this, I use the radiation flux climatology obtained from averaging over 2000-03 through 2013-02 in the CERES4.1 dataset to calculate radiative cooling. I use the MSE flux divergence and tendency climatology in the DB13 dataset, which is calculated from ERA-Interim data averaged over 2000-01 through 2012-12. Note that there is a two-month discrepancy in CERES and DB13 data. This is unavoidable because the earliest data available in the CERES4.1 dataset is 2000-03. I infer the surface turbulent fluxes as the residual of the aforementioned terms.
+
+Ignoring MSE flux tendency does not significantly alter the diagnosed RCE regimes (compare orange region with MSE tendency Fig. \ref{fig:org0dd4041} to without tendency Fig. \ref{fig:orgf832265}). However, the diagnosed RAE regimes are noticeably different, particularly in the NH. When the MSE tendency is ignored, NH RAE disappears during autumn (Fig. \ref{fig:orgf832265}) while it persists yearround when it is included (Fig, \ref{fig:org0dd4041}).
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=.9\linewidth]{../../figures/erai/std/eps_0.45_ga_0.65/db13/def/lo/0_rcae_mon_lat.png}
-\caption{\label{fig:org612054f}Regions of RCE in orange and RAE in blue as diagnosed using CERES radiation and the DB13 MSE flux divergence and tendency data. Surface fluxes are inferred as the residual. Here, RCE is defined as where \(R_1 < 0.45\) and RAE as where \(R_1 > 0.65\).}
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/eps_0.3_ga_0.7/db13/def/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org0dd4041}Regions of RCE in orange and RAE in blue as diagnosed using CERES radiation and the DB13 MSE flux divergence and tendency data. Surface fluxes are inferred as the residual. Here, RCE is defined as where \(R_1 < 0.3\) and RAE as where \(R_1 > 0.7\).}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=.9\linewidth]{../../figures/erai/std/eps_0.45_ga_0.65/db13s/def/lo/0_rcae_mon_lat.png}
-\caption{\label{fig:orgeddfbe5}Regions of RCE in orange and RAE in blue as diagnosed using CERES radiation and the DB13 MSE flux divergence data. MSE tendency is ignored. Surface fluxes are inferred as the residual. Here, RCE is defined as where \(R_1 < 0.45\) and RAE as where \(R_1 > 0.65\).}
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/eps_0.3_ga_0.7/db13s/def/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:orgf832265}Regions of RCE in orange and RAE in blue as diagnosed using CERES radiation and the DB13 MSE flux divergence data. MSE tendency is ignored. Surface fluxes are inferred as the residual. Here, RCE is defined as where \(R_1 < 0.3\) and RAE as where \(R_1 > 0.7\).}
 \end{figure}
 
 \section{Next Steps}
-\label{sec:orgc7f8b08}
+\label{sec:org67bc814}
+\begin{itemize}
+\item Considering that there is significant variation in the SH RAE temperature profiles due to topography, does it make sense to show the temperature profile averaged over various latitudes? One way the inversion strength has been defined in the past is the difference in 850 hPa and surface temperature \cite{medeiros2011}. It would be interesting to plot the month x latitude plot of the inversion strength and see if there is correlation between regions of strong inversion and high values of \(R_1\).
+\item As ignoring the MSE tendency term affects the persistence of NH RAE through autumn, it appears that we need this data to move forward with diagnosing RCE/RAE in observations. Is it appropriate to calculate MSE tendency from monthly data, or do we need higher frequency output?
+\item Test physical mechanisms that control the seasonality of RCE and RAE using slab-ocean aquaplanet experiments.
+\end{itemize}
 
 \bibliographystyle{apalike}
 \bibliography{../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references}
