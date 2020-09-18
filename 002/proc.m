@@ -8,16 +8,17 @@ par.era5.yr_span = '1979_2019'; % spanning years for ERA5
 par.lat_interp = 'std'; % which latitudinal grid to interpolate to: don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
 par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' interpolation
 par.ep_swp = 0.3; %[0.25 0.3 0.35]; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
-par.ga_swp = 0.7; % optional threshold for RAE. If undefined, the default value is 1-par.ep
+par.ga_swp = 0.95; % optional threshold for RAE. If undefined, the default value is 1-par.ep
 par.ep_cp = 0.5; % additional flag for RCE definition using convective precipitation. RCE is defined as where lsp/cp < ep_cp
 par.ma_type = 'reversible'; % choose the type of moist adiabat: reversible, pseudo, or std
 par.frz = 0; % consider latent heat of fusion in moist adiabat?
-par.pa_span = [1000 100]*100; % pressure range for calculating moist adiabat
+par.pa_span = [1000 10]*100; % pressure range for calculating moist adiabat
 par.pa = linspace(1000,10,100)*1e2; % high resolution vertical grid to interpolate to
 par.dpa = -10; % pressure increment for integrating dry adiabat section of moist adiabat (matters for how accurately the LCL is computed)
-par.z_span = [0 40]*10^3; % height range for calculating moist adiabat
+par.z_span = [0 25]*10^3; % height range for calculating moist adiabat
 par.dz = 10; % pressure increment for integrating dry adiabat section of moist adiabat (matters for how accurately the LCL is computed)
 par.do_surf = 0; % whether or not to calculate temperature profile in pressure grids including ts and ps data
+par.si_eval = [0.8 0.85 0.9]; % sigma level for evaluating inversion strength (T(si_eval) - T(surface))
 par.era.fw = {'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt'};
 par.gcm.fw = {'mse', 'dse'};
 par.cpd = 1005.7; par.cpv = 1870; par.cpl = 4186; par.cpi = 2108; par.Rd = 287; par.Rv = 461; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3; par.eps = 0.622; % common constants, all in SI units for brevity
@@ -32,7 +33,7 @@ type = 'erai'; % data type to run analysis on
 % choose_proc(type, par)
 for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
     type = 'gcm';
-    % choose_proc(type, par)
+    choose_proc(type, par)
 end
 
 for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
@@ -40,17 +41,24 @@ for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
     % choose_proc_ep(type, par)
     for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
         type = 'gcm';
-        choose_proc_ep(type, par)
+        % choose_proc_ep(type, par)
     end
 end
 
 %% define functions
 function choose_proc(type, par)
     % save_mask(type, par) % save land and ocean masks once (faster than creating mask every time I need it)
-    proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+    % proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
     % proc_net_flux(type, par) % calculate net energy fluxes at TOA and surface
     % proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
     % proc_ma_mon_lat(type, par) % calculate mon x lat moist adiabats
+    % proc_inv_str_mon_lat(type, par) % calculate mon x lat inversion strength
+    % make_tai(type, par) % calculate moist adiabat in lon x lat x mon
+    % make_dtdz(type, par) % calculate model lapse rate
+    make_dtdzi(type, par) % calculate model lapse rate
+    % make_malr(type, par) % calculate moist adiabatic lapse rate of model temperature
+    % make_dtmdz(type, par) % calculate moist adiabatic lapse rate of a moist adiabat
+    % make_dtmdz_lat_plev(type, par) % calculate moist adiabat in lon x lat x mon
 end % select which functions to run at a time
 function save_mask(type, par)
     if strcmp(type, 'era5') | strcmp(type, 'erai')
@@ -702,9 +710,410 @@ function proc_ma_mon_lat(type, par)
     save(printname, 'ma_t', 'maz_t');
 
 end % compute mon x lat moist adiabat field
+function proc_inv_str_mon_lat(type, par)
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_*.ymonmean.nc', type, type));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        ta_orig = ncread(fullpath, 't');
+    elseif strcmp(type, 'gcm')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.model, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        var = 'ta';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        ta_orig = ncread(fullpath, var);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/tempsi.mat', prefix));tasi_orig = tempsi; clear tempsi; % read temp in si coordinates
+    load(sprintf('%s/%s/masks.mat', prefix_proc, par.lat_interp)); % load land and ocean masks
+
+    lat = par.lat_std;
+
+    % interpolate ta to standard lat grid
+    tasi_orig = permute(tasi_orig, [2 1 3 4]);
+    tasi_orig = interp1(grid.dim3.lat, tasi_orig, lat);
+    tasi_orig = permute(tasi_orig, [2 1 3 4]);
+
+    tasi_orig = permute(tasi_orig, [3 1 2 4]); % bring sigma forward
+
+    for isig = 1:length(par.si_eval); sig = par.si_eval(isig);
+        inv_orig(:,:,:,isig) = squeeze(interp1(grid.dim3.si, tasi_orig, sig) - tasi_orig(1,:,:,:)); % evaluate difference between surface and si_eval
+    end
+
+    % Land/ocean filter 2D variables
+    mask.land_vert = repmat(mask.land, [1 1 1 length(par.si_eval)]); % expand land mask to si_eval dim
+    mask.ocean_vert = repmat(mask.ocean, [1 1 1 length(par.si_eval)]); % expand ocean mask to si_eval dim
+
+    inv0.lo = inv_orig;
+    inv0.l = inv0.lo.*mask.ocean_vert; % filter inv0 with surface mask
+    inv0.o = inv0.lo.*mask.land_vert; % filter inv0 with surface mask
+
+    for l = {'lo', 'l', 'o'}; land = l{1}; % over land, over ocean, or both
+        inv.(land)= squeeze(nanmean(inv0.(land), 1)); % zonal average
+        % take time averages
+        for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+            if strcmp(time, 'ann')
+                inv_t.(land).(time) = squeeze(nanmean(inv0.(land), 3));
+            elseif strcmp(time, 'djf')
+                inv_shift.(land) = circshift(inv0.(land), 1, 3);
+                inv_t.(land).(time) = squeeze(nanmean(inv_shift.(land)(:,:,1:3,:), 3));
+            elseif strcmp(time, 'jja')
+                inv_t.(land).(time) = squeeze(nanmean(inv0.(land)(:,:,6:8,:), 3));
+            elseif strcmp(time, 'mam')
+                inv_t.(land).(time) = squeeze(nanmean(inv0.(land)(:,:,3:5,:), 3));
+            elseif strcmp(time, 'son')
+                inv_t.(land).(time) = squeeze(nanmean(inv0.(land)(:,:,9:11,:), 3));
+            end
+        end
+    end
+
+    % save filtered data
+    printname = [foldername 'inv_mon_lat'];
+    if ~exist(foldername, 'dir')
+        mkdir(foldername)
+    end
+    save(printname, 'inv', 'lat');
+
+    printname = [foldername 'inv_lon_lat'];
+    if ~exist(foldername, 'dir')
+        mkdir(foldername)
+    end
+    save(printname, 'inv_t', 'lat');
+end % compute mon x lat temperature field
+function make_tai(type, par) % add surface data to temperature and interpolate to hi-res grid
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        temp = ncread(fullpath, 't');
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, 'z'); zg = zg/par.g; % convert from geopotential to height in m
+    elseif strcmp(type, 'gcm')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.model, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        var = 'ta';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        temp = ncread(fullpath, var);
+        var = 'zg';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, var);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/srfc.mat', prefix)); % read surface variable data
+
+    % create surface mask
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        ps_vert = repmat(srfc.sp, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
+        ps_vert = permute(ps_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
+        pa = double(permute(repmat(grid.dim3.plev, [1 size(srfc.ps)]), [2 3 1 4]));
+        ts_vert = repmat(srfc.t2m, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
+        ts_vert = permute(ts_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
+    elseif strcmp(type, 'gcm')
+        ps_vert = repmat(srfc.ps, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
+        ps_vert = permute(ps_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
+        pa = permute(repmat(grid.dim3.plev, [1 size(srfc.ps)]), [2 3 1 4]);
+        ts_vert = repmat(srfc.ts, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
+        ts_vert = permute(ts_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
+        zs_vert = repmat(srfc.zs, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
+        zs_vert = permute(zs_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
+    end
+    surface_mask = nan(size(temp));
+    surface_mask(pa < ps_vert) = 1;
+
+    temp_sm.lo = temp.*surface_mask; % filter temp with surface mask
+    zg_sm.lo = zg.*surface_mask; % filter zg with surface mask
+
+    % add tsurf data and interpolate to higher resolution vertical grid
+    [pa_plus ta_plus zg_plus] = deal(nan([size(pa,1), size(pa,2) size(pa,3)+1 size(pa,4)])); % create empty grid with one extra vertical level
+    pa_plus(:,:,1:end-1,:) = pa; % populate with standard pressure grid
+    ta_plus(:,:,1:end-1,:) = temp_sm.lo; % populate with standard atmospheric temperature
+    zg_plus(:,:,1:end-1,:) = zg_sm.lo; % populate with szgndard atmospheric temperature
+    pa_plus(:,:,end,:) = ps_vert(:,:,1,:); % add surface pressure data into standard pressure grid
+    ta_plus(:,:,end,:) = ts_vert(:,:,1,:); % add surface temperature data
+    zg_plus(:,:,end,:) = zs_vert(:,:,1,:); % add surface temperature data
+    pa_plus = permute(pa_plus, [3 1 2 4]); % bring plev dimension to front
+    ta_plus = permute(ta_plus, [3 1 2 4]); % bring plev dimension to front
+    zg_plus = permute(zg_plus, [3 1 2 4]); % bring plev dimension to front
+    [pa_plus sort_index] = sort(pa_plus, 1, 'descend'); % sort added surface pressure such that pressure decreases monotonically
+    tai_sm.lo = nan(length(par.pa), size(pa, 1), size(pa, 2), size(pa, 4));
+    zgi_sm.lo = nan(length(par.pa), size(pa, 1), size(pa, 2), size(pa, 4));
+    pb = CmdLineProgressBar("Sorting and interpolating temperature to new standard grid...");
+    for ilon=1:size(pa_plus,2)
+        pb.print(ilon, size(pa_plus,2));
+        for ilat=1:size(pa_plus,3)
+            for time=1:size(pa_plus,4)
+                ta_plus(:,ilon,ilat,time) = ta_plus(sort_index(:,ilon,ilat,time),ilon,ilat,time); % sort temperature (has to be in loop because sort_index works for vector calls only)
+                zg_plus(:,ilon,ilat,time) = zg_plus(sort_index(:,ilon,ilat,time),ilon,ilat,time); % sort temperature (has to be in loop because sort_index works for vector calls only)
+
+                tapanan = squeeze(pa_plus(:,ilon,ilat,time));
+                tananfi = isnan(squeeze(pa_plus(:,ilon,ilat,time))) | isnan(squeeze(ta_plus(:,ilon,ilat,time)));
+                tanan = squeeze(ta_plus(:,ilon,ilat,time));
+                zgpanan = squeeze(pa_plus(:,ilon,ilat,time));
+                zgnanfi = isnan(squeeze(pa_plus(:,ilon,ilat,time))) | isnan(squeeze(zg_plus(:,ilon,ilat,time)));
+                zgnan = squeeze(zg_plus(:,ilon,ilat,time));
+
+                tapanan(tananfi) = [];
+                tanan(tananfi) = [];
+                zgpanan(zgnanfi) = [];
+                zgnan(zgnanfi) = [];
+
+                tai_sm.lo(:,ilon,ilat,time) = interp1(tapanan, tanan, par.pa, 'linear', nan); % interpolate to higher resolution vertical grid
+                zgi_sm.lo(:,ilon,ilat,time) = interp1(zgpanan, zgnan, par.pa, 'linear', nan); % interpolate to higher resolution vertical grid
+            end
+        end
+    end
+    clear pa_plus ta_plus zg_plus; % clear unneeded variables
+    tai_sm.lo = permute(tai_sm.lo, [2 3 1 4]); % bring plev back to third dimension
+    tai = tai_sm.lo;
+    zgi_sm.lo = permute(zgi_sm.lo, [2 3 1 4]); % bring plev back to third dimension
+    zgi = zgi_sm.lo;
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='tai.mat';
+    save(sprintf('%s/%s', newdir, filename), 'tai', 'zgi', '-v7.3');
+
+end
+function make_dtdz(type, par) % compute model lapse rate in lon x lat x plev x mon
+% calculate moist adiabats
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.model, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/tai.mat', prefix)); % read moist adiabat
+
+    dtdz = -1e3*(tai(:,:,2:end,:)-tai(:,:,1:end-1,:))./(zgi(:,:,2:end,:)-zgi(:,:,1:end-1,:)); % lapse rate in K/km
+
+    dtdz = permute(dtdz, [3 1 2 4]); % bring height forward
+    dtdz = interp1(1/2*(par.pa(2:end)+par.pa(1:end-1)), dtdz, par.pa);
+    dtdz = permute(dtdz, [2 3 1 4]); % bring height back to 3rd
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='dtdz.mat';
+    save(sprintf('%s/%s', newdir, filename), 'dtdz', '-v7.3');
+
+end
+function make_dtdzi(type, par) % compute model lapse rate in lon x lat x plev x mon
+% calculate moist adiabats
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        temp = ncread(fullpath, 't');
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, 'z'); zg = zg/par.g; % convert from geopotential to height in m
+    elseif strcmp(type, 'gcm')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.model, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        var = 'ta';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        temp = ncread(fullpath, var);
+        var = 'zg';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, var);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/srfc.mat', prefix)); % read surface variable data
+
+    dtdzi = -1e3*(temp(:,:,2:end,:)-temp(:,:,1:end-1,:))./(zg(:,:,2:end,:)-zg(:,:,1:end-1,:)); % lapse rate in K/km
+
+    dtdzi = permute(dtdzi, [3 1 2 4]); % bring height forward
+    dtdzi = interp1(1/2*(grid.dim3.plev(2:end)+grid.dim3.plev(1:end-1)), dtdzi, grid.dim3.plev);
+    dtdzi = permute(dtdzi, [2 3 1 4]); % bring height back to 3rd
+
+    % create surface mask
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        ps_vert = repmat(srfc.sp, [1 1 1 size(dtdzi, 3)]); % dims (lon x lat x time x plev)
+        ps_vert = permute(ps_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
+        pa = double(permute(repmat(grid.dim3.plev, [1 size(srfc.ps)]), [2 3 1 4]));
+    elseif strcmp(type, 'gcm')
+        ps_vert = repmat(srfc.ps, [1 1 1 size(dtdzi, 3)]); % dims (lon x lat x time x plev)
+        ps_vert = permute(ps_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
+        pa = permute(repmat(grid.dim3.plev, [1 size(srfc.ps)]), [2 3 1 4]);
+    end
+    surface_mask = nan(size(dtdzi));
+    surface_mask(pa < ps_vert) = 1;
+
+    dtdzi = dtdzi.*surface_mask; % filter dtdzi with surface mask
+
+    dtdzi = permute(dtdzi, [3 1 2 4]); % bring height forward
+    dtdzi = interp1(grid.dim3.plev, dtdzi, par.pa, 'spline', nan);
+    dtdzi = permute(dtdzi, [2 3 1 4]); % bring height back to 3rd
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='dtdzi.mat';
+    save(sprintf('%s/%s', newdir, filename), 'dtdzi', '-v7.3');
+
+end
+function make_malr(type, par) % compute moist adiabatic lapse rate at every lat, lon, time
+% calculate moist adiabats
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.model, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/tai.mat', prefix)); clear zgi; % read interpolated temperature
+
+    pa = repmat(par.pa', [1 length(grid.dim3.lon) length(grid.dim3.lat) 12]);
+    pa = permute(pa, [2 3 1 4]);
+    pa = pa/1e2; % convert to mb
+
+    dtmdz = nan([length(grid.dim3.lon) length(grid.dim3.lat) length(par.pa) 12]);
+
+    % calculate MALR following equations 3-5 in Stone and Carlson (1979)
+    dalr = 9.8; % K/km
+    eps = 0.622;
+    R = 0.287; % J/g/K
+    cp = 1.005; % J/g/K
+    es0 = 6.11; % mb
+    T0 = 273; % K
+    L = 2510 - 2.38*(tai-T0);
+    es = es0*exp(eps*L/R.*(1/T0-1./tai));
+    desdT = eps*L.*es./(R*tai.^2);
+
+    dtmdz = dalr * (1+eps*L.*es./(pa.*R.*tai))./(1+(eps.*L./(cp.*pa)).*(desdT));
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='dtmdz.mat';
+    save(sprintf('%s/%s', newdir, filename), 'dtmdz', '-v7.3');
+
+end
+function make_dtmdz(type, par) % compute moist adiabat at every lat, lon, time
+% calculate moist adiabats
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.model, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/srfc.mat', prefix)); % read surface variable data
+
+    dtmdz = nan([length(grid.dim3.lon) length(grid.dim3.lat) length(par.pa) 12]);
+
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        pb = CmdLineProgressBar("Calculating moist adiabats...");
+        for ilon = 1:length(grid.dim3.lon);
+            pb.print(ilon, length(grid.dim3.lon)); % output progress of moist adiabat calculation
+            for ilat = 1:length(grid.dim3.lat);
+                for imon = 1:12;
+                    for fn_var = fieldnames(srfc)'
+                        ima.(fn_var{1}) = srfc.(fn_var{1})(ilon, ilat, imon);
+                    end
+                    dtmdz(ilon, ilat, :, imon) = calc_maz_dew_pa(ima, par.pa, par); % compute moist adiabat with RH
+                end
+            end
+        end
+    elseif strcmp(type, 'gcm')
+        pb = CmdLineProgressBar("Calculating moist adiabats...");
+        for ilon = 1:length(grid.dim3.lon);
+            pb.print(ilon, length(grid.dim3.lon)); % output progress of moist adiabat calculation
+            for ilat = 1:length(grid.dim3.lat);
+                for imon = 1:12;
+                    for fn_var = fieldnames(srfc)'
+                        ima.(fn_var{1}) = srfc.(fn_var{1})(ilon, ilat, imon);
+                    end
+                    dtmdz(ilon, ilat, :, imon) = calc_maz_hurs_pa(ima, par.pa, par); % compute moist adiabat with RH
+                end
+            end
+        end
+    end
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='dtmdz.mat';
+    save(sprintf('%s/%s', newdir, filename), 'dtmdz', '-v7.3');
+
+end
+function make_dtmdz_lat_plev(type, par) % compute moist adiabat as function of lat
+% calculate moist adiabats
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.model, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/srfc.mat', prefix)); % read surface variable data
+
+    dtmdz_zt = nan([length(grid.dim3.lat) length(par.pa)]);
+
+    for fn_var = fieldnames(srfc)'
+        srfc.(fn_var{1}) = squeeze(nanmean(nanmean(srfc.(fn_var{1}),1),3)); % zonal and time mean
+    end
+
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        pb = CmdLineProgressBar("Calculating moist adiabats...");
+        for ilat = 1:length(grid.dim3.lat);
+            pb.print(ilat, length(grid.dim3.lat)); % output progress of moist adiabat calculation
+            for fn_var = fieldnames(srfc)'
+                ima.(fn_var{1}) = srfc.(fn_var{1})(ilat);
+            end
+            dtmdz_zt(ilat, :) = calc_maz_dew_pa(ima, par.pa, par); % compute moist adiabat with RH
+        end
+    elseif strcmp(type, 'gcm')
+        pb = CmdLineProgressBar("Calculating moist adiabats...");
+        for ilat = 1:length(grid.dim3.lat);
+            pb.print(ilat, length(grid.dim3.lat)); % output progress of moist adiabat calculation
+            for fn_var = fieldnames(srfc)'
+                ima.(fn_var{1}) = srfc.(fn_var{1})(ilat);
+            end
+            dtmdz_zt(ilat, :) = calc_maz_hurs_pa(ima, par.pa, par); % compute moist adiabat with RH
+        end
+    end
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='dtmdz_zt.mat';
+    save(sprintf('%s/%s', newdir, filename), 'dtmdz_zt', '-v7.3');
+
+end
 
 function choose_proc_ep(type, par)
     proc_rcae(type, par) % calculate RCE and RAE regimes
+    proc_rcae_alt(type, par) % calculate RCE and RAE regimes (all divergence allowed for RCE)
     % proc_temp(type, par) % calculate RCE and RAE temperature profiles
     % proc_ma(type, par) % calculate moist adiabats corresponding to RCE profiles
 end % select which ep-functions to run at a time
@@ -765,6 +1174,63 @@ function proc_rcae(type, par)
     end
 
 end % process RCE/RAE regimes
+function proc_rcae_alt(type, par)
+    for f = {'flux', 'flux_t', 'flux_z'}; ftype = f{1};
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s.mat', type, par.lat_interp, ftype); % read ERA5 zonally averaged flux
+            foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g_ga_%g/', type, par.lat_interp, par.ep, par.ga);
+            prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+            prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.lat_interp);
+        elseif strcmp(type, 'gcm')
+            filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s.mat', type, par.model, par.lat_interp, ftype); % read gcm zonally averaged flux
+            foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g_ga_%g/', type, par.model, par.lat_interp, par.ep, par.ga);
+            prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+            prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.lat_interp);
+        end
+        if ~exist(filename); error(sprintf('Data does not exist. Please run proc_%s.m first.', ftype)); else
+            load(filename);
+        end
+
+        load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
+        load(sprintf('%s/vh.mat', prefix_proc)); % load atmospheric heat transport
+        load(sprintf('%s/vh_mon.mat', prefix_proc)); % load atmospheric heat transport
+
+        % identify locations of RCE and RAE
+        if strcmp(ftype, 'flux')
+            rcae_alt = def_rcae_alt(type, flux, vh_mon, par); % lon x lat x time structure
+            rcae_alt_rc = def_rcae_alt_recomp_r1(type, flux, vh_mon, par); % lon x lat x time structure
+            printname = [foldername 'rcae_alt.mat'];
+            printname_rc = [foldername 'rcae_alt_rc.mat'];
+        elseif strcmp(ftype, 'flux_t')
+            for l = {'lo', 'l', 'o'}; land = l{1};
+                % lon x lat structure over various time averages
+                for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+                    rcae_alt_t.(land).(time) = def_rcae_alt(type, flux_t.(land).(time), vh.(land).(time), par);
+                    rcae_alt_rc_t.(land).(time) = def_rcae_alt_recomp_r1(type, flux_t.(land).(time), vh.(land).(time), par);
+                end % time
+            end % land
+
+            printname = [foldername 'rcae_alt_t.mat'];
+            printname_rc = [foldername 'rcae_alt_rc_t.mat'];
+        elseif strcmp(ftype, 'flux_z') % show lat x mon structure of RCAE_ALT
+            for l = {'lo', 'l', 'o'}; land = l{1};
+                rcae_alt_z.(land) = def_rcae_alt(type, flux_z.(land), vh_mon.(land), par);
+                rcae_alt_rc_z.(land) = def_rcae_alt_recomp_r1(type, flux_z.(land), vh_mon.(land), par);
+                printname = [foldername 'rcae_alt_z.mat'];
+                printname_rc = [foldername 'rcae_alt_rc_z.mat'];
+            end
+        end
+
+        % save rcae_alt data
+        if ~exist(foldername, 'dir')
+            mkdir(foldername)
+        end
+        if strcmp(ftype, 'flux'); save(printname, 'rcae_alt', 'lat', '-v7.3'); save(printname_rc, 'rcae_alt_rc', 'lat', '-v7.3');
+        elseif strcmp(ftype, 'flux_t'); save(printname, 'rcae_alt_t', 'lat', '-v7.3'); save(printname_rc, 'rcae_alt_rc_t', 'lat', '-v7.3');
+        elseif strcmp(ftype, 'flux_z'); save(printname, 'rcae_alt_z', 'lat', '-v7.3'); save(printname_rc, 'rcae_alt_rc_z', 'lat', '-v7.3'); end
+    end
+
+end % process RCE/RAE regimes (all divergence allowed for RCE)
 function proc_temp(type, par)
     if strcmp(type, 'era5') | strcmp(type, 'erai')
         foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g_ga_%g/', type, par.lat_interp, par.ep, par.ga);
@@ -802,7 +1268,7 @@ function proc_temp(type, par)
         ps_vert = repmat(ps, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
         ps_vert = permute(ps_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
         pa = double(permute(repmat(grid.dim3.plev, [1 size(ps)]), [2 3 1 4]));
-        ts = permute(srfc.sp, [2 1 3]); % bring lat to front to interpolate
+        ts = permute(srfc.t2m, [2 1 3]); % bring lat to front to interpolate
         ts = interp1(grid.dim2.lat, ts, lat); % interpolate to standard grid
         ts = permute(ts, [2 1 3]); % reorder to original
         ts_vert = repmat(ts, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
@@ -1468,6 +1934,238 @@ function rcae = def_rcae_recomp_r1(type, flux, vh, par) % recalculate R1 at this
 
     end
 end % define RCE and RAE
+function rcae = def_rcae_alt(type, flux, vh, par)
+    if any(strcmp(type, {'era5', 'erai'})); f_vec = par.era.fw;
+    elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw; end
+    for f = f_vec; fw = f{1};
+        % identify locations of RCE using threshold epsilon (ep)
+        rcae.(fw).def = zeros(size(flux.r1.(fw)));
+        rcae.(fw).def(flux.r1.(fw) < par.ep) = 1;
+        % identify locations of RAE using threshold gamma (ga)
+        if strcmp(fw, 'dse'); rcae.(fw).def(flux.r1.mse > par.ga) = -1; % always use MSE for RAE
+        else rcae.(fw).def(flux.r1.(fw) > par.ga) = -1; end;
+
+        % identify locations of RCE following Jakob et al. (2019) (abs(TEDIV) < 50 W/m^2)
+        rcae.(fw).jak = zeros(size(flux.r1.(fw)));
+        rcae.(fw).jak(flux.res.(fw) < 50) = 1;
+        % identify locations of RAE using threshold gamma (ga)
+        if strcmp(fw, 'dse'); rcae.(fw).jak(flux.r1.mse > par.ga) = -1; % always use MSE for RAE
+        else rcae.(fw).jak(flux.r1.(fw) > par.ga) = -1; end;
+
+        % identify locations of rce following jakob et al. (2019) (abs(tediv) < 50 w/m^2)
+        rcae.(fw).jak30 = zeros(size(flux.r1.(fw)));
+        rcae.(fw).jak30(flux.res.(fw) < 30) = 1;
+        % identify locations of rae using threshold gamma (ga)
+        if strcmp(fw, 'dse'); rcae.(fw).jak30(flux.r1.mse > par.ga) = -1; % always use mse for rae
+        else rcae.(fw).jak30(flux.r1.(fw) > par.ga) = -1; end;
+
+        % identify locations of rce following jakob et al. (2019) (abs(tediv) < 50 w/m^2)
+        rcae.(fw).jak10 = zeros(size(flux.r1.(fw)));
+        rcae.(fw).jak10(flux.res.(fw) < 10) = 1;
+        % identify locations of rae using threshold gamma (ga)
+        if strcmp(fw, 'dse'); rcae.(fw).jak10(flux.r1.mse > par.ga) = -1; % always use mse for rae
+        else rcae.(fw).jak10(flux.r1.(fw) > par.ga) = -1; end;
+
+        % add additional criteria for RCE that P-E>0
+        rcae.(fw).pe = zeros(size(flux.r1.(fw)));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).pe(flux.r1.(fw) < par.ep & (flux.cp+flux.lsp+flux.e>0)) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).pe(flux.r1.(fw) < par.ep & (flux.pr-flux.evspsbl>0)) = 1;
+        end
+        if strcmp(fw, 'dse'); rcae.(fw).pe(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).pe(flux.r1.(fw) > par.ga) = -1; end;
+
+        % add additional criteria for RCE that (P_ls - E)<<1
+        rcae.(fw).cp = zeros(size(flux.r1.(fw)));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).cp(flux.r1.(fw) < par.ep & abs(flux.lsp./flux.cp<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).cp(flux.r1.(fw) < par.ep & abs((flux.pr-flux.prc)./flux.prc<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
+        end
+        if strcmp(fw, 'dse') rcae.(fw).cp(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).cp(flux.r1.(fw) > par.ga) = -1; end;
+
+        % add additional criteria for RCE that w500<0 (ascent)
+        rcae.(fw).w500 = zeros(size(flux.r1.(fw)));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).w500(flux.r1.(fw) < par.ep & flux.w500 < 0) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).w500(flux.r1.(fw) < par.ep & flux.w500 < 0) = 1; % note that evap is defined negative into atmosphere
+        end
+        if strcmp(fw, 'dse'); rcae.(fw).w500(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).w500(flux.r1.(fw) > par.ga) = -1; end;
+
+        % add additional criteria for RCE that vh<max(vh)/2 (weak meridional velocity)
+        rcae.(fw).vas2 = zeros(size(flux.r1.(fw)));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).vas2(flux.r1.(fw) < par.ep & abs(flux.vas) < nanmax(nanmax(abs(flux.vas)))/2) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).vas2(flux.r1.(fw) < par.ep & flux.vas < nanmax(nanmax(abs(flux.vas)))/2) = 1; % note that evap is defined negative into atmosphere
+        end
+        if strcmp(fw, 'dse'); rcae.(fw).vas2(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).vas2(flux.r1.(fw) > par.ga) = -1; end;
+
+        % add additional criteria for RCE that vh<max(vh)/4 (weak meridional velocity)
+        rcae.(fw).vas4 = zeros(size(flux.r1.(fw)));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).vas4(flux.r1.(fw) < par.ep & abs(flux.vas) < nanmax(nanmax(abs(flux.vas)))/4) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).vas4(flux.r1.(fw) < par.ep & flux.vas < nanmax(nanmax(abs(flux.vas)))/4) = 1; % note that evap is defined negative into atmosphere
+        end
+        if strcmp(fw, 'dse'); rcae.(fw).vas4(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).vas4(flux.r1.(fw) > par.ga) = -1; end;
+
+        if size(flux.r1.(fw), 1)==length(par.lat_std) & size(flux.r1.(fw), 2)==12 % this criteria only works for zonally and time averaged data because vh is only a function of lat
+            % add additional criteria for RCE that horizontal transport is weak
+            rcae.(fw).vh2 = zeros(size(flux.r1.(fw)));
+            if strcmp(type, 'era5') | strcmp(type, 'erai')
+                rcae.(fw).vh2(flux.r1.(fw) < par.ep & abs(vh.(fw)) < nanmax(nanmax(abs(vh.(fw))))/2 ) = 1;
+            elseif strcmp(type, 'gcm')
+                rcae.(fw).vh2(flux.r1.(fw) < par.ep & abs(vh.(fw)) < nanmax(nanmax(abs(vh.(fw))))/2 ) = 1;
+            end
+            if strcmp(fw, 'dse'); rcae.(fw).vh2(flux.r1.mse > par.ga) = -1;
+            else; rcae.(fw).vh2(flux.r1.(fw) > par.ga) = -1; end;
+
+            rcae.(fw).vh3 = zeros(size(flux.r1.(fw)));
+            if strcmp(type, 'era5') | strcmp(type, 'erai')
+                rcae.(fw).vh3(flux.r1.(fw) < par.ep & abs(vh.(fw)) < nanmax(nanmax(abs(vh.(fw))))/3 ) = 1;
+            elseif strcmp(type, 'gcm')
+                rcae.(fw).vh3(flux.r1.(fw) < par.ep & abs(vh.(fw)) < nanmax(nanmax(abs(vh.(fw))))/3 ) = 1;
+            end
+            if strcmp(fw, 'dse') rcae.(fw).vh3(flux.r1.mse > par.ga) = -1;
+            else rcae.(fw).vh3(flux.r1.(fw) > par.ga) = -1; end;
+
+            rcae.(fw).vh4 = zeros(size(flux.r1.(fw)));
+            if strcmp(type, 'era5') | strcmp(type, 'erai')
+                rcae.(fw).vh4(flux.r1.(fw) < par.ep & abs(vh.(fw)) < nanmax(nanmax(abs(vh.(fw))))/4 ) = 1;
+            elseif strcmp(type, 'gcm')
+                rcae.(fw).vh4(flux.r1.(fw) < par.ep & abs(vh.(fw)) < nanmax(nanmax(abs(vh.(fw))))/4 ) = 1;
+            end
+            if strcmp(fw, 'dse'); rcae.(fw).vh4(flux.r1.mse > par.ga) = -1;
+            else; rcae.(fw).vh4(flux.r1.(fw) > par.ga) = -1; end;
+        end
+
+    end
+end % define RCE and RAE
+function rcae = def_rcae_alt_recomp_r1(type, flux, vh, par) % recalculate R1 at this step
+    if any(strcmp(type, {'era5', 'erai'})); f_vec = par.era.fw;
+    elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw; end
+    for f = f_vec; fw = f{1};
+        % calculate R1 again to test importance of order of operations
+        if strcmp(fw, 'mse2'); r1 = flux.res.(fw)./flux.lw;
+        else r1 = flux.res.(fw)./flux.ra.(fw); end
+
+        % identify locations of RCE using threshold epsilon (ep)
+        rcae.(fw).def = zeros(size(r1));
+        rcae.(fw).def(r1 < par.ep) = 1;
+        % identify locations of RAE using threshold gamma (ga)
+        if strcmp(fw, 'dse'); rcae.(fw).def(flux.r1.mse > par.ga) = -1; % always use MSE for RAE
+        else rcae.(fw).def(r1 > par.ga) = -1; end;
+
+        % identify locations of RCE following Jakob et al. (2019) (abs(TEDIV) < 50 W/m^2)
+        rcae.(fw).jak = zeros(size(r1));
+        rcae.(fw).jak(flux.res.(fw) < 50) = 1;
+        % identify locations of RAE using threshold gamma (ga)
+        if strcmp(fw, 'dse'); rcae.(fw).jak(flux.r1.mse > par.ga) = -1; % always use MSE for RAE
+        else rcae.(fw).jak(r1 > par.ga) = -1; end;
+
+        % identify locations of rce following jakob et al. (2019) (abs(tediv) < 50 w/m^2)
+        rcae.(fw).jak30 = zeros(size(r1));
+        rcae.(fw).jak30(flux.res.(fw) < 30) = 1;
+        % identify locations of rae using threshold gamma (ga)
+        if strcmp(fw, 'dse'); rcae.(fw).jak30(flux.r1.mse > par.ga) = -1; % always use mse for rae
+        else rcae.(fw).jak30(r1 > par.ga) = -1; end;
+
+        % identify locations of rce following jakob et al. (2019) (abs(tediv) < 50 w/m^2)
+        rcae.(fw).jak10 = zeros(size(r1));
+        rcae.(fw).jak10(flux.res.(fw) < 10) = 1;
+        % identify locations of rae using threshold gamma (ga)
+        if strcmp(fw, 'dse'); rcae.(fw).jak10(flux.r1.mse > par.ga) = -1; % always use mse for rae
+        else rcae.(fw).jak10(r1 > par.ga) = -1; end;
+
+        % add additional criteria for RCE that P-E>0
+        rcae.(fw).pe = zeros(size(r1));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).pe(r1 < par.ep & (flux.cp+flux.lsp+flux.e>0)) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).pe(r1 < par.ep & (flux.pr-flux.evspsbl>0)) = 1;
+        end
+        if strcmp(fw, 'dse'); rcae.(fw).pe(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).pe(r1 > par.ga) = -1; end;
+
+        % add additional criteria for RCE that (P_ls - E)<<1
+        rcae.(fw).cp = zeros(size(r1));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).cp(r1 < par.ep & abs(flux.lsp./flux.cp<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).cp(r1 < par.ep & abs((flux.pr-flux.prc)./flux.prc<par.ep_cp)) = 1; % note that evap is defined negative into atmosphere
+        end
+        if strcmp(fw, 'dse') rcae.(fw).cp(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).cp(r1 > par.ga) = -1; end;
+
+        % add additional criteria for RCE that w500<0 (ascent)
+        rcae.(fw).w500 = zeros(size(r1));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).w500(r1 < par.ep & flux.w500 < 0) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).w500(r1 < par.ep & flux.w500 < 0) = 1; % note that evap is defined negative into atmosphere
+        end
+        if strcmp(fw, 'dse'); rcae.(fw).w500(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).w500(r1 > par.ga) = -1; end;
+
+        % add additional criteria for RCE that vh<max(vh)/2 (weak meridional velocity)
+        rcae.(fw).vas2 = zeros(size(r1));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).vas2(r1 < par.ep & abs(flux.vas) < nanmax(nanmax(abs(flux.vas)))/2) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).vas2(r1 < par.ep & flux.vas < nanmax(nanmax(abs(flux.vas)))/2) = 1; % note that evap is defined negative into atmosphere
+        end
+        if strcmp(fw, 'dse'); rcae.(fw).vas2(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).vas2(r1 > par.ga) = -1; end;
+
+        % add additional criteria for RCE that vh<max(vh)/4 (weak meridional velocity)
+        rcae.(fw).vas4 = zeros(size(r1));
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            rcae.(fw).vas4(r1 < par.ep & abs(flux.vas) < nanmax(nanmax(abs(flux.vas)))/4) = 1; % note that evap is defined negative into atmosphere
+        elseif strcmp(type, 'gcm')
+            rcae.(fw).vas4(r1 < par.ep & flux.vas < nanmax(nanmax(abs(flux.vas)))/4) = 1; % note that evap is defined negative into atmosphere
+        end
+        if strcmp(fw, 'dse'); rcae.(fw).vas4(flux.r1.mse > par.ga) = -1;
+        else rcae.(fw).vas4(r1 > par.ga) = -1; end;
+
+        if size(r1, 1)==length(par.lat_std) & size(r1, 2)==12 % this criteria only works for zonally and time averaged data because vh is only a function of lat
+            % add additional criteria for RCE that horizontal transport is weak
+            rcae.(fw).vh2 = zeros(size(r1));
+            if strcmp(type, 'era5') | strcmp(type, 'erai')
+                rcae.(fw).vh2(r1 < par.ep & abs(vh.(fw)) < nanmax(nanmax(abs(vh.(fw))))/2 ) = 1;
+            elseif strcmp(type, 'gcm')
+                rcae.(fw).vh2(r1 < par.ep & abs(vh.(fw)) < nanmax(nanmax(abs(vh.(fw))))/2 ) = 1;
+            end
+            if strcmp(fw, 'dse'); rcae.(fw).vh2(flux.r1.mse > par.ga) = -1;
+            else; rcae.(fw).vh2(r1 > par.ga) = -1; end;
+
+            rcae.(fw).vh3 = zeros(size(r1));
+            if strcmp(type, 'era5') | strcmp(type, 'erai')
+                rcae.(fw).vh3(r1 < par.ep & abs(vh.(fw)) < nanmax(nanmax(abs(vh.(fw))))/3 ) = 1;
+            elseif strcmp(type, 'gcm')
+                rcae.(fw).vh3(r1 < par.ep & abs(vh.(fw)) < nanmax(nanmax(abs(vh.(fw))))/3 ) = 1;
+            end
+            if strcmp(fw, 'dse') rcae.(fw).vh3(flux.r1.mse > par.ga) = -1;
+            else rcae.(fw).vh3(r1 > par.ga) = -1; end;
+
+            rcae.(fw).vh4 = zeros(size(r1));
+            if strcmp(type, 'era5') | strcmp(type, 'erai')
+                rcae.(fw).vh4(r1 < par.ep & abs(vh.(fw)) < nanmax(nanmax(abs(vh.(fw))))/4 ) = 1;
+            elseif strcmp(type, 'gcm')
+                rcae.(fw).vh4(r1 < par.ep & abs(vh.(fw)) < nanmax(nanmax(abs(vh.(fw))))/4 ) = 1;
+            end
+            if strcmp(fw, 'dse'); rcae.(fw).vh4(flux.r1.mse > par.ga) = -1;
+            else; rcae.(fw).vh4(r1 > par.ga) = -1; end;
+        end
+
+    end
+end % define RCE and RAE
 function land_mask = remove_land(lat, lon, nt)
 
     [lat2dgrid, lon2dgrid] = meshgrid(lat, lon);
@@ -1628,13 +2326,94 @@ function ma_out = calc_maz_dew(ma_in, z_int, par)
         qsat_s(:, 1) = [qsat_cd(:, 1); qsat_cs(2:end)];
         dtadz_s(:, 1) = [deriv_dry; deriv_cs(2:end)];
 
-        pa_s = interp1(z_s, pa_s, z_int, 'linear', 'extrap');
-        ta_s = interp1(z_s, ta_s, z_int, 'linear', 'extrap');
-        qsat_s = interp1(z_s, qsat_s, z_int, 'linear', 'extrap');
-        dtadz_s = interp1(z_s, dtadz_s, z_int, 'linear', 'extrap');
+        pa_s = interp1(z_s, pa_s, z_int, 'linear');
+        ta_s = interp1(z_s, ta_s, z_int, 'linear');
+        qsat_s = interp1(z_s, qsat_s, z_int, 'linear');
+        dtadz_s = interp1(z_s, dtadz_s, z_int, 'linear');
 
         % output temperature
         ma_out = ta_s;
+    end
+
+end
+function ma_out = calc_maz_dew_pa(ma_in, plev, par)
+    if isnan(ma_in.sp) | isnan(ma_in.t2m) | isnan(ma_in.d2m) | isnan(ma_in.zs)
+        ma_out = nan(size(z_int)); % if any of the initial values are nan, ouput nan profile
+    else
+        % integrate temperature profiles over height
+        z_cd(1) = ma_in.zs;
+
+        pa_cd(1) = ma_in.sp;
+        ta_cd(1) = ma_in.t2m;
+        esat_cd(1) = calc_esat(ta_cd(1), par.frz);
+        qsat_cd(1) = calc_q(pa_cd(1), esat_cd(1), par);
+
+        % convert dew point temperature to relative humidity
+        e_cd(1) = calc_esat(ma_in.d2m, par.frz); % calculate initial vapor pressure
+        rh(1) = e_cd(1)/esat_cd(1); % set initial relative humidity
+
+        r(1) = par.eps * rh(1) * esat_cd(1) / (pa_cd(1) - rh(1) * esat_cd(1));
+        dtdz_dpdz(1,:) = dry_z([ta_cd(1), pa_cd(1)], par);
+        T_p0 = [ta_cd(1), pa_cd(1)];
+        [z_d, ta_pa_d]=ode45(@(z, T_p) dry_z(T_p, par), par.z_span, T_p0);
+        i = 2;
+        while rh(i-1) < 1
+            idx_lcl = i;
+            z_cd(i, 1) = z_cd(i-1) + par.dz;
+            pa_cd(i, 1) = pa_cd(i-1) + par.dz * dtdz_dpdz(i-1, 2);
+            ta_cd(i, 1) = ta_cd(i-1) + par.dz * dtdz_dpdz(i-1, 1);
+            esat_cd(i, 1) = calc_esat(ta_cd(i), par.frz);
+            qsat_cd(i, 1) = calc_q(pa_cd(i), esat_cd(i), par);
+            r(i, 1) = r(i-1);
+            rh(i, 1) = r(i) * pa_cd(i) / (esat_cd(i) * (r(i) + par.eps));
+            dtdz_dpdz(i,:) = dry_z([ta_cd(i), pa_cd(i)], par);
+            i = i + 1;
+        end
+        z_lcl = z_cd(end);
+        pa_lcl = pa_cd(end);
+        ta_pa_cd = [ta_cd, pa_cd];
+        deriv_dry(:,1) = dtdz_dpdz(:,1);
+        if strcmp(par.ma_type, 'reversible')
+            par.r_t = r(end); % moisture at LCL is the total moisture of rising parcel
+            [z_cs, ta_pa_cs] = ode45(@(z, T_p) sat_rev_z(T_p, par.frz, par), [z_lcl, par.z_span(end)], ta_pa_cd(end,:));
+            h1 = interp1(ta_pa_cs(:,1), z_cs, 240); % middle of troposphere
+        elseif strcmp(par.ma_type, 'pseudo')
+            [z_cs, ta_pa_cs] = ode45(@(z, T_p) sat_pseudo_z(T_p, par.frz, par), [z_lcl, par.z_span(end)], ta_pa_cd(end,:));
+            h1 = interp1(ta_pa_cs(:,1), z_cs, 240); % middle of troposphere
+        elseif strcmp(par.ma_type, 'std')
+            [z_cs, ta_pa_cs] = ode45(@(z, T_p) sat_z(T_p, par.frz, par), [z_lcl, par.z_span(end)], ta_pa_cd(end,:));
+            h1 = interp1(ta_pa_cs(:,1), z_cs, 240); % middle of troposphere
+        else
+            error(sprintf('The chosen moist adiabat type, %s, is not available. Choose between reversible, pseudo, or std.', zr.ma_type));
+        end
+        for i = 1:length(z_cs)
+            if strcmp(par.ma_type, 'reversible')
+                [dt_dp_cs(i, :), qsat_cs(i, 1)] = sat_rev_z(ta_pa_cs(i,:), par.frz, par);
+            elseif strcmp(par.ma_type, 'pseudo')
+                [dt_dp_cs(i, :), qsat_cs(i, 1)] = sat_pseudo_z(ta_pa_cs(i,:), par.frz, par);
+            elseif strcmp(par.ma_type, 'std')
+                [dt_dp_cs(i, :), qsat_cs(i, 1)] = sat_z(ta_pa_cs(i,:), par.frz, par);
+            else
+                error(sprintf('The chosen moist adiabat type, %s, is not available. Choose between reversible, pseudo, or std.', par.ma_type));
+            end
+            dt_dp_csd(i, :) = dry_z([ta_pa_cs(i,:)], par);
+        end
+        deriv_cs(:,1) = dt_dp_cs(:,1);
+        deriv_csd(:,1) = dt_dp_csd(:,1);
+        z_s(:, 1) = [z_cd; z_cs(2:end)];
+        ta_s(:, 1) = [ta_cd; ta_pa_cs(2:end,1)];
+        pa_s(:, 1) = [pa_cd(:); ta_pa_cs(2:end,2)];
+        qsat_s(:, 1) = [qsat_cd(:, 1); qsat_cs(2:end)];
+        dtadz_s(:, 1) = [deriv_dry; deriv_cs(2:end)];
+
+        nanfilter = isnan(real(pa_s));
+        pa_s(nanfilter) = [];
+        dtadz_s(nanfilter) = [];
+
+        dtadz_s = -1e3*interp1(real(pa_s), real(dtadz_s), plev, 'linear'); % output in K/km at standard pressure grid
+
+        % output temperature
+        ma_out = dtadz_s;
     end
 
 end
@@ -1701,7 +2480,7 @@ function ma_out = calc_ma_hurs(ma_in, plev, par)
 
 end % compute moist adiabat based on RH
 function ma_out = calc_maz_hurs(ma_in, z_int, par)
-    if isnan(ma_in.sp) | isnan(ma_in.t2m) | isnan(ma_in.d2m) | isnan(ma_in.zs)
+    if isnan(ma_in.ps) | isnan(ma_in.tas) | isnan(ma_in.hurs) | isnan(ma_in.zs)
         ma_out = nan(size(z_int)); % if any of the initial values are nan, ouput nan profile
     else
         % integrate temperature profiles over height
@@ -1735,13 +2514,13 @@ function ma_out = calc_maz_hurs(ma_in, z_int, par)
         if strcmp(par.ma_type, 'reversible')
             par.r_t = r(end); % moisture at LCL is the total moisture of rising parcel
             [z_cs, ta_pa_cs] = ode45(@(z, T_p) sat_rev_z(T_p, par.frz, par), [z_lcl, par.z_span(end)], ta_pa_cd(end,:));
-            h1 = interp1(ta_pa_cs(:,1), z_cs, 240); % middle of troposphere
+            % h1 = interp1(ta_pa_cs(:,1), z_cs, 240); % middle of troposphere
         elseif strcmp(par.ma_type, 'pseudo')
             [z_cs, ta_pa_cs] = ode45(@(z, T_p) sat_pseudo_z(T_p, par.frz, par), [z_lcl, par.z_span(end)], ta_pa_cd(end,:));
-            h1 = interp1(ta_pa_cs(:,1), z_cs, 240); % middle of troposphere
+            % h1 = interp1(ta_pa_cs(:,1), z_cs, 240); % middle of troposphere
         elseif strcmp(par.ma_type, 'std')
             [z_cs, ta_pa_cs] = ode45(@(z, T_p) sat_z(T_p, par.frz, par), [z_lcl, par.z_span(end)], ta_pa_cd(end,:));
-            h1 = interp1(ta_pa_cs(:,1), z_cs, 240); % middle of troposphere
+            % h1 = interp1(ta_pa_cs(:,1), z_cs, 240); % middle of troposphere
         else
             error(sprintf('The chosen moist adiabat type, %s, is not available. Choose between reversible, pseudo, or std.', zr.ma_type));
         end
@@ -1760,18 +2539,94 @@ function ma_out = calc_maz_hurs(ma_in, z_int, par)
         deriv_cs(:,1) = dt_dp_cs(:,1);
         deriv_csd(:,1) = dt_dp_csd(:,1);
         z_s(:, 1) = [z_cd; z_cs(2:end)];
-        ta_s(:, 1) = [ta_cd; ta_pa_cs(2:end,1)];
+        ta_s(:, 1) = real([ta_cd; ta_pa_cs(2:end,1)]);
         pa_s(:, 1) = [pa_cd(:); ta_pa_cs(2:end,2)];
         qsat_s(:, 1) = [qsat_cd(:, 1); qsat_cs(2:end)];
         dtadz_s(:, 1) = [deriv_dry; deriv_cs(2:end)];
 
-        pa_s = interp1(z_s, pa_s, z_int, 'linear', 'extrap');
-        ta_s = interp1(z_s, ta_s, z_int, 'linear', 'extrap');
-        qsat_s = interp1(z_s, qsat_s, z_int, 'linear', 'extrap');
-        dtadz_s = interp1(z_s, dtadz_s, z_int, 'linear', 'extrap');
+        pa_s = interp1(z_s, pa_s, z_int, 'linear');
+        ta_s = interp1(z_s, ta_s, z_int, 'linear');
+        qsat_s = interp1(z_s, qsat_s, z_int, 'linear');
+        dtadz_s = interp1(z_s, dtadz_s, z_int, 'linear');
 
         % output temperature
         ma_out = ta_s;
+    end
+
+end
+function ma_out = calc_maz_hurs_pa(ma_in, plev, par)
+    if isnan(ma_in.ps) | isnan(ma_in.tas) | isnan(ma_in.hurs) | isnan(ma_in.zs)
+        ma_out = nan(size(z_int)); % if any of the initial values are nan, ouput nan profile
+    else
+        % integrate temperature profiles over height
+        z_cd(1) = ma_in.zs;
+        pa_cd(1) = ma_in.ps;
+        ta_cd(1) = ma_in.tas;
+        esat_cd(1) = calc_esat(ta_cd(1), par.frz);
+        qsat_cd(1) = calc_q(pa_cd(1), esat_cd(1), par);
+        rh(1) = ma_in.hurs / 100;
+        r(1) = par.eps * rh(1) * esat_cd(1) / (pa_cd(1) - rh(1) * esat_cd(1));
+        dtdz_dpdz(1,:) = dry_z([ta_cd(1), pa_cd(1)], par);
+        T_p0 = [ta_cd(1), pa_cd(1)];
+        [z_d, ta_pa_d]=ode45(@(z, T_p) dry_z(T_p, par), par.z_span, T_p0);
+        i = 2;
+        while rh(i-1) < 1
+            idx_lcl = i;
+            z_cd(i, 1) = z_cd(i-1) + par.dz;
+            pa_cd(i, 1) = pa_cd(i-1) + par.dz * dtdz_dpdz(i-1, 2);
+            ta_cd(i, 1) = ta_cd(i-1) + par.dz * dtdz_dpdz(i-1, 1);
+            esat_cd(i, 1) = calc_esat(ta_cd(i), par.frz);
+            qsat_cd(i, 1) = calc_q(pa_cd(i), esat_cd(i), par);
+            r(i, 1) = r(i-1);
+            rh(i, 1) = r(i) * pa_cd(i) / (esat_cd(i) * (r(i) + par.eps));
+            dtdz_dpdz(i,:) = dry_z([ta_cd(i), pa_cd(i)], par);
+            i = i + 1;
+        end
+        z_lcl = z_cd(end);
+        pa_lcl = pa_cd(end);
+        ta_pa_cd = [ta_cd, pa_cd];
+        deriv_dry(:,1) = dtdz_dpdz(:,1);
+        if strcmp(par.ma_type, 'reversible')
+            par.r_t = r(end); % moisture at LCL is the total moisture of rising parcel
+            [z_cs, ta_pa_cs] = ode45(@(z, T_p) sat_rev_z(T_p, par.frz, par), [z_lcl, par.z_span(end)], ta_pa_cd(end,:));
+            % h1 = interp1(ta_pa_cs(:,1), z_cs, 240); % middle of troposphere
+        elseif strcmp(par.ma_type, 'pseudo')
+            [z_cs, ta_pa_cs] = ode45(@(z, T_p) sat_pseudo_z(T_p, par.frz, par), [z_lcl, par.z_span(end)], ta_pa_cd(end,:));
+            % h1 = interp1(ta_pa_cs(:,1), z_cs, 240); % middle of troposphere
+        elseif strcmp(par.ma_type, 'std')
+            [z_cs, ta_pa_cs] = ode45(@(z, T_p) sat_z(T_p, par.frz, par), [z_lcl, par.z_span(end)], ta_pa_cd(end,:));
+            % h1 = interp1(ta_pa_cs(:,1), z_cs, 240); % middle of troposphere
+        else
+            error(sprintf('The chosen moist adiabat type, %s, is not available. Choose between reversible, pseudo, or std.', zr.ma_type));
+        end
+        for i = 1:length(z_cs)
+            if strcmp(par.ma_type, 'reversible')
+                [dt_dp_cs(i, :), qsat_cs(i, 1)] = sat_rev_z(ta_pa_cs(i,:), par.frz, par);
+            elseif strcmp(par.ma_type, 'pseudo')
+                [dt_dp_cs(i, :), qsat_cs(i, 1)] = sat_pseudo_z(ta_pa_cs(i,:), par.frz, par);
+            elseif strcmp(par.ma_type, 'std')
+                [dt_dp_cs(i, :), qsat_cs(i, 1)] = sat_z(ta_pa_cs(i,:), par.frz, par);
+            else
+                error(sprintf('The chosen moist adiabat type, %s, is not available. Choose between reversible, pseudo, or std.', par.ma_type));
+            end
+            dt_dp_csd(i, :) = dry_z([ta_pa_cs(i,:)], par);
+        end
+        deriv_cs(:,1) = dt_dp_cs(:,1);
+        deriv_csd(:,1) = dt_dp_csd(:,1);
+        z_s(:, 1) = [z_cd; z_cs(2:end)];
+        ta_s(:, 1) = real([ta_cd; ta_pa_cs(2:end,1)]);
+        pa_s(:, 1) = [pa_cd(:); ta_pa_cs(2:end,2)];
+        qsat_s(:, 1) = [qsat_cd(:, 1); qsat_cs(2:end)];
+        dtadz_s(:, 1) = [deriv_dry; deriv_cs(2:end)];
+
+        nanfilter = isnan(real(pa_s));
+        pa_s(nanfilter) = [];
+        dtadz_s(nanfilter) = [];
+
+        dtadz_s = -1e3*interp1(real(pa_s), real(dtadz_s), plev, 'linear'); % output in K/km at standard pressure grid
+
+        % output temperature
+        ma_out = dtadz_s;
     end
 
 end

@@ -17,6 +17,7 @@ par.era.vars.srfc = {'sp', 't2m', 'd2m'}; % surface variables to read (sp = surf
 par.era.vars.tend = {'p62.162'}; % 3d variables to read (t = temp)
 par.era.vars.tend_txt = {'tend'}; % 3d variables to read (t = temp)
 par.gcm.vars.rad = {'rsus', 'rsds', 'rlus', 'rlds', 'rsdt', 'rsut', 'rlut'}; % radiation variables to read
+par.gcm.vars.radcs = {'rsuscs', 'rsdscs', 'rldscs', 'rsutcs', 'rlutcs'}; % radiation variables to read
 par.gcm.vars.pe = {'prc', 'pr', 'evspsbl'}; % radiation variables to read
 par.gcm.vars.stf = {'hfss', 'hfls'}; % surface turbulent flux variables to read
 par.gcm.vars.vert = {'ta', 'va'}; % 3d variables to read
@@ -24,6 +25,8 @@ par.gcm.vars.srfc = {'ps', 'ts', 'tas', 'hurs'}; % surface variables to read (sp
 par.ceres.vars.rad = {'sfc_net_sw_all_mon', 'sfc_net_lw_all_mon', 'toa_sw_all_mon', 'solar_mon', 'toa_lw_all_mon'}; % radiation variables to read
 par.ceres.vars.rad_txt = {'ssr', 'str', 'tsur', 'tsdr', 'ttr'}; % radiation variables to read
 gcm_info
+% standard p coordinate for interpolation
+par.pa = 1e2*linspace(1000,10,100);
 % standard z coordinate for interpolation
 par.z = [0:500:40e3]';
 par.z_hires = linspace(0,par.z(end),1001); % high resolution grid for computing tropopause
@@ -33,28 +36,37 @@ par.cpd = 1005.7; par.Rd = 287; par.L = 2.501e6; par.g = 9.81;
 
 %% call functions
 type='erai';
-run_func(type, par);
+% run_func(type, par);
 for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
     type='gcm';
-    % run_func(type, par);
+    run_func(type, par);
 end
 
 %% define functions
 function run_func(type, par)
     % read_grid(type, par) % grid, i.e. lon, lat, plev
     % read_rad(type, par) % radiation fluxes
+    % read_radcs(type, par) % clear sky radiation fluxes
     % read_pe(type, par) % hydrological variables, e.g. precip, evap
     % read_div(type, par) % divergence terms to calculate MSE flux divergence
     % read_stf(type, par) % surface turbulent fluxes
     % read_srfc(type, par) % other surface variables, e.g. 2-m temperature, surface pressure
     % read_tend(type, par) % mse tendency, only for ERA data
+    read_albedo(type, par) % read surface albedo data from Tiffany's ECHAM6 file
     % make_tempz(type, par) % convert temp from plev to z
     % make_tempsi(type, par) % convert temp from plev to sigma
+    % make_pz(type, par) % compute plev in z coords
+    % make_dtdz(type, par) % calculate lapse rate of reanalysis/GCM temperature
+    % make_dtdz_z(type, par) % calculate lapse rate of reanalysis/GCM temperature in z coord
     % make_ztrop(type, par) % compute WMO tropopause
     % make_ztrop_z(type, par) % compute WMO tropopause
-    make_ptrop(type, par) % compute WMO tropopause
+    % make_ptrop(type, par) % compute WMO tropopause
     % make_ptrop_z(type, par) % compute WMO tropopause
+    % make_alb(type, par) % compute surface albedo
+    % make_albcs(type, par) % compute surface albedo
+    % make_palb(type, par) % compute planetary albedo
 end
+
 function read_grid(type, par)
     % read data net SW and LW radiation data downloaded from Era5
     % first read lon and lat vectors since this is different from the Donohoe grid
@@ -133,6 +145,51 @@ function read_rad(type, par)
             rad.(rad_vars_txt{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/CERES_EBAF_Ed4.1_Subset_200101-200912.ymonmean.nc', type), rad_vars{i}));
         end
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/rad_2001_2009.mat', type), 'rad');
+    end
+end
+function read_radcs(type, par)
+    if strcmp(type, 'erai') | strcmp(type, 'era5')
+        radcs_vars=par.era.vars.radcs;
+        for i=1:length(radcs_vars)
+            % dimensions are (lon x lat x time)
+            % time is sequenced as id(1) = jan, step 00-12, id(2) = jan, step 12-24, id(3) = feb, step 00-12, etc.
+            radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_radcs_%s.ymonmean.nc', type, type, par.(type).yr_span), radcs_vars{i}));
+            % the data is originally reported as J m^-2 per day, so
+            % divide by 86400 s to get the conventional W m^-2 flux
+            % over the full day
+            radcs.(radcs_vars{i}) = radcs.(radcs_vars{i})/86400;
+        end
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/radcs.mat', type), 'radcs', 'radcs_vars');
+        if strcmp(type, 'era5')
+            for i=1:length(radcs_vars)
+                radcs.(radcs_vars{i}) = ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_radcs_%s.ymonmean.nc', type, type, par.erai.yr_span), radcs_vars{i});
+                radcs.(radcs_vars{i}) = radcs.(radcs_vars{i})/86400;
+            end
+            save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/radcs_2000_2012.mat', type), 'radcs', 'radcs_vars');
+        end
+    elseif strcmp(type, 'gcm')
+        radcs_vars=par.gcm.vars.radcs;
+        for i=1:length(par.gcm.vars.radcs); var = par.gcm.vars.radcs{i};
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+            fullpath=sprintf('%s/%s', file.folder, file.name);
+            radcs.(var)=ncread(fullpath, var);
+        end
+        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model);
+        if ~exist(newdir, 'dir'); mkdir(newdir); end
+        filename='radcs.mat';
+        save(sprintf('%s/%s', newdir, filename), 'radcs', 'radcs_vars');
+    elseif strcmp(type, 'ceres')
+        radcs_vars = par.ceres.vars.radcs;
+        radcs_vars_txt = par.ceres.vars.radcs_txt;
+        for i=1:length(radcs_vars)
+            radcs.(radcs_vars_txt{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/CERES_EBAF_Ed4.1_Subset_%s.ymonmean.nc', type, par.(type).yr_span), radcs_vars{i}));
+        end
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/radcs.mat', type), 'radcs');
+
+        for i=1:length(radcs_vars)
+            radcs.(radcs_vars_txt{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/CERES_EBAF_Ed4.1_Subset_200101-200912.ymonmean.nc', type), radcs_vars{i}));
+        end
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/radcs_2001_2009.mat', type), 'radcs');
     end
 end
 function read_pe(type, par)
@@ -311,6 +368,28 @@ function read_tend(type, par)
         error('MSE tendency data are read only for ERA data.');
     end
 end
+function read_albedo(type, par) % read surface albedo data from Tiffany's ECHAM6 file
+    if strcmp(type, 'gcm') & strcmp(par.model, 'MPI-ESM-LR') % only for MPI-ESM-LR
+        for i=1:length(par.gcm.vars.rad); var = par.gcm.vars.rad{i};
+            prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+            file=dir(sprintf('/project2/tas1/echam6/piControl/BOT_piControl_r1i1p1-P_1900_1949.nc'));
+            fullpath=sprintf('%s/%s', file.folder, file.name);
+            albedo=ncread(fullpath, 'albedo');
+            lat=ncread(fullpath, 'lat');
+            lon=ncread(fullpath, 'lon');
+        end
+        load(sprintf('%s/grid.mat', prefix)); % read grid data
+        albedo = interp1(lon, albedo, grid.dim2.lon); % interpolate to MPI-ESM-LR longitude grid
+        albedo = permute(albedo, [2 1 3]); % bring lat to 1st
+        albedo = interp1(lat, albedo, grid.dim2.lat); % interpolate to MPI-ESM-LR latitude grid
+        albedo = permute(albedo, [2 1 3]); % bring lat back to 2nd
+        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model);
+        if ~exist(newdir, 'dir'); mkdir(newdir); end
+        filename='albedo.mat';
+        save(sprintf('%s/%s', newdir, filename), 'albedo');
+    end
+end
+
 function make_tempz(type, par)
     if any(strcmp(type, {'era5', 'erai'}))
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
@@ -419,6 +498,105 @@ function make_tempsi(type, par)
     if ~exist(newdir, 'dir'); mkdir(newdir); end
     filename='tempsi.mat';
     save(sprintf('%s/%s', newdir, filename), 'tempsi', '-v7.3');
+end
+function make_pz(type, par)
+    if any(strcmp(type, {'era5', 'erai'}))
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, 'z'); zg = zg/par.g; % convert from geopotential to height in m
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        var = 'zg';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, var);
+    end
+
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+
+    zg = permute(zg, [3 1 2 4]);
+
+    pb=CmdLineProgressBar("Calculating pz..."); % track progress of this loop
+    for lo = 1:length(grid.dim3.lon)
+        pb.print(lo, length(grid.dim3.lon));
+        for la = 1:length(grid.dim3.lat)
+            for mo = 1:12
+                pz(:,lo,la,mo) = interp1(zg(:,lo,la,mo), grid.dim3.plev, grid.dim3.z, 'linear', 'extrap');
+            end
+        end
+    end
+
+    pz = permute(pz, [2 3 1 4]); % reorder to lon x lat x z x mon
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='pz.mat';
+    save(sprintf('%s/%s', newdir, filename), 'pz', '-v7.3');
+end
+function make_dtdz(type, par)
+    if any(strcmp(type, {'era5', 'erai'}))
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        temp = ncread(fullpath, 't');
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, 'z'); zg = zg/par.g; % convert from geopotential to height in m
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        var = 'ta';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        temp = ncread(fullpath, var);
+        var = 'zg';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = ncread(fullpath, var);
+    end
+
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+
+    dtdz_half = -1e3*(temp(:,:,2:end,:)-temp(:,:,1:end-1,:))./(zg(:,:,2:end,:)-zg(:,:,1:end-1,:)); % calculate lapse rate in K/km
+    p_half = 1/2*(grid.dim3.plev(2:end)+grid.dim3.plev(1:end-1));
+
+    dtdz_half = permute(dtdz_half, [3 1 2 4]); % bring height front
+    dtdz = interp1(p_half, dtdz_half, par.pa);
+    dtdz = permute(dtdz, [2 3 1 4]); % bring height back to 3rd
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='dtdz.mat';
+    save(sprintf('%s/%s', newdir, filename), 'dtdz', '-v7.3');
+end
+function make_dtdz_z(type, par)
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/tempz.mat', prefix)); % read temp in z coordinates
+
+    dtdz_z = nan(size(tempz));
+
+    tempz = permute(tempz, [3 1 2 4]); % bring height forward
+    dtdz_z = -1e3*(tempz(2:end,:,:,:)-tempz(1:end-1,:,:,:))./repmat(grid.dim3.z(2:end)-grid.dim3.z(1:end-1), [1,size(tempz,2),size(tempz,3),size(tempz,4)]); % lapse rate in K/km
+    dtdz_z = interp1(1/2*(grid.dim3.z(2:end)+grid.dim3.z(1:end-1)), dtdz_z, grid.dim3.z);
+
+    dtdz_z = permute(dtdz_z, [2 3 1 4]); % bring height back to 3rd dimension
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='dtdz_z.mat';
+    save(sprintf('%s/%s', newdir, filename), 'dtdz_z', '-v7.3');
 end
 function make_ztrop(type, par) % calculate WMO tropopause
     if strcmp(type, 'era5') | strcmp(type, 'erai')
@@ -584,4 +762,76 @@ function make_ptrop_z(type, par) % calculate WMO tropopause
     if ~exist(newdir, 'dir'); mkdir(newdir); end
     filename='ptrop_z.mat';
     save(sprintf('%s/%s', newdir, filename), 'ptrop_z', '-v7.3');
+end
+function make_alb(type, par) % calculate surface albedo
+    if any(strcmp(type, {'era5', 'erai'}))
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/rad.mat', prefix)); % read radiation data
+
+    if strcmp(type, 'erai') | strcmp(type, 'era5')
+        alb = rad.rsus./rad.rsds; % TODO download shortwave radiation up and down separately for ERA
+    elseif strcmp(type, 'gcm')
+        alb = rad.rsus./rad.rsds;
+    end
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='alb.mat';
+    save(sprintf('%s/%s', newdir, filename), 'alb', '-v7.3');
+
+end
+function make_albcs(type, par) % calculate clear sky surface albedo
+    if any(strcmp(type, {'era5', 'erai'}))
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/radcs.mat', prefix)); % read radcsiation data
+
+    if strcmp(type, 'erai') | strcmp(type, 'era5')
+        albcs = radcs.rsus./radcs.rsds; % TODO download shortwave radcsiation up and down separately for ERA
+    elseif strcmp(type, 'gcm')
+        albcs = radcs.rsuscs./radcs.rsdscs;
+    end
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='albcs.mat';
+    save(sprintf('%s/%s', newdir, filename), 'albcs', '-v7.3');
+
+end
+function make_palb(type, par) % calculate planetary albedo
+    if any(strcmp(type, {'era5', 'erai'}))
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/rad.mat', prefix)); % read radiation data
+
+    if strcmp(type, 'erai') | strcmp(type, 'era5')
+        palb = rad.rsus./rad.rsds; % TODO download shortwave radiation up and down separately for ERA
+    elseif strcmp(type, 'gcm')
+        palb = rad.rsut./rad.rsdt;
+    end
+
+    if any(strcmp(type, {'era5', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s', par.model); end;
+    if ~exist(newdir, 'dir'); mkdir(newdir); end
+    filename='palb.mat';
+    save(sprintf('%s/%s', newdir, filename), 'palb', '-v7.3');
+
 end
