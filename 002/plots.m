@@ -5,19 +5,29 @@ addpath(genpath('/project2/tas1/miyawaki/matlab'));
 %% set parameters
 % lat grid type
 par.lat_interp = 'std'; % don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
-par.ep_swp = 0.3; %[0.25 0.3 0.35]; % threshold value for determining RCE
-par.ga_swp = 0.95; % threshold for determining RAE
+par.gcm.clim = 'piControl'; % choose either piControl or abrupt4xCO2
+par.echam.clim = '20170908'; % choose from 20170908 (snowball) or 20170915_2 (modern)
+par.ep_swp = 0.1; %[0.25 0.3 0.35]; % threshold value for determining RCE
+par.ga_swp = 0.9; % threshold for determining RAE
 par.si_eval = [0.8 0.85 0.9]; % sigma level for calculating inversion strength
 par.pa_eval = 500e2; % pressure level for calculating ma_diff
+par.si_bl = 0.85; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
+par.si_up = 0.4; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
 par.ta_thresh = 6.5; % criteria for temperature difference in K of plotting contour for closeness to moist adiabat
-par.ga_thresh = 20; % criteria for lapse rate difference in % of plotting contour for closeness to moist adiabat
-par.inv_thresh = -2; % criteria for temperature difference in K of plotting contour for inversion strength
-par.albedo_thresh = 0.8; % criteria for surface albedo of plotting contour for inversion strength
+par.ga_thresh = 10; % criteria for lapse rate difference in % of plotting contour for closeness to moist adiabat
+par.ga_bl_thresh = 90; % criteria for lapse rate difference in % of plotting contour for closeness to moist adiabat
+par.inv_thresh = -4; % criteria for temperature difference in K of plotting contour for inversion strength
+par.albedo_thresh = 0.6; % criteria for surface albedo of plotting contour for inversion strength
+par.sn_thresh = 1e-1; % criteria for surface albedo of plotting contour for inversion strength
 par.alb_thresh = 0.8; % criteria for surface albedo of plotting contour for inversion strength
 par.albcs_thresh = 0.8; % criteria for surface albedo of plotting contour for inversion strength
-par.era.fw = {'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt'};
+% par.era.fw = {'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt', 'div79'};
+% par.era.fw = {'div79', 'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt'};
+par.era.fw = {'div00'};
 par.gcm.fw = {'mse', 'dse'};
+par.echam.fw = {'mse', 'dse'};
 par.pa = linspace(1000,10,100)*1e2; % high resolution vertical grid to interpolate to
+par.z = [0:500:40e3]';
 % set how to close energy budget
 % if == teten, use TETEN data from Donohoe to close energy budget (option for ERA-Interim)
 % if == stf, use SH and LH data from ERA-Interim to close energy budget (option for ERA-Interim)
@@ -59,11 +69,11 @@ gcm_info
 % plot_rad_lon_lat(par)
 % plot_tediv_lat(par)
 
-type = 'erai';
+type = 'echam_ml';
 % choose_plots(type, par);
 for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
     type = 'gcm';
-    choose_plots(type, par);
+    % choose_plots(type, par);
 end
 
 % sweep through various threshold values
@@ -72,7 +82,7 @@ for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
     % choose_plots_ep(type, par)
     for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
         type = 'gcm';
-        % choose_plots_ep(type, par)
+        choose_plots_ep(type, par)
     end
 end
 
@@ -81,14 +91,25 @@ function choose_plots(type, par)
     % plot_va(type, par) % plot lat x height structure of meridional velocity
     % plot_temp_zon(type, par) % plot temperature profiles at specific latitudes
     % plot_ma_diff(type, par) % plot difference of temperature profile from moist adiabat
-    plot_ga_diff(type, par) % plot difference of temperature profile from moist adiabat
+    % plot_ga_diff(type, par) % plot difference of temperature profile from moist adiabat
+    % plot_ga_si_diff(type, par) % plot difference of temperature profile from moist adiabat in sigma
+    % plot_ga_malr_si_diff(type, par) % plot difference of temperature profile from moist adiabat in sigma
     % plot_ga_z_diff(type, par) % plot difference of temperature profile from moist adiabat in z coord
+    % plot_ga_diff_mon_lat(type, par) % plot ga diff
+    plot_ga_malr_diff_mon_lat(type, par) % plot ga diff
+    % plot_ga_malr_diff_lon_lat(type, par) % plot ga diff
     % plot_inv_str(type, par) % plot strength of inversion
     % plot_inv_str_alt(type, par) % plot strength of inversion
     % plot_flux(type, par) % plot various energy fluxes in mon x lat and lon x lat space
+    % plot_flux_block(type, par) % plot various energy fluxes in mon x lat and lon x lat space
+    % plot_dr1(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dr1_decomp4(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dr1_alt(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dr2(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_tend_comp(type, par) % plot MSE tendency of DB13 with that calculated from ERA-Interim
     % plot_trop(type, par) % plot WMO tropopause
     % plot_alb(type, par) % plot albedo
+    % plot_sn(type, par) % plot snow depth
 end % select which functions to run at a time
 function plot_va(type, par)
     make_dirs(type, par)
@@ -96,11 +117,11 @@ function plot_va(type, par)
     % load data
     if strcmp(type, 'gcm')
         par.plotdir = sprintf('./figures/%s/%s/%s', type, par.model, par.lat_interp);
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.model));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
         lat = grid.dim3.lat;
         plev = grid.dim3.plev/100;
         var = 'va';
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_piControl_r1i1p1_*.ymonmean.nc', par.model, var, par.model));
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, var, par.model, par.gcm.clim));
         fullpath=sprintf('%s/%s', file.folder, file.name);
         va = ncread(fullpath, var);
     end
@@ -139,12 +160,24 @@ function plot_temp_zon(type, par)
         % load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ma_lon_lat.mat', type, par.lat_interp));
         plev = grid.dim3.plev/100;
     elseif strcmp(type, 'gcm')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.model, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.model));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/ta_lon_lat.mat', type, par.model, par.lat_interp));
+        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/ta_lon_lat.mat', type, par.model, par.gcm.clim, par.lat_interp));
         % load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/ma_lon_lat.mat', type, par.model, par.lat_interp));
         plev = grid.dim3.plev/100;
+    elseif strcmp(type, 'echam')
+        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.echam.clim, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.echam.clim));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/ta_lon_lat.mat', type, par.echam.clim, par.lat_interp));
+        plev = grid.dim3.plev/100;
+    elseif strcmp(type, 'echam_ml')
+        par.plotdir = sprintf('./figures/%s/%s', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ta_lon_lat.mat', type, par.lat_interp));
+        plev = 1:47;
     end
 
     for l = {'lo', 'l', 'o'}; land = l{1};
@@ -163,7 +196,7 @@ function plot_temp_zon(type, par)
             ta_np = ta_z.(land).(time)(end-6,:); % sounding at 88.5 N
             ta_eq = interp1(lat, ta_z.(land).(time), 0); % sounding at equator
 
-            z_int=[0:500:20e3]';
+            z_int=par.z;
             taz_z.(land).(time) = squeeze(nanmean(taz_t.(land).(time), 1)); % zonal average
             taz_sp = taz_z.(land).(time)(7,:); % sounding at -88.5 S
             taz_np = taz_z.(land).(time)(end-6,:); % sounding at 88.5 N
@@ -270,9 +303,9 @@ function plot_ma_diff(type, par)
         load(sprintf('/project2/mas1/miyawaki/projects/002/dama/proc/%s/%s/ma_mon_lat.mat', type, par.lat_interp));
         plev = grid.dim3.plev/100;
     elseif strcmp(type, 'gcm')
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.model));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/ta_mon_lat.mat', type, par.model, par.lat_interp));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/ma_mon_lat.mat', type, par.model, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/ta_mon_lat.mat', type, par.model, par.gcm.clim, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/ma_mon_lat.mat', type, par.model, par.gcm.clim, par.lat_interp));
         plev = grid.dim3.plev/100;
     end
     for l = {'lo', 'l', 'o'}; land = l{1};
@@ -313,22 +346,96 @@ function plot_ga_diff(type, par)
     if strcmp(type, 'era5') | strcmp(type, 'erai')
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
     elseif strcmp(type, 'gcm')
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
     end
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     plev = par.pa/100;
     % load(sprintf('%s/dtdz.mat', prefix)); % read model lapse rate
-    load(sprintf('%s/dtdzi.mat', prefix)); % read model lapse rate
-    load(sprintf('%s/dtmdz.mat', prefix)); % read moist adiabatic lapse rate
+    % load(sprintf('%s/dtdzi.mat', prefix)); % read model lapse rate
+    load(sprintf('%s/dtdzz.mat', prefix)); % read model lapse rate
+    % load(sprintf('%s/dtmdz.mat', prefix)); % read moist adiabatic lapse rate
+    load(sprintf('%s/dtmdzz.mat', prefix)); % read moist adiabatic lapse rate
     % load(sprintf('%s/dtmdz_zt.mat', prefix)); % read moist adiabatic lapse rate
 
-    dtdz_zt = squeeze(nanmean(nanmean(dtdzi, 1), 4));
-    dtmdz_zt = squeeze(nanmean(nanmean(dtmdz, 1), 4));
+    dtdz_zt = squeeze(nanmean(nanmean(dtdzz, 1), 4));
+    dtmdz_zt = squeeze(nanmean(nanmean(dtmdzz, 1), 4));
+    dtdz_jan = squeeze(nanmean(dtdzz(:,:,:,1), 1));
+    dtmdz_jan = squeeze(nanmean(dtmdzz(:,:,:,1), 1));
+    dtdz_jul = squeeze(nanmean(dtdzz(:,:,:,7), 1));
+    dtmdz_jul = squeeze(nanmean(dtmdzz(:,:,:,7), 1));
 
-    diff = (dtmdz - dtdzi)./dtmdz * 1e2; % percentage difference of moist adiabatic vs GCM lapse rates
+    diff = (dtmdzz - dtdzz)./dtmdzz * 1e2; % percentage difference of moist adiabatic vs GCM lapse rates
 
     % LAT x PLEV
     diff_zt = squeeze(nanmean(nanmean(diff, 1), 4)); % take zonal and annual mean
+    diff_jan = squeeze(nanmean(diff(:,:,:,1), 1)); % take zonal and annual mean
+    diff_jul = squeeze(nanmean(diff(:,:,:,7), 1)); % take zonal and annual mean
+
+    % vertically average
+    dtdz_ztv = permute(dtdz_zt, [2 1]); % bring height front
+    dtdz_ztv = interp1(par.pa, dtdz_ztv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    dtdz_ztv = squeeze(nanmean(dtdz_ztv,1)); % take vertical average
+    dtmdz_ztv = permute(dtmdz_zt, [2 1]); % bring height front
+    dtmdz_ztv = interp1(par.pa, dtmdz_ztv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    dtmdz_ztv = squeeze(nanmean(dtmdz_ztv,1)); % take vertical average
+    dtdz_janv = permute(dtdz_jan, [2 1]); % bring height front
+    dtdz_janv = interp1(par.pa, dtdz_janv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    dtdz_janv = squeeze(nanmean(dtdz_janv,1)); % take vertical average
+    dtmdz_janv = permute(dtmdz_jan, [2 1]); % bring height front
+    dtmdz_janv = interp1(par.pa, dtmdz_janv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    dtmdz_janv = squeeze(nanmean(dtmdz_janv,1)); % take vertical average
+    dtdz_julv = permute(dtdz_jul, [2 1]); % bring height front
+    dtdz_julv = interp1(par.pa, dtdz_julv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    dtdz_julv = squeeze(nanmean(dtdz_julv,1)); % take vertical average
+    dtmdz_julv = permute(dtmdz_jul, [2 1]); % bring height front
+    dtmdz_julv = interp1(par.pa, dtmdz_julv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    dtmdz_julv = squeeze(nanmean(dtmdz_julv,1)); % take vertical average
+
+    % lat of climatological and moist adiabatic lapse rate
+    figure(); clf; hold all;
+    plot(grid.dim3.lat(1:6:end), dtdz_ztv(1:6:end), 'xk', 'markersize', 4);
+    plot(grid.dim3.lat(1:6:end), dtmdz_ztv(1:6:end), '^k', 'markersize', 4);
+    xlabel('Latitude (deg)'); ylabel('Lapse rate (K/km)')
+    legend('$\Gamma$', '$\Gamma_m$', 'location', 'southwest');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s', par.model));
+    end
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    set(gca, 'xlim', [-10 80], 'xtick', [0:15:75], 'ylim', [0 9], 'ytick', [0:2:8]);
+    print(sprintf('%s/ga_diff/ga_comp_lat', par.plotdir), '-dpng', '-r300');
+    close;
+
+    figure(); clf; hold all;
+    plot(grid.dim3.lat(1:6:end), dtdz_janv(1:6:end), 'xk', 'markersize', 4);
+    plot(grid.dim3.lat(1:6:end), dtmdz_janv(1:6:end), '^k', 'markersize', 4);
+    xlabel('Latitude (deg)'); ylabel('Lapse rate (K/km)')
+    legend('$\Gamma$', '$\Gamma_m$', 'location', 'southwest');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, January', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, January', par.model));
+    end
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    set(gca, 'xlim', [-10 80], 'xtick', [0:15:75], 'ylim', [0 9], 'ytick', [0:2:8]);
+    print(sprintf('%s/ga_diff/ga_comp_lat_jan', par.plotdir), '-dpng', '-r300');
+    close;
+
+    figure(); clf; hold all;
+    plot(grid.dim3.lat(1:6:end), dtdz_julv(1:6:end), 'xk', 'markersize', 4);
+    plot(grid.dim3.lat(1:6:end), dtmdz_julv(1:6:end), '^k', 'markersize', 4);
+    xlabel('Latitude (deg)'); ylabel('Lapse rate (K/km)')
+    legend('$\Gamma$', '$\Gamma_m$', 'location', 'southwest');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, July', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, July', par.model));
+    end
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    set(gca, 'xlim', [-10 80], 'xtick', [0:15:75], 'ylim', [0 9], 'ytick', [0:2:8]);
+    print(sprintf('%s/ga_diff/ga_comp_lat_jul', par.plotdir), '-dpng', '-r300');
+    close;
 
     [mesh_p, mesh_lat] = meshgrid(grid.dim3.lat, plev);
 
@@ -352,6 +459,69 @@ function plot_ga_diff(type, par)
     print(sprintf('%s/ga_diff/ga_diff_lat_plev', par.plotdir), '-dpng', '-r300');
     close;
 
+    % lat x plev of lapse rate percentage diff
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_p, mesh_lat, diff_zt', [-50 -20 -10 0 10 20 50 100], 'color', 'k');
+    clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-100 100]);
+    xlabel('Latitude (deg)'); ylabel('p (hPa)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, Annual', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, Annual', par.model));
+    end
+    % cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [250 1000], 'ytick', [300:100:1000], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_diff_lat_plev_sc', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x plev of lapse rate percentage diff
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_p, mesh_lat, diff_jan', [-50 -20 -10 0 10 20 50 100], 'color', 'k');
+    clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-100 100]);
+    xlabel('Latitude (deg)'); ylabel('p (hPa)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, January', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, January', par.model));
+    end
+    % cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [250 1000], 'ytick', [300:100:1000], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_diff_lat_plev_sc_jan', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x plev of lapse rate percentage diff
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_p, mesh_lat, diff_jul', [-50 -20 -10 0 10 20 50 100], 'color', 'k');
+    clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-100 100]);
+    xlabel('Latitude (deg)'); ylabel('p (hPa)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, July', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, July', par.model));
+    end
+    % cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [250 1000], 'ytick', [300:100:1000], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_diff_lat_plev_sc_jul', par.plotdir), '-dpng', '-r300');
+    close;
+
     % lat x plev of model lapse rate
     figure(); clf; hold all;
     cmp = colCog(40);
@@ -372,6 +542,69 @@ function plot_ga_diff(type, par)
     print(sprintf('%s/ga_diff/ga_lat_plev', par.plotdir), '-dpng', '-r300');
     close;
 
+    % lat x plev of model lapse rate 10 S to 75 N
+    figure(); clf; hold all; box on;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_p, mesh_lat, dtdz_zt', [0:9], 'color', 'k');
+    clabel(C, h, [0 2 4 5 6 7 8], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('p (hPa)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, Annual', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, Annual', par.model));
+    end
+    % cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$\Gamma$ (K/km)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [250 1000], 'ytick', [300:100:1000], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_lat_plev_sc', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x plev of model lapse rate 10 S to 75 N JANUARY
+    figure(); clf; hold all; box on;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_p, mesh_lat, dtdz_jan', [-5:9], 'color', 'k');
+    clabel(C, h, [-3 -1 2 4 5 6 7 8], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('p (hPa)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, January', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, January', par.model));
+    end
+    % cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$\Gamma$ (K/km)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [250 1000], 'ytick', [300:100:1000], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_lat_plev_sc_jan', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x plev of model lapse rate 10 S to 75 N JULY
+    figure(); clf; hold all; box on;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_p, mesh_lat, dtdz_jul', [0:9], 'color', 'k');
+    clabel(C, h, [0 1 2 3 4 5 6 7 8], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('p (hPa)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, July', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, July', par.model));
+    end
+    % cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$\Gamma$ (K/km)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [250 1000], 'ytick', [300:100:1000], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_lat_plev_sc_jul', par.plotdir), '-dpng', '-r300');
+    close;
+
     % lat x plev of moist adiabatic lapse rate
     figure(); clf; hold all;
     cmp = colCog(40);
@@ -390,6 +623,27 @@ function plot_ga_diff(type, par)
     ylabel(cb, '$\Gamma_m$ (K/km)');
     set(gca, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ylim', [200 1000], 'ytick', [200 300 400:200:1000], 'ydir', 'reverse', 'yscale', 'log', 'yminortick', 'on', 'tickdir', 'out');
     print(sprintf('%s/ga_diff/ga_m_lat_plev', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x plev of moist adiabatic lapse rate 10 S to 75 N
+    figure(); clf; hold all; box on;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_p, mesh_lat, dtmdz_zt', [5 6 7 8 9], 'color', 'k');
+    clabel(C, h, [5 6 7 8 9], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('p (hPa)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s', par.model));
+    end
+    % cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$\Gamma_m$ (K/km)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [250 1000], 'ytick', [300:100:1000], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_m_lat_plev_sc', par.plotdir), '-dpng', '-r300');
     close;
 
     % MON X LAT
@@ -417,6 +671,897 @@ function plot_ga_diff(type, par)
     close;
 
 end
+function plot_ga_si_diff(type, par) % sigma coordinates
+    make_dirs(type, par)
+
+    % load data
+    [~, ~, ~, lat, par] = load_flux(type, par);
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+    elseif strcmp(type, 'echam')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/dtdzzsi.mat', prefix)); % read model lapse rate
+    load(sprintf('%s/dtmdzzsi.mat', prefix)); % read moist adiabatic lapse rate
+
+    dtdz_zt = squeeze(nanmean(nanmean(dtdzzsi, 1), 4));
+    dtmdz_zt = squeeze(nanmean(nanmean(dtmdzzsi, 1), 4));
+    dtdz_jan = squeeze(nanmean(dtdzzsi(:,:,:,1), 1));
+    dtmdz_jan = squeeze(nanmean(dtmdzzsi(:,:,:,1), 1));
+    dtdz_jul = squeeze(nanmean(dtdzzsi(:,:,:,7), 1));
+    dtmdz_jul = squeeze(nanmean(dtmdzzsi(:,:,:,7), 1));
+
+    diff = (dtmdzzsi - dtdzzsi)./dtmdzzsi * 1e2; % percentage difference of moist adiabatic vs GCM lapse rates
+
+    % LAT x PLEV
+    diff_zt = squeeze(nanmean(nanmean(diff, 1), 4)); % take zonal and annual mean
+    diff_jan = squeeze(nanmean(diff(:,:,:,1), 1)); % take zonal and annual mean
+    diff_jul = squeeze(nanmean(diff(:,:,:,7), 1)); % take zonal and annual mean
+
+    % % vertically average
+    % dtdz_ztv = permute(dtdz_zt, [2 1]); % bring height front
+    % dtdz_ztv = interp1(par.pa, dtdz_ztv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % dtdz_ztv = squeeze(nanmean(dtdz_ztv,1)); % take vertical average
+    % dtmdz_ztv = permute(dtmdz_zt, [2 1]); % bring height front
+    % dtmdz_ztv = interp1(par.pa, dtmdz_ztv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % dtmdz_ztv = squeeze(nanmean(dtmdz_ztv,1)); % take vertical average
+    % dtdz_janv = permute(dtdz_jan, [2 1]); % bring height front
+    % dtdz_janv = interp1(par.pa, dtdz_janv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % dtdz_janv = squeeze(nanmean(dtdz_janv,1)); % take vertical average
+    % dtmdz_janv = permute(dtmdz_jan, [2 1]); % bring height front
+    % dtmdz_janv = interp1(par.pa, dtmdz_janv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % dtmdz_janv = squeeze(nanmean(dtmdz_janv,1)); % take vertical average
+    % dtdz_julv = permute(dtdz_jul, [2 1]); % bring height front
+    % dtdz_julv = interp1(par.pa, dtdz_julv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % dtdz_julv = squeeze(nanmean(dtdz_julv,1)); % take vertical average
+    % dtmdz_julv = permute(dtmdz_jul, [2 1]); % bring height front
+    % dtmdz_julv = interp1(par.pa, dtmdz_julv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % dtmdz_julv = squeeze(nanmean(dtmdz_julv,1)); % take vertical average
+
+    % % lat of climatological and moist adiabatic lapse rate
+    % figure(); clf; hold all;
+    % plot(grid.dim3.lat(1:6:end), dtdz_ztv(1:6:end), 'xk', 'markersize', 4);
+    % plot(grid.dim3.lat(1:6:end), dtmdz_ztv(1:6:end), '^k', 'markersize', 4);
+    % xlabel('Latitude (deg)'); ylabel('Lapse rate (K/km)')
+    % legend('$\Gamma$', '$\Gamma_m$', 'location', 'southwest');
+    % if strcmp(type, 'era5') | strcmp(type, 'erai')
+    %     title(sprintf('%s', upper(type)));
+    % elseif strcmp(type, 'gcm')
+    %     title(sprintf('%s', par.model));
+    % end
+    % set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    % set(gca, 'xlim', [-10 80], 'xtick', [0:15:75], 'ylim', [0 9], 'ytick', [0:2:8]);
+    % print(sprintf('%s/ga_diff/ga_comp_lat', par.plotdir), '-dpng', '-r300');
+    % close;
+
+    % figure(); clf; hold all;
+    % plot(grid.dim3.lat(1:6:end), dtdz_janv(1:6:end), 'xk', 'markersize', 4);
+    % plot(grid.dim3.lat(1:6:end), dtmdz_janv(1:6:end), '^k', 'markersize', 4);
+    % xlabel('Latitude (deg)'); ylabel('Lapse rate (K/km)')
+    % legend('$\Gamma$', '$\Gamma_m$', 'location', 'southwest');
+    % if strcmp(type, 'era5') | strcmp(type, 'erai')
+    %     title(sprintf('%s, January', upper(type)));
+    % elseif strcmp(type, 'gcm')
+    %     title(sprintf('%s, January', par.model));
+    % end
+    % set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    % set(gca, 'xlim', [-10 80], 'xtick', [0:15:75], 'ylim', [0 9], 'ytick', [0:2:8]);
+    % print(sprintf('%s/ga_diff/ga_comp_lat_jan', par.plotdir), '-dpng', '-r300');
+    % close;
+
+    % figure(); clf; hold all;
+    % plot(grid.dim3.lat(1:6:end), dtdz_julv(1:6:end), 'xk', 'markersize', 4);
+    % plot(grid.dim3.lat(1:6:end), dtmdz_julv(1:6:end), '^k', 'markersize', 4);
+    % xlabel('Latitude (deg)'); ylabel('Lapse rate (K/km)')
+    % legend('$\Gamma$', '$\Gamma_m$', 'location', 'southwest');
+    % if strcmp(type, 'era5') | strcmp(type, 'erai')
+    %     title(sprintf('%s, July', upper(type)));
+    % elseif strcmp(type, 'gcm')
+    %     title(sprintf('%s, July', par.model));
+    % end
+    % set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    % set(gca, 'xlim', [-10 80], 'xtick', [0:15:75], 'ylim', [0 9], 'ytick', [0:2:8]);
+    % print(sprintf('%s/ga_diff/ga_comp_lat_jul', par.plotdir), '-dpng', '-r300');
+    % close;
+
+    [mesh_si, mesh_lat] = meshgrid(grid.dim3.lat, grid.dim3.si);
+
+    % lat x plev of lapse rate percentage diff
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contourf(mesh_si, mesh_lat, diff_zt', [-50 -20 -10 0 10 20 50 100]);
+    clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-100 100]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s', par.model));
+    end
+    cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
+    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    ylabel(cb, '$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)');
+    set(gca, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yscale', 'log', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_diff_lat_sigma', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of lapse rate percentage diff
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, diff_zt', [-50 -20 -10 0 10 20 50 100], 'color', 'k');
+    clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-100 100]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, Annual', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, Annual', par.model));
+    end
+    % cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_diff_lat_sigma_sc', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of lapse rate percentage diff
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, diff_jan', [-50 -20 -10 0 10 20 50 100], 'color', 'k');
+    clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-100 100]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, January', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, January', par.model));
+    end
+    % cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_diff_lat_sigma_sc_jan', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of lapse rate percentage diff
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, diff_jul', [-50 -20 -10 0 10 20 50 100], 'color', 'k');
+    clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-100 100]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, July', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, July', par.model));
+    end
+    % cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_diff_lat_sigma_sc_jul', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of model lapse rate
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contourf(mesh_si, mesh_lat, dtdz_zt', -10:1:10);
+    % clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s', par.model));
+    end
+    cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    ylabel(cb, '$\Gamma$ (K/km)');
+    set(gca, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yscale', 'log', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_lat_sigma', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of model lapse rate 10 S to 75 N
+    figure(); clf; hold all; box on;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, dtdz_zt', [0:9], 'color', 'k');
+    clabel(C, h, [0 2 4 5 6 7 8], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, Annual', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, Annual', par.model));
+    end
+    % cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$\Gamma$ (K/km)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_lat_sigma_sc', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of model lapse rate 10 S to 75 N JANUARY
+    figure(); clf; hold all; box on;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, dtdz_jan', [-5:9], 'color', 'k');
+    clabel(C, h, [-3 -1 2 4 5 6 7 8], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, January', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, January', par.model));
+    end
+    % cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$\Gamma$ (K/km)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_lat_sigma_sc_jan', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of model lapse rate 10 S to 75 N JULY
+    figure(); clf; hold all; box on;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, dtdz_jul', [0:9], 'color', 'k');
+    clabel(C, h, [0 1 2 3 4 5 6 7 8], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, July', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, July', par.model));
+    end
+    % cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$\Gamma$ (K/km)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_lat_sigma_sc_jul', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of moist adiabatic lapse rate
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contourf(mesh_si, mesh_lat, dtmdz_zt', -10:1:10);
+    % clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s', par.model));
+    end
+    cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    ylabel(cb, '$\Gamma_m$ (K/km)');
+    set(gca, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yscale', 'log', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_m_lat_sigma', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of moist adiabatic lapse rate 10 S to 75 N
+    figure(); clf; hold all; box on;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, dtmdz_zt', [5 6 7 8 9], 'color', 'k');
+    clabel(C, h, [5 6 7 8 9], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s', par.model));
+    end
+    % cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$\Gamma_m$ (K/km)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_diff/ga_m_lat_sigma_sc', par.plotdir), '-dpng', '-r300');
+    close;
+
+end
+function plot_ga_malr_si_diff(type, par) % sigma coordinates
+    make_dirs(type, par)
+
+    % load data
+    [~, ~, ~, lat, par] = load_flux(type, par);
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+    elseif strcmp(type, 'echam')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    % load(sprintf('%s/dtdzzsi.mat', prefix)); % read model lapse rate
+    load(sprintf('%s/dtdzsi.mat', prefix)); dtdzzsi = dtdzsi; clear dtdzsi; % read model lapse rate
+    % load(sprintf('%s/malrzsi.mat', prefix)); % read moist adiabatic lapse rate
+    load(sprintf('%s/malrsi.mat', prefix)); dtmdzzsi = dtmdzsi; clear dtmdzsi; % read moist adiabatic lapse rate
+
+    dtdz_zt = squeeze(nanmean(nanmean(dtdzzsi, 1), 4));
+    dtmdz_zt = squeeze(nanmean(nanmean(dtmdzzsi, 1), 4));
+    dtdz_jan = squeeze(nanmean(dtdzzsi(:,:,:,1), 1));
+    dtmdz_jan = squeeze(nanmean(dtmdzzsi(:,:,:,1), 1));
+    dtdz_jul = squeeze(nanmean(dtdzzsi(:,:,:,7), 1));
+    dtmdz_jul = squeeze(nanmean(dtmdzzsi(:,:,:,7), 1));
+
+    diff = (dtmdzzsi - dtdzzsi)./dtmdzzsi * 1e2; % percentage difference of moist adiabatic vs GCM lapse rates
+
+    % LAT x PLEV
+    diff_zt = squeeze(nanmean(nanmean(diff, 1), 4)); % take zonal and annual mean
+    diff_jan = squeeze(nanmean(diff(:,:,:,1), 1)); % take zonal and annual mean
+    diff_jul = squeeze(nanmean(diff(:,:,:,7), 1)); % take zonal and annual mean
+
+    % % vertically average
+    % dtdz_ztv = permute(dtdz_zt, [2 1]); % bring height front
+    % dtdz_ztv = interp1(par.pa, dtdz_ztv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % dtdz_ztv = squeeze(nanmean(dtdz_ztv,1)); % take vertical average
+    % dtmdz_ztv = permute(dtmdz_zt, [2 1]); % bring height front
+    % dtmdz_ztv = interp1(par.pa, dtmdz_ztv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % dtmdz_ztv = squeeze(nanmean(dtmdz_ztv,1)); % take vertical average
+    % dtdz_janv = permute(dtdz_jan, [2 1]); % bring height front
+    % dtdz_janv = interp1(par.pa, dtdz_janv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % dtdz_janv = squeeze(nanmean(dtdz_janv,1)); % take vertical average
+    % dtmdz_janv = permute(dtmdz_jan, [2 1]); % bring height front
+    % dtmdz_janv = interp1(par.pa, dtmdz_janv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % dtmdz_janv = squeeze(nanmean(dtmdz_janv,1)); % take vertical average
+    % dtdz_julv = permute(dtdz_jul, [2 1]); % bring height front
+    % dtdz_julv = interp1(par.pa, dtdz_julv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % dtdz_julv = squeeze(nanmean(dtdz_julv,1)); % take vertical average
+    % dtmdz_julv = permute(dtmdz_jul, [2 1]); % bring height front
+    % dtmdz_julv = interp1(par.pa, dtmdz_julv, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % dtmdz_julv = squeeze(nanmean(dtmdz_julv,1)); % take vertical average
+
+    % % lat of climatological and moist adiabatic lapse rate
+    % figure(); clf; hold all;
+    % plot(grid.dim3.lat(1:6:end), dtdz_ztv(1:6:end), 'xk', 'markersize', 4);
+    % plot(grid.dim3.lat(1:6:end), dtmdz_ztv(1:6:end), '^k', 'markersize', 4);
+    % xlabel('Latitude (deg)'); ylabel('Lapse rate (K/km)')
+    % legend('$\Gamma$', '$\Gamma_m$', 'location', 'southwest');
+    % if strcmp(type, 'era5') | strcmp(type, 'erai')
+    %     title(sprintf('%s', upper(type)));
+    % elseif strcmp(type, 'gcm')
+    %     title(sprintf('%s', par.model));
+    % end
+    % set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    % set(gca, 'xlim', [-10 80], 'xtick', [0:15:75], 'ylim', [0 9], 'ytick', [0:2:8]);
+    % print(sprintf('%s/ga_diff/ga_comp_lat', par.plotdir), '-dpng', '-r300');
+    % close;
+
+    % figure(); clf; hold all;
+    % plot(grid.dim3.lat(1:6:end), dtdz_janv(1:6:end), 'xk', 'markersize', 4);
+    % plot(grid.dim3.lat(1:6:end), dtmdz_janv(1:6:end), '^k', 'markersize', 4);
+    % xlabel('Latitude (deg)'); ylabel('Lapse rate (K/km)')
+    % legend('$\Gamma$', '$\Gamma_m$', 'location', 'southwest');
+    % if strcmp(type, 'era5') | strcmp(type, 'erai')
+    %     title(sprintf('%s, January', upper(type)));
+    % elseif strcmp(type, 'gcm')
+    %     title(sprintf('%s, January', par.model));
+    % end
+    % set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    % set(gca, 'xlim', [-10 80], 'xtick', [0:15:75], 'ylim', [0 9], 'ytick', [0:2:8]);
+    % print(sprintf('%s/ga_diff/ga_comp_lat_jan', par.plotdir), '-dpng', '-r300');
+    % close;
+
+    % figure(); clf; hold all;
+    % plot(grid.dim3.lat(1:6:end), dtdz_julv(1:6:end), 'xk', 'markersize', 4);
+    % plot(grid.dim3.lat(1:6:end), dtmdz_julv(1:6:end), '^k', 'markersize', 4);
+    % xlabel('Latitude (deg)'); ylabel('Lapse rate (K/km)')
+    % legend('$\Gamma$', '$\Gamma_m$', 'location', 'southwest');
+    % if strcmp(type, 'era5') | strcmp(type, 'erai')
+    %     title(sprintf('%s, July', upper(type)));
+    % elseif strcmp(type, 'gcm')
+    %     title(sprintf('%s, July', par.model));
+    % end
+    % set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    % set(gca, 'xlim', [-10 80], 'xtick', [0:15:75], 'ylim', [0 9], 'ytick', [0:2:8]);
+    % print(sprintf('%s/ga_diff/ga_comp_lat_jul', par.plotdir), '-dpng', '-r300');
+    % close;
+
+    [mesh_si, mesh_lat] = meshgrid(grid.dim3.lat, grid.dim3.si);
+
+    % lat x plev of lapse rate percentage diff
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contourf(mesh_si, mesh_lat, diff_zt', [-50 -20 -10 0 10 20 50 100]);
+    clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-100 100]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s', par.model));
+    end
+    cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
+    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    ylabel(cb, '$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)');
+    set(gca, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yscale', 'log', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_malr_diff/ga_malr_diff_lat_sigma', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of lapse rate percentage diff
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, diff_zt', [-50 -20 -10 0 10 20 50 100], 'color', 'k');
+    clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-100 100]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, Annual', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, Annual', par.model));
+    end
+    % cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_malr_diff/ga_malr_diff_lat_sigma_sc', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of lapse rate percentage diff
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, diff_jan', [-50 -20 -10 0 10 20 50 100], 'color', 'k');
+    clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-100 100]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, January', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, January', par.model));
+    end
+    % cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_malr_diff/ga_malr_diff_lat_sigma_sc_jan', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of lapse rate percentage diff
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, diff_jul', [-50 -20 -10 0 10 20 50 100], 'color', 'k');
+    clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-100 100]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, July', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, July', par.model));
+    end
+    % cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_malr_diff/ga_malr_diff_lat_sigma_sc_jul', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of model lapse rate
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contourf(mesh_si, mesh_lat, dtdz_zt', -10:1:10);
+    % clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s', par.model));
+    end
+    cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    ylabel(cb, '$\Gamma$ (K/km)');
+    set(gca, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yscale', 'log', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_malr_diff/ga_lat_sigma', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of model lapse rate JANUARY
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contourf(mesh_si, mesh_lat, dtdz_jan', -10:1:10);
+    % clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, January', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, January', par.model));
+    end
+    cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    ylabel(cb, '$\Gamma$ (K/km)');
+    set(gca, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yscale', 'log', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_malr_diff/ga_lat_sigma_jan', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of model lapse rate JULY
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contourf(mesh_si, mesh_lat, dtdz_jul', -10:1:10);
+    % clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, July', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, July', par.model));
+    end
+    cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    ylabel(cb, '$\Gamma$ (K/km)');
+    set(gca, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yscale', 'log', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_malr_diff/ga_lat_sigma_jul', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of model lapse rate 10 S to 75 N
+    figure(); clf; hold all; box on;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, dtdz_zt', [0:9], 'color', 'k');
+    clabel(C, h, [0 2 4 5 6 7 8], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, Annual', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, Annual', par.model));
+    end
+    % cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$\Gamma$ (K/km)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_malr_diff/ga_lat_sigma_sc', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of model lapse rate 10 S to 75 N JANUARY
+    figure(); clf; hold all; box on;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, dtdz_jan', [-5:9], 'color', 'k');
+    clabel(C, h, [-3 -1 2 4 5 6 7 8], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, January', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, January', par.model));
+    end
+    % cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$\Gamma$ (K/km)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_malr_diff/ga_lat_sigma_sc_jan', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of model lapse rate 10 S to 75 N JULY
+    figure(); clf; hold all; box on;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, dtdz_jul', [0:9], 'color', 'k');
+    clabel(C, h, [0 1 2 3 4 5 6 7 8], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s, July', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s, July', par.model));
+    end
+    % cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$\Gamma$ (K/km)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_malr_diff/ga_lat_sigma_sc_jul', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of moist adiabatic lapse rate
+    figure(); clf; hold all;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contourf(mesh_si, mesh_lat, dtmdz_zt', -10:1:10, 'w');
+    clabel(C, h, [-50 -20 -10 0 10 20 50 100], 'fontsize', 6, 'interpreter', 'latex', 'color', 'w');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s', par.model));
+    end
+    cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    ylabel(cb, '$\Gamma_m$ (K/km)');
+    set(gca, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yscale', 'log', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_malr_diff/ga_m_lat_sigma', par.plotdir), '-dpng', '-r300');
+    close;
+
+    % lat x sigma of moist adiabatic lapse rate 10 S to 75 N
+    figure(); clf; hold all; box on;
+    cmp = colCog(40);
+    colormap(cmp);
+    [C, h] = contour(mesh_si, mesh_lat, dtmdz_zt', [5 6 7 8 9], 'color', 'k');
+    clabel(C, h, [5 6 7 8 9], 'fontsize', 6, 'interpreter', 'latex');
+    caxis([-10 10]);
+    xlabel('Latitude (deg)'); ylabel('$\sigma$ (unitless)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s', par.model));
+    end
+    % cb = colorbar('limits', [-10 10], 'ytick', [-10:2:10], 'location', 'eastoutside');
+    % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    % ylabel(cb, '$\Gamma_m$ (K/km)');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+    set(gca, 'xlim', [-10 75], 'xtick', [-10:10:70 75], 'ylim', [0.2 1], 'ytick', [0.2:0.1:1], 'ydir', 'reverse', 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/ga_malr_diff/ga_m_lat_sigma_sc', par.plotdir), '-dpng', '-r300');
+    close;
+
+end
+function plot_ga_diff_mon_lat(type, par) % plot inversion strength
+    make_dirs(type, par)
+
+    % load data
+    [~, ~, ~, lat, par] = load_flux(type, par);
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
+    elseif strcmp(type, 'echam')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.echam.clim);
+    end
+    load(sprintf('%s/%s/ga_diff_si_mon_lat.mat', prefix_proc, par.lat_interp));
+    load(sprintf('%s/%s/ga_bl_diff_si_mon_lat.mat', prefix_proc, par.lat_interp));
+
+    [mesh_lat, mesh_mon] = meshgrid([1:12], lat);
+
+    for l = {'lo', 'l', 'o'}; land = l{1};
+        if strcmp(land, 'lo'); land_text = 'Land + Ocean';
+        elseif strcmp(land, 'l'); land_text = 'Land';
+        elseif strcmp(land, 'o'); land_text = 'Ocean';
+        end
+
+        % mon x lat of diff
+        figure(); clf; hold all;
+        cmp = colCog(30);
+        colormap(cmp);
+        % imagesc([1:12], [lat(1) lat(end)], ga_diff.(land));
+        contourf(mesh_lat, mesh_mon, ga_diff.(land), 'linecolor', 'none')
+        caxis([-100 100]);
+        xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            title(sprintf('%s, %s', upper(type), land_text));
+        elseif strcmp(type, 'gcm')
+            title(sprintf('%s, %s', par.model, land_text));
+        end
+        cb = colorbar('limits', [-20 100], 'ytick', [-20:20:100], 'location', 'eastoutside');
+        cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+        ylabel(cb, sprintf('$\\left[(\\Gamma_m(T_m) - \\Gamma)/\\Gamma_m(T_m)\\right]_{%g-%g}$ (\\%%)', par.si_bl, par.si_up));
+        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        print(sprintf('%s/ga_diff/%s/ga_diff_mon_lat', par.plotdir, land), '-dpng', '-r300');
+        close;
+
+        % mon x lat of diff
+        figure(); clf; hold all;
+        cmp = colCog(30);
+        colormap(cmp);
+        % imagesc([1:12], [lat(1) lat(end)], ga_bl_diff.(land));
+        contourf(mesh_lat, mesh_mon, ga_bl_diff.(land), 'linecolor', 'none')
+        caxis([-100 100]);
+        xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            title(sprintf('%s, %s', upper(type), land_text));
+        elseif strcmp(type, 'gcm')
+            title(sprintf('%s, %s', par.model, land_text));
+        end
+        cb = colorbar('limits', [-20 100], 'ytick', [-20:20:100], 'location', 'eastoutside');
+        cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+        ylabel(cb, sprintf('$\\left[(\\Gamma_m - \\Gamma)/\\Gamma_m\\right]_{1.0-%g}$ (\\%%)', par.si_bl));
+        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        print(sprintf('%s/ga_diff/%s/ga_bl_diff_mon_lat', par.plotdir, land), '-dpng', '-r300');
+        close;
+
+    end
+end
+function plot_ga_malr_diff_mon_lat(type, par) % plot inversion strength
+    make_dirs(type, par)
+
+    % load data
+    [~, ~, ~, lat, par] = load_flux(type, par);
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
+    elseif strcmp(type, 'echam')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.echam.clim);
+    end
+    load(sprintf('%s/%s/ga_malr_diff_si_mon_lat.mat', prefix_proc, par.lat_interp));
+    load(sprintf('%s/%s/ga_dalr_diff_si_mon_lat.mat', prefix_proc, par.lat_interp));
+    load(sprintf('%s/%s/ga_dalr_bl_diff_si_mon_lat.mat', prefix_proc, par.lat_interp));
+
+    [mesh_lat, mesh_mon] = meshgrid([1:12], lat);
+
+    for l = {'lo', 'l', 'o'}; land = l{1};
+        if strcmp(land, 'lo'); land_text = 'Land + Ocean';
+        elseif strcmp(land, 'l'); land_text = 'Land';
+        elseif strcmp(land, 'o'); land_text = 'Ocean';
+        end
+
+        % mon x lat of diff
+        figure(); clf; hold all;
+        cmp = colCog(12);
+        colormap(cmp);
+        % imagesc([1:12], [lat(1) lat(end)], ga_malr_diff.(land));
+        contourf(mesh_lat, mesh_mon, ga_malr_diff.(land), -100:10:100, 'linecolor', 'none');
+        [C,h]=contour(mesh_lat, mesh_mon, ga_malr_diff.(land), -100:10:100, '-k');
+        clabel(C, h, -100:10:100, 'fontsize', 6, 'interpreter', 'latex');
+        caxis([-60 60]);
+        xlabel('Month'); ylabel('Latitude (deg)');
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            title(sprintf('%s, %s', upper(type), land_text));
+        elseif strcmp(type, 'gcm')
+            title(sprintf('%s, %s', par.model, land_text));
+        end
+        cb = colorbar('limits', [-40 60], 'ytick', [-40:10:60], 'location', 'eastoutside');
+        cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+        ylabel(cb, sprintf('$\\left[(\\Gamma_m - \\Gamma)/\\Gamma_m\\right]_{%g-%g}$ (\\%%)', par.si_bl, par.si_up));
+        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        print(sprintf('%s/ga_malr_diff/%s/ga_malr_diff_mon_lat', par.plotdir, land), '-dpng', '-r300');
+        close;
+
+        % mon x lat of diff
+        figure(); clf; hold all;
+        cmp = colCog(12);
+        colormap(cmp);
+        % imagesc([1:12], [lat(1) lat(end)], ga_dalr_diff.(land));
+        contourf(mesh_lat, mesh_mon, ga_dalr_diff.(land), -100:10:100, 'linecolor', 'none')
+        caxis([-60 60]);
+        xlabel('Month'); ylabel('Latitude (deg)');
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            title(sprintf('%s, %s', upper(type), land_text));
+        elseif strcmp(type, 'gcm')
+            title(sprintf('%s, %s', par.model, land_text));
+        end
+        cb = colorbar('limits', [-40 60], 'ytick', [-40:10:60], 'location', 'eastoutside');
+        cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+        ylabel(cb, sprintf('$\\left[(\\Gamma_d - \\Gamma)/\\Gamma_d\\right]_{%g-%g}$ (\\%%)', par.si_bl, par.si_up));
+        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        print(sprintf('%s/ga_malr_diff/%s/ga_dalr_diff_mon_lat', par.plotdir, land), '-dpng', '-r300');
+        close;
+
+        % DALR BL mon x lat of diff
+        figure(); clf; hold all;
+        cmp = colCog(20);
+        colormap(cmp);
+        % imagesc([1:12], [lat(1) lat(end)], ga_dalr_bl_diff.(land));
+        contourf(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), -100:10:100, 'linecolor', 'none');
+        [C,h]=contour(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), -100:10:100, '-w');
+        clabel(C, h, -100:20:100, 'fontsize', 6, 'interpreter', 'latex', 'color', 'w');
+        caxis([-100 100]);
+        xlabel('Month'); ylabel('Latitude (deg)');
+        if strcmp(type, 'era5') | strcmp(type, 'erai')
+            title(sprintf('%s, %s', upper(type), land_text));
+        elseif strcmp(type, 'gcm')
+            title(sprintf('%s, %s', par.model, land_text));
+        end
+        cb = colorbar('limits', [0 100], 'ytick', [0:10:100], 'location', 'eastoutside');
+        cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+        ylabel(cb, sprintf('$\\left[(\\Gamma_d - \\Gamma)/\\Gamma_d\\right]_{1.0-%g}$ (\\%%)', par.si_bl));
+        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        print(sprintf('%s/ga_malr_diff/%s/ga_dalr_bl_diff_mon_lat', par.plotdir, land), '-dpng', '-r300');
+        close;
+
+    end
+end
+function plot_ga_malr_diff_lon_lat(type, par) % plot inversion strength
+    make_dirs(type, par)
+
+    % load data
+    [~, ~, ~, lat, par] = load_flux(type, par);
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
+    elseif strcmp(type, 'echam')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.echam.clim);
+    end
+    load(sprintf('%s/grid.mat', prefix));
+    load(sprintf('%s/%s/ga_malr_diff_si_lon_lat.mat', prefix_proc, par.lat_interp));
+    load(sprintf('%s/%s/ga_dalr_diff_si_lon_lat.mat', prefix_proc, par.lat_interp));
+    load(sprintf('%s/%s/ga_dalr_bl_diff_si_lon_lat.mat', prefix_proc, par.lat_interp));
+
+    [mesh_lat, mesh_lon] = meshgrid(grid.dim3.lon, lat);
+
+    for l = {'lo', 'l', 'o'}; land = l{1};
+        if strcmp(land, 'lo'); land_text = 'Land + Ocean';
+        elseif strcmp(land, 'l'); land_text = 'Land';
+        elseif strcmp(land, 'o'); land_text = 'Ocean';
+        end
+
+        for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+
+            % MALR FT lon x lat of diff
+            figure(); clf; hold all;
+            cmp = colCog(12);
+            colormap(cmp);
+            contourf(mesh_lat, mesh_lon, ga_malr_diff_t.(land).(time)', -100:10:100, 'linecolor', 'none');
+            [C,h]=contour(mesh_lat, mesh_lon, ga_malr_diff_t.(land).(time)', -100:10:100, '-k');
+            clabel(C, h, -100:10:100, 'fontsize', 6, 'interpreter', 'latex');
+            caxis([-60 60]);
+            xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+            if strcmp(type, 'era5') | strcmp(type, 'erai')
+                title(sprintf('%s, %s', upper(type), land_text));
+            elseif strcmp(type, 'gcm')
+                title(sprintf('%s, %s', par.model, land_text));
+            end
+            cb = colorbar('limits', [-40 60], 'ytick', [-40:10:60], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\left[(\\Gamma_m - \\Gamma)/\\Gamma_m\\right]_{%g-%g}$ (\\%%)', par.si_bl, par.si_up));
+            set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/ga_malr_diff/%s/%s/ga_malr_diff_lon_lat', par.plotdir, land, time), '-dpng', '-r300');
+            close;
+
+            % DALR BL lon x lat of diff
+            figure(); clf; hold all;
+            cmp = colCog(12);
+            colormap(cmp);
+            contourf(mesh_lat, mesh_lon, ga_dalr_bl_diff_t.(land).(time)', -100:10:100, 'linecolor', 'none');
+            [C,h]=contour(mesh_lat, mesh_lon, ga_dalr_bl_diff_t.(land).(time)', -100:10:100, '-k');
+            clabel(C, h, -100:10:100, 'fontsize', 6, 'interpreter', 'latex');
+            caxis([-100 100]);
+            xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+            if strcmp(type, 'era5') | strcmp(type, 'erai')
+                title(sprintf('%s, %s', upper(type), land_text));
+            elseif strcmp(type, 'gcm')
+                title(sprintf('%s, %s', par.model, land_text));
+            end
+            cb = colorbar('limits', [0 100], 'ytick', [0:10:100], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\left[(\\Gamma_d - \\Gamma)/\\Gamma_d\\right]_{1.0-%g}$ (\\%%)', par.si_bl));
+            set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/ga_malr_diff/%s/%s/ga_dalr_bl_diff_lon_lat', par.plotdir, land, time), '-dpng', '-r300');
+            close;
+
+        end
+
+    end
+end
 function plot_inv_str(type, par) % plot inversion strength
     make_dirs(type, par)
 
@@ -427,8 +1572,8 @@ function plot_inv_str(type, par) % plot inversion strength
         load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ta_mon_lat.mat', type, par.lat_interp));
         plev = grid.dim3.plev/100;
     elseif strcmp(type, 'gcm')
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.model));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/ta_mon_lat.mat', type, par.model, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/ta_mon_lat.mat', type, par.model, par.gcm.clim, par.lat_interp));
         plev = grid.dim3.plev/100;
     end
     for l = {'lo', 'l', 'o'}; land = l{1};
@@ -470,8 +1615,8 @@ function plot_inv_str_alt(type, par) % plot inversion strength (alt order of ope
         load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type));
         load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/inv_mon_lat.mat', type, par.lat_interp));
     elseif strcmp(type, 'gcm')
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.model));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/inv_mon_lat.mat', type, par.model, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/inv_mon_lat.mat', type, par.model, par.gcm.clim, par.lat_interp));
     end
 
     for l = {'lo', 'l', 'o'}; land = l{1};
@@ -510,9 +1655,204 @@ function plot_flux(type, par)
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
         prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
     elseif strcmp(type, 'gcm')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.model, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
+    elseif strcmp(type, 'echam')
+        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.echam.clim, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.echam.clim);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/%s/flux_z.mat', prefix_proc, par.lat_interp)); % load lat x mon RCAE data
+    load(sprintf('%s/%s/flux_t.mat', prefix_proc, par.lat_interp)); % load lat x lon RCAE data
+    load(sprintf('%s/%s/ga_malr_diff_si_mon_lat.mat', prefix_proc, par.lat_interp)); ga_malr_diff_orig = ga_malr_diff; clear ga_diff;
+    load(sprintf('%s/%s/ga_dalr_bl_diff_si_mon_lat.mat', prefix_proc, par.lat_interp)); ga_dalr_bl_diff_orig = ga_dalr_bl_diff; clear ga_bl_diff;
+    landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
+    par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
+
+    for l = {'lo', 'l', 'o'}; land = l{1};
+        if strcmp(land, 'lo'); land_text = 'Land + Ocean';
+        elseif strcmp(land, 'l'); land_text = 'Land';
+        elseif strcmp(land, 'o'); land_text = 'Ocean';
+        end
+
+        ga_malr_diff = ga_malr_diff_orig.(land);
+        ga_dalr_bl_diff = ga_dalr_bl_diff_orig.(land);
+
+        [mesh_lat, mesh_mon] = meshgrid(1:12, lat);
+        if any(strcmp(type, {'era5', 'erai'})); f_vec = par.era.fw;
+        elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw;
+        elseif strcmp(type, 'echam'); f_vec = par.echam.fw; end
+        for f = f_vec; fw = f{1};
+            % lat x mon dependence of RCE and RAE
+            if strcmp(fw, 'dse'); var_text = '$\nabla \cdot F_s$';
+            else var_text = '$\nabla \cdot F_m$'; end
+            figure(); clf; hold all;
+            cmp = colCog(12);
+            colormap(cmp);
+            contourf(mesh_lat, mesh_mon, flux_z.(land).res.(fw), -150:25:150, 'linecolor', 'none');
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, var_text));
+            elseif strcmp(type, 'echam'); title(sprintf('%s, %s, %s', upper(type), var_text, var_text)); end;
+            caxis([-150 150]);
+            cb = colorbar('limits', [-150 150], 'ytick', [-150:25:150], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('%s (Wm$^{-2}$)', var_text));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [1 12], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/flux/%s/%s/0_div_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % R1 lat x mon dependence of RCE and RAE
+            var_text = '$R_1$';
+            figure(); clf; hold all;
+            cmp = colCog(10);
+            colormap(flipud(cmp));
+            contourf(mesh_lat, mesh_mon, flux_z.(land).r1.(fw), [-16 -8 -4 -2 -1:0.2:1 2 4 8 16], 'linecolor', 'none');
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, var_text));
+            elseif strcmp(type, 'echam'); title(sprintf('%s, %s, %s', upper(type), var_text, var_text)); end;
+            caxis([-1 1]);
+            cb = colorbar('limits', [-1 1], 'ytick', [-1:0.2:1], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('%s (unitless)', var_text));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [1 12], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            close;
+
+            % GA MALR and GA_BL DALR contour lat x mon dependence of RCE and RAE
+            figure(); clf; hold all;
+            cmp = colCog(10);
+            colormap(flipud(cmp));
+            contourf(mesh_lat, mesh_mon, flux_z.(land).r1.(fw), [-16 -8 -4 -2 -1:0.2:1 2 4 8 16], 'linecolor', 'none');
+            contour(mesh_lat, mesh_mon, abs(ga_malr_diff), par.ga_thresh*[1 1], 'color', par.orange, 'linewidth', 2);
+            contour(mesh_lat, mesh_mon, ga_dalr_bl_diff, par.ga_bl_thresh*[1 1], 'color', par.blue, 'linewidth', 2);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$, $(\\Gamma_d - \\Gamma )/ \\Gamma_d > %g \\%%$', upper(type), par.ga_thresh, par.ga_bl_thresh));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$, $(\\Gamma_d - \\Gamma )/ \\Gamma_d > %g \\%%$', par.model, par.ga_thresh, par.ga_bl_thresh));
+            elseif any(strcmp(type, {'echam'})); title(sprintf('%s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$, $(\\Gamma_d - \\Gamma )/ \\Gamma_d > %g \\%%$', upper(type), par.ga_thresh, par.ga_bl_thresh)); end;
+            caxis([-1 1]);
+            cb = colorbar('limits', [-1 1], 'ytick', [-1:0.2:1], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('%s (unitless)', var_text));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [1 12], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/flux/%s/%s/0_r1_mon_lat_ga_malr_ga_dalr_bl_overlay', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            if strcmp(fw, 'mse2')
+                % lat x mon dependence of RCE and RAE
+                var_text = 'LW';
+                figure(); clf; hold all;
+                cmp = colCog(20);
+                colormap(cmp);
+                contourf(mesh_lat, mesh_mon, flux_z.(land).lw, 'linecolor', 'none');
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, var_text));
+                elseif strcmp(type, 'echam'); title(sprintf('%s, %s, %s', upper(type), var_text, var_text)); end;
+                caxis([-250 250]);
+                xlabel('Month'); ylabel('Latitude (deg)');
+                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                print(sprintf('%s/flux/%s/%s/0_lw_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+                close;
+            else
+                % lat x mon dependence of RCE and RAE
+                var_text = '$R_a$';
+                figure(); clf; hold all;
+                cmp = colCog(20);
+                colormap(cmp);
+                contourf(mesh_lat, mesh_mon, flux_z.(land).ra.(fw), 'linecolor', 'none');
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, var_text));
+                elseif strcmp(type, 'echam'); title(sprintf('%s, %s, %s', upper(type), var_text, var_text)); end;
+                caxis([-150 150]);
+                xlabel('Month'); ylabel('Latitude (deg)');
+                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                print(sprintf('%s/flux/%s/%s/0_ra_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+                close;
+            end
+
+            [mesh_ll_lat, mesh_ll_lon] = meshgrid(grid.dim3.lon, lat);
+            for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+                % lat x lon of RCE and RAE
+                if strcmp(fw, 'dse'); var_text = '$\nabla \cdot F_s$';
+                else var_text = '$\nabla \cdot F_m$'; end
+                figure(); clf; hold all;
+                cmp = colCog(20);
+                colormap(cmp);
+                contourf(mesh_ll_lat, mesh_ll_lon, flux_t.(land).(time).res.(fw)', 'linecolor', 'none');
+                caxis([-150 150]);
+                contour(par.landlon+180, par.landlat, par.land, [1 1], 'k');
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, %s', upper(type), var_text, upper(time), land_text));
+                elseif any(strcmp(type, 'gcm')); title(sprintf('%s, %s, %s, %s', par.model, var_text, upper(time), land_text));
+                elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, %s, %s', upper(type), var_text, upper(time), land_text)); end;
+                xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+                set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                print(sprintf('%s/flux/%s/%s/%s/div_lat_lon', par.plotdir, fw, land, time), '-dpng', '-r300');
+                close;
+
+                var_text = '$R_1$';
+                figure(); clf; hold all;
+                cmp = colCog(10);
+                colormap(flipud(cmp));
+                contourf(mesh_ll_lat, mesh_ll_lon, flux_t.(land).(time).r1.(fw)', [-16 -8 -4 -2 -1:0.2:1 2 4 8 16], 'linecolor', 'none');
+                contour(par.landlon+180, par.landlat, par.land, [1 1], 'k');
+                caxis([-1 1]);
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, %s', upper(type), var_text, upper(time), land_text));
+                elseif any(strcmp(type, 'gcm')); title(sprintf('%s, %s, %s, %s', par.model, var_text, upper(time), land_text));
+                elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, %s, %s',upper(type), var_text, upper(time), land_text)); end;
+                xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+                set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                print(sprintf('%s/flux/%s/%s/%s/r1_lat_lon', par.plotdir, fw, land, time), '-dpng', '-r300');
+                close;
+
+                if strcmp(fw, 'mse2')
+                    var_text = 'LW';
+                    figure(); clf; hold all;
+                    cmp = colCog(20);
+                    colormap(cmp);
+                    contourf(mesh_ll_lat, mesh_ll_lon, flux_t.(land).(time).lw', 'linecolor', 'none');
+                    contour(par.landlon+180, par.landlat, par.land, [1 1], 'k');
+                    caxis([-250 250]);
+                    if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, %s', upper(type), var_text, upper(time), land_text));
+                    elseif any(strcmp(type, 'gcm')); title(sprintf('%s, %s, %s, %s', par.model, var_text, upper(time), land_text));
+                    elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, %s, %s',upper(type), var_text, upper(time), land_text)); end;
+                    xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+                    set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                    print(sprintf('%s/flux/%s/%s/%s/lw_lat_lon', par.plotdir, fw, land, time), '-dpng', '-r300');
+                    close;
+                else
+                    var_text = '$R_a$';
+                    figure(); clf; hold all;
+                    cmp = colCog(20);
+                    colormap(cmp);
+                    contourf(mesh_ll_lat, mesh_ll_lon, flux_t.(land).(time).ra.(fw)', 'linecolor', 'none');
+                    contour(par.landlon+180, par.landlat, par.land, [1 1], 'k');
+                    caxis([-150 150]);
+                    if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, %s', upper(type), var_text, upper(time), land_text));
+                    elseif any(strcmp(type, 'gcm')); title(sprintf('%s, %s, %s, %s', par.model, var_text, upper(time), land_text));
+                    elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, %s, %s',upper(type), var_text, upper(time), land_text)); end;
+                    xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+                    set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                    print(sprintf('%s/flux/%s/%s/%s/ra_lat_lon', par.plotdir, fw, land, time), '-dpng', '-r300');
+                    close;
+                end
+
+            end % for time
+        end % for mse dse
+    end % for land
+end
+function plot_flux_block(type, par)
+    make_dirs(type, par)
+
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        par.plotdir = sprintf('./figures/%s/%s', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
     end
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/%s/flux_z.mat', prefix_proc, par.lat_interp)); % load lat x mon RCAE data
@@ -527,99 +1867,99 @@ function plot_flux(type, par)
         end
 
         [mesh_lat, mesh_mon] = meshgrid(1:12, lat);
-        % lat x mon w500
-        var_text = '$\omega500$';
-        figure(); clf; hold all;
-        cmp = colCog(20);
-        colormap(cmp);
-        imagesc([1 12], [lat(1) lat(end)], flux_z.(land).w500*864);
-        cb = colorbar('ticks', [-50:10:50], 'ticklabelinterpreter', 'latex');
-        ylabel(cb, '$\omega500$ (hPa/d)', 'interpreter', 'latex');
-        caxis([-50 50]);
-        if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
-        elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
-        xlabel('Month'); ylabel('Latitude (deg)');
-        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
-        set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-        print(sprintf('%s/flag/%s/0_w500_mon_lat', par.plotdir, land), '-dpng', '-r300');
-        close;
+        % % lat x mon w500
+        % var_text = '$\omega500$';
+        % figure(); clf; hold all;
+        % cmp = colCog(20);
+        % colormap(cmp);
+        % imagesc([1 12], [lat(1) lat(end)], flux_z.(land).w500*864);
+        % cb = colorbar('ticks', [-50:10:50], 'ticklabelinterpreter', 'latex');
+        % ylabel(cb, '$\omega500$ (hPa/d)', 'interpreter', 'latex');
+        % caxis([-50 50]);
+        % if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+        % elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+        % xlabel('Month'); ylabel('Latitude (deg)');
+        % set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+        % set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        % print(sprintf('%s/flag/%s/0_w500_mon_lat', par.plotdir, land), '-dpng', '-r300');
+        % close;
 
-        % lat x mon vas
-        var_text = '$v_{\,\mathrm{2\,m}}$';
-        figure(); clf; hold all;
-        cmp = colCog(20);
-        colormap(cmp);
-        imagesc([1 12], [lat(1) lat(end)], flux_z.(land).vas);
-        cb = colorbar('ticks', [-5:1:5], 'ticklabelinterpreter', 'latex');
-        ylabel(cb, '$v_{\,\mathrm{2\,m}}$ (m/s)', 'interpreter', 'latex');
-        if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
-        elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
-        caxis([-5 5]);
-        xlabel('Month'); ylabel('Latitude (deg)');
-        set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-        print(sprintf('%s/flag/%s/0_vas_mon_lat', par.plotdir, land), '-dpng', '-r300');
-        close;
+        % % lat x mon vas
+        % var_text = '$v_{\,\mathrm{2\,m}}$';
+        % figure(); clf; hold all;
+        % cmp = colCog(20);
+        % colormap(cmp);
+        % imagesc([1 12], [lat(1) lat(end)], flux_z.(land).vas);
+        % cb = colorbar('ticks', [-5:1:5], 'ticklabelinterpreter', 'latex');
+        % ylabel(cb, '$v_{\,\mathrm{2\,m}}$ (m/s)', 'interpreter', 'latex');
+        % if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+        % elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+        % caxis([-5 5]);
+        % xlabel('Month'); ylabel('Latitude (deg)');
+        % set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        % print(sprintf('%s/flag/%s/0_vas_mon_lat', par.plotdir, land), '-dpng', '-r300');
+        % close;
 
-        % lat x mon P-E
-        var_text = '$P-E$';
-        figure(); clf; hold all;
-        cmp = colCog(20);
-        colormap(cmp);
-        imagesc([1 12], [lat(1) lat(end)], (flux_z.(land).pr-flux_z.(land).evspsbl)*86400);
-        cb = colorbar('ticks', [-5:1:5], 'ticklabelinterpreter', 'latex');
-        ylabel(cb, '$P-E$ (mm/d)', 'interpreter', 'latex');
-        if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
-        elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
-        caxis([-5 5]);
-        xlabel('Month'); ylabel('Latitude (deg)');
-        set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-        print(sprintf('%s/flag/%s/0_pe_mon_lat', par.plotdir, land), '-dpng', '-r300');
-        close;
+        % % lat x mon P-E
+        % var_text = '$P-E$';
+        % figure(); clf; hold all;
+        % cmp = colCog(20);
+        % colormap(cmp);
+        % imagesc([1 12], [lat(1) lat(end)], (flux_z.(land).pr-flux_z.(land).evspsbl)*86400);
+        % cb = colorbar('ticks', [-5:1:5], 'ticklabelinterpreter', 'latex');
+        % ylabel(cb, '$P-E$ (mm/d)', 'interpreter', 'latex');
+        % if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+        % elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+        % caxis([-5 5]);
+        % xlabel('Month'); ylabel('Latitude (deg)');
+        % set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        % print(sprintf('%s/flag/%s/0_pe_mon_lat', par.plotdir, land), '-dpng', '-r300');
+        % close;
 
-        % lat x mon convective vs large-scale precip
-        var_text = '$P_{\mathrm{ls}}/P_{\mathrm{c}}$';
-        figure(); clf; hold all;
-        cmp = colCog(20);
-        colormap(cmp);
-        imagesc([1 12], [lat(1) lat(end)], ((flux_z.(land).pr-flux_z.(land).prc)./flux_z.(land).prc));
-        cb = colorbar('ticks', [-20:4:20], 'ticklabelinterpreter', 'latex');
-        ylabel(cb, '$P_{\mathrm{ls}}/P_{\mathrm{c}}$ (unitless)', 'interpreter', 'latex');
-        if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
-        elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
-        caxis([-20 20]);
-        xlabel('Month'); ylabel('Latitude (deg)');
-        set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-        print(sprintf('%s/flag/%s/0_cp_mon_lat', par.plotdir, land), '-dpng', '-r300');
-        close;
+        % % lat x mon convective vs large-scale precip
+        % var_text = '$P_{\mathrm{ls}}/P_{\mathrm{c}}$';
+        % figure(); clf; hold all;
+        % cmp = colCog(20);
+        % colormap(cmp);
+        % imagesc([1 12], [lat(1) lat(end)], ((flux_z.(land).pr-flux_z.(land).prc)./flux_z.(land).prc));
+        % cb = colorbar('ticks', [-20:4:20], 'ticklabelinterpreter', 'latex');
+        % ylabel(cb, '$P_{\mathrm{ls}}/P_{\mathrm{c}}$ (unitless)', 'interpreter', 'latex');
+        % if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+        % elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+        % caxis([-20 20]);
+        % xlabel('Month'); ylabel('Latitude (deg)');
+        % set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        % print(sprintf('%s/flag/%s/0_cp_mon_lat', par.plotdir, land), '-dpng', '-r300');
+        % close;
 
         for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
-            % lat x lon w500
-            var_text = '$\omega500$';
-            figure(); clf; hold all;
-            cmp = colCog(20);
-            colormap(cmp);
-            imagesc([grid.dim3.lon(1) grid.dim3.lon(end)], [lat(1) lat(end)], flux_t.(land).(time).w500');
-            caxis([-nanmax(abs(flux_t.(land).(time).w500(:))) nanmax(abs(flux_t.(land).(time).w500(:)))]);
-            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, %s', upper(type), var_text, upper(time), land_text));
-            elseif any(strcmp(type, 'gcm')); title(sprintf('%s, %s, %s, %s', par.model, var_text, upper(time), land_text)); end;
-            xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
-            set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-            print(sprintf('%s/flag/%s/%s/w500_lat_lon', par.plotdir, land, time), '-dpng', '-r300');
-            close;
+            % % lat x lon w500
+            % var_text = '$\omega500$';
+            % figure(); clf; hold all;
+            % cmp = colCog(20);
+            % colormap(cmp);
+            % imagesc([grid.dim3.lon(1) grid.dim3.lon(end)], [lat(1) lat(end)], flux_t.(land).(time).w500');
+            % caxis([-nanmax(abs(flux_t.(land).(time).w500(:))) nanmax(abs(flux_t.(land).(time).w500(:)))]);
+            % if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, %s', upper(type), var_text, upper(time), land_text));
+            % elseif any(strcmp(type, 'gcm')); title(sprintf('%s, %s, %s, %s', par.model, var_text, upper(time), land_text)); end;
+            % xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+            % set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            % print(sprintf('%s/flag/%s/%s/w500_lat_lon', par.plotdir, land, time), '-dpng', '-r300');
+            % close;
 
-            % lat x lon vas
-            var_text = '$v_{\,\mathrm{2\,m}}$';
-            figure(); clf; hold all;
-            cmp = colCog(20);
-            colormap(cmp);
-            imagesc([grid.dim3.lon(1) grid.dim3.lon(end)], [lat(1) lat(end)], flux_t.(land).(time).vas');
-            caxis([-nanmax(abs(flux_t.(land).(time).vas(:))) nanmax(abs(flux_t.(land).(time).vas(:)))]);
-            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, %s', upper(type), var_text, upper(time), land_text));
-            elseif any(strcmp(type, 'gcm')); title(sprintf('%s, %s, %s, %s', par.model, var_text, upper(time), land_text)); end;
-            xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
-            set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-            print(sprintf('%s/flag/%s/%s/vas_lat_lon', par.plotdir, land, time), '-dpng', '-r300');
-            close;
+            % % lat x lon vas
+            % var_text = '$v_{\,\mathrm{2\,m}}$';
+            % figure(); clf; hold all;
+            % cmp = colCog(20);
+            % colormap(cmp);
+            % imagesc([grid.dim3.lon(1) grid.dim3.lon(end)], [lat(1) lat(end)], flux_t.(land).(time).vas');
+            % caxis([-nanmax(abs(flux_t.(land).(time).vas(:))) nanmax(abs(flux_t.(land).(time).vas(:)))]);
+            % if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, %s', upper(type), var_text, upper(time), land_text));
+            % elseif any(strcmp(type, 'gcm')); title(sprintf('%s, %s, %s, %s', par.model, var_text, upper(time), land_text)); end;
+            % xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+            % set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            % print(sprintf('%s/flag/%s/%s/vas_lat_lon', par.plotdir, land, time), '-dpng', '-r300');
+            % close;
 
         end
 
@@ -641,7 +1981,7 @@ function plot_flux(type, par)
             print(sprintf('%s/flux/%s/%s/0_div_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
             close;
 
-            % lat x mon dependence of RCE and RAE
+            % R1 lat x mon dependence of RCE and RAE
             var_text = '$R_1$';
             figure(); clf; hold all;
             cmp = colCog(20);
@@ -745,7 +2085,508 @@ function plot_flux(type, par)
             end % for time
         end % for mse dse
     end % for land
-end % function
+end
+function plot_dr1(type, par)
+    make_dirs(type, par)
+
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        par.plotdir = sprintf('./figures/%s/%s', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/%s/flux_z.mat', prefix_proc, par.lat_interp)); % load lat x mon RCAE data
+    load(sprintf('%s/%s/flux_t.mat', prefix_proc, par.lat_interp)); % load lat x lon RCAE data
+    landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
+    par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
+
+    for l = {'lo', 'l', 'o'}; land = l{1};
+        if strcmp(land, 'lo'); land_text = 'Land + Ocean';
+        elseif strcmp(land, 'l'); land_text = 'Land';
+        elseif strcmp(land, 'o'); land_text = 'Ocean';
+        end
+
+        [mesh_lat, mesh_mon] = meshgrid(1:12, lat);
+
+        if any(strcmp(type, {'era5', 'erai'})); f_vec = par.era.fw;
+        elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw; end
+        for f = f_vec; fw = f{1};
+            % DELTA R1 lat x mon dependence of RCE and RAE
+            var_text = '$\Delta R_1$';
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], flux_z.(land).r1.(fw) - repmat(nanmean(flux_z.(land).r1.(fw), 2), [1 12]));
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\Delta R_1$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % FRACTIONAL DELTA R1 lat x mon dependence of RCE and RAE
+            var_text = '$\frac{\Delta R_1}{R_1}$';
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], (flux_z.(land).r1.(fw) - repmat(nanmean(flux_z.(land).r1.(fw), 2), [1 12]))./flux_z.(land).r1.(fw));
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\frac{\\Delta R_1}{R_1}$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1_frac_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R1 DEF COMP1 lat x mon dependence of RCE and RAE
+            var_text = '$\frac{\Delta (\nabla\cdot F_m)}{R_a}$';
+            delta_fm = flux_z.(land).res.(fw) - repmat(nanmean(flux_z.(land).res.(fw),2),[1 12]);
+            ann_ra = repmat(nanmean(flux_z.(land).ra.(fw),2), [1 12]);
+            comp1 = delta_fm./ann_ra;
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp1);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\frac{\\Delta (\\nabla\\cdot F_m)}{R_a}$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1c1_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R1 DEF COMP2 lat x mon dependence of RCE and RAE
+            var_text = '$-\frac{\nabla\cdot F_m}{R_a^2}\Delta R_a$';
+            delta_ra = flux_z.(land).ra.(fw) - repmat(nanmean(flux_z.(land).ra.(fw),2),[1 12]);
+            ann_fm = repmat(nanmean(flux_z.(land).res.(fw),2),[1 12]);
+            ann_ra = repmat(nanmean(flux_z.(land).ra.(fw),2),[1 12]);
+            comp2 = -ann_fm./(ann_ra).^2.*delta_ra;
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp2);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$-\\frac{\\nabla\\cdot F_m}{R_a^2}\\Delta R_a$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1c2_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R1 SUM OF COMP1 and COMP2 lat x mon dependence of RCE and RAE
+            var_text = '$\frac{\Delta (\nabla\cdot F_m)}{R_a}-\frac{\nabla\cdot F_m}{R_a^2}\Delta R_a$';
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp1+comp2);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\frac{\\Delta (\\nabla\\cdot F_m)}{R_a}-\\frac{\\nabla\\cdot F_m}{R_a^2}\\Delta R_a$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1_c1+c2_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            end % for time
+        end % for mse dse
+    end % for land
+function plot_dr1_decomp4(type, par)
+    make_dirs(type, par)
+
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        par.plotdir = sprintf('./figures/%s/%s', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/%s/flux_z.mat', prefix_proc, par.lat_interp)); % load lat x mon RCAE data
+    load(sprintf('%s/%s/flux_t.mat', prefix_proc, par.lat_interp)); % load lat x lon RCAE data
+    landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
+    par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
+
+    for l = {'lo', 'l', 'o'}; land = l{1};
+        if strcmp(land, 'lo'); land_text = 'Land + Ocean';
+        elseif strcmp(land, 'l'); land_text = 'Land';
+        elseif strcmp(land, 'o'); land_text = 'Ocean';
+        end
+
+        [mesh_lat, mesh_mon] = meshgrid(1:12, lat);
+        if any(strcmp(type, {'era5', 'erai'})); f_vec = par.era.fw;
+        elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw; end
+        for f = f_vec; fw = f{1};
+            % DELTA R1 R3 R4 COMP1 lat x mon dependence of RCE and RAE
+            var_text = '$\frac{\Delta (\nabla\cdot F_{TOA})}{R_a}$';
+            delta_ftoa = flux_z.(land).ftoa.(fw) - repmat(nanmean(flux_z.(land).ftoa.(fw),2),[1 12]);
+            ann_ra = repmat(nanmean(flux_z.(land).ra.(fw),2), [1 12]);
+            comp1 = delta_ftoa./ann_ra;
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp1);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\frac{\\Delta (\\nabla\\cdot F_{TOA})}{R_a}$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1r3r4c1_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R1 R3 R4 COMP2 lat x mon dependence of RCE and RAE
+            var_text = '$\frac{\Delta (\nabla\cdot F_{SFC})}{R_a}$';
+            delta_fsfc = flux_z.(land).fsfc.(fw) - repmat(nanmean(flux_z.(land).fsfc.(fw),2),[1 12]);
+            ann_ra = repmat(nanmean(flux_z.(land).ra.(fw),2), [1 12]);
+            comp2 = delta_fsfc./ann_ra;
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp2);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\frac{\\Delta (\\nabla\\cdot F_{SFC})}{R_a}$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1r3r4c2_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R1 R3 R4 COMP3 lat x mon dependence of RCE and RAE
+            var_text = '$-\frac{\nabla\cdot F_{TOA}}{R_a^2}\Delta R_a$';
+            delta_ra = flux_z.(land).ra.(fw) - repmat(nanmean(flux_z.(land).ra.(fw),2),[1 12]);
+            ann_ftoa = repmat(nanmean(flux_z.(land).ftoa.(fw),2),[1 12]);
+            ann_ra = repmat(nanmean(flux_z.(land).ra.(fw),2),[1 12]);
+            comp3 = -ann_ftoa./(ann_ra).^2.*delta_ra;
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp3);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$-\\frac{\\nabla\\cdot F_{TOA}}{R_a^2}\\Delta R_a$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1r3r4c3_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R1 R3 R4 COMP4 lat x mon dependence of RCE and RAE
+            var_text = '$-\frac{\nabla\cdot F_{SFC}}{R_a^2}\Delta R_a$';
+            delta_ra = flux_z.(land).ra.(fw) - repmat(nanmean(flux_z.(land).ra.(fw),2),[1 12]);
+            ann_fsfc = repmat(nanmean(flux_z.(land).fsfc.(fw),2),[1 12]);
+            ann_ra = repmat(nanmean(flux_z.(land).ra.(fw),2),[1 12]);
+            comp4 = -ann_fsfc./(ann_ra).^2.*delta_ra;
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp4);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$-\\frac{\\nabla\\cdot F_{SFC}}{R_a^2}\\Delta R_a$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1r3r4c4_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R1 R3 R4 SUM OF COMP1 and COMP3 (R3) lat x mon dependence of RCE and RAE
+            var_text = '$\Delta R_3$';
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp1+comp3);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\Delta R_3$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1r3r4c1and3_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R1 R3 R4 SUM OF COMP2 and COMP4 (R4) lat x mon dependence of RCE and RAE
+            var_text = '$\Delta R_4$';
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp2+comp4);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\Delta R_4$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1r3r4c2and4_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R1 R3 R4 SUM OF COMP1 and COMP2 lat x mon dependence of RCE and RAE
+            var_text = '$\Delta R_3+\Delta R_4$';
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp1+comp2+comp3+comp4);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\Delta R_1+\\Delta R_3$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1r3r4c1to4_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            end % for time
+        end % for mse dse
+    end % for land
+function plot_dr1_alt(type, par)
+    make_dirs(type, par)
+
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        par.plotdir = sprintf('./figures/%s/%s', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/%s/flux_z.mat', prefix_proc, par.lat_interp)); % load lat x mon RCAE data
+    load(sprintf('%s/%s/flux_t.mat', prefix_proc, par.lat_interp)); % load lat x lon RCAE data
+    landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
+    par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
+
+    for l = {'lo', 'l', 'o'}; land = l{1};
+        if strcmp(land, 'lo'); land_text = 'Land + Ocean';
+        elseif strcmp(land, 'l'); land_text = 'Land';
+        elseif strcmp(land, 'o'); land_text = 'Ocean';
+        end
+
+        [mesh_lat, mesh_mon] = meshgrid(1:12, lat);
+        if any(strcmp(type, {'era5', 'erai'})); f_vec = par.era.fw;
+        elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw; end
+        for f = f_vec; fw = f{1};
+            % DELTA R1 ALT COMP1 lat x mon dependence of RCE and RAE
+            var_text = '$-\frac{(\mathrm{SH+LH})}{R_a^2}\Delta (\nabla\cdot F_m)$';
+            delta_fm = flux_z.(land).res.(fw) - repmat(nanmean(flux_z.(land).res.(fw),2),[1 12]);
+            ann_stf = repmat(nanmean(flux_z.(land).stf.(fw),2), [1 12]);
+            ann_ra = repmat(nanmean(flux_z.(land).ra.(fw),2), [1 12]);
+            comp1 = -ann_stf./(ann_ra).^2.*delta_fm;
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp1);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$-\\frac{\\mathrm{SH+LH}}{R_a^2}\\Delta (\\nabla\\cdot F_m)$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1_alt_c1_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R1 ALT COMP2 lat x mon dependence of RCE and RAE
+            var_text = '$\frac{\nabla\cdot F_m}{R_a^2}\Delta (\mathrm{SH+LH})$';
+            delta_stf = flux_z.(land).stf.(fw) - repmat(nanmean(flux_z.(land).stf.(fw),2),[1 12]);
+            ann_fm = repmat(nanmean(flux_z.(land).res.(fw),2),[1 12]);
+            ann_ra = repmat(nanmean(flux_z.(land).ra.(fw),2),[1 12]);
+            comp2 = ann_fm./(ann_ra).^2.*delta_stf;
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp2);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\frac{\\nabla\\cdot F_m}{R_a^2}\\Delta (\\mathrm{SH+LH})$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1_alt_c2_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R1 SUM OF COMP1 and COMP2 lat x mon dependence of RCE and RAE
+            var_text = '$-\frac{\mathrm{SH+LH}}{R_a^2}\Delta (\nabla\cdot F_m)+\frac{\nabla\cdot F_m}{R_a^2}\Delta (\mathrm{SH+LH})$';
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp1+comp2);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$-\\frac{\\mathrm{SH+LH}}{R_a^2}\\Delta (\\nabla\\cdot F_m)+\\frac{\\nabla\\cdot F_m}{R_a^2}\\Delta (\\mathrm{SH+LH})$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr1/%s/%s/0_dr1_alt_c1+c2_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+        end % for mse dse
+    end % for land
+end
+function plot_dr2(type, par)
+    make_dirs(type, par)
+
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        par.plotdir = sprintf('./figures/%s/%s', type, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
+    elseif strcmp(type, 'gcm')
+        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/%s/flux_z.mat', prefix_proc, par.lat_interp)); % load lat x mon RCAE data
+    load(sprintf('%s/%s/flux_t.mat', prefix_proc, par.lat_interp)); % load lat x lon RCAE data
+    landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
+    par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
+
+    for l = {'lo', 'l', 'o'}; land = l{1};
+        if strcmp(land, 'lo'); land_text = 'Land + Ocean';
+        elseif strcmp(land, 'l'); land_text = 'Land';
+        elseif strcmp(land, 'o'); land_text = 'Ocean';
+        end
+
+        [mesh_lat, mesh_mon] = meshgrid(1:12, lat);
+        if any(strcmp(type, {'era5', 'erai'})); f_vec = par.era.fw;
+        elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw; end
+        for f = f_vec; fw = f{1};
+            % DELTA R2 lat x mon dependence of RCE and RAE
+            var_text = '$\Delta R_2$';
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], flux_z.(land).r2.(fw) - repmat(nanmean(flux_z.(land).r2.(fw), 2), [1 12]));
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\Delta R_2$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr2/%s/%s/0_dr2_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % FRACTIONAL DELTA R2 lat x mon dependence of RCE and RAE
+            var_text = '$\frac{\Delta R_2}{R_2}$';
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], (flux_z.(land).r2.(fw) - repmat(nanmean(flux_z.(land).r2.(fw), 2), [1 12]))./flux_z.(land).r2.(fw));
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\frac{\\Delta R_2}{R_2}$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr2/%s/%s/0_dr2_frac_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R2 DEF COMP1 lat x mon dependence of RCE and RAE
+            var_text = '$\frac{\Delta (\mathrm{SH+LH})}{R_a}$';
+            delta_fm = flux_z.(land).stf.(fw) - repmat(nanmean(flux_z.(land).stf.(fw),2),[1 12]);
+            ann_ra = repmat(nanmean(flux_z.(land).ra.(fw),2), [1 12]);
+            comp1 = delta_fm./ann_ra;
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp1);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\frac{\\Delta (\\mathrm{SH+LH})}{R_a}$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr2/%s/%s/0_dr2c1_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R2 DEF COMP2 lat x mon dependence of RCE and RAE
+            var_text = '$-\frac{\mathrm{SH+LH}}{R_a^2}\Delta R_a$';
+            delta_ra = flux_z.(land).ra.(fw) - repmat(nanmean(flux_z.(land).ra.(fw),2),[1 12]);
+            ann_fm = repmat(nanmean(flux_z.(land).stf.(fw),2),[1 12]);
+            ann_ra = repmat(nanmean(flux_z.(land).ra.(fw),2),[1 12]);
+            comp2 = -ann_fm./(ann_ra).^2.*delta_ra;
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp2);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$-\\frac{\\mathrm{SH+LH}}{R_a^2}\\Delta R_a$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr2/%s/%s/0_dr2c2_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % DELTA R1 SUM OF COMP1 and COMP2 lat x mon dependence of RCE and RAE
+            var_text = '$\frac{\Delta (\mathrm{SH+LH})}{R_a}-\frac{\mathrm{SH+LH}}{R_a^2}\Delta R_a$';
+            figure(); clf; hold all;
+            cmp = colCog(20);
+            colormap(cmp);
+            imagesc([1 12], [lat(1) lat(end)], comp1+comp2);
+            if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+            elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text)); end;
+            caxis([-0.5 0.5]);
+            cb = colorbar('limits', [-0.5 0.5], 'ytick', [-0.5:0.1:0.5], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('$\\frac{\\Delta (\\mathrm{SH+LH})}{R_a}-\\frac{\\mathrm{SH+LH}}{R_a^2}\\Delta R_a$ (unitless)'));
+            xlabel('Month'); ylabel('Latitude (deg)');
+            set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/dr2/%s/%s/0_dr1_c1+c2_mon_lat', par.plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+        end % for time
+    end % for mse dse
+end % for land
 function plot_tend_comp(type, par)
     make_dirs(type, par)
 
@@ -783,9 +2624,13 @@ function plot_trop(type, par)
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
         load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type));
     elseif strcmp(type, 'gcm')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.model, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.model));
+        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
+    elseif strcmp(type, 'echam')
+        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.echam.clim, par.lat_interp);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.echam.clim));
     end
 
     load(sprintf('%s/ztrop.mat', prefix)); % read tropopause in z
@@ -803,7 +2648,7 @@ function plot_trop(type, par)
     ptrop_zont = squeeze(nanmean(ptrop_zon,2));
 
     % z tropopause, lat x height
-    figure(); clf; hold all;
+    figure(); clf; hold all; box on;
     plot(grid.dim3.lat, ztrop_zt*1e-3, 'k');
     xlabel('latitude (deg)'); ylabel('z (km)');
     title(sprintf('Tropopause Height'));
@@ -814,7 +2659,7 @@ function plot_trop(type, par)
     close;
 
     % z tropopause zonally averaged first, lat x height
-    figure(); clf; hold all;
+    figure(); clf; hold all; box on;
     plot(grid.dim3.lat, ztrop_zont*1e-3, 'k');
     xlabel('latitude (deg)'); ylabel('z (km)');
     title(sprintf('Tropopause Height'));
@@ -825,29 +2670,29 @@ function plot_trop(type, par)
     close;
 
     % p tropopause, lat x height
-    figure(); clf; hold all;
+    figure(); clf; hold all; box on;
     plot(grid.dim3.lat, ptrop_zt*1e-2, 'k');
     xlabel('latitude (deg)'); ylabel('p (hPa)');
     title(sprintf('Tropopause Height'));
     axis('tight');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
-    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ydir', 'reverse', 'yscale', 'log', 'ylim', [100 1000], 'ytick', [100 200 300 400:200:1000], 'xminortick', 'on', 'yminortick', 'on')
+    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ydir', 'reverse', 'yscale', 'log', 'ylim', [50 1000], 'ytick', [50 100 200 300 400:200:1000], 'xminortick', 'on', 'yminortick', 'on')
     print(sprintf('%s/trop/ptrop_lat', par.plotdir), '-dpng', '-r300');
     close;
 
     % p tropopause zonally averaged first, lat x height
-    figure(); clf; hold all;
+    figure(); clf; hold all; box on;
     plot(grid.dim3.lat, ptrop_zont*1e-2, 'k');
     xlabel('latitude (deg)'); ylabel('p (hPa)');
     title(sprintf('Tropopause Height'));
     axis('tight');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
-    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ydir', 'reverse', 'yscale', 'log', 'ylim', [100 1000], 'ytick', [100 200 300 400:200:1000], 'xminortick', 'on', 'yminortick', 'on')
+    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'ydir', 'reverse', 'yscale', 'log', 'ylim', [50 1000], 'ytick', [50 100 200 300 400:200:1000], 'xminortick', 'on', 'yminortick', 'on')
     print(sprintf('%s/trop/ptrop_zon_lat', par.plotdir), '-dpng', '-r300');
     close;
 
 end
-function plot_alb(type, par) % plot inversion strength
+function plot_alb(type, par) % plot albedo
     make_dirs(type, par)
 
     % load data
@@ -855,7 +2700,7 @@ function plot_alb(type, par) % plot inversion strength
     if strcmp(type, 'era5') | strcmp(type, 'erai')
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
     elseif strcmp(type, 'gcm')
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
     end
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/alb.mat', prefix)); % read clear sky albedo data
@@ -903,6 +2748,41 @@ function plot_alb(type, par) % plot inversion strength
     close;
 
 end
+function plot_sn(type, par) % plot snow depth
+    make_dirs(type, par)
+
+    % load data
+    [~, ~, ~, lat, par] = load_flux(type, par);
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
+    elseif strcmp(type, 'gcm')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+    end
+    load(sprintf('%s/grid.mat', prefix)); % read grid data
+    load(sprintf('%s/sn.mat', prefix)); % read clear sky albedo data
+
+    sn = squeeze(nanmean(sn,1)); % zonal mean
+
+    % mon x lat of snow depth
+    figure(); clf; hold all;
+    cmp = colCog(30);
+    colormap(flip(cmp));
+    imagesc([1:12], [grid.dim2.lat(1) grid.dim2.lat(end)], sn);
+    caxis([-1e-1 1e-1]);
+    xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+    if strcmp(type, 'era5') | strcmp(type, 'erai')
+        title(sprintf('%s', upper(type)));
+    elseif strcmp(type, 'gcm')
+        title(sprintf('%s', par.model));
+    end
+    cb = colorbar('limits', [0 1e-1], 'ytick', 1e-1*[0:0.1:1], 'location', 'eastoutside');
+    cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+    ylabel(cb, sprintf('Ice Depth (m)'));
+    set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+    print(sprintf('%s/sn/sn_mon_lat', par.plotdir), '-dpng', '-r300');
+    close;
+
+end
 
 function choose_plots_ep(type, par)
     % plot_energy_lat(type, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
@@ -911,7 +2791,6 @@ function choose_plots_ep(type, par)
     % plot_rcae_alt(type, par) % plot RCE/RAE regimes
     % plot_rcae_alt_rc(type, par) % plot RCE/RAE regimes with R1 recomputed at the very end (order of operations test)
     plot_rcae_alt_overlay(type, par) % plot RCE/RAE regimes
-    % plot_rcae_alt_rc_overlay(type, par) % plot RCE/RAE regimes
     % plot_rcae_alt_rc_overlay(type, par) % plot RCE/RAE regimes with R1 recomputed at the very end (order of operations test)
     % plot_temp(type, par) % plot temperature profiles
 end % select which ep-functions to run at a time
@@ -922,7 +2801,8 @@ function plot_energy_lat(type, par) % latitude vs energy flux line plots, compar
     for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
         if any(strcmp(type, {'erai'})); f_vec = par.era.fw;
         elseif any(strcmp(type, {'era5'})); f_vec = par.era.fw;
-        elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw; end
+        elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw;
+        elseif strcmp(type, 'echam'); f_vec = par.echam.fw; end
         for f = f_vec; fw = f{1};
             for l = {'lo', 'l', 'o'}; land = l{1};
                 if strcmp(land, 'lo'); land_text = 'Land + Ocean';
@@ -931,7 +2811,7 @@ function plot_energy_lat(type, par) % latitude vs energy flux line plots, compar
                 end
 
                 if strcmp(fw, 'mse2')
-                    figure(); clf; hold all;
+                    figure(); clf; hold all; box on;
                     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
                     plot(lat, flux.(land).(time).lw, 'color', par.gray); text(0, 0.85*interp1(lat,flux.(land).(time).lw,0), '\boldmath{$\mathrm{LW}$}', 'color', par.gray);
                     if contains(fw, 'db')
@@ -955,20 +2835,26 @@ function plot_energy_lat(type, par) % latitude vs energy flux line plots, compar
                         if contains(fw, 'mse'); plot(lat, flux.(land).(time).hfls, 'color', par.blue); text(20, 1.2*interp1(lat, flux.(land).(time).hfls,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
                         elseif strcmp(fw, 'dse'); plot(lat, par.L*flux.(land).(time).pr, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux.(land).(time).pr,15), '\boldmath{$LP$}', 'color', par.blue); end
                         plot(lat, flux.(land).(time).hfss, 'color', par.orange); text(80, interp1(lat, flux.(land).(time).hfss, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                    elseif strcmp(type, 'echam')
+                        if strcmp(fw, 'mse'); plot(lat, -flux.(land).(time).ahfl, 'color', par.blue); text(20, 1.2*interp1(lat, -flux.(land).(time).ahfl,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                        elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux.(land).(time).aprc+flux.(land).(time).aprl), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux.(land).(time).aprc+flux.(land).(time).aprl),15), '\boldmath{$LP$}', 'color', par.blue);
+                        end
+                        plot(lat, -flux.(land).(time).ahfs, 'color', par.orange); text(80, interp1(lat, -flux.(land).(time).ahfs, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
                     end
                     if any(strcmp(type, {'era5', 'erai'}));
                         if strcmp(fw, 'db13s'); title(sprintf('%s, %s, %s, %s', upper(type), 'DB13*', upper(time), land_text));
                         else; title(sprintf('%s, %s, %s, %s', upper(type), upper(fw), upper(time), land_text)); end;
-                    elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, %s', par.model, upper(fw), upper(time), land_text)); end
+                    elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, %s', par.model, upper(fw), upper(time), land_text));
+                    elseif strcmp(type, 'echam'); title(sprintf('%s, %s, %s, %s', upper(type), upper(fw), upper(time), land_text)); end
                     xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
                     axis('tight');
                     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
                     set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
-                    if strcmp(fw, 'mse') & strcmp(time, 'ann'); set(gca, 'ylim', [-inf 150]); end
+                    if strcmp(fw, 'mse') & strcmp(time, 'ann'); set(gca, 'ylim', [-inf inf]); end
                     print(sprintf('%s/energy-flux/%s/%s/%s-all', par.plotdir, land, time, fw), '-dpng', '-r300');
                     close;
                 else
-                    figure(); clf; hold all;
+                    figure(); clf; hold all; box on;
                     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
                     plot(lat, flux.(land).(time).ra.(fw), 'color', par.gray); text(0, 0.75*interp1(lat,flux.(land).(time).ra.(fw),0), '\boldmath{$R_a$}', 'color', par.gray);
                     if strcmp(fw, 'dse'); plot(lat,flux.(land).(time).res.dse, '--', 'color', par.maroon); text(-30, 2*interp1(lat,flux.(land).(time).res.dse,-30), '\boldmath{$\nabla\cdot F_s$}', 'color', par.maroon);
@@ -977,7 +2863,7 @@ function plot_energy_lat(type, par) % latitude vs energy flux line plots, compar
                         if contains(fw, 'db')
                             plot(lat, flux.(land).(time).stf.(fw), 'color', par.orange); text(20, 1.3*interp1(lat, flux.(land).(time).stf.(fw), 20)-25, sprintf('\\boldmath{$\\mathrm{LH+SH}$}'));
                             plot(lat, flux.(land).(time).stf.(fw), '--', 'color', par.blue);
-                        elseif strcmp(fw, 'div')
+                        elseif contains(fw, 'div')
                             plot(lat, flux.(land).(time).stf.(fw), 'color', par.orange); text(20, 1.3*interp1(lat, flux.(land).(time).stf.(fw), 20)-25, sprintf('\\boldmath{$\\mathrm{LH+SH}$}'));
                             plot(lat, flux.(land).(time).stf.(fw), '--', 'color', par.blue);
                         else
@@ -991,33 +2877,38 @@ function plot_energy_lat(type, par) % latitude vs energy flux line plots, compar
                         elseif strcmp(fw, 'dse'); plot(lat, par.L*flux.(land).(time).pr, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux.(land).(time).pr,15), '\boldmath{$LP$}', 'color', par.blue);
                         end
                         plot(lat, flux.(land).(time).hfss, 'color', par.orange); text(80, interp1(lat, flux.(land).(time).hfss, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                    elseif strcmp(type, 'echam')
+                        if strcmp(fw, 'mse'); plot(lat, -flux.(land).(time).ahfl, 'color', par.blue); text(20, 1.2*interp1(lat, -flux.(land).(time).ahfl,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                        elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux.(land).(time).aprc+flux.(land).(time).aprl), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux.(land).(time).aprc+flux.(land).(time).aprl),15), '\boldmath{$LP$}', 'color', par.blue);
+                        end
+                        plot(lat, -flux.(land).(time).ahfs, 'color', par.orange); text(80, interp1(lat, -flux.(land).(time).ahfs, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
                     end
                     if any(strcmp(type, {'era5', 'erai'}));
                         if strcmp(fw, 'db13s'); title(sprintf('%s, %s, %s, %s', upper(type), 'DB13*', upper(time), land_text));
                         else; title(sprintf('%s, %s, %s, %s', upper(type), upper(fw), upper(time), land_text)); end;
                     elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, %s', par.model, upper(fw), upper(time), land_text));
-                    end
+                    elseif strcmp(type, 'echam'); title(sprintf('%s, %s, %s, %s', upper(type), upper(fw), upper(time), land_text)); end
                     xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
                     axis('tight');
                     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
                     set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
-                    if strcmp(fw, 'mse') & strcmp(time, 'ann'); set(gca, 'ylim', [-inf 150]); end
+                    if strcmp(fw, 'mse') & strcmp(time, 'ann'); set(gca, 'ylim', [-inf inf]); end
                     print(sprintf('%s/energy-flux/%s/%s/%s-all', par.plotdir, land, time, fw), '-dpng', '-r300');
                     close;
                 end
 
-                figure(); clf; hold all;
+                figure(); clf; hold all; box on;
                 line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
                 line([-90 90], [1 1]*par.ep, 'linewidth', 0.5, 'color', par.orange);
                 if ~strcmp(fw, 'mse2'); line([-90 90], -[1 1]*par.ep, 'linewidth', 0.5, 'color', par.orange); end
                 line([-90 90], [1 1]*par.ga, 'linewidth', 0.5, 'color', par.blue);
-                if any(strcmp(fw, {'mse', 'mse2', 'db13', 'db13s'})); plot(lat,flux.(land).(time).r1.(fw), '-k');
-                elseif strcmp(fw, 'dse'); plot(lat,flux.(land).(time).r1.dse, '--k');
-                end
+                if strcmp(fw, 'dse'); plot(lat,flux.(land).(time).r1.dse, '--k');
+                else; plot(lat,flux.(land).(time).r1.(fw), '-k'); end
                 if any(strcmp(type, {'era5', 'erai'}));
                     if strcmp(fw, 'db13s'); title(sprintf('%s, %s, %s, %s', upper(type), 'DB13*', upper(time), land_text));
                     else; title(sprintf('%s, %s, %s, %s', upper(type), upper(fw), upper(time), land_text)); end
                 elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, %s', par.model, upper(fw), upper(time), land_text));
+                elseif strcmp(type, 'echam'); title(sprintf('%s, %s, %s, %s', upper(type), upper(fw), upper(time), land_text));
                 end
                 xlabel('latitude (deg)');
                 if strcmp(fw, 'mse2'); ylabel('$R_1^*$ (unitless)');
@@ -1028,11 +2919,11 @@ function plot_energy_lat(type, par) % latitude vs energy flux line plots, compar
                 print(sprintf('%s/energy-flux/%s/%s/%s-r1', par.plotdir, land, time, fw), '-dpng', '-r300');
                 close;
             % northward M/DSE transport
-                figure(); clf; hold all;
+                figure(); clf; hold all; box on;
                 line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
                 line([0 0], [min(vh.(land).(time).(fw)) max(vh.(land).(time).(fw))]*10^-15, 'linewidth', 0.5, 'color', 'k');
-                if any(strcmp(fw, {'mse', 'db13', 'db13s'})); plot(lat, vh.(land).(time).(fw)*10^-15, 'color', par.maroon);
-                elseif strcmp(fw, 'dse'); plot(lat, vh.(land).(time).(fw)*10^-15, '--', 'color', par.maroon);
+                if strcmp(fw, 'dse'); plot(lat, vh.(land).(time).(fw)*10^-15, '--', 'color', par.maroon);
+                else; plot(lat, vh.(land).(time).(fw)*10^-15, 'color', par.maroon);
                 end
                 xlabel('latitude (deg)'); ylabel('PW')
                 if strcmp(fw, 'db13s'); title(sprintf('Northward %s Transport, %s', 'DB13*', upper(time)));
@@ -1043,23 +2934,23 @@ function plot_energy_lat(type, par) % latitude vs energy flux line plots, compar
                 if strcmp(fw, 'dse'); set(gca, 'ytick', [-5:5]); end;
                 print(sprintf('%s/transport/%s/%s/%s', par.plotdir, land, time, fw), '-dpng', '-r300');
                 close;
-                if ~contains(fw, {'db'})
-                % MSE/DSE transport plotted together
-                    figure(); clf; hold all;
-                    line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-                    line([0 0], [min([vh.(land).(time).mse; vh.(land).(time).dse; vh.(land).(time).mse-vh.(land).(time).dse]) max([vh.(land).(time).mse; vh.(land).(time).dse; vh.(land).(time).mse-vh.(land).(time).dse])]*10^-15, 'linewidth', 0.5, 'color', 'k');
-                    h_mse = plot(lat, vh.(land).(time).mse*10^-15, 'color', par.maroon);
-                    h_dse = plot(lat, vh.(land).(time).dse*10^-15, '--', 'color', par.maroon);
-                    h_lh = plot(lat, (vh.(land).(time).mse-vh.(land).(time).dse)*10^-15, ':', 'color', par.maroon);
-                    legend([h_mse h_dse h_lh], '$F_m$', '$F_s$', '$F_{m}-F_{s}$', 'location', 'eastoutside');
-                    xlabel('latitude (deg)'); ylabel('PW')
-                    title(sprintf('Northward Energy Transport, %s', upper(time)));
-                    axis('tight');
-                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
-                    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
-                    print(sprintf('%s/transport/%s/%s/all', par.plotdir, land, time), '-dpng', '-r300');
-                    close;
-                end
+                % if ~contains(fw, {'db'})
+                % % MSE/DSE transport plotted together
+                %     figure(); clf; hold all;
+                %     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+                %     line([0 0], [min([vh.(land).(time).mse; vh.(land).(time).dse; vh.(land).(time).mse-vh.(land).(time).dse]) max([vh.(land).(time).mse; vh.(land).(time).dse; vh.(land).(time).mse-vh.(land).(time).dse])]*10^-15, 'linewidth', 0.5, 'color', 'k');
+                %     h_mse = plot(lat, vh.(land).(time).mse*10^-15, 'color', par.maroon);
+                %     h_dse = plot(lat, vh.(land).(time).dse*10^-15, '--', 'color', par.maroon);
+                %     h_lh = plot(lat, (vh.(land).(time).mse-vh.(land).(time).dse)*10^-15, ':', 'color', par.maroon);
+                %     legend([h_mse h_dse h_lh], '$F_m$', '$F_s$', '$F_{m}-F_{s}$', 'location', 'eastoutside');
+                %     xlabel('latitude (deg)'); ylabel('PW')
+                %     title(sprintf('Northward Energy Transport, %s', upper(time)));
+                %     axis('tight');
+                %     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+                %     set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
+                %     print(sprintf('%s/transport/%s/%s/all', par.plotdir, land, time), '-dpng', '-r300');
+                %     close;
+                % end
             end % land
         end % end mse/dse loop
 
@@ -1069,7 +2960,7 @@ function plot_energy_lat(type, par) % latitude vs energy flux line plots, compar
         for l = {'lo', 'l', 'o'}; land = l{1};
             % northward M/DSE transport, mon x lat
             [mesh_lat, mesh_mon] = meshgrid(1:12, lat);
-            figure(); clf; hold all;
+            figure(); clf; hold all; box on;
             cmp = colCog(20);
             colormap(cmp);
             imagesc([1 12], [lat(1) lat(end)], vh_mon.(land).(fw)*1e-15);
@@ -1097,8 +2988,8 @@ function plot_rcae(type, par)
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
         prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
     elseif strcmp(type, 'gcm')
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
     end
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/%s/eps_%g_ga_%g/rcae_z.mat', prefix_proc, par.lat_interp, par.ep, par.ga)); % load lat x mon RCAE data
@@ -1183,8 +3074,8 @@ function plot_rcae_rc(type, par)
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
         prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
     elseif strcmp(type, 'gcm')
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
     end
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/%s/eps_%g_ga_%g/rcae_rc_z.mat', prefix_proc, par.lat_interp, par.ep, par.ga)); % load lat x mon RCAE data
@@ -1269,8 +3160,8 @@ function plot_rcae_alt(type, par)
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
         prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
     elseif strcmp(type, 'gcm')
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
     end
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/%s/eps_%g_ga_%g/rcae_alt_z.mat', prefix_proc, par.lat_interp, par.ep, par.ga)); % load lat x mon RCAE_ALT data
@@ -1355,8 +3246,8 @@ function plot_rcae_alt_rc(type, par)
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
         prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
     elseif strcmp(type, 'gcm')
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
     end
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/%s/eps_%g_ga_%g/rcae_alt_rc_z.mat', prefix_proc, par.lat_interp, par.ep, par.ga)); % load lat x mon RCAE_ALT data
@@ -1441,8 +3332,11 @@ function plot_rcae_alt_overlay(type, par)
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
         prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
     elseif strcmp(type, 'gcm')
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
+    elseif strcmp(type, 'echam')
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.echam.clim);
     end
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/%s/eps_%g_ga_%g/rcae_alt_z.mat', prefix_proc, par.lat_interp, par.ep, par.ga)); % load lat x mon RCAE_ALT data
@@ -1450,46 +3344,29 @@ function plot_rcae_alt_overlay(type, par)
     load(sprintf('%s/%s/ta_mon_lat.mat', prefix_proc, par.lat_interp));
     load(sprintf('%s/%s/ma_mon_lat.mat', prefix_proc, par.lat_interp));
     load(sprintf('%s/%s/inv_mon_lat.mat', prefix_proc, par.lat_interp));
-    load(sprintf('%s/dtdz.mat', prefix));
-    load(sprintf('%s/dtmdz.mat', prefix));
-    load(sprintf('%s/albedo.mat', prefix));
-    load(sprintf('%s/alb.mat', prefix));
-    load(sprintf('%s/albcs.mat', prefix));
+    load(sprintf('%s/%s/ga_diff_si_mon_lat.mat', prefix_proc, par.lat_interp)); ga_diff_orig = ga_diff; clear ga_diff;
+    load(sprintf('%s/%s/ga_bl_diff_si_mon_lat.mat', prefix_proc, par.lat_interp)); ga_bl_diff_orig = ga_bl_diff; clear ga_bl_diff;
+    load(sprintf('%s/%s/ga_malr_diff_si_mon_lat.mat', prefix_proc, par.lat_interp)); ga_malr_diff_orig = ga_malr_diff; clear ga_diff;
+    load(sprintf('%s/%s/ga_dalr_bl_diff_si_mon_lat.mat', prefix_proc, par.lat_interp)); ga_dalr_bl_diff_orig = ga_dalr_bl_diff; clear ga_bl_diff;
+    load(sprintf('%s/%s/flux_z.mat', prefix_proc, par.lat_interp)); % load lat x mon RCAE data
+    % load(sprintf('%s/albedo.mat', prefix));
+    % load(sprintf('%s/sn.mat', prefix));
     landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
     par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
 
-    ga_diff0 = (dtmdz - dtdz)./dtmdz * 1e2; % percentage difference of moist adiabatic vs GCM lapse rates
-    clear dtmdz dtdz;
-    ga_diff0 = squeeze(nanmean(ga_diff0,1)); % zonal average
-    ga_diff = nan([size(ga_diff0,1) size(ga_diff0,2) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with igagesc)
-    ga_diff(:,:,2:13) = ga_diff0;
-    ga_diff(:,:,1) = 1/2*(ga_diff0(:,:,1)+ga_diff0(:,:,12));
-    ga_diff(:,:,14) = 1/2*(ga_diff0(:,:,1)+ga_diff0(:,:,12));
-    ga_diff = interp1(grid.dim3.lat, ga_diff, lat); % interpolate to standard lat
-    ga_diff = permute(ga_diff, [2 1 3]); % bring height front
-    ga_diff = interp1(par.pa, ga_diff, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
-    ga_diff = squeeze(nanmean(ga_diff,1)); % take vertical average
+    % albedo0 = squeeze(nanmean(albedo,1)); % zonal average
+    % albedo = nan([size(albedo0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with igagesc)
+    % albedo(:,2:13) = albedo0;
+    % albedo(:,1) = 1/2*(albedo0(:,1)+albedo0(:,12));
+    % albedo(:,14) = 1/2*(albedo0(:,1)+albedo0(:,12));
+    % albedo = interp1(grid.dim3.lat, albedo, lat); % interpolate to standard lat
 
-    albedo0 = squeeze(nanmean(albedo,1)); % zonal average
-    albedo = nan([size(albedo0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with igagesc)
-    albedo(:,2:13) = albedo0;
-    albedo(:,1) = 1/2*(albedo0(:,1)+albedo0(:,12));
-    albedo(:,14) = 1/2*(albedo0(:,1)+albedo0(:,12));
-    albedo = interp1(grid.dim3.lat, albedo, lat); % interpolate to standard lat
-
-    alb0 = squeeze(nanmean(alb,1)); % zonal average
-    alb = nan([size(alb0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with igagesc)
-    alb(:,2:13) = alb0;
-    alb(:,1) = 1/2*(alb0(:,1)+alb0(:,12));
-    alb(:,14) = 1/2*(alb0(:,1)+alb0(:,12));
-    alb = interp1(grid.dim3.lat, alb, lat); % interpolate to standard lat
-
-    albcs0 = squeeze(nanmean(albcs,1)); % zonal average
-    albcs = nan([size(albcs0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with igagesc)
-    albcs(:,2:13) = albcs0;
-    albcs(:,1) = 1/2*(albcs0(:,1)+albcs0(:,12));
-    albcs(:,14) = 1/2*(albcs0(:,1)+albcs0(:,12));
-    albcs = interp1(grid.dim3.lat, albcs, lat); % interpolate to standard lat
+    % sn0 = squeeze(nanmean(sn,1)); % zonal average
+    % sn = nan([size(sn0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with igagesc)
+    % sn(:,2:13) = sn0;
+    % sn(:,1) = 1/2*(sn0(:,1)+sn0(:,12));
+    % sn(:,14) = 1/2*(sn0(:,1)+sn0(:,12));
+    % sn = interp1(grid.dim3.lat, sn, lat); % interpolate to standard lat
 
     for l = {'lo', 'l', 'o'}; land = l{1};
         if strcmp(land, 'lo'); land_text = 'Land + Ocean';
@@ -1497,14 +3374,38 @@ function plot_rcae_alt_overlay(type, par)
         elseif strcmp(land, 'o'); land_text = 'Ocean';
         end
 
-        % moist adiabat differences
-        ma_diff0 = ta.(land) - ma.(land).ta;
-        ma_diff = nan([size(ma_diff0,1) 14 size(ma_diff0,3)]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with imagesc)
-        ma_diff(:,2:13,:) = ma_diff0;
-        ma_diff(:,1,:) = 1/2*(ma_diff0(:,1,:)+ma_diff0(:,12,:));
-        ma_diff(:,14,:) = 1/2*(ma_diff0(:,1,:)+ma_diff0(:,12,:));
-        ma_diff = permute(ma_diff, [3 1 2]); % bring plev to front
-        ma_diff = squeeze(interp1(grid.dim3.plev, ma_diff, par.pa_eval)); % evaluate ma_difference at plev_eval
+        % % moist adiabat differences
+        % ma_diff0 = ta.(land) - ma.(land).ta;
+        % ma_diff = nan([size(ma_diff0,1) 14 size(ma_diff0,3)]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with imagesc)
+        % ma_diff(:,2:13,:) = ma_diff0;
+        % ma_diff(:,1,:) = 1/2*(ma_diff0(:,1,:)+ma_diff0(:,12,:));
+        % ma_diff(:,14,:) = 1/2*(ma_diff0(:,1,:)+ma_diff0(:,12,:));
+        % ma_diff = permute(ma_diff, [3 1 2]); % bring plev to front
+        % ma_diff = squeeze(interp1(grid.dim3.plev, ma_diff, par.pa_eval)); % evaluate ma_difference at plev_eval
+
+        ga_diff0 = ga_diff_orig.(land);
+        ga_diff = nan([size(ga_diff0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with imagesc)
+        ga_diff(:,2:13) = ga_diff0;
+        ga_diff(:,1) = 1/2*(ga_diff0(:,1)+ga_diff0(:,12));
+        ga_diff(:,14) = 1/2*(ga_diff0(:,1)+ga_diff0(:,12));
+
+        ga_malr_diff0 = ga_malr_diff_orig.(land);
+        ga_malr_diff = nan([size(ga_malr_diff0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with imagesc)
+        ga_malr_diff(:,2:13) = ga_malr_diff0;
+        ga_malr_diff(:,1) = 1/2*(ga_malr_diff0(:,1)+ga_malr_diff0(:,12));
+        ga_malr_diff(:,14) = 1/2*(ga_malr_diff0(:,1)+ga_malr_diff0(:,12));
+
+        ga_bl_diff0 = ga_bl_diff_orig.(land);
+        ga_bl_diff = nan([size(ga_bl_diff0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with imagesc)
+        ga_bl_diff(:,2:13) = ga_bl_diff0;
+        ga_bl_diff(:,1) = 1/2*(ga_bl_diff0(:,1)+ga_bl_diff0(:,12));
+        ga_bl_diff(:,14) = 1/2*(ga_bl_diff0(:,1)+ga_bl_diff0(:,12));
+
+        ga_dalr_bl_diff0 = ga_dalr_bl_diff_orig.(land);
+        ga_dalr_bl_diff = nan([size(ga_dalr_bl_diff0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with imagesc)
+        ga_dalr_bl_diff(:,2:13) = ga_dalr_bl_diff0;
+        ga_dalr_bl_diff(:,1) = 1/2*(ga_dalr_bl_diff0(:,1)+ga_dalr_bl_diff0(:,12));
+        ga_dalr_bl_diff(:,14) = 1/2*(ga_dalr_bl_diff0(:,1)+ga_dalr_bl_diff0(:,12));
 
         inv_str0 = squeeze(inv.(land)(:,:,2));
         inv_str = nan([size(inv_str0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with imagesc)
@@ -1514,7 +3415,8 @@ function plot_rcae_alt_overlay(type, par)
 
         if any(strcmp(type, {'erai'})); f_vec = par.era.fw;
         elseif any(strcmp(type, {'era5'})); f_vec = par.era.fw;
-        elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw; end
+        elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw;
+        elseif strcmp(type, 'echam'); f_vec = par.echam.fw; end
         for f = f_vec; fw = f{1};
             for fn = fieldnames(rcae_alt_z.(land).(fw))'; crit = fn{1};
                 if strcmp(crit, 'def'); crit_text = 'No flags';
@@ -1542,20 +3444,21 @@ function plot_rcae_alt_overlay(type, par)
                     if strcmp(fw, 'dse'); crit_text = '$|F_s| < \max(|F_s|)/4$ flag';
                     else crit_text = '$|F_m| < \max(|F_m|)/4$ flag'; end;
                 end
-                % MA contour lat x mon dependence of RCE and RAE
                 [mesh_lat, mesh_mon] = meshgrid([0.5 1:12 12.5], lat);
-                figure(); clf; hold all;
-                cmp = colCog(10);
-                colormap(cmp);
-                imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
-                contour(mesh_lat, mesh_mon, abs(ma_diff), par.ta_thresh*[1 1], 'color', par.orange, 'linewidth', 2);
-                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), crit_text, land_text));
-                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $|T - T_m|_{500\\,\\mathrm{hPa}} < %g$ K', par.model, crit_text, land_text, par.ta_thresh)); end;
-                caxis([-2 2]);
-                xlabel('Month'); ylabel('Latitude (deg)');
-                set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_ma_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
-                close;
+
+                % MA contour lat x mon dependence of RCE and RAE
+                % figure(); clf; hold all;
+                % cmp = colCog(10);
+                % colormap(cmp);
+                % imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
+                % contour(mesh_lat, mesh_mon, abs(ma_diff), par.ta_thresh*[1 1], 'color', par.orange, 'linewidth', 2);
+                % if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), crit_text, land_text));
+                % elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $|T - T_m|_{500\\,\\mathrm{hPa}} < %g$ K', par.model, crit_text, land_text, par.ta_thresh)); end;
+                % caxis([-2 2]);
+                % xlabel('Month'); ylabel('Latitude (deg)');
+                % set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                % print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_ma_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
+                % close;
 
                 % GA contour lat x mon dependence of RCE and RAE
                 figure(); clf; hold all;
@@ -1563,12 +3466,58 @@ function plot_rcae_alt_overlay(type, par)
                 colormap(cmp);
                 imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
                 contour(mesh_lat, mesh_mon, abs(ga_diff), par.ga_thresh*[1 1], 'color', par.orange, 'linewidth', 2);
-                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), crit_text, land_text));
-                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $(\\Gamma_m - \\Gamma )/ \\Gamma_m < %g \\%%$', par.model, crit_text, land_text, par.ga_thresh)); end;
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$', upper(type), crit_text, land_text, par.ga_thresh));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$', par.model, crit_text, land_text, par.ga_thresh));
+                elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, %s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$', upper(type), crit_text, land_text, par.ga_thresh)); end
                 caxis([-2 2]);
                 xlabel('Month'); ylabel('Latitude (deg)');
                 set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
                 print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_ga_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
+                close;
+
+                % GA MALR contour lat x mon dependence of RCE and RAE
+                figure(); clf; hold all;
+                cmp = colCog(10);
+                colormap(cmp);
+                imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
+                contour(mesh_lat, mesh_mon, abs(ga_malr_diff), par.ga_thresh*[1 1], 'color', par.orange, 'linewidth', 2);
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$', upper(type), crit_text, land_text, par.ga_thresh));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$', par.model, crit_text, land_text, par.ga_thresh));
+                elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, %s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$', upper(type), crit_text, land_text, par.ga_thresh)); end
+                caxis([-2 2]);
+                xlabel('Month'); ylabel('Latitude (deg)');
+                set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_ga_malr_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
+                close;
+
+                % GA_BL contour lat x mon dependence of RCE and RAE
+                figure(); clf; hold all;
+                cmp = colCog(10);
+                colormap(cmp);
+                imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
+                contour(mesh_lat, mesh_mon, ga_bl_diff, par.ga_bl_thresh*[1 1], 'color', par.blue, 'linewidth', 2);
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, $(\\Gamma_m - \\Gamma )/ \\Gamma_m > %g \\%%$', upper(type), crit_text, land_text, par.ga_bl_thresh));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $(\\Gamma_m - \\Gamma )/ \\Gamma_m > %g \\%%$', par.model, crit_text, land_text, par.ga_bl_thresh));
+                elseif strcmp(type, 'echam'); title(sprintf('%s, %s, %s, $(\\Gamma_m - \\Gamma )/ \\Gamma_m > %g \\%%$', upper(type), crit_text, land_text, par.ga_bl_thresh)); end;
+                caxis([-2 2]);
+                xlabel('Month'); ylabel('Latitude (deg)');
+                set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_ga_bl_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
+                close;
+
+                % GA_BL DALR contour lat x mon dependence of RCE and RAE
+                figure(); clf; hold all;
+                cmp = colCog(10);
+                colormap(cmp);
+                imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
+                contour(mesh_lat, mesh_mon, ga_dalr_bl_diff, par.ga_bl_thresh*[1 1], 'color', par.blue, 'linewidth', 2);
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, $(\\Gamma_d - \\Gamma )/ \\Gamma_d > %g \\%%$', upper(type), crit_text, land_text, par.ga_bl_thresh));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $(\\Gamma_d - \\Gamma )/ \\Gamma_d > %g \\%%$', par.model, crit_text, land_text, par.ga_bl_thresh));
+                elseif strcmp(type, 'echam'); title(sprintf('%s, %s, %s, $(\\Gamma_d - \\Gamma )/ \\Gamma_d > %g \\%%$', upper(type), crit_text, land_text, par.ga_bl_thresh)); end;
+                caxis([-2 2]);
+                xlabel('Month'); ylabel('Latitude (deg)');
+                set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_ga_dalr_bl_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
                 close;
 
                 % INV contour lat x mon dependence of RCE and RAE
@@ -1577,12 +3526,45 @@ function plot_rcae_alt_overlay(type, par)
                 colormap(cmp);
                 imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
                 contour(mesh_lat, mesh_mon, inv_str, par.inv_thresh*[1 1], 'color', par.blue, 'linewidth', 2);
-                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), crit_text, land_text));
-                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $T_{\\sigma = 0.85} - T_s>%g$ K', par.model, crit_text, land_text, par.inv_thresh)); end;
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, $T_{\\sigma = 0.85} - T_s>%g$ K', upper(type), crit_text, land_text, par.inv_thresh));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $T_{\\sigma = 0.85} - T_s>%g$ K', par.model, crit_text, land_text, par.inv_thresh));
+                elseif any(strcmp(type, {'echam'})); title(sprintf('%s, %s, %s, $T_{\\sigma = 0.85} - T_s>%g$ K', upper(type), crit_text, land_text, par.inv_thresh)); end
                 caxis([-2 2]);
                 xlabel('Month'); ylabel('Latitude (deg)');
                 set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
                 print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_inv_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
+                close;
+
+                % GA and GA_BL contour lat x mon dependence of RCE and RAE
+                figure(); clf; hold all;
+                cmp = colCog(10);
+                colormap(cmp);
+                imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
+                contour(mesh_lat, mesh_mon, abs(ga_diff), par.ga_thresh*[1 1], 'color', par.orange, 'linewidth', 2);
+                contour(mesh_lat, mesh_mon, ga_bl_diff, par.ga_bl_thresh*[1 1], 'color', par.blue, 'linewidth', 2);
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$, $(\\Gamma_m - \\Gamma )/ \\Gamma_m > %g \\%%$', upper(type), par.ga_thresh, par.ga_bl_thresh));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$, $(\\Gamma_m - \\Gamma )/ \\Gamma_m > %g \\%%$', par.model, par.ga_thresh, par.ga_bl_thresh));
+                elseif any(strcmp(type, {'echam'})); title(sprintf('%s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$, $(\\Gamma_m - \\Gamma )/ \\Gamma_m > %g \\%%$', upper(type), par.ga_thresh, par.ga_bl_thresh)); end;
+                caxis([-2 2]);
+                xlabel('Month'); ylabel('Latitude (deg)');
+                set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_ga_ga_bl_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
+                close;
+
+                % GA MALR and GA_BL DALR contour lat x mon dependence of RCE and RAE
+                figure(); clf; hold all;
+                cmp = colCog(10);
+                colormap(cmp);
+                imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
+                contour(mesh_lat, mesh_mon, abs(ga_malr_diff), par.ga_thresh*[1 1], 'color', par.orange, 'linewidth', 2);
+                contour(mesh_lat, mesh_mon, ga_dalr_bl_diff, par.ga_bl_thresh*[1 1], 'color', par.blue, 'linewidth', 2);
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$, $(\\Gamma_d - \\Gamma )/ \\Gamma_d > %g \\%%$', upper(type), par.ga_thresh, par.ga_bl_thresh));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$, $(\\Gamma_d - \\Gamma )/ \\Gamma_d > %g \\%%$', par.model, par.ga_thresh, par.ga_bl_thresh));
+                elseif any(strcmp(type, {'echam'})); title(sprintf('%s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$, $(\\Gamma_d - \\Gamma )/ \\Gamma_d > %g \\%%$', upper(type), par.ga_thresh, par.ga_bl_thresh)); end;
+                caxis([-2 2]);
+                xlabel('Month'); ylabel('Latitude (deg)');
+                set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_ga_malr_ga_dalr_bl_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
                 close;
 
                 % GA and INV contour lat x mon dependence of RCE and RAE
@@ -1592,55 +3574,65 @@ function plot_rcae_alt_overlay(type, par)
                 imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
                 contour(mesh_lat, mesh_mon, abs(ga_diff), par.ga_thresh*[1 1], 'color', par.orange, 'linewidth', 2);
                 contour(mesh_lat, mesh_mon, inv_str, par.inv_thresh*[1 1], 'color', par.blue, 'linewidth', 2);
-                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), crit_text, land_text));
-                elseif strcmp(type, 'gcm'); title(sprintf('%s, $(\\Gamma_m - \\Gamma )/ \\Gamma_m < %g \\%%$, $T_{\\sigma = 0.85} - T_s>%g$ K', par.model, par.ga_thresh, par.inv_thresh)); end;
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$, $T_{\\sigma = 0.85} - T_s>%g$ K', upper(type), par.ga_thresh, par.inv_thresh));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$, $T_{\\sigma = 0.85} - T_s>%g$ K', par.model, par.ga_thresh, par.inv_thresh));
+                elseif any(strcmp(type, {'echam'})); title(sprintf('%s, $|\\Gamma_m - \\Gamma |/ \\Gamma_m < %g \\%%$, $T_{\\sigma = 0.85} - T_s>%g$ K', upper(type), par.ga_thresh, par.inv_thresh)); end
                 caxis([-2 2]);
                 xlabel('Month'); ylabel('Latitude (deg)');
                 set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
                 print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_ga_inv_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
                 close;
 
-                % ALBEDO contour lat x mon dependence of RCE and RAE
+                % R1 GA and INV contour lat x mon dependence of RCE and RAE
+                r10 = flux_z.(land).r1.(fw);
+                r1 = nan([size(r10,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with imagesc)
+                r1(:,2:13) = r10;
+                r1(:,1) = 1/2*(r10(:,1)+r10(:,12));
+                r1(:,14) = 1/2*(r10(:,1)+r10(:,12));
+                var_text = '$R_1$';
                 figure(); clf; hold all;
-                cmp = colCog(10);
-                colormap(cmp);
-                imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
-                contour(mesh_lat, mesh_mon, albedo, par.albedo_thresh*[1 1], 'k', 'linewidth', 2);
-                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), crit_text, land_text));
-                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $\\alpha=%g$', par.model, crit_text, land_text, par.albedo_thresh)); end;
-                caxis([-2 2]);
+                cmp = colCog(20);
+                colormap(flipud(cmp));
+                contour(mesh_lat, mesh_mon, r1, par.ep*[1 1], '--', 'color', par.orange, 'linewidth', 2);
+                contour(mesh_lat, mesh_mon, r1, par.ga*[1 1], '--', 'color', par.blue, 'linewidth', 2);
+                contour(mesh_lat, mesh_mon, abs(ga_diff), par.ga_thresh*[1 1], 'color', par.orange, 'linewidth', 2);
+                contour(mesh_lat, mesh_mon, inv_str, par.inv_thresh*[1 1], 'color', par.blue, 'linewidth', 2);
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, var_text, land_text));
+                elseif any(strcmp(type, {'echam'})); title(sprintf('%s, %s, %s', upper(type), var_text, land_text)); end
+                caxis([-1 2]);
                 xlabel('Month'); ylabel('Latitude (deg)');
                 set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_albedo_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
+                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_r1_mon_lat_ga_inv_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
                 close;
 
-                % ALB contour lat x mon dependence of RCE and RAE
-                figure(); clf; hold all;
-                cmp = colCog(10);
-                colormap(cmp);
-                imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
-                contour(mesh_lat, mesh_mon, alb, par.alb_thresh*[1 1], 'k', 'linewidth', 2);
-                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, $\\alpha=%g$', upper(type), crit_text, land_text, par.albedo_thresh));
-                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, crit_text, land_text)); end;
-                caxis([-2 2]);
-                xlabel('Month'); ylabel('Latitude (deg)');
-                set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_alb_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
-                close;
+                % % ALBEDO contour lat x mon dependence of RCE and RAE
+                % figure(); clf; hold all;
+                % cmp = colCog(10);
+                % colormap(cmp);
+                % imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
+                % contour(mesh_lat, mesh_mon, albedo, par.albedo_thresh*[1 1], 'k', 'linewidth', 2);
+                % if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), crit_text, land_text));
+                % elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $\\alpha=%g$', par.model, crit_text, land_text, par.albedo_thresh)); end;
+                % caxis([-2 2]);
+                % xlabel('Month'); ylabel('Latitude (deg)');
+                % set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                % print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_albedo_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
+                % close;
 
-                % ALBCS contour lat x mon dependence of RCE and RAE
-                figure(); clf; hold all;
-                cmp = colCog(10);
-                colormap(cmp);
-                imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
-                contour(mesh_lat, mesh_mon, albcs, par.albcs_thresh*[1 1], 'k', 'linewidth', 2);
-                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), crit_text, land_text));
-                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, crit_text, land_text)); end;
-                caxis([-2 2]);
-                xlabel('Month'); ylabel('Latitude (deg)');
-                set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_albcs_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
-                close;
+                % % SN contour lat x mon dependence of RCE and RAE
+                % figure(); clf; hold all;
+                % cmp = colCog(10);
+                % colormap(cmp);
+                % imagesc([1 12], [lat(1) lat(end)], rcae_alt_z.(land).(fw).(crit));
+                % contour(mesh_lat, mesh_mon, sn, par.sn_thresh*[1 1], 'k', 'linewidth', 2);
+                % if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), crit_text, land_text));
+                % elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $d=%g$ m', par.model, crit_text, land_text, par.sn_thresh)); end;
+                % caxis([-2 2]);
+                % xlabel('Month'); ylabel('Latitude (deg)');
+                % set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                % print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_mon_lat_sn_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
+                % close;
 
                 for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
                     % lat x lon of RCE and RAE
@@ -1651,7 +3643,8 @@ function plot_rcae_alt_overlay(type, par)
                         imagesc([grid.dim3.lon(1) grid.dim3.lon(end)], [lat(1) lat(end)], rcae_alt_t.(land).(time).(fw).(crit)');
                         caxis([-2 2]);
                         if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, %s', upper(type), crit_text, upper(time), land_text));
-                        elseif any(strcmp(type, 'gcm')); title(sprintf('%s, %s, %s, %s', par.model, crit_text, upper(time), land_text)); end;
+                        elseif any(strcmp(type, 'gcm')); title(sprintf('%s, %s, %s, %s', par.model, crit_text, upper(time), land_text));
+                        elseif any(strcmp(type, {'echam'})); title(sprintf('%s, %s, %s, %s', upper(type), crit_text, upper(time), land_text)); end
                         xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
                         set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
                         print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/rcae_alt_lat_lon_overlay', par.plotdir, par.ep, par.ga, fw, crit, land, time), '-dpng', '-r300');
@@ -1670,51 +3663,38 @@ function plot_rcae_alt_rc_overlay(type, par)
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
         prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s', type);
     elseif strcmp(type, 'gcm')
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.model);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.model);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
     end
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/%s/eps_%g_ga_%g/rcae_alt_rc_z.mat', prefix_proc, par.lat_interp, par.ep, par.ga)); % load lat x mon RCAE_ALT data
     load(sprintf('%s/%s/eps_%g_ga_%g/rcae_alt_rc_t.mat', prefix_proc, par.lat_interp, par.ep, par.ga)); % load lat x lon RCAE_ALT data
-    load(sprintf('%s/rad.mat', prefix));
+    load(sprintf('%s/%s/inv_mon_lat.mat', prefix_proc, par.lat_interp));
+    load(sprintf('%s/%s/ga_diff_mon_lat.mat', prefix_proc, par.lat_interp)); ga_diff_orig = ga_diff; clear ga_diff;
+    load(sprintf('%s/dtdzz.mat', prefix));
+    load(sprintf('%s/dtmdzz.mat', prefix));
+    load(sprintf('%s/albedo.mat', prefix));
     landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
     par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
 
-    rsus0 = squeeze(nanmean(rad.rsus,1)); % zonal average
-    rsus = nan([size(rsus0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with igagesc)
-    rsus(:,2:13) = rsus0;
-    rsus(:,1) = 1/2*(rsus0(:,1)+rsus0(:,12));
-    rsus(:,14) = 1/2*(rsus0(:,1)+rsus0(:,12));
-    rsus = interp1(grid.dim3.lat, rsus, lat); % interpolate to standard lat
-    rsds0 = squeeze(nanmean(rad.rsds,1)); % zonal average
-    rsds = nan([size(rsds0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with igagesc)
-    rsds(:,2:13) = rsds0;
-    rsds(:,1) = 1/2*(rsds0(:,1)+rsds0(:,12));
-    rsds(:,14) = 1/2*(rsds0(:,1)+rsds0(:,12));
-    rsds = interp1(grid.dim3.lat, rsds, lat); % interpolate to standard lat
-    if strcmp(type, 'erai') | strcmp(type, 'era5')
-        alb = rsus./rsds; % TODO download shortwave radiation up and down separately for ERA
-    elseif strcmp(type, 'gcm')
-        alb = rsus./rsds;
-    end
+    % ga_diff0 = (dtmdzz - dtdzz)./dtmdzz * 1e2; % percentage difference of moist adiabatic vs GCM lapse rates
+    % clear dtmdzz dtdzz;
+    % ga_diff0 = squeeze(nanmean(ga_diff0,1)); % zonal average
+    % ga_diff = nan([size(ga_diff0,1) size(ga_diff0,2) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with igagesc)
+    % ga_diff(:,:,2:13) = ga_diff0;
+    % ga_diff(:,:,1) = 1/2*(ga_diff0(:,:,1)+ga_diff0(:,:,12));
+    % ga_diff(:,:,14) = 1/2*(ga_diff0(:,:,1)+ga_diff0(:,:,12));
+    % ga_diff = interp1(grid.dim3.lat, ga_diff, lat); % interpolate to standard lat
+    % ga_diff = permute(ga_diff, [2 1 3]); % bring height front
+    % ga_diff = interp1(par.pa, ga_diff, 1e2*linspace(1000,200,100)); % prepare to average between 1000-200 hPa
+    % ga_diff = squeeze(nanmean(ga_diff,1)); % take vertical average
 
-    rsut0 = squeeze(nanmean(rad.rsut,1)); % zonal average
-    rsut = nan([size(rsut0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with igagesc)
-    rsut(:,2:13) = rsut0;
-    rsut(:,1) = 1/2*(rsut0(:,1)+rsut0(:,12));
-    rsut(:,14) = 1/2*(rsut0(:,1)+rsut0(:,12));
-    rsut = interp1(grid.dim3.lat, rsut, lat); % interpolate to standard lat
-    rsdt0 = squeeze(nanmean(rad.rsdt,1)); % zonal average
-    rsdt = nan([size(rsdt0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with igagesc)
-    rsdt(:,2:13) = rsdt0;
-    rsdt(:,1) = 1/2*(rsdt0(:,1)+rsdt0(:,12));
-    rsdt(:,14) = 1/2*(rsdt0(:,1)+rsdt0(:,12));
-    rsdt = interp1(grid.dim3.lat, rsdt, lat); % interpolate to standard lat
-    if strcmp(type, 'erai') | strcmp(type, 'era5')
-        palb = rsut./rsdt; % TODO download shortwave radiation up and down separately for ERA
-    elseif strcmp(type, 'gcm')
-        palb = rsut./rsdt;
-    end
+    albedo0 = squeeze(nanmean(albedo,1)); % zonal average
+    albedo = nan([size(albedo0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with igagesc)
+    albedo(:,2:13) = albedo0;
+    albedo(:,1) = 1/2*(albedo0(:,1)+albedo0(:,12));
+    albedo(:,14) = 1/2*(albedo0(:,1)+albedo0(:,12));
+    albedo = interp1(grid.dim3.lat, albedo, lat); % interpolate to standard lat
 
     for l = {'lo', 'l', 'o'}; land = l{1};
         if strcmp(land, 'lo'); land_text = 'Land + Ocean';
@@ -1752,20 +3732,47 @@ function plot_rcae_alt_rc_overlay(type, par)
                     if strcmp(fw, 'dse'); crit_text = '$|F_s| < \max(|F_s|)/4$ flag';
                     else crit_text = '$|F_m| < \max(|F_m|)/4$ flag'; end;
                 end
+
+                ga_diff0 = ga_diff_orig.(land);
+                ga_diff = nan([size(ga_diff0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with imagesc)
+                ga_diff(:,2:13) = ga_diff0;
+                ga_diff(:,1) = 1/2*(ga_diff0(:,1)+ga_diff0(:,12));
+                ga_diff(:,14) = 1/2*(ga_diff0(:,1)+ga_diff0(:,12));
+
+                inv_str0 = squeeze(inv.(land)(:,:,2));
+                inv_str = nan([size(inv_str0,1) 14]); % prepare to add months 0.5 and 12.5 (cleaner plot when overlaying contour with imagesc)
+                inv_str(:,2:13) = inv_str0;
+                inv_str(:,1) = 1/2*(inv_str0(:,1)+inv_str0(:,12));
+                inv_str(:,14) = 1/2*(inv_str0(:,1)+inv_str0(:,12));
+
                 [mesh_lat, mesh_mon] = meshgrid([0.5 1:12 12.5], lat);
 
-                % ALB contour lat x mon dependence of RCE and RAE
+                % GA contour lat x mon dependence of RCE and RAE
                 figure(); clf; hold all;
                 cmp = colCog(10);
                 colormap(cmp);
                 imagesc([1 12], [lat(1) lat(end)], rcae_alt_rc_z.(land).(fw).(crit));
-                contour(mesh_lat, mesh_mon, alb, par.alb_thresh*[1 1], 'k');
+                contour(mesh_lat, mesh_mon, abs(ga_diff), par.ga_thresh*[1 1], 'color', par.orange, 'linewidth', 2);
                 if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), crit_text, land_text));
-                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s', par.model, crit_text, land_text)); end;
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $(\\Gamma_m - \\Gamma )/ \\Gamma_m < %g \\%%$', par.model, crit_text, land_text, par.ga_thresh)); end;
                 caxis([-2 2]);
                 xlabel('Month'); ylabel('Latitude (deg)');
                 set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_rc_mon_lat_alb_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
+                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_rc_mon_lat_ga_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
+                close;
+
+                % ALBEDO contour lat x mon dependence of RCE and RAE
+                figure(); clf; hold all;
+                cmp = colCog(10);
+                colormap(cmp);
+                imagesc([1 12], [lat(1) lat(end)], rcae_alt_rc_z.(land).(fw).(crit));
+                contour(mesh_lat, mesh_mon, albedo, par.albedo_thresh*[1 1], 'k', 'linewidth', 2);
+                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s', upper(type), crit_text, land_text));
+                elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $\\alpha=%g$', par.model, crit_text, land_text, par.albedo_thresh)); end;
+                caxis([-2 2]);
+                xlabel('Month'); ylabel('Latitude (deg)');
+                set(gca, 'xlim', [0.5 12.5], 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/0_rcae_alt_rc_mon_lat_albedo_overlay', par.plotdir, par.ep, par.ga, fw, crit, land), '-dpng', '-r300');
                 close;
 
                 for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
@@ -1797,9 +3804,9 @@ function plot_temp(type, par)
         load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g_ga_%g/ma.mat', type, par.lat_interp, par.ep, par.ga));
         plev = grid.dim3.plev/100; % convert Pa to hPa
     elseif strcmp(type, 'gcm')
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.model));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g_ga_%g/ta.mat', type, par.model, par.lat_interp, par.ep, par.ga));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g_ga_%g/ma.mat', type, par.model, par.lat_interp, par.ep, par.ga));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/eps_%g_ga_%g/ta.mat', type, par.model, par.gcm.clim, par.lat_interp, par.ep, par.ga));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/eps_%g_ga_%g/ma.mat', type, par.model, par.gcm.clim, par.lat_interp, par.ep, par.ga));
         plev = grid.dim3.plev/100; % convert Pa to hPa
     end
     for f = {'mse', 'dse'}; fw = f{1};
@@ -2032,7 +4039,7 @@ function plot_rad_lon_lat(par)
 end
 function plot_tediv_lat(par)
     par.model = 'MPI-ESM-LR';
-    gcm=load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/gcm/%s/std/flux_zt.mat', par.model));
+    gcm=load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/gcm/%s/%s/std/flux_zt.mat', par.model, par.gcm.clim));
     don=load('/project2/tas1/miyawaki/projects/002/data/raw/don/radiation_dynamics_climatology.mat');
     don_zt.TEDIV = squeeze(nanmean(nanmean(don.TEDIV, 1), 3));
     don_zt.TEDIV = interp1(don.lat, don_zt.TEDIV, gcm.lat);
@@ -2059,17 +4066,31 @@ function [flux_zt, vh, vh_mon, lat, par] = load_flux(type, par)
         load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/vh_mon.mat', type, par.lat_interp));
         par.plotdir = sprintf('./figures/%s/%s', type, par.lat_interp);
     elseif strcmp(type, 'gcm')
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/flux_zt.mat', type, par.model, par.lat_interp));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/vh.mat', type, par.model, par.lat_interp));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/vh_mon.mat', type, par.model, par.lat_interp));
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.model, par.lat_interp);
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/flux_zt.mat', type, par.model, par.gcm.clim, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/vh.mat', type, par.model, par.gcm.clim, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/vh_mon.mat', type, par.model, par.gcm.clim, par.lat_interp));
+        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+    elseif strcmp(type, 'echam')
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/flux_zt.mat', type, par.echam.clim, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/vh.mat', type, par.echam.clim, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/vh_mon.mat', type, par.echam.clim, par.lat_interp));
+        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.echam.clim, par.lat_interp);
+    elseif strcmp(type, 'echam_ml')
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/flux_zt.mat', type, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/vh.mat', type, par.lat_interp));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/vh_mon.mat', type, par.lat_interp));
+        par.plotdir = sprintf('./figures/%s/%s', type, par.lat_interp);
     end
 end
 function make_dirs(type, par)
     if strcmp(type, 'era5') | strcmp(type, 'erai')
         par.plotdir = sprintf('./figures/%s/%s', type, par.lat_interp);
     elseif strcmp(type, 'gcm')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.model, par.lat_interp);
+        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+    elseif strcmp(type, 'echam')
+        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.echam.clim, par.lat_interp);
+    elseif strcmp(type, 'echam_ml')
+        par.plotdir = sprintf('./figures/%s/%s', type, par.lat_interp);
     end
     for l = {'lo', 'l', 'o'}; land = l{1};
         for plev_eval = [300:100:500]
@@ -2089,6 +4110,12 @@ function make_dirs(type, par)
             if ~exist(sprintf('%s/transport/%s/%s', par.plotdir, land, time), 'dir')
                 mkdir(sprintf('%s/transport/%s/%s', par.plotdir, land, time));
             end
+            if ~exist(sprintf('%s/ga_diff/%s/%s', par.plotdir, land, time), 'dir')
+                mkdir(sprintf('%s/ga_diff/%s/%s', par.plotdir, land, time));
+            end
+            if ~exist(sprintf('%s/ga_malr_diff/%s/%s', par.plotdir, land, time), 'dir')
+                mkdir(sprintf('%s/ga_malr_diff/%s/%s', par.plotdir, land, time));
+            end
             if par.do_surf; v_vec = {'p', 'z', 'si', 'pi'};
             else v_vec = {'p', 'z', 'si'}; end
             for v = v_vec; vert = v{1};
@@ -2101,11 +4128,47 @@ function make_dirs(type, par)
                     if ~exist(sprintf('%s/flux/%s/%s/%s', par.plotdir, fw, land, time), 'dir')
                         mkdir(sprintf('%s/flux/%s/%s/%s', par.plotdir, fw, land, time));
                     end
+                    if ~exist(sprintf('%s/dr1/%s/%s/%s', par.plotdir, fw, land, time), 'dir')
+                        mkdir(sprintf('%s/dr1/%s/%s/%s', par.plotdir, fw, land, time));
+                    end
+                    if ~exist(sprintf('%s/dr2/%s/%s/%s', par.plotdir, fw, land, time), 'dir')
+                        mkdir(sprintf('%s/dr2/%s/%s/%s', par.plotdir, fw, land, time));
+                    end
                 end
             elseif strcmp(type, 'gcm')
                 for f = par.gcm.fw; fw = f{1};
                     if ~exist(sprintf('%s/flux/%s/%s/%s', par.plotdir, fw, land, time), 'dir')
                         mkdir(sprintf('%s/flux/%s/%s/%s', par.plotdir, fw, land, time));
+                    end
+                    if ~exist(sprintf('%s/dr1/%s/%s/%s', par.plotdir, fw, land, time), 'dir')
+                        mkdir(sprintf('%s/dr1/%s/%s/%s', par.plotdir, fw, land, time));
+                    end
+                    if ~exist(sprintf('%s/dr2/%s/%s/%s', par.plotdir, fw, land, time), 'dir')
+                        mkdir(sprintf('%s/dr2/%s/%s/%s', par.plotdir, fw, land, time));
+                    end
+                end
+            elseif strcmp(type, 'echam')
+                for f = par.echam.fw; fw = f{1};
+                    if ~exist(sprintf('%s/flux/%s/%s/%s', par.plotdir, fw, land, time), 'dir')
+                        mkdir(sprintf('%s/flux/%s/%s/%s', par.plotdir, fw, land, time));
+                    end
+                    if ~exist(sprintf('%s/dr1/%s/%s/%s', par.plotdir, fw, land, time), 'dir')
+                        mkdir(sprintf('%s/dr1/%s/%s/%s', par.plotdir, fw, land, time));
+                    end
+                    if ~exist(sprintf('%s/dr2/%s/%s/%s', par.plotdir, fw, land, time), 'dir')
+                        mkdir(sprintf('%s/dr2/%s/%s/%s', par.plotdir, fw, land, time));
+                    end
+                end
+            elseif strcmp(type, 'echam_ml')
+                for f = par.echam.fw; fw = f{1};
+                    if ~exist(sprintf('%s/flux/%s/%s/%s', par.plotdir, fw, land, time), 'dir')
+                        mkdir(sprintf('%s/flux/%s/%s/%s', par.plotdir, fw, land, time));
+                    end
+                    if ~exist(sprintf('%s/dr1/%s/%s/%s', par.plotdir, fw, land, time), 'dir')
+                        mkdir(sprintf('%s/dr1/%s/%s/%s', par.plotdir, fw, land, time));
+                    end
+                    if ~exist(sprintf('%s/dr2/%s/%s/%s', par.plotdir, fw, land, time), 'dir')
+                        mkdir(sprintf('%s/dr2/%s/%s/%s', par.plotdir, fw, land, time));
                     end
                 end
             end
@@ -2121,11 +4184,11 @@ function make_dirs(type, par)
     if ~exist(sprintf('%s/trop', par.plotdir), 'dir')
         mkdir(sprintf('%s/trop', par.plotdir));
     end
-    if ~exist(sprintf('%s/ga_diff', par.plotdir), 'dir')
-        mkdir(sprintf('%s/ga_diff', par.plotdir));
-    end
     if ~exist(sprintf('%s/alb', par.plotdir), 'dir')
         mkdir(sprintf('%s/alb', par.plotdir));
+    end
+    if ~exist(sprintf('%s/sn', par.plotdir), 'dir')
+        mkdir(sprintf('%s/sn', par.plotdir));
     end
     if ~exist(sprintf('%s/legends', par.plotdir), 'dir')
         mkdir(sprintf('%s/legends', par.plotdir));
@@ -2136,9 +4199,11 @@ function make_dirs_ep(type, par)
     for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i);
         if any(strcmp(type, {'erai'})); f_vec = par.era.fw;
         elseif any(strcmp(type, {'era5'})); f_vec = par.era.fw;
-        elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw; end
+        elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw;
+        elseif strcmp(type, 'echam'); f_vec = par.echam.fw;
+        elseif strcmp(type, 'echam_ml'); f_vec = par.echam.fw; end
         for f = f_vec; fw = f{1};
-            for j = {'def', 'jak', 'jak30', 'jak10', 'pe', 'cp', 'w500', 'vas2', 'vas4', 'vh2', 'vh3', 'vh4'}; crit = j{1};
+            for j = {'def', 'jak', 'jak30', 'jak10', 'pe', 'cp', 'w500', 'vh2', 'vh3', 'vh4'}; crit = j{1};
                 for l = {'lo', 'l', 'o'}; land = l{1};
                     for k = {'ann', 'djf', 'jja', 'mam', 'son'}; time = k{1};
                         if ~exist(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp', par.plotdir, par.ep, par.ga, fw, crit, land, time), 'dir')
