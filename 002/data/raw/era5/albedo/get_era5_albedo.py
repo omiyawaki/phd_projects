@@ -10,7 +10,7 @@ c.retrieve(
         'format': 'netcdf',
         'product_type': 'monthly_averaged_reanalysis',
         'variable': [
-            '2m_dewpoint_temperature', '2m_temperature', 'surface_pressure', 'orography',
+            'forecast_albedo',
         ],
         'year': [
             '1979', '1980', '1981',
@@ -36,4 +36,4 @@ c.retrieve(
         ],
         'time': '00:00',
     },
-    'era5_srfc_1979_2019.nc')
+    'era5_albedo_1979_2019.nc')

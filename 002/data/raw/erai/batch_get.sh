@@ -1,11 +1,15 @@
 #!/bin/sh
 
 module unload python
-module load python/3.6.1+intel-16.0
+module load python
 
-declare -a vtypes=("rad" "pe" "stf" "temp" "srfc" "zg" "w500" "tend" "div" "vas") # variable type
+declare -a vtypes=("rad" "pe" "stf" "temp" "temp_ml" "srfc" "zg" "w500" "tend" "div" "vas" "albedo") # variable type
 yr_start=2000
-yr_end=2012
+mon_start=3
+day_start=1
+yr_end=2018
+mon_end=2
+day_end=1
 
 cwd=$(pwd)
 
@@ -21,7 +25,7 @@ for vtype in ${vtypes[@]}; do
         fi
     done
 
-    $cwd/concat.sh $vtype $yr_start $yr_end
+    $cwd/concat.sh $vtype $yr_start $yr_end $mon_start $mon_end $day_start $day_end
 
     cd $cwd
 
