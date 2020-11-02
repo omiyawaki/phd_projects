@@ -1,0 +1,69 @@
+#+title: Research Notes
+#+author: Osamu Miyawaki
+#+date: September 30, 2020
+#+options: toc:nil
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry}
+
+* Introduction
+Action items from our previous meeting are:
+- Consider varying the bounds for taking the vertically averaged difference in lapse rate to quantify closeness to a moist adiabat.
+- Define near-surface stability using deviation from a dry adiabatic lapse rate.
+- Explore various thresholds for RCE and RAE where \(\gamma = 1-\epsilon\).
+- Check if the RCE/RAE thresholds are sensible for other climates such as the 4xCO2 and snowball climates.
+
+* Vertically averaged deviation from adiabatic lapse rates
+We expect regions of RCE to exhibit a convective (moist adiabatic) stratification in the free troposphere and regions of RAE to exhibit a stable stratification near the surface. Previously I used the vertically averaged deviation of the climatological lapse rate from a moist adiabatic lapse rate between 1000--200 hPa to quantify the closeness of the stratification to moist adiabatic. In addition, I used the inversion strength as defined as the difference between \(\sigma=1.0\) and \(\sigma=0.85\) temperature to quantify the stability of the stratification near the surface. I now quantify near-surface stability using the vertically averaged deviation of the climatological lapse rate. However, I quantify this deviation from a dry adiabatic lapse rate as we do not expect the air to be saturated near the surface.
+
+Both metrics are not significantly sensitive to the vertical bounds chosen to separate the boundary layer and the free troposphere (Fig. [[fig:malr_bl]] and [[fig:dalr_bl]]). The deviation of the free tropospheric lapse rate from moist adiabatic in the tropics becomes more negative as the lower bound is farther lowered as the boundary layer is closer to dry than moist adiabatic (Fig. [[fig:malr_bl]]d).
+
+#+caption: The vertically averaged deviation of the climatological free tropospheric lapse rate from a moist adiabatic lapse rate between a) \(\sigma=0.75\) and 0.3, b) \(\sigma=0.8\) and 0.3, c) \(\sigma=0.85\) and 0.3, and d) \(\sigma=0.9\) and 0.3.
+#+label: fig:malr_bl
+[[./malr_si_bl.png]]
+
+#+caption: The vertically averaged deviation of the climatological near surface lapse rate from a dry adiabatic lapse rate between a) \(\sigma=1.0\) and 0.75, b) \(\sigma=1.0\) and 0.8, c) \(\sigma=1.0\) and 0.85, and d) \(\sigma=1.0\) and 0.9.
+#+label: fig:dalr_bl
+[[./dalr_si_bl.png]]
+
+* Sensitivity of RCE and RAE to various thresholds
+An important decision is what threshold value for \(R_1\) is appropriate for defining regions where RCE and RAE approximately hold. So far we considered the closeness of the stratification to a moist adiabat and the near-surface stability. Here, I explore various combinations of threshold values for \(R_1\) and the vertically averaged deviation of the stratification from reference adiabatic lapse rates systematically. In addition, I show how these threshold values project onto the snowball and 4xCO2 climates.
+
+The seasonality of NH RAE is sensitive to the threshold value chosen for \(R_1\) in the piControl climate (Fig. [[fig:mpi-ctrl]]). NH RAE persists yearround for \(\epsilon\ge0.2\) while it vanishes in the NH summer for \(\epsilon\le0.1\). The seasonality of the stable stratification as defined by the deviation of the lapse rate from dry adiabatic suggests that a choice of \(\epsilon\le0.1\) may be more appropriate. There is disagreement between the seasonality of SH RAE and a stable near-surface stratification in all cases. It will be important to understand what causes this discrepancy moving forward.
+
+#+caption: The spatio-temporal structure of RCE (\(R_1<\epsilon\)) and RAE (\(R_1>\gamma\), where \(\gamma=1-\epsilon\)) in the MPI-ESM-LR piControl climate defined using various threshold values. a) \(\epsilon=0.3\), b) \(\epsilon=0.2\), c) \(\epsilon=0.1\), and d) \(\epsilon=0.05\).
+#+label: fig:mpi-ctrl
+[[./mpi-ctrl-r1-thresh.png]]
+
+As expected, NH RAE vanishes nearly yearround for \(\epsilon\le0.1\) in the MPI-ESM-LR abrupt4xCO2 climate (Fig. [[fig:mpi-4x]]). However, a small area of NH RAE persists in the NH summer as diagnosed from both the MSE equation and the near-surface stability. This is unexpected considering that there should be no sea ice in the 4xCO2 summer. One explanation I considered is that surface fluxes over the ocean is out of phase with insolation. That is, during summer, the atmosphere is warmer than the ocean and hence there is a transfer of sensible flux from the atmosphere to the ocean. However, checking the zonally averaged profile of \(R_1\) separately over land and ocean suggests that NH RAE in the summer is due to a higher value of \(R_1\) over land (Fig. [[fig:mpi-4x-lo]]). It is still unclear to me why this is the case.
+
+#+caption: The spatio-temporal structure of RCE (\(R_1<\epsilon\)) and RAE (\(R_1>\gamma\), where \(\gamma=1-\epsilon\)) in the MPI-ESM-LR abrupt4xCO2 climate defined using various threshold values. a) \(\epsilon=0.3\), b) \(\epsilon=0.2\), c) \(\epsilon=0.1\), and d) \(\epsilon=0.05\).
+#+label: fig:mpi-4x
+[[./mpi-4x-r1-thresh.png]]
+
+#+caption: The zonally averaged profile of \(R_1\) suggests that NH RAE during summer arises due to a high value of \(R_1\) over land.
+#+label: fig:mpi-4x-lo
+[[./mpi-4x-r1-lo.png]]
+
+Furthermore, there is a region north of the equator centered around NH summer that is outside of the contour denoting a close to moist adiabatic stratification in the abrupt4xCO2 climate (Fig. [[fig:mpi-4x]]). This is because the free tropospheric lapse rate in the tropics is more unstable in the warmer climate, consistent with the increase of CAPE with warming. To avoid this issue, it would be necessary to either 1) consider all lapse rates that are more unstable than a moist adiabatic lapse rate as satisfying the close to convectively-set stratification criteria or 2) consider a more realistic convective lapse rate such as that predicted by a zero buoyancy bulk plume model.
+
+#+caption: The vertically averaged deviation of the climatological free tropospheric lapse rate from a moist adiabatic lapse rate in MPI-ESM-LR abrupt4xCO2.
+#+label: fig:mpi-4x-malr
+[[./mpi-4x-malr.png]]
+
+RAE and RCE regimes in the ECHAM snowball climate does not show significant sensitivity to the threshold values of \(R_1\) (Fig. [[fig:mpi-snb]]). Both RCE and RAE exhibit strong seasonality. RCE is no longer centered around the equator yearround, but rather follows the insolation. The entire hemisphere during summer is diagnosed as RCE. Near moist (effectively dry) adiabatic stratification also shows strong seasonality but is slightly more confined than the region diagnosed as RCE, particularly in the NH. RAE extends equatorward to the midtropics in both hemispheres during winter while it is more confined to the highest latitudes near equinox. There is good agreement between regions diagnosed as RAE and the contour of near surface stable stratification. Overall, the key characteristics of the RCE and RAE regimes in the snowball climate does not seem to be sensitive to the threshold of \(R_1\). One issue that I need to investigate is the noisy coexistence of RAE and RCE in the SH high latitudes during November and December.
+
+#+caption: The spatio-temporal structure of RCE (\(R_1<\epsilon\)) and RAE (\(R_1>\gamma\), where \(\gamma=1-\epsilon\)) in the MPI ECHAM snowball climate defined using various threshold values. a) \(\epsilon=0.3\), b) \(\epsilon=0.2\), c) \(\epsilon=0.1\), and d) \(\epsilon=0.05\).
+#+label: fig:mpi-snb
+[[./mpi-snb-r1-thresh.png]]
+
+An alternative way to visualize the seasonality and extent of RCE and RAE is to consider the contour plot of \(R_1\) directly (Fig. [[fig:mpi-all]]). Here, I also show the contour of close to moist adiabatic and stable stratification as orange and blue contour lines. It may be useful to include contour plots of \(R_1\) before showing the simplified figures of RCE and RAE as in Figs. [[fig:mpi-ctrl]], [[fig:mpi-4x]], and [[fig:mpi-snb]].
+
+#+caption: The spatio-temporal structure of R_1 in the MPI-ESM-LR piControl, abrupt4xCO2, and MPI ECHAM snowball climates. The orange contour denotes regions of close to moist adiabatic stratification and the blue contour denotes regions of stable near surface stratification.
+#+label: fig:mpi-all
+[[./mpi-all-r1.png]]
+
+* Next Steps
+- Understand why there is a discrepancy between the seasonality and meridional extent of SH RAE and the contour of near surface stable stratification.
+- Test physical mechanisms that control the seasonality of RCE and RAE using slab-ocean aquaplanet experiments.
+
+bibliographystyle:apalike
+bibliography:/mnt/c/Users/omiyawaki/Sync/papers/references.bib

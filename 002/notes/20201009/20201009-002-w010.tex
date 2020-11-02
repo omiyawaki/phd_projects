@@ -1,0 +1,107 @@
+% Created 2020-10-08 Thu 16:12
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+\author{Osamu Miyawaki}
+\date{October 9, 2020}
+\title{Research Notes}
+\hypersetup{
+ pdfauthor={Osamu Miyawaki},
+ pdftitle={Research Notes},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:org97c430e}
+Action items from our previous meeting are:
+\begin{itemize}
+\item Understand why there is a discrepancy between deviation of lapse rate from a dry adiabat and RAE during SH summer.
+\item Understand why the land/ocean-only \(R_1\) profiles are noisy.
+\item Plot temperature profiles in regions of RCE and RAE.
+\item Repeat analysis using ERA data.
+\end{itemize}
+
+\section{Discrepancy between lapse rate deviation and RAE in SH summer resolved}
+\label{sec:orga921d52}
+Previously I found that the lapse rate deviation weakens in the SH summer in contrast to \(R_1\) remaining mostly unchaged yearround (see Fig. 3 from 2020-09-30 notes). I found that this stemmed from the surface masking procedure which removed data between the lowest sigma layer and the layer right above it. This mask hid the SH RAE inversion which evidently is not as deep as the inversion during the rest of the year. To fix this problem, I now use the 2 m temperature and geopotential data for the \(\sigma=1\) layer to calculate the lapse rate between the \(\sigma=1\) layer and that immediately above. The resulting lapse rate deviation shows the inversion persists yearround in the SH high latitudes (Fig. \ref{fig:org5904b47}) as expected from the temperature profiles (Fig. \ref{fig:orgd0a618f}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./mpi-pi-dalr-bl.png}
+\caption{\label{fig:org5904b47}The vertically averaged deviation of the climatological near surface lapse rate from a dry adiabatic lapse rate between \(\sigma=0.1\) and 0.85.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./mpi-pi-sh-ta.png}
+\caption{\label{fig:orgd0a618f}Zonally averaged temperature profiles near the south pole for SH summer (DJF), fall (MAM), winter (JJA), and spring (SON).}
+\end{figure}
+
+\section{Reduced noise when land/ocean masking using land fraction data}
+\label{sec:org400d5ac}
+Another issue from before was the significant noise in the \(R_1\) profile when averaged only over land or ocean (see Fig. 5 from 2020-09-30 notes). Two modifications to my procedures greatly reduced this noise. First, I keep the data in the original model meridional grid (previously I interpolated to a higher resolution meridional grid). Second, I create the land/ocean mask using the land fraction data output from the model. I designate regions where the land fraction is greater than 0.5 as land and less than or equal to 0.5 as ocean (previously I used the MATLAB coastline to create the mask, which is higher resolution than the GCM coastline). These modifications lead to a smoother \(R_1\) profile for both land and ocean, although some noise still exist (Fig. \ref{fig:org971932c}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./mpi-4x-r1-lo.png}
+\caption{\label{fig:org971932c}The zonally averaged \(R_1\) in MPI-ESM-LR only over land (left) and over ocean (right).}
+\end{figure}
+
+\section{RCE/RAE regimes and their vertical temperature profiles}
+\label{sec:orgd230268}
+So far, most of our analysis involved comparing the vertically averaged metric of a closeness to a moist adiabat and the strength of a near surface inversion. It would be useful for the reader to also see what the vertical temperature profiles in regions of RCE and RAE would look like. As expected, we see the temperature profile averaged over the RCE regime closely follows a moist adiabat (Fig. \ref{fig:org3ad0158}). Specifically, the deviation remains within 5 K below \(\sigma=0.4\) (Fig. \ref{fig:orgf8b1242}). Above this level, the moist adiabat significantly underpredicts the GCM temperature profile as expected because the influence of convection on the temperature profile weakens near and above the tropopause. The temperature profile averaged over the RAE regime shows a clear inversion (Fig. \ref{fig:org3ad0158}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./mpi-pi-rcae-ta.png}
+\caption{\label{fig:org3ad0158}The spatially and annually averaged temperature profiles over regions of RCE (solid orange, left) and its corresponding moist adiabat (dotted orange, left) and over regions of RAE (solid blue, right). Here, \(\epsilon=0.1\). The spatio-temporal structure of RCE and RAE are also shown with the contours of the free tropospheric lapse rate deviation from a moist adiabat (orange contour, bottom) and the near surface lapse rate deviation from a dry adiabat (blue contour, bottom).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./mpi-pi-rce-diff.png}
+\caption{\label{fig:orgf8b1242}The MPI-ESM-LR temperature deviation from a moist adiabat in regions of RCE.}
+\end{figure}
+
+To better understand the seasonality of the temperature profiles, I show the zonally averaged temperature profile at select latitudes in Fig. \ref{fig:orgbce9cd6}. In the deep tropics (represented by the equatorial temperature profile shown as a maroon line in Fig. \ref{fig:orgbce9cd6}) the temperature profile is close to moist adiabatic during both January and July. Furthermore, we can see that there is conditional instability as the GCM temperature profile is slightly cooler than the moist adiabat. In the NH midlatitudes (represented by 45 N as a orange line in Fig. \ref{fig:orgbce9cd6}) the GCM temperature profile is significantly more stable than a moist adiabat in January while it more closely follows a moist adiabat during July. However, the zonally averaged temperature profile in the midlatitudes does not exhibit convective instability as found in the tropics. The NH midlatitude temperature profile is further closer to a moist adiabat over land and exhibits some convective instability (Fig. \ref{fig:org65f7c1f}). Interestingly the SH midlatitude (represented by 45 S) temperature profile in July is also fairly close to moist adiabatic, especially in the lower troposphere. The near surface inversion in the high latitudes is stronger during each hemisphere's winter and weakens during the summer.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./mpi-pi-r1-ta.png}
+\caption{\label{fig:orgbce9cd6}The zonally averaged temperature profiles at 75 N (NH high latitude), 45 N (NH midlatitude), equator (tropics), 45 S (SH midlatitude), and 75 S (SH high latitude) during January (left) and July (right). The solid (NH) and dashed (SH) lines are the GCM temperature profiles and the dotted lines are the corresponding moist adiabats. The circles indicate where the temperature profiles are located in the spatio-temporal structure of \(R_1\) (bottom).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./mpi-pi-nmid-lo.png}
+\caption{\label{fig:org65f7c1f}The zonally averaged temperature profile at 45 N during July over land (left) and over ocean (right).}
+\end{figure}
+
+\section{Next Steps}
+\label{sec:org3d879d9}
+\begin{itemize}
+\item Repeat analysis using ERA data.
+\item Use ECHAM slab ocean simulations to study the influence of the mixed layer depth on the seasonality of RCE and sea ice on RAE.
+\end{itemize}
+
+\bibliographystyle{apalike}
+\bibliography{../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references}
+\end{document}

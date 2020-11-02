@@ -1,0 +1,132 @@
+% Created 2020-09-16 Wed 09:52
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Osamu Miyawaki}
+\date{September 17, 2020}
+\title{Research Notes}
+\hypersetup{
+ pdfauthor={Osamu Miyawaki},
+ pdftitle={Research Notes},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:org830e49f}
+Action items from our previous meeting are:
+\begin{itemize}
+\item Quantify the closeness of the stratification to a moist adiabat and compare its spatio-temporal structure with the diagnosed structure of RCE.
+\item Quantify the strength of the near-surface inversion and compare its spatio-temporal structure with the diagnosed structure of RAE.
+\end{itemize}
+
+\section{Closeness to a moist adiabat and RCE}
+\label{sec:org763d95b}
+We expect regions of RCE to exhibit temperature profiles that are close to that set by convection. The moist adiabat is a good first choice to study this relationship as it is the simplest model for a temperature profile set by moist convection. Here, I quantify the stratification's closeness to a moist adiabat using two methods: 1) the difference in 500 hPa temperature and 2) the vertically averaged lapse rate percentage difference between 1000 and 200 hPa.
+
+\subsection{\((T-T_m)_{500\,\mathrm{hPa}}\)}
+\label{sec:org64e27bf}
+The 500 hPa temperature deviation from a moist adiabat is small in the low latitudes and highest near the poles (Fig. \ref{fig:orgd386116}). The 500 hPa temperature in the GCM is slightly cooler than the moist adiabat in the tropics, which is consistent with the presence of conditional instability in the tropics. Conversely, the 500 hPa temperature in the extratropics is more stable than a moist adiabat as expected due to heating from poleward heat transport. The 500 hPa temperature remains close to moist adiabatic between 30 S and 30 N  yearround. In addition, the 500 hPa temperature is close to moist adiabatic up to 60 N during the NH summer.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/ma_diff/plev_500/lo/ma_diff_mon_lat.png}
+\caption{\label{fig:orgd386116}Difference in 500 hPa temperature between MPI-ESM-LR and a reversible moist adiabat.}
+\end{figure}
+
+We find discrepancies when comparing the spatio-temporal structure of the 500 hPa temperature deviation from a moist adiabat (Fig. \ref{fig:orgd386116}) to the regions of RCE diagnosed from the vertically integrated MSE equation (Fig. \ref{fig:org196191e}). While tropical RCE is found only in a thin region near the equator, close to moist adiabatic temperature profiles are found broadly through the tropics.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/def/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org196191e}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(|R_1| < 0.3\) and RAE as where \(R_1 > 0.7\).}
+\end{figure}
+
+The reason this discrepancy arises is because the criteria for RCE is not necessarily the same as that required to set a convectively adjusted temperature profile. Strict RCE requires that advective heat transport be small such that radiative cooling balances convective heating in an atmospheric column. However, a convectively adjusted temperature profile arises wherever convective heating is the dominant heat source that stabilizes the atmosphere in response to other destabilizing tendencies. Thus, convectively adjusted temperature profiles can be found outside regions of strict RCE, as long as the advective heat transport acts to destabilize the atmosphere. Indeed, when the definition of RCE is expanded to include regions where the vertically integrated MSE divergence is positive (i.e. \(R_1<\epsilon\) rather than \(|R_1|<\epsilon\) previously), RCE is captured over a broad region in the tropics (Fig. \ref{fig:org1360b06}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/def/lo/0_rcae_alt_mon_lat.png}
+\caption{\label{fig:org1360b06}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(R_1 < 0.3\) and RAE as where \(R_1 > 0.7\).}
+\end{figure}
+
+\subsection{\((\Gamma_m - \Gamma)/\Gamma_m\)}
+\label{sec:orgb2afb46}
+Alternatively, we can define the closeness to a moist adiabat as the vertically averaged percentage difference in 1000--200 hPa lapse rate between the GCM and a moist adiabat. This follows the procedure used by \cite{stone1979}. This produces a similar result (Fig. \ref{fig:org41c24b1}) to using the 500 hPa temperature deviation (Fig. \ref{fig:orgd386116}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/ga_diff/ga_diff_mon_lat.png}
+\caption{\label{fig:org41c24b1}Vertically averaged percentage difference in 1000--200 hPa lapse rate between MPI-ESM-LR and a moist adiabat.}
+\end{figure}
+
+\section{Strength of near-surface inversion and RAE}
+\label{sec:orgdd7ad82}
+We expect regions of RAE to exhibit a near-surface inversion since the primary source of heating comes from advective heat transport in the free troposphere. As expected, near-surface inversions are limited to the highest latitudes, poleward of approximately 60 N in the NH winter and 70 S in the SH winter (Fig. \ref{fig:org3c66fec}). This is also confirmed by checking the zonally averaged temperature profiles for each hemisphere during winter (Figs. \ref{fig:org0e1059c} and \ref{fig:org28f944a}). The inversion significantly weakens during each hemisphere's respective summer (Figs. \ref{fig:org3c66fec}, \ref{fig:org8e028a5}, and \ref{fig:org660a9dd}). This effect is strong enough in the NH such that the inversion vanishes during summer even though sea ice persists yearround. This is interesting because it seems to conflict with the hypothesis that the sea ice extent controls the presence of an inversion. Even with the presence of sea ice, the advective heat transport must be strong enough for an inversion to arise. Perhaps the advective heat transport near the pole during NH summer is too weak to set an inversion.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/inv_str/si_0.85/lo/inv_str_lat_lon.png}
+\caption{\label{fig:org3c66fec}The spatio-temporal structure of near-surface inversion strength quantified as the difference in temperature at \(\sigma=0.85\) and surface temperature.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/lo/djf/si/nhall.png}
+\caption{\label{fig:org0e1059c}Zonally averaged temperature profiles at various latitudes during NH winter.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/lo/jja/si/shall.png}
+\caption{\label{fig:org28f944a}Zonally averaged temperature profiles at various latitudes during SH winter.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/lo/jja/si/nhall.png}
+\caption{\label{fig:org8e028a5}Zonally averaged temperature profiles at various latitudes during NH summer.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/temp_zon/lo/djf/si/shall.png}
+\caption{\label{fig:org660a9dd}Zonally averaged temperature profiles at various latitudes during SH summer.}
+\end{figure}
+
+We find that RAE as diagnosed from the vertically integrated MSE equation does not vanish during the NH summer (Fig. \ref{fig:org196191e}) with the previously chosen criteria for RAE (\(R_1>0.7\)). Modifying the threshold to \(R_1>0.95\) best captures the vanishing NH inversion during summer, but this comes at the cost of a much smaller equatorward extent of NH RAE in the winter (Fig. \ref{fig:org48b3b97}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.95/mse/def/lo/0_rcae_mon_lat.png}
+\caption{\label{fig:org48b3b97}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(|R_1| < 0.3\) and RAE as where \(R_1 > 0.95\).}
+\end{figure}
+
+\section{Next Steps}
+\label{sec:orgdc5106c}
+\begin{itemize}
+\item Understand what causes the inversion to vanish during NH summer.
+\item Is an additional flag necessary for diagnosing regions where we expect convectively adjusted temperature profiles from the vertically integrated MSE equation?
+\item Repeat analyses performed on MPI-ESM-LR with ERA data up to the recent past and the remaining GCMs in the CMIP archive.
+\item Test physical mechanisms that control the seasonality of RCE and RAE using slab-ocean aquaplanet experiments.
+\end{itemize}
+
+\bibliographystyle{apalike}
+\bibliography{../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references}
+\end{document}
