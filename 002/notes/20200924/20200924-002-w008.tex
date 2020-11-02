@@ -1,0 +1,196 @@
+% Created 2020-09-23 Wed 15:31
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Osamu Miyawaki}
+\date{September 24, 2020}
+\title{Research Notes}
+\hypersetup{
+ pdfauthor={Osamu Miyawaki},
+ pdftitle={Research Notes},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:orgc88dfe1}
+Action items from our previous meeting are:
+\begin{itemize}
+\item Fix the discontinuities in the lapse rate field.
+\item Reproduce figures in \cite{stone1979}.
+\item Consider relaxing the inversion strength criteria to see if it agrees with the previously chosen RAE threshold of \(R_1>0.7\).
+\item Plot NH RAE separately over land and ocean. Does the diagnosed region of RAE better correspond with regions of near-surface inversion?
+\item See if alternative model output such as snow depth correspond to regions of RAE.
+\item Decompose the seasonality of \(R_1\) (i.e. the deviation \(\Delta R_1\) from the annual mean) into contributions from \(\Delta(\nabla\cdot F_m)\) and \(\Delta R_1\).
+\item Repeat analysis using ERA data.
+\item Set expectations of how the seasonality and extent of RCE and RAE would vary with various configurations of an aquaplanet model.
+\end{itemize}
+
+\section{Fixing the discontinuities in the lapse rate field}
+\label{sec:orgf4a5237}
+The lapse rate field I showed in our previous meeting was discontinuous (appearing like a step-wise function). We hypothesized that this was because I linearly interpolated the temperature field in the vertical dimension before computing the lapse rate. I now compute the lapse rate before interpolating to a higher resolution vertical grid. As a result, the zonally averaged climatological lapse rate field (Fig. \ref{fig:org3f41b82}) and the percentage difference between the climatological and moist adiabatic lapse rate (Fig. \ref{fig:org77bd9bf}) are smooth.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/ga_diff/ga_lat_plev.png}
+\caption{\label{fig:org3f41b82}The zonally averaged climatological lapse rate in MPI-ESM-LR.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/ga_diff/ga_diff_lat_plev.png}
+\caption{\label{fig:org77bd9bf}Percentage difference between the zonally averaged climatological lapse rate in MPI-ESM-LR and a reversible moist adiabatic lapse rate.}
+\end{figure}
+
+\section{Reproducing the \cite{stone1979} figures}
+\label{sec:orgb9af566}
+As a way to verify that my procedure is correct and to evaluate how the results from \cite{stone1979} compare using a modern dataset, I reproduced Fig. 8--10 from \cite{stone1979} using ERA-Interim data (Fig. \ref{fig:orgaf7c689}--\ref{fig:org87d79ec}). The ERA-Interim climatology is obtained from data spanning Oct. 1979 through Sep. 2018 for which Aaron Donohoe's MSE transport data are available. Overall, the results from \cite{stone1979} compare well with the results obtained from ERA-Interim. For both datasets we find that close to moist adiabatic stratification extends out to the NH midlatitudes during summer (Fig. \ref{fig:org2f02c30}) and contracts to the NH subtropics during winter (Fig. \ref{fig:org87d79ec}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/ext/sc79-fig8-comp.png}
+\caption{\label{fig:orgaf7c689}Comparison between the annually averaged climatological and moist adiabatic lapse rate in \cite{stone1979} (left) and reproduced using ERA-Interim data from Oct. 1979 through Sep. 2018 (right).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/ext/sc79-fig9-comp.png}
+\caption{\label{fig:org2f02c30}Same as Fig. \ref{fig:orgaf7c689} but for July.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/ext/sc79-fig10-comp.png}
+\caption{\label{fig:org87d79ec}Same as Fig. \ref{fig:orgaf7c689} but for January.}
+\end{figure}
+
+\section{Relaxing the inversion strength threshold for RAE}
+\label{sec:org792a68a}
+We found that regions of RAE (previously defined as \(R_1>0.7\)) did not align well with the presence of a near-surface inversion \(T_{\sigma=0.85}-T_{\sigma=1} > 0\). In particular, we found that the inversion vanishes during the NH summer whereas there exist regions where \(R_1>0.7\) yearround in the NH high latitudes. In order to better capture the seasonality of the near-surface inversion, I decided to set a higher threshold for \(R_1\), namely that \(R_1>0.95\).
+
+An alternative way to reduce the disagreement between the diagnosed RAE and the inversion regimes is to maintain the \(R_1\) threshold at 0.7 and relax the threshold for a near-surface stable stratification from 0 K to a negative value. I found that a threshold of \(-4\) K results in a good agreement (Fig. \ref{fig:org734dc14}). This is an improvement over the previous result where I diagnosed RAE as \(R_1>0.95\) with a stable stratification threshold of 0 K. However, there still remain some discrepancies between the diagnosed RAE extent and the stable stratification contour in the NH.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/def/lo/0_rcae_alt_mon_lat_ga_inv_overlay.png}
+\caption{\label{fig:org734dc14}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(R_1 < 0.3\) and RAE as where \(R_1 > 0.7\). Regions where the stratification is near moist adiabatic as defined by \((\Gamma_m-\Gamma)/\Gamma_m<20\%\) are denoted by the orange contour. Regions of stable near-surface stratification as defined by \(T_{\sigma=0.85}-T_{\sigma=1}>-4\) K are denoted by the blue contour.}
+\end{figure}
+
+\section{Plotting RAE separately over land and ocean}
+\label{sec:orgddffd35}
+When the analysis is repeated only over land by masking out regions over the ocean with nans, we find that there is better agreement between regions of diagnosed RAE and the presence of a stable stratification particularly in the NH (Fig. \ref{fig:org8bf6a4b}). The result over land in the SH is complicated by the lack of significant land mass in the Southern Ocean latitudes. Aside from the equatorward excursion of RAE during SH winter, there is also good agreement between the diagnosed RAE extent and the presence of a stable stratification in the SH.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/def/l/0_rcae_alt_mon_lat_inv_overlay.png}
+\caption{\label{fig:org8bf6a4b}Same as Fig. \ref{fig:org734dc14} but evaluated only over land.}
+\end{figure}
+
+When the analysis is repeated only over ocean, we find that the extent of NH RAE is generally poleward of the presence of a stable stratification. Strangely, an isolated region of NH RAE emerges between 40--60 N during winter. There is good agreement between the diagnosed RAE extent and the presence of a stable stratification in the SH.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/def/o/0_rcae_alt_mon_lat_inv_overlay.png}
+\caption{\label{fig:org7fca9bb}Same as Fig. \ref{fig:org734dc14} but evaluated only over ocean.}
+\end{figure}
+
+\section{Issue reproducing the surface albedo contour in Fig. 4 of the proposal}
+\label{sec:org4206401}
+When plotting the surface albedo \(\alpha=0.6\) contour over the RCE/RAE regimes, I noticed that the NH contour in my version abruptly shifts poleward during August (Fig. \ref{fig:orgfd6ae58}). The same contour line in Fig. 4 of the proposal does not show this abrupt shift. I'm currently figuring out what is causing this issue.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/def/lo/0_rcae_alt_mon_lat_albedo_overlay.png}
+\caption{\label{fig:orgfd6ae58}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(R_1 < 0.3\) and RAE as where \(R_1 > 0.7\). Regions of high albedo as defined by \(\alpha=0.6\) are denoted by the black contour.}
+\end{figure}
+
+\section{Snow depth over ice contour and RAE}
+\label{sec:orgb3338f0}
+In addition to albedo, variables such as snow depth may correspond with regions of RAE as thicker snow cover is associated with less shortwave absorption at the surface. Here, I use the output snow depth over ice from the MPI-ESM-LR model (variable name sni). Constant contours of 1 cm of snow over ice does not follow the RAE extent as well as the surface albedo (Fig. \ref{fig:orgae48b0a}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/gcm/MPI-ESM-LR/std/eps_0.3_ga_0.7/mse/def/lo/0_rcae_alt_mon_lat_sn_overlay.png}
+\caption{\label{fig:orgae48b0a}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from MPI-ESM-LR. MSE flux divergence and tendency are inferred as the residual. Here, RCE is defined as where \(R_1 < 0.3\) and RAE as where \(R_1 > 0.7\). Regions of thick snow cover as defined by snow depth \(d=0.01\) m are denoted by the black contour.}
+\end{figure}
+
+\section{Decomposing the seasonality of \(R_1\)}
+\label{sec:org70614aa}
+We ask whether the contraction of RAE in the NH summer follows from the weakening atmospheric heat transport (a weakening stabilizing force) or the strengthening surface fluxes (a strengthening destabilizing force). Following equation (5) in the proposal, I first decompose the seasonality of \(R_1\) into contributions from the seasonality of MSE flux divergence and atmospheric radiative cooling. First, I verified that the linear approximation of \(\Delta R_1\) is sufficiently close to the actual \(\Delta R_1\) (Fig. \ref{fig:org1573ac9}).
+
+The seasonality of MSE flux divergence dominates over the opposing seasonality of radiative cooling (Fig. \ref{fig:org6023f92}). Unfortunately this decomposition doesn't answer the original question which requires comparing the seasonality of the MSE flux divergence with surface turbulent fluxes. A useful next step may be to use equation (11) which would allow us to compare the seasonality of TOA energy imbalance to the seasonality of net surface fluxes.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/ext/dr1-comp.png}
+\caption{\label{fig:org1573ac9}The actual seasonality of \(R_1\) (left) compared to the linear approximation of the seasonality (right).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/ext/dr1-decomp.png}
+\caption{\label{fig:org6023f92}The seasonality of \(R_1\) decomposed into the seasonality of MSE flux divergence (left) and the seasonality of atmospheric radiative cooling (right).}
+\end{figure}
+
+\section{Repeating the analysis using ERA-Interim}
+\label{sec:orgb97cfc7}
+As the surface turbulent fluxes in ERA are poorly constrained, we infer the surface turbulent fluxes as the residual of the MSE tendency, MSE flux divergence, and atmospheric radiative cooling computed from the ERA-Interim dataset. MSE tendency and radiative fluxes are obtained directly from the ECMWF archive. I compute the MSE flux divergence from Aaron Donohoe's MSE transport data, which is available from Oct. 1979 through Sep. 2018. I first verified that my computation of the MSE flux divergence yields a sensible result (Fig. \ref{fig:orgaa39c6c}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/energy-flux/lo/ann/div79-all.png}
+\caption{\label{fig:orgaa39c6c}Annually-averaged energy fluxes in the vertically-integrated MSE budget. Blue-orange is surface turbulent fluxes, red is the sum of MSE tendency and flux divergence, and gray is atmospheric radiative cooling. The surface turbulent flux is inferred as the residual of the other terms.}
+\end{figure}
+
+RCE as diagnosed using the ERA-Interim data show similar similar behavior as we found in MPI-ESM-LR (Fig. \ref{fig:orgf470bb8}). Namely, the NH boundary of RCE extends to around 60 N, whereas the SH boundary remains nearly constant yearround. As with MPI-ESM-LR, the seasonality of near moist adiabatic stratification lags behind the seasonality of diagnosed RCE by one month.
+
+RAE in ERA-Interim is scattered during October through April in the NH and November through December in the SH. Regions of RCAE are interspersed in between latitudes of RAE. Furthermore, regions of near stable stratification does not appear to coincide as closely as in MPI-ESM-LR for both hemispheres. Interestingly, the contour for a stable stratification in SH RAE cuts off during the SH summer and deviates from the predicted seasonality of RAE based on the MSE equation.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{../../figures/erai/std/eps_0.3_ga_0.7/div79/def/lo/0_rcae_alt_mon_lat_ga_inv_overlay.png}
+\caption{\label{fig:orgf470bb8}Regions of RCE in orange and RAE in blue as diagnosed using radiation and surface turbulent fluxes from ERA-Interim. Surface turbulent fluxes are inferred as the residual. Here, RCE is defined as where \(R_1 < 0.3\) and RAE as where \(R_1 > 0.7\). Regions where the stratification is near moist adiabatic as defined by \((\Gamma_m-\Gamma)/\Gamma_m<20\%\) are denoted by the orange contour. Regions of stable near-surface stratification as defined by \(T_{\sigma=0.85}-T_{\sigma=1}>-4\) K are denoted by the blue contour.}
+\end{figure}
+
+
+\section{Expectations of RAE and RCE in aquaplanet simulations}
+\label{sec:orgad99e4c}
+\subsection{With or without sea ice}
+\label{sec:org1d395c5}
+I hypothesize that sea ice is required to properly simulate the seasonality and extent of RAE. As sea ice is a physical barrier between the atmosphere and ocean, its presence decreases the surface turbulent heat flux exchange between the atmosphere and ocean.
+
+\subsection{Slab ocean mixed layer depth controls midlatitude RCE seasonality}
+\label{sec:org50c378b}
+I hypothesize that the heat capacity of the surface controls the seasonality of midlatitude RCE. Net surface fluxes would be in phase with insolation for a surface with low heat capacity, whereas surface fluxes would be out of phase with insolation for a surface with high heat capacity. When surface fluxes are completely in phase with insolation, surface fluxes maximize in the summer when poleward atmospheric heat transport is weakest, creating favorable conditions for a convectively adjusted stratification. When surface fluxes are completely out of phase with insolation, surface fluxes maximize during winter when poleward atmospheric heat transport is strongest, which sets a stratification that is stable to convection.
+
+The hemispheric asymmetry of RCE in the MPI-ESM-LR simulation supports this hypothesis (Fig. \ref{fig:org734dc14}). The NH boundary of RCE extends poleward during NH summer because the surface of the NH midlatitudes has a low heat capacity due to the large land fraction. The SH boundary of RCE remains nearly constant yearround because the surface of the SH midlatitudes has a high heat capacity due to the large ocean fraction. When RCE is evaluated only over land (Fig. \ref{fig:org8bf6a4b}), both the NH and SH boundary of RCE exhibit strong seasonality as the location of RCE follows the insolation.
+
+In aquaplanet experiments with low surface heat capacity (shallow mixed layer depth), I expect the seasonality of RCE to be large, similar to that over land. Conversely, when configured with high surface heat capacity (deep mixed layer depth), I expect there to be little to no seasonality, similar to that in the modern SH boundary of RCE.
+
+\section{Next Steps}
+\label{sec:orgb162501}
+\begin{itemize}
+\item Fix albedo contour issue.
+\item Use equation (11) in the proposal to decompose the seasonality of \(R_1\) into the seasonality of TOA energy imbalance and net surface fluxes.
+\item Test physical mechanisms that control the seasonality of RCE and RAE using slab-ocean aquaplanet experiments.
+\end{itemize}
+
+\bibliographystyle{apalike}
+\bibliography{../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references}
+\end{document}

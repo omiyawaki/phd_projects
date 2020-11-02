@@ -1,0 +1,153 @@
+% Created 2020-10-20 Tue 18:21
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+\author{Osamu Miyawaki}
+\date{October 21, 2020}
+\title{Research Notes}
+\hypersetup{
+ pdfauthor={Osamu Miyawaki},
+ pdftitle={Research Notes},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 26.3 (Org mode 9.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\label{sec:org4bb1a84}
+Action items from our previous meeting are:
+\begin{itemize}
+\item Check that the difference in the shape of the temperature profiles in sigma coordinates between the model grid and pressure grid data output is due to vertical resolution.
+\begin{itemize}
+\item Look at one location and one month.
+\end{itemize}
+\item Decide which interpolation method gives a temperature profile that is close to the model grid profile.
+\item Plot the seasonality of \(R_a\), \(\nabla\cdot F_m\), and \(\mathrm{LH+SH}\) to see which term(s) is(are) important for the RCAE regime transitions in the midlatitudes and high latitudes.
+\item Understand why the NH RAE seasonality is unrealistic in ERA-Interim.
+\end{itemize}
+
+\section{Temperature profiles from pressure and model grid output}
+\label{sec:org19eabf8}
+Previously I showed the annually and zonally averaged temperature profiles to compare the differences between the pressure and model grid output. I now show a comparison at one location and month to avoid the effects of averaging over many temperature profiles. The pressure grid and model grid data overlap at nearly all pressure grid points as expected (Fig. \ref{fig:comp-sh-0}) except for a discrepancy near the surface. It is not clear to me yet where this discrepancy comes from. At a slightly different location (16 E), the lowest pressure level that is above the surface is not as close to the surface level and this problem is not apparent (Fig. \ref{fig:comp-sh-16}). The NH profile looks to be problem-free as well (Fig. \ref{fig:comp-nh-0}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./comp-sh-0.png}
+\caption{\label{fig:comp-sh-0}The raw temperature data at 88.5722 S and 0 E plotted in sigma coordinates using the pressure grid output (solid blue) and model grid output (dashed orange).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./comp-sh-16.png}
+\caption{\label{fig:comp-sh-16}Same as Fig. \ref{fig:comp-sh-0} except at 88.5722 S and 16.875 E.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./comp-nh-0.png}
+\caption{\label{fig:comp-nh-0}Same as Fig. \ref{fig:comp-nh-0} except at 88.5722 N and 0 E.}
+\end{figure}
+
+The coarse pressure grid data over the Antarctic topography is unable to fully resolve the shallow inversion depth. We compare how various interpolation methods recover some of the lost fidelity of the inversion shape. Before performing the interpolation we add the 2 m temperature data at the \(\sigma=1\) layer. We find that the cubic spline interpolation best captures the actual shape of the SH inversion because the other interpolation methods are shape-conserving and thus do not overshoot as much (Fig. \ref{fig:interp-sh-16} and \ref{fig:diff-sh-16}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./interp-sh-16.png}
+\caption{\label{fig:interp-sh-16}The sigma temperature profile at 88.5722 S and 16.875 E interpolated from the pressure grid using a) linear interpolation (black) b) piecewise cubic hermite interpolation (blue), c) cubic spline interpolation (orange), and d) modified Akima interpolation (maroon). The linearly interpolated model grid output is also shown (gray).}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./diff-sh-16.png}
+\caption{\label{fig:diff-sh-16}Similar to Fig. \ref{fig:interp-sh-16} except the differences in the interpolated temperature profiles from the model grid temperature profile are shown.}
+\end{figure}
+
+In the NH the inversion is better captured by the pressure grid as there are more data available above the surface pressure compared to the SH. Aside from linear interpolation, there is only a small difference between the interpolation methods in the NH (Fig. \ref{fig:interp-nh-0} and \ref{fig:diff-nh-0}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./interp-nh-0.png}
+\caption{\label{fig:interp-nh-0}Same as Fig. \ref{fig:interp-sh-16} except evaluated at 88.5722 N and 0 E.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./diff-nh-0.png}
+\caption{\label{fig:diff-nh-0}Same as Fig. \ref{fig:diff-sh-16} except evaluated at 88.5722 N and 0 E.}
+\end{figure}
+
+\section{The seasonality of each term in the MSE equation}
+\label{sec:orgdf69088}
+Previously I showed an interpretation of RCAE regime transitions in the NH midlatitudes and high latitudes by decomposing the seasonality of \(R_1\) into weighted contributions of the seasonality of \(\nabla\cdot F_m\) and \(\mathrm{LH+SH}\). A potential issue with this analysis is the importance of the seasonality of MSE flux divergence may be overemphasized because the annual mean \(\mathrm{LH+SH}\) is significantly larger than \(\nabla\cdot F_m\). An alternative way to investigate the importance of each term in the MSE equation for RCAE regime transitions is to look directly at the seasonality of each term.
+
+In the NH midlatitudes, there is generally a convergence of MSE flux except during the summer when it becomes negligibly small (red line in Fig. \ref{fig:mse-nhmid-45}). This seasonality of MSE flux divergence is mostly balanced by a weakening of radiative cooling (less negative) (gray line in Fig. \ref{fig:mse-nhmid-45}). The seasonality of surface turbulent fluxes is significantly smaller in comparison (blue line in Fig. \ref{fig:mse-nhmid-45} and Fig. \ref{fig:dmse-nhmid-45}). Thus we can attribute the transition of the summer NH midlatitude to RCE mostly due to the weakening of MSE flux convergence rather than a strengthening of surface turbulent fluxes. This is consistent with our previous analysis (Fig. 6 in the 2020-10-14 notes).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./mse-nhmid-45.png}
+\caption{\label{fig:mse-nhmid-45}The zonally averaged climatology of each term in the MSE equation is shown at 45 N.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./dmse-nhmid-45.png}
+\caption{\label{fig:dmse-nhmid-45}The zonally averaged deviation of each term in the MSE equation from the annual mean is shown at 45 N.}
+\end{figure}
+
+It is interesting that the seasonality of MSE flux divergence is mostly balanced by a weakening of radiative cooling. Decomposing the seasonality of radiative cooling into net shortwave and longwave components, we find that the weakening of radiative cooling during the summer mostly arises due to increased atmospheric shortwave absorption during summer (Fig. \ref{fig:dra-nhmid-45}). Because the summer NH midlatitudes is closer to moist adiabatic than in the winter, we interpret the warming profile of winter MSE flux convergence to be more stabilizing than the warming profile of atmospheric shortwave absorption in the summer.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./dra-nhmid-45.png}
+\caption{\label{fig:dra-nhmid-45}The zonally averaged deviation of radiative cooling from the annual mean is shown at 45 N (gray). Radiative cooling is decomposed into the seasonality of net shortwave radiation (blue) and net longwave radiation (red).}
+\end{figure}
+
+It is important to keep in mind that there is significant zonal heterogeneity in the seasonality of these terms. Most importantly, we find that the zonally averaged seasonality of surface turbulent fluxes (black/gray line in Fig. \ref{fig:dstf-lo-nhmid-45}) is a residual of larger seasonalities over land and ocean that oppose each other. Surface turbulent fluxes increase during summer over land because the lower heat capacity of land enables it to heat up quickly in response to increased insolation. When we evaluate the seasonality of each term in the MSE equation only over land we find the weakening of MSE flux convergence (which becomes a strong divergence, see red line in Fig. \ref{fig:dmse-l-nhmid-45}) is now comparable to the increase in surface turbulent fluxes (blue line in Fig. \ref{fig:dmse-l-nhmid-45}). This suggests that NH midlatitude RCE forms because stronger insolation during summer causes the surface over land to warm enhancing surface latent and sensible heat fluxes which destabilizes the atmosphere. This seems like the correct interpretation as opposed to the earlier interpretation based on the zonally averaged energy fluxes.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./dstf-lo-nhmid-45.png}
+\caption{\label{fig:dstf-lo-nhmid-45}The seasonality of the zonally averaged surface turbulent fluxes (black) decomposed into the seasonality over land (red) and over ocean (blue). The sum of the two terms are shown in gray indicating that the two components are linearly additive.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./dmse-l-nhmid-45.png}
+\caption{\label{fig:dmse-l-nhmid-45}Same as Fig. \ref{fig:dmse-nhmid-45} except evaluated only over land.}
+\end{figure}
+
+We now focus our attention to the regime transition in the NH high latitudes where RAE vanishes during the summer. Our previous analysis suggested that the strengthening of surface turbulent fluxes contribute more than the weakening of MSE flux convergence to this transition (Fig. 4 from 2020-10-14 notes). Here we find that the seasonality of MSE flux convergence is greater than that of the surface turbulent fluxes (Fig. \ref{fig:mse-nhmid-85}). As was the case in the NH midlatitudes, the weakening MSE flux convergence is mostly balanced by a weakening radiative cooling during the summer. However the small increase in surface turbulent fluxes is more consequential here because only a small increase is required to push the state from RAE to RCAE. Thus I find the weighting terms in the linear \(R_1\) decomposition to be meaningful because it captures the relative importance of the seasonality of surface turbulent fluxes to the MSE flux divergence when the mean state is close to the RAE/RCAE boundary.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=.9\linewidth]{./mse-nhmid-85.png}
+\caption{\label{fig:mse-nhmid-85}The zonally averaged climatology of each term in the MSE equation is shown at 85 N.}
+\end{figure}
+
+\section{Next Steps}
+\label{sec:orgd23aaa9}
+\begin{itemize}
+\item Check the spatio-temporal structure of the deviation of the vertically averaged lapse rate from a dry adiabat using temperature profiles sourced from the native model grid vs cubic spline interpolated pressure grid data.
+\item Understand why the NH RAE seasonality is unrealistic in ERA-Interim.
+\item Use ECHAM slab ocean simulations to study the influence of the mixed layer depth on the seasonality of RCE and sea ice on RAE.
+\end{itemize}
+
+\bibliographystyle{apalike}
+\bibliography{../../../../../../mnt/c/Users/omiyawaki/Sync/papers/references}
+\end{document}

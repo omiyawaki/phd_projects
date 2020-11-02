@@ -1,0 +1,417 @@
+%% Version 5.0, 2 January 2020
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TemplateV5.tex --  LaTeX-based template for submissions to the 
+% American Meteorological Society
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PREAMBLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Start with one of the following:
+% DOUBLE-SPACED VERSION FOR SUBMISSION TO THE AMS
+\documentclass{ametsocV5}
+
+% TWO-COLUMN JOURNAL PAGE LAYOUT---FOR AUTHOR USE ONLY
+% \documentclass[twocol]{ametsocV5}
+
+
+% Enter packages here. If too many math alphabets are used,
+% remove unnecessary packages or define hmmax and bmmax as necessary.
+
+%\newcommand{\hmmax}{0}
+%\newcommand{\bmmax}{0}
+\usepackage{amsmath,amsfonts,amssymb,bm}
+\usepackage{mathptmx}%{times}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% To be entered by author:
+
+%% May use \\ to break lines in title:
+
+\title{Understanding the seasonality of convective and stable lapse rate regimes using the MSE budget}
+
+%%% Enter authors' names, as you see in this example:
+%%% Use \correspondingauthor{} and \thanks{Current Affiliation:...}
+%%% immediately following the appropriate author.
+%%%
+%%% Note that the \correspondingauthor{} command is NECESSARY.
+%%% The \thanks{} commands are OPTIONAL.
+
+    %\authors{Author One\correspondingauthor{Author name, email address}
+% and Author Two\thanks{Current affiliation: American Meteorological Society, 
+    % Boston, Massachusetts.}}
+
+\authors{Osamu Miyawaki\correspondingauthor{Osamu Miyawaki, miyawaki@uchicago.edu}
+        , Tiffany A. Shaw
+        , and Malte F. Jansen}
+
+%% Follow this form:
+    % \affiliation{American Meteorological Society, 
+    % Boston, Massachusetts}
+
+\affiliation{The University of Chicago, Chicago, Illinois}
+
+%% If appropriate, add additional authors, different affiliations:
+    %\extraauthor{Extra Author}
+    %\extraaffil{Affiliation, City, State/Province, Country}
+
+%\extraauthor{}
+%\extraaffil{}
+
+%% May repeat for a additional authors/affiliations:
+
+%\extraauthor{}
+%\extraaffil{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ABSTRACT
+%
+% Enter your abstract here
+% Abstracts should not exceed 250 words in length!
+%
+ 
+
+\abstract{Enter the text of your abstract here.}
+
+\begin{document}
+
+%% Necessary!
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SIGNIFICANCE STATEMENT/CAPSULE SUMMARY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% If you are including an optional significance statement for a journal article or a required capsule summary for BAMS 
+% (see www.ametsoc.org/ams/index.cfm/publications/authors/journal-and-bams-authors/formatting-and-manuscript-components for details), 
+% please apply the necessary command as shown below:
+%
+% \statement
+% Significance statement here.
+%
+% \capsule
+% Capsule summary here.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MAIN BODY OF PAPER
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+%% In all cases, if there is only one entry of this type within
+%% the higher level heading, use the star form: 
+%%
+% \section{Section title}
+% \subsection*{subsection}
+% text...
+% \section{Section title}
+
+%vs
+
+% \section{Section title}
+% \subsection{subsection one}
+% text...
+% \subsection{subsection two}
+% \section{Section title}
+
+%%%
+% \section{First primary heading}
+
+% \subsection{First secondary heading}
+
+% \subsubsection{First tertiary heading}
+
+% \paragraph{First quaternary heading}
+
+\section{Introduction}
+\begin{itemize}
+  \item The vertical temperature profile plays an important role in setting the:
+        \begin{enumerate}
+          \item strength of tropical storms (e.g. CAPE).
+          \item lapse rate feedback (e.g. negative feedback in tropics, positive feedback in the poles that contributes to polar amplification).
+        \end{enumerate}
+  \item The meridional temperature structure plays an important role in midlatitude storms.
+  \item A model of intermediate complexity that predicts the latitude--height temperature structure would be a valuable theoretical tool for studying the above phenomena.
+  \item Here we identify and understand what sets the latitudinal extent and the seasonal migration of two end-member lapse rate regimes:
+        \begin{enumerate}
+          \item convective lapse rate regime
+          \item inversion lapse rate regime
+        \end{enumerate}
+  \item We use a nondimensional number \(R_{1}\) that appears in the vertically averaged MSE equation to define two end-member energy balance regimes:
+        \begin{enumerate}
+          \item radiative convective equilibrium
+          \item radiative advective equilibrium
+        \end{enumerate}
+  \item We show that there is good agreement between the convective lapse rate and radiative convective equilibrium regimes and the inversion lapse rate and radiative advective equilibrium regimes.
+  \item We use the MSE budget to investigate what external parameters (e.g. insolation, surface albedo, mixed layer depth) explains the hemispheric asymmetry of the seasonality of the lapse rate regimes and the seasonal regime transitions that occur in the northern hemisphere.
+  \item We vary the mixed layer depth of a slab ocean aquaplanet and investigate its influence on the seasonality of convective lapse rate regimes.
+\end{itemize}
+
+\section{Methods}
+
+\subsection{Convective and inversion lapse rate regimes}
+\begin{itemize}
+  \item We use a cubic spline interpolation to convert the temperature profile to sigma coordinates. We do this to avoid the issue of averaging out inversions that occur at various pressure or height levels in the presence of topography.
+  \item Following \cite{stone1979}, we define the deviation of a lapse rate from a convective lapse rate as the percent difference from a moist adiabatic lapse rate:
+        \begin{equation}
+          \delta_{c} = \frac{\Gamma_{m}-\Gamma}{\Gamma_{m}}
+        \end{equation}
+  \item We vertically average \(\delta_{c}\) from 0.85--0.4 in linear sigma coordinates to obtain the free tropospheric deviation \(\langle \delta_{c} \rangle\).
+  \item To quantify the presence of a near surface inversion, we define the deviation of a lapse rate from a dry adiabatic lapse rate in a similar manner:
+        \begin{equation}
+          \delta_{i} = \frac{\Gamma_{d}-\Gamma}{\Gamma_{d}}
+        \end{equation}
+  \item Note that \(\delta_{i}=1\) corresponds to an isothermal stratification and thus \(\delta_{i}>1\) indicates the presence of an inversion.
+  \item We use the dry adiabat as the reference lapse rate here because in general the boundary layer (where the near surface inversion forms) is not saturated.
+  \item We vertically average \(\delta_{i}\) from 1--0.85 in linear sigma coordinates to obtain the near surface deviation \(\langle \delta_{i} \rangle\).
+\end{itemize}
+
+\subsection{Column energy balance regimes using the vertically averaged MSE budget}
+\begin{itemize}
+  \item We start with the MSE equation to derive the end-member energy balance regimes:
+        \begin{equation} \label{eq:mse}
+          \frac{\partial \langle h \rangle}{\partial t} + \nabla\cdot \langle F_{m} \rangle = R_{a} + \mathrm{LH+SH}
+        \end{equation}
+  \item We divide by \(R_{a}\) (a negative definite quantity that exhibits smaller spatial structure compared to the other terms) to obtain the non-dimensionalized MSE equation:
+        \begin{align}
+          \frac{\frac{\partial \langle h \rangle}{\partial t} + \nabla\cdot \langle F_{m} \rangle }{R_{a}} &= 1 + \frac{\mathrm{LH+SH}}{R_{a}} \\
+          R_{1} &= 1 + R_{2}
+        \end{align}
+  \item The MSE tendency term is one order of magnitude smaller than the MSE flux divergence term. Thus \(R_{1}\) quantifies the strength of horizontal fluxes through the column and \(R_{2}\) quantifies the strength of vertical fluxes through the column.
+  \item Strict radiative convective equilibrium requires that all fluxes be in the vertical direction (i.e., \(R_{1}=0\)). This is rarely satisfied aside from the global mean, so we relax the definition of radiative convective equilibrium as regions where the MSE flux convergence is negligibly small (\(0 \le R_{1} \le \epsilon\)) or the MSE flux is divergent \(R_{1}\le 0\).
+  \item The reason we allow all magnitudes of a positive MSE flux divergence is because MSE flux divergence cools the atmosphere and thus is a destabilizing flux that is balanced by stronger surface turbulent fluxes (convection).
+  \item Strict radiative advective equilibrium requires that all fluxes be in the horizontal direction (i.e., \(R_{2}=0\) or equivalently \(R_{1}=1\)).
+  \item To be consistent with the relaxed definition of RCE, we relax the definition for radiative advective equilibrium as regions where positive surface turbulent fluxes are small (\(-\epsilon \le R_{2} \le 0 \) or equivalently \(1-\epsilon \le R_{1} \le 1\)) or the surface turbulent fluxes are negative (\(R_{2} \ge 0 \) or equivalently \(R_{1} \ge 1\)).
+  \item In summary, we define RCE as regions that satisfy \(R_{1}\le\epsilon\) and RAE as regions that satisfy \(R_{1}\ge 1-\epsilon\). Intermediate values of \(R_{1}\) (i.e. \(\epsilon < R_{1} < 1-\epsilon\)) are in radiative convective advective equilibrium, where all terms in the MSE equation (except MSE tendency) are important.
+  \item We choose \(\epsilon=0.1\) as this leads to good agreement between the spatio-temporal structure of the end-member lapse rate regimes and energy balance regimes.
+\end{itemize}
+
+\subsection{Observation/reanalysis data}
+\begin{itemize}
+  \item We use ERA-Interim data to calculate the lapse rate deviation, MSE tendency, and mass corrected MSE flux divergence (courtesy of Aaron Donohoe).
+  \item We calculate \(R_{a}\) using the CERES Ed4.1 TOA and surface radiation data.
+  \item We infer the surface turbulent fluxes as the residual.
+  \item We obtain the monthly climatology from monthly averaged data between 2000-03 and 2018-02.
+\end{itemize}
+
+\subsection{Model data}
+\begin{itemize}
+  \item We are currently only looking at the MPI-ESM-LR AOGCM data.
+  \item The plan is to repeat this analysis for the CMIP5/6 archive.
+  \item We calculate \(R_{a}\) using the standard model output of radiative fluxes at TOA and the surface.
+  \item We use the standard model output of latent (hfls) and sensible heat (hfss) for the surface turbulent fluxes.
+  \item We infer the MSE tendency and MSE flux divergence as the residual.
+  \item We obtain the monthly climatology from monthly averaged data during the last 30 years of the 150 year piControl experiment.
+\end{itemize}
+
+\subsection{ECHAM6 slab ocean aquaplanet experiments}
+\begin{itemize}
+  \item ECHAM6 is the atmospheric component of the MPI-ESM-LR GCM.
+  \item We configure ECHAM6 with a slab ocean to test the hypothesis that the mixed layer depth controls the seasonal amplitude of the poleward boundary of RCE.
+\end{itemize}
+
+\section{Results}
+\subsection{Convective and stable lapse rate regimes}
+\begin{itemize}
+  \item The free tropospheric stratification is either conditionally unstable (orange filled contours in Fig.~\ref{fig:malr-mon-lat}) or close to neutrally stable (white filled contours in Fig.~\ref{fig:malr-mon-lat}) to a saturated moist adiabat equatorward of 30$^{\circ}$ N/S yearround.
+  \item Thus the tropical free tropospheric stratification is set by convection yearround.
+  \item The northern boundary of the convective lapse rate regime migrates poleward out to 60$^{\circ}$ N in July (Fig.~\ref{fig:malr-mon-lat}).
+  \item The seasonal expansion of the northern boundary of the convective regime is consistent with the results obtained by \cite{stone1979} (cf. their Fig. 7).
+  \item The southern boundary of the convective lapse rate regime varies less throughout the annual cycle, expanding out to only 40$^{\circ}$ in January (Fig.~\ref{fig:malr-mon-lat}). The southern boundary contracts equatorward to 20$^{\circ}$ S during the SH winter in ERA-Interim (Fig.~\ref{fig:malr-mon-lat}(a)) whereas there is negligible contraction in MPI-ESM-LR.
+  \item The near surface stratification exhibits an inversion (100\% contour in Fig.~\ref{fig:dalr-mon-lat}) poleward of 60 $^{\circ}$ N and 70$^{\circ}$ S in the respective winter hemispheres.
+  \item The southern boundary of the NH inversion lapse rate regime migrates poleward following the seasonality of insolation until the inversion vanishes in the summer.
+        \item The northern boundary of the SH inversion lapse rate regime also migrates poleward and vanishes in the summer in ERA-Interim (Fig.~\ref{fig:dalr-mon-lat}(a)) whereas there is negligible seasonality in MPI-ESM-LR (Fig.~\ref{fig:dalr-mon-lat}(b)).
+\end{itemize}
+
+\subsection{RCE and RAE regimes}
+\begin{itemize}
+  \item The spatio-temporal structure of the critical \(R_{1}\) values for RCE (\(R_{1}\le 0.1\)) and RAE (\(R_{1}\ge 0.9\)) closely follow the structure of convective (\(\delta_{c}\le 10\%\)) and inversion (\(\delta_{i}\ge 90\%\)) lapse rate regimes, respectively (Fig.~\ref{fig:mpi-r1-temp}(a)).
+  \item The results do not significantly change for alternative values of \(\epsilon\) within \(0.05 \le \epsilon \le 0.2\).
+  \item The large negative values of \(R_{1}\) in the tropics that follows the seasonality of insolation arises from the strong MSE flux divergence associated with the upward branch of the Hadley Cell.
+  \item I am not sure what causes the structure of low \(R_{1}\) values around 30$^{\circ}$ N from January through June. One hypothesis is that it could be related to the monsoon because such a structure is not found in the SH. Another hypothesis is that this latitude has a large fraction of deserts (e.g. Sahara) and orography (e.g. Tibetan plateau) which are regions where atmospheric radiative cooling is low (because more emission from the surface can make it out to space over deserts and mountains).
+  \item The annually and spatially averaged temperature profile over the RCE regime is close to moist adiabatic (Fig.~\ref{fig:mpi-r1-temp}(b)).
+  \item The annually and spatially averaged temperature profile over the RAE regime exhibits a near surface inversion (Fig.~\ref{fig:mpi-r1-temp}(c)).
+  \item These results suggest that RCE and RAE as diagnosed by \(R_{1}\) is a good proxy for identifying convective and inversion lapse rate regimes.
+  \item The benefit of using the MSE budget is that we can connect the spatio-temporal structure of lapse rate regimes to parameters that are external to the climate system, such as insolation, surface albedo, and mixed layer depth. We first quantify the seasonality of the three fluxes (\(R_{a}\), \(\nabla\cdot\langle F_{m}\rangle\), and \(\mathrm{LH+SH}\)) to investigate which term(s) is(are) responsible for the hemispheric asymmetry in the boundaries of RCE and RAE. Next, we test the hypothesis that the seasonality of the poleward boundary of RCE is governed by the surface heat capacity. We systematically vary the surface heat capacity in a slab ocean aquaplanet model by prescribing the mixed layer depth.
+
+\end{itemize}
+
+
+\subsection{Hemispheric asymmetry}
+\begin{itemize}
+  \item We now focus on latitude bands in the midlatitudes (40--50$^{\circ}$ N/S) and the high latitudes (80--90$^{\circ}$ N/S) to understand what sets the difference in the seasonality of the RCE and RAE boundaries across the northern and southern hemisphere.
+  \item We find that the transition from RCAE to RCE in the NH midlatitude summer (Fig.~\ref{fig:mpi-r1-decomp-nhmid}(a)) arises due to a weakening of MSE flux convergence to 0 (red line in Fig.~\ref{fig:mpi-r1-decomp-nhmid}(b)). There is a small but nearly negligible contribution from a strengthening of surface turbulent fluxes (blue line in Fig.~\ref{fig:mpi-r1-decomp-nhmid}(b)).
+  \item In contrast, the SH midlatitudes remains in RCAE yearround (Fig.~\ref{fig:mpi-r1-decomp-shmid}(a)). As in the NH hemisphere, the MSE flux convergence weakens during summer (red line in Fig.~\ref{fig:mpi-r1-decomp-shmid}(b)) but not completely to 0. Notably, the seasonality of surface turbulent fluxes in the SH midlatitudes are nearly equal in amplitude and opposite in phase to the MSE flux divergence. Thus, when MSE flux convergence is weakest (weak horizontal heat flux) the surface turbulent fluxes are also weakest (weak vertical heat flux) and the result is a weak seasonal amplitude of \(R_{1}\).
+  \item The transition from RAE to RCAE in the NH high latitude summer (Fig.~\ref{fig:mpi-r1-decomp-nhpole}) arises due to both a weakening of the MSE flux convergence and a strengthening of the surface turbulent fluxes during NH summer. The latter may be interpreted to play a more important role as its annual mean value is close to 0 and a positive surface turbulent flux is required to bring a column out of a state of RAE.
+  \item In contrast, the SH high latitudes remains in RAE yearround (Fig.~[ref{fig:mpi-r1-decomp-shpole}]). As in the NH hemisphere, both the weakening MSE flux convergence and strengthening (less negative) surface turbulent fluxes in SH summer pushes the column closer to a state of RCAE. However, the seasonal amplitude of surface turbulent fluxes is unable to overcome the negative surface turbulent fluxes and thus remains in RAE.
+  \item In summary, we find that 1) the difference in the seasonality of the NH and SH RCE boundary is due to the phase of the surface turbulent fluxes (in phase with MSE flux divergence in NH and out of phase with MSE flux divergence in SH) and 2) the difference in the seasonality of the NH and SH RAE boundary is due to the differences in the annual mean energy budget (annual mean surface turbulent fluxes are positive in the NH and negative in the SH).
+\end{itemize}
+
+\subsection{Connecting the seasonality of \(R_{1}\) to external parameters}
+\begin{itemize}
+  \item We now work toward understanding why the phase of the surface turbulent fluxes are opposite in the NH and SH.
+  \item We hypothesize that the hemispheric asymmetry arises due to the lower surface heat capacity in the northern compared to the southern hemisphere midlatitudes.
+  \item To do: Show the land/ocean contrast in the NH midlatitudes and how NH midlatitudes over ocean behaves similarly to the zonal average of the SH midlatitudes.
+\end{itemize}
+
+\subsection{Varying mixed layer depth explains hemispheric asymmetry of RCE}
+\begin{itemize}
+        \item To do: explore how the phase of surface turbulent fluxes varies as a function of mixed layer depth.
+\end{itemize}
+
+\section{Summary and Discussion}
+\begin{itemize}
+  \item We find that the northern boundary of the convective lapse rate regime expands poleward to the NH midlatitudes during NH summer in both ERA-Interim and MPI-ESM-LR. The southern boundary does not expand poleward during SH summer. The amplitude of the seasonality of the southern boundary is different in ERA-Interim (contracts equatorward in SH winter) compared to MPI-ESM-LR (negligible contraction).
+  \item The equatorward boundary of the NH inversion lapse rate regime extends to \(60^{\circ}\) N during NH winter and vanishes during summer in both ERA-Interim and MPI-ESM-LR. The boundary of the SH inversion lapse rate regime also vanishes during SH summer in ERA-Interim, whereas there is negligible migration of the boundary in MPI-ESM-LR.
+
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ACKNOWLEDGMENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\acknowledgments
+Keep acknowledgments (note correct spelling: no ``e'' between the ``g'' and
+``m'') as brief as possible. In general, acknowledge only direct help in
+writing or research. Financial support (e.g., grant numbers) for the work
+done, for an author, or for the laboratory where the work was performed is
+best acknowledged here rather than as footnotes to the title or to an
+author's name. Contribution numbers (if the work has been published by the
+author's institution or organization) should be included as footnotes on the title page,
+not in the acknowledgments.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DATA AVAILABILITY STATEMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%
+\datastatement
+The data availability statement is where authors should describe how the data underlying 
+the findings within the article can be accessed and reused. Authors should attempt to 
+provide unrestricted access to all data and materials underlying reported findings. 
+If data access is restricted, authors must mention this in the statement.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIXES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Use \appendix if there is only one appendix.
+%\appendix
+
+% Use \appendix[A], \appendix[B], if you have multiple appendixes.
+% \appendix[A]
+
+%% Appendix title is necessary! For appendix title:
+%\appendixtitle{}
+
+%%% Appendix section numbering (note, skip \section and begin with \subsection)
+% \subsection{First primary heading}
+
+% \subsubsection{First secondary heading}
+
+% \paragraph{First tertiary heading}
+
+%% Important!
+%\appendcaption{<appendix letter and number>}{<caption>} 
+%must be used for figures and tables in appendixes, e.g.,
+%
+%\begin{figure}
+%\noindent\includegraphics[width=19pc,angle=0]{figure01.pdf}\\
+%\appendcaption{A1}{Caption here.}
+%\end{figure}
+%
+% All appendix figures/tables should be placed in order AFTER the main figures/tables, i.e., tables, appendix tables, figures, appendix figures.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% REFERENCES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Make your BibTeX bibliography by using these commands:
+\bibliographystyle{ametsoc2014}
+\bibliography{references}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TABLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Enter tables at the end of the document, before figures.
+%%
+%
+%\begin{table}[t]
+%\caption{This is a sample table caption and table layout.  Enter as many tables as
+%  necessary at the end of your manuscript. Table from Lorenz (1963).}\label{t1}
+%\begin{center}
+%\begin{tabular}{ccccrrcrc}
+%\hline\hline
+%$N$ & $X$ & $Y$ & $Z$\\
+%\hline
+% 0000 & 0000 & 0010 & 0000 \\
+% 0005 & 0004 & 0012 & 0000 \\
+% 0010 & 0009 & 0020 & 0000 \\
+% 0015 & 0016 & 0036 & 0002 \\
+% 0020 & 0030 & 0066 & 0007 \\
+% 0025 & 0054 & 0115 & 0024 \\
+%\hline
+%\end{tabular}
+%\end{center}
+%\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FIGURES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Enter figures at the end of the document, after tables.
+%%
+%
+%\begin{figure}[t]
+%  \noindent\includegraphics[width=19pc,angle=0]{figure01.pdf}\\
+%  \caption{Enter the caption for your figure here.  Repeat as
+%  necessary for each of your figures. Figure from \protect\cite{Knutti2008}.}\label{f1}
+%\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=0.8\textwidth]{malr-mon-lat.png}\\
+  \caption{The spatio-temporal structure of the free tropospheric lapse rate deviation from a moist adiabatic lapse rate is shown for a) ERA-Interim reanalysis and b) MPI-ESM-LR. We idenfity the region where \(\delta_{c}\le 10\%\) (thick orange contour) as the convective lapse rate regime.}
+  \label{fig:malr-mon-lat}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=0.8\textwidth]{dalr-mon-lat.png}\\
+  \caption{The spatio-temporal structure of the near surface lapse rate deviation from a dry adiabatic lapse rate is shown for a) ERA-Interim reanalysis and b) MPI-ESM-LR. We idenfity the regions where \(\delta_{i}\ge 90\%\) (thick blue contour) as the inversion lapse rate regime.}
+  \label{fig:dalr-mon-lat}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=0.8\textwidth]{mpi-r1-temp.png}\\
+  \caption{a) The spatio-temporal structure of \(R_{1}\) is shown for MPI-ESM-LR. We identify the region where \(R_{1}\le 0.1\) (thick orange contour) to be in radiative convective equilibrium and regions where \(R_{1}\ge 0.9\) (thick cyan contour) to be in radiative advective equilibrium. b) The annually averaged temperature profile in the RCE regime exhibits a temperature profile that is close to moist adiabatic. c) The annually averaged temperature profile in the RAE regime exhibits a near surface inversion.}
+  \label{fig:mpi-r1-temp}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=0.8\textwidth]{mpi-r1-decomp-nhmid.png}\\
+  \caption{a) The seasonal cycle of \(R_{1}\) averaged over the NH midlatitudes (40 to 50$^{\circ}$ N). The NH midlatitudes is in RCE from April through August. b) The seasonal cycle of each term in the MSE equation shows that the NH midlatitudes goes into a state of RCE through a weakening of MSE flux convergence (which becomes an MSE flux divergence during May and June).}
+  \label{fig:mpi-r1-decomp-nhmid}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=0.8\textwidth]{mpi-r1-decomp-shmid.png}\\
+  \caption{Same as Fig.~\ref{fig:mpi-r1-decomp-nhmid} except evaluated over the SH midlatitudes (40 to 50$^{\circ}$ S). The SH midlatitudes is in RCAE yearround. In contrast to the NH midlatitudes, there is a significant seasonal amplitude of surface turbulent fluxes whose phase is nearly opposite that of MSE flux convergence. Thus both vertical and horizontal heat fluxes play an important role yearround, which is also reflected by the small amplitude of seasonality in \(R_{1}\).}
+  \label{fig:mpi-r1-decomp-shmid}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=0.8\textwidth]{mpi-r1-decomp-nhpole.png}\\
+  \caption{Same as Fig.~\ref{fig:mpi-r1-decomp-nhpole} except evaluated over the NH high latitudes (80 to 90$^{\circ}$ N). The NH high latitudes is in RAE from August through April. The NH high latitudes goes out of a state of RAE both through a weakening of MSE flux convergence and a strengthening of surface turbulent fluxes.}
+  \label{fig:mpi-r1-decomp-nhpole}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=0.8\textwidth]{mpi-r1-decomp-shpole.png}\\
+  \caption{Same as Fig.~\ref{fig:mpi-r1-decomp-shpole} except evaluated over the SH high latitudes (80 to 90$^{\circ}$ S). The SH high latitudes is in RAE yearround. Both the weakening MSE flux convergence and strengthening (less negative) surface turbulent fluxes brings the SH high latitudes closer toward RCAE during SH summer. However, the amplitude is not large enough for the surface turbulent fluxes to become positive.}
+  \label{fig:mpi-r1-decomp-shpole}
+\end{figure}
+
+\end{document}

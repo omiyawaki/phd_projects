@@ -1,0 +1,95 @@
+#+title: Research Notes
+#+author: Osamu Miyawaki
+#+date: October 14, 2020
+#+options: toc:nil
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry}
+
+* Introduction
+Action items from our previous meeting are:
+- Understand why there is a discrepancy between the temperature profiles when converting to sigma coordinates from the model grid vs the pressure grid output.
+- Make line plots of the seasonality of \(R_1\).
+- Understand why the NH RAE seasonality is unrealistic in ERA-Interim.
+  - Compare MSE flux divergence values from ERA-Interim with other sources.
+  - Compare radiative cooling values from CERES with other sources.
+
+* Sigma coordinate conversion
+Previously we found that there is a significant discrepancy in the temperature profiles plotted in sigma space when using the ECHAM6 data output on the model grid vs the standard pressure grid (Fig. [[fig:temp_comp]]). The discrepancy is concentrated in the lower troposphere, where the model grid temperature profile (solid lines) shows a stronger but shallower inversion compared to those in the standard pressure temperature profile (dashed lines). The similarity of the two profiles above this region likely suggests that the discrepancy between the two profiles arises from some reason unrelated to my conversion algorithm. My hypothesis for the discrepancy arises due to the difference in vertical grid resolutions between the model grid and the standard output pressure grid.
+
+#+caption: Temperature profiles in the SH high latitudes computed in sigma coordinates using the ECHAM6 model grid data (solid lines) and the standard output pressure grid data (dashed lines).
+#+label: fig:temp_comp
+[[./comp_nh.png]]
+
+The conversion shown here is linearly interpolated and thus reveals the coarseness of the pressure grid temperature profile below the \(\sigma=0.85\) layer. This point is also illustrated by comparing the contours of each vertical layer in the model grid and the standard pressure grid (Fig. [[fig:mlev]]). There are nearly 4 times as many vertical layers in the native model grid compared to the standard pressure grid. The coarseness of the standard pressure grid on the temperature profile in the sigma space is exacerbated in regions of lower surface pressure because the depth of the layer in sigma space is inversely proportional to the surface pressure (i.e. \(\delta \sigma = \delta p / p_s\)).
+
+#+caption: Comparison of the ECHAM6 model grid projected onto the pressure vs latitude space and the standard output pressure levels.
+#+label: fig:mlev
+[[./mlev.png]]
+
+Using a cubic interpolation to convert to sigma coordinates reduces this discrepancy but does not eliminate it (Fig. [[fig:temp_comp_cubic]]). It would be a good idea to use cubic interpolation moving forward to mitigate the effects of a coarse vertical grid. It would also be useful to calculate the deviation of the vertically averaged lapse rate from a dry adiabat using both temperature profiles and see if there are any significant spatio-temporal differences. If the difference is small, then we would be able to expand this analysis to the CMIP5 archive, which outputs data on the same coarse standard pressure grid. If the difference is significant, we may need to limit our analysis to models where the data are available in the native model grid.
+
+#+caption: Same as Fig. [[fig:temp_comp]] except the conversion to sigma coordinates is performed with a cubic instead of a linear interpolation.
+#+label: fig:temp_comp_cubic
+[[./comp_nh_cubic.png]]
+
+* Visualizing the seasonality of \(R_1\) in line plots
+The month vs latitude contour plot of \(R_1\) contains a lot of information. A line plot showing the seasonality of \(R_1\) would be simpler and may better convey the seasonality of the RCAE regime transitions along select latitudes. A line plot also allows us to better analyze the insights obtained from linearizing the seasonality of \(R_1\).
+
+Consistent with our previous finding that NH RAE vanishes during summer, 85 N is in RAE between September and April (Fig. [[fig:r1-decomp-85]]). The decrease in \(R_1\) during summer can be due to either a reduction in MSE flux convergence due to weaker advective heat transport or an increase in surface turbulent fluxes. To quantify the relative importance of these two mechanisms, we take the first order Taylor approximation of \(R_1\):
+#+label: eq:dr1
+\begin{equation}
+\Delta R_1 \approx \frac{\Delta(\nabla\cdot\langle F_m\rangle)}{R_a} - \frac{\nabla\cdot\langle F_m\rangle}{R_a^2}\Delta R_a \, .
+\end{equation}
+We want to compare \(\Delta(\nabla\cdot\langle F_m \rangle)\) with \(\Delta (\mathrm{LH+SH})\) instead of \(\Delta R_a\). Thus, we also consider the first order Taylor approximation of \(R_2\):
+#+label: eq:dr2
+\begin{equation}
+\Delta R_2 \approx \frac{\Delta(\mathrm{LH+SH})}{R_a} - \frac{\mathrm{LH+SH}}{R_a^2}\Delta R_a \, .
+\end{equation}
+Since the non-dimensionalized MSE equation is simply
+\begin{equation}
+R_1 = 1 + R_2 \, ,
+\end{equation}
+\(\Delta R_1=\Delta R_2\). Thus, solving for \(\Delta R_a\) in Equation ([[eq:dr2]]) and substituting into Equation ([[eq:dr1]]), we get
+\begin{equation}
+\Delta R_1 = - \frac{\mathrm{LH + SH}}{R_a^2}\Delta(\nabla\cdot \langle F_m \rangle) + \frac{\nabla\cdot \langle F_m\rangle}{R_a^2}\Delta(\mathrm{LH+SH}) \, .
+\end{equation}
+We interpret the first term as the contribution of the seasonality of MSE flux convergence on \(\Delta R_1\) dn the second term as the contribution of the seasonality of surface turbulent fluxes on \(\Delta R_1\). The linear approximation of \(\Delta R_1\) mostly captures the seasonality of \(R_1\) (dash dot line in Fig. [[fig:r1-decomp-85]]). The largest discrepancy is found from May through July, when the decrease in \(\Delta R_1\) is smaller in magnitude in the linear approximation. Most of the seasonality of \(R_1\) can be attributed to the seasonality of the surface turbulent fluxes (dotted line in Fig. [[fig:r1-decomp-85]]) rather than the MSE flux convergence (dash line in Fig. [[fig:r1-decomp-85]]).
+
+#+caption: The zonally averaged seasonality of \(R_1\) in MPI-ESM-LR at 85 N. 85 N is in RAE between September and April as indicated by \(\Delta R_1\) (solid black line) crossing above the blue line.
+#+label: fig:r1-decomp-85
+[[./0_mon_dr1_decomp_85.png]]
+
+In contrast, 85 S is in RAE yearround (Fig. [[fig:r1-decomp-85S]]). Note that over the annual average the SH high latitudes is farther away from the RCAE state compared to the NH high latitudes (compare distance of the 0 line from the blue line). As in the NH, the seasonality of surface turbulent fluxes in the SH act to reduce \(R_1\) (closer toward an RCAE regime) during the summer. However, this is counteracted by the seasonality of MSE flux convergence that acts to increase \(R_1\) during summer. This is in contrast to the NH where MSE flux convergence weakens during the summer.
+
+#+caption: The zonally averaged seasonality of \(R_1\) in MPI-ESM-LR at 85 S. 85 S is in RAE yearround as indicated by \(\Delta R_1\) (solid black line) remaining above the blue line.
+#+label: fig:r1-decomp-85S
+[[./0_mon_dr1_decomp_-85.png]]
+
+RCE is found during summer in the NH midlatitudes as represented by 45 N (Fig. [[fig:r1-decomp-45]]). Here, the \(\Delta R_1\) seasonality is mostly attributed to the seasonality of MSE flux convergence. What this suggests is that the annually averaged surface turbulent fluxes in the NH midlatitudes is sufficient to drive convection in the absence of strong MSE flux convergence. Furthermore, we find that the zonally averaged seasonality of \(R_1\) is more consistent with that over land (Fig. [[fig:land-45]]) compared to over the ocean (Fig. [[fig:ocean-45]]).
+
+#+caption: The zonally averaged seasonality of \(R_1\) in MPI-ESM-LR at 45 N. 45 N is in RCE between April and August as indicated by \(\Delta R_1\) (solid black line) crossing below the orange line.
+#+label: fig:r1-decomp-45
+[[./0_mon_dr1_decomp_45.png]]
+
+#+caption: Same as Fig. [[fig:r1-decomp-45]] but evaluated only over land.
+#+label: fig:land-45
+[[./land-45.png]]
+
+#+caption: Same as Fig. [[fig:r1-decomp-45]] but evaluated only over ocean.
+#+label: fig:ocean-45
+[[./ocean-45.png]]
+
+The SH midlatitudes as represented by 45 S remains in RCAE yearround (Fig. [[fig:r1-decomp-45S]]). While the seasonality of MSE flux convergence contributes to a decrease of \(R_1\) during summer as was the case for the NH, the amplitude of the seasonality in the SH is nearly half of that in the NH. Thus the seasonality of the surface turbulent fluxes become more apparent, which is shifted in phase relative to the seasonality of MSE flux convergence. The seasonality of surface turbulent fluxes acts to shift the \(R_1\) seasonality such that the maximum value (RCAE that is closer to RAE) is found during spring and the minimum value (RCAE that is closer to RCE) is found during fall. This is in contrast to the seasonality of surface turbulent fluxes in the NH which are in phase with the MSE flux convergence, which leads to a \(R_1\) maximum during winter and a minimum during summer.
+
+#+caption: The zonally averaged seasonality of \(R_1\) in MPI-ESM-LR at 45 S. 45 S is in RCE between April and August as indicated by \(\Delta R_1\) (solid black line) crossing below the orange line.
+#+label: fig:r1-decomp-45S
+[[./0_mon_dr1_decomp_-45.png]]
+
+* Next Steps
+- Check the spatio-temporal structure of the deviation of the vertically averaged lapse rate from a dry adiabat using temperature profiles sourced from the native model grid vs standard pressure grid.
+- Understand why the NH RAE seasonality is unrealistic in ERA-Interim.
+  - Compare MSE flux divergence values from ERA-Interim with other sources.
+  - Compare radiative cooling values from CERES with other sources.
+- Use ECHAM slab ocean simulations to study the influence of the mixed layer depth on the seasonality of RCE and sea ice on RAE.
+
+bibliographystyle:apalike
+bibliography:/mnt/c/Users/omiyawaki/Sync/papers/references.bib
