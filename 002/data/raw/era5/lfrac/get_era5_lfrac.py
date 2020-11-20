@@ -10,7 +10,7 @@ c.retrieve(
         'format': 'netcdf',
         'product_type': 'monthly_averaged_reanalysis',
         'variable': [
-            'convective_precipitation', 'evaporation', 'large_scale_precipitation',
+            'land_sea_mask',
         ],
         'year': [
             '1979', '1980', '1981',
@@ -36,4 +36,4 @@ c.retrieve(
         ],
         'time': '00:00',
     },
-    'era5_pe_1979_2019.nc')
+    'era5_lfrac_1979_2019.nc')

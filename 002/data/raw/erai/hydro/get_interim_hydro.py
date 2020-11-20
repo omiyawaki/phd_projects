@@ -18,5 +18,5 @@ server.retrieve({
     "stream": "mdfa",
     "type": "fc",
     "format": "netcdf",
-    "target": ("interim_pe_{yr}.nc").format(yr=year),
+    "target": ("interim_hydro_{yr}.nc").format(yr=year),
 })

@@ -3,7 +3,7 @@
 module unload python
 module load python
 
-declare -a vtypes=("rad" "pe" "stf" "temp" "temp_ml" "srfc" "zg" "w500" "tend" "div" "vas" "albedo") # variable type
+declare -a vtypes=("rad" "hydro" "stf" "temp" "temp_ml" "srfc" "zg" "w500" "tend" "div" "vas" "albedo") # variable type
 yr_start=2000
 mon_start=3
 day_start=1

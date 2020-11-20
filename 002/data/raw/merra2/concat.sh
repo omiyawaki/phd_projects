@@ -1,6 +1,6 @@
 #!/bin/sh
 
-declare -a vtypes=("rad" "hydro" "stf" "temp" "srfc" "zg" "w500" "tend" "div" "albedo" "lfrac" "orog") # variable type
+declare -a vtypes=("rad" "hydro" "stf" "temp" "srfc" "zg") # variable type
 yr_start="2000"
 mon_start="3"
 day_start="1"
@@ -13,12 +13,14 @@ cwd=$(pwd)
 for vtype in ${vtypes[@]}; do
     cd $vtype
 
-    filename=era5_${vtype}_${yr_start}_${yr_end}
+    filename=merra2_${vtype}_${yr_start}_${yr_end}
 
     if test -f "$filename.ymonmean.nc"; then
         echo "$filename.ymonmean.nc exists. Skipping..."
     else
-        cdo seldate,$yr_start-$mon_start-$day_start,$yr_end-$mon_end-$day_end era5_${vtype}_1979_2019.nc $filename.nc
+        cdo -b F64 mergetime MERRA2_*.nc4 $filename.merge.nc
+        cdo seldate,$yr_start-$mon_start-$day_start,$yr_end-$mon_end-$day_end $filename.merge.nc $filename.nc
+        rm $filename.merge.nc
 
         if [[ $vtype != "tend" ]]; then
             cdo ymonmean $filename.nc $filename.ymonmean.nc
