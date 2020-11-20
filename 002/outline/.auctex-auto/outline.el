@@ -14,13 +14,25 @@
     "newtxmath")
    (LaTeX-add-labels
     "eq:mse"
+    "sec:results"
+    "subsec:asym"
+    "eq:mse-toasfc"
+    "eq:mse-toasfc-approx"
+    "eq:sfc"
+    "eq:thf-full"
+    "eq:thf-deep"
+    "eq:d-deep"
+    "eq:thf-shallow"
+    "eq:in-phase"
+    "eq:d-shallow"
+    "fig:mpi-r1-ann"
+    "fig:mpi-r1-dev"
+    "fig:mpi-r1-decomp-mid"
+    "fig:mpi-r1-decomp-pole"
+    "fig:echam-rce"
+    "fig:echam-rae"
     "fig:malr-mon-lat"
-    "fig:dalr-mon-lat"
-    "fig:mpi-r1-temp"
-    "fig:mpi-r1-decomp-nhmid"
-    "fig:mpi-r1-decomp-shmid"
-    "fig:mpi-r1-decomp-nhpole"
-    "fig:mpi-r1-decomp-shpole")
+    "fig:dalr-mon-lat")
    (LaTeX-add-bibliographies
     "references"))
  :latex)
