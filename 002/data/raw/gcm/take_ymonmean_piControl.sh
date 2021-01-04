@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-declare -a vars_gcm=("va" "zg" "wap" "ta" "hur" "ps" "hurs" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "rldscs" "rlutcs" "rsdscs" "rsuscs" "rsutcs" "hfls" "hfss" "pr" "prc" "evspsbl" "vas") # list of GCM variables that we want to process
+# declare -a vars_gcm=("va" "zg" "wap" "ta" "hur" "ps" "hurs" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "rldscs" "rlutcs" "rsdscs" "rsuscs" "rsutcs" "hfls" "hfss" "pr" "prc" "evspsbl" "vas") # list of GCM variables that we want to process
+declare -a vars_gcm=("zg" "ta" "hur" "ps" "hurs" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
 # declare -a models=("MPI-ESM-LR/" "IPSL-CM5A-LR/") # list of GCM models to process
-declare -a models=("CCSM4/") # list of GCM models to process
+declare -a models=$(cd /project2/tas1/CMIP5_piControl/ && ls -d */) # list of GCM models to process
 
 cwd=$(pwd) # save current working directory
 cd ../piControl_raw # switch to directory with raw data
@@ -11,6 +12,7 @@ rwd=$(pwd) # save raw data directory
 
 # for dirs in */; do # loop through all the models
 for dirs in ${models[@]}; do # loop through models
+    echo $dirs
     mkdir -p $cwd/$dirs # make model directory in processed data folder if it doesn't exist yet
     cd $rwd/$dirs # go in the model directory
     for vars in ${vars_gcm[@]}; do

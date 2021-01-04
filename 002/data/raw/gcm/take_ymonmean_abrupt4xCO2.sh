@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-declare -a vars_gcm=("va" "zg" "wap" "ta" "hur" "ps" "hurs" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "rldscs" "rlutcs" "rsdscs" "rsuscs" "rsutcs" "hfls" "hfss" "pr" "prc" "evspsbl" "vas") # list of GCM variables that we want to process
-declare -a models=("MPI-ESM-LR") # list of GCMs to process
+declare -a vars_gcm=("zg" "ta" "hur" "ps" "hurs" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
+declare -a models=$(cd /project2/tas1/CMIP5_abrupt4xCO2/ && ls -d */) # list of GCM models to process
 
 cwd=$(pwd) # save current working directory
 cd ../abrupt4xCO2_raw # switch to directory with raw data
@@ -10,12 +10,14 @@ rwd=$(pwd) # save raw data directory
 
 # for dirs in */; do # loop through all the models
 for dirs in ${models[@]}; do # loop through models
+    echo $dirs
     mkdir -p $cwd/$dirs # make model directory in processed data folder if it doesn't exist yet
     cd $rwd/$dirs # go in the model directory
     for vars in ${vars_gcm[@]}; do
         if ls $cwd/${dirs}${vars}_*abrupt4xCO2*.nc 1> /dev/null 2>&1; then # check if data is already there
             echo "${vars} was already converted. Skipping..."
         else
+            echo $vars
             pattern="${vars}_*"
             if [ $(find . -maxdepth 1 -name "$pattern" -printf '.' | wc -m) -eq 0 ]; then # check if this file exists
                 echo "File of type $pattern does not exist. Skipping..."

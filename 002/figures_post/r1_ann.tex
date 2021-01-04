@@ -1,0 +1,24 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=large]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+
+\begin{document}
+
+\begin{figure}
+  \begin{subfigure}[t]{0.04\textwidth}
+    \textbf{\large{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.96\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/energy-flux/lo/ann/mse-r1.png}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.04\textwidth}
+    \textbf{\large{(b)}}
+  \end{subfigure}
+
+\end{figure}
+
+\end{document}
