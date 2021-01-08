@@ -100,6 +100,10 @@ function proc_flux(type, par)
         flux.stf.mse = -(flux.ahfl + flux.ahfs); flux.stf.mse2 = flux.stf.mse;
         flux.stf.dse = par.L*(flux.aprc+flux.aprl) - flux.ahfs;
     end
+    flux.stf.mse_ac = flux.stf.mse;
+    flux.stf.mse_sc = flux.stf.mse;
+    flux.stf.mse_ac_ra = flux.stf.mse;
+    flux.stf.mse_sc_ra = flux.stf.mse;
 
     f_vec = assign_fw(type, par);
     for f = f_vec; fw = f{1};
@@ -135,7 +139,7 @@ function proc_flux(type, par)
         end % calculate atmospheric radiative cooling
         flux.rsfc = flux.swsfc + flux.lwsfc;
 
-        if any(strcmp(fw, {'mse', 'dse'}))
+        if any(strcmp(fw, {'mse', 'mse_ac', 'mse_sc', 'mse_ac_ra', 'mse_sc_ra', 'dse'}))
             flux.res.(fw) = flux.ra.(fw) + flux.stf.(fw); % infer MSE tendency and flux divergence as residuals
         elseif any(strcmp(fw, {'mse2'}))
             flux.res.(fw) = flux.lw + flux.stf.(fw);
@@ -260,31 +264,49 @@ function proc_flux(type, par)
                     tediv_0 = fillmissing(flux_n.(land).res.(fw), 'constant', 0); % replace nans with 0s so missing data doesn't influence transport
                     % tediv_z = squeeze(trapz(deg2rad(grid.dim2.lon), tediv_0, 1)); % zonally integrate
                     tediv_z = squeeze(nanmean(tediv_0, 1)); % zonally average
-                    vh_mon.(land).(fw) = cumtrapz(deg2rad(lat), 2*pi*par.a^2*cosd(lat).*tediv_z, 1); % cumulatively integrate
 
-                    % % remove global mean inbalance
-                    % if any(strcmp(type, {'erai', 'era5', 'era5c'}))
-                    %     % remove global mean from flux divergence
-                    %     % resmean = permute(vh_mon.(land).(fw)(end,:), [2 1]);
-                    %     % resmean = repmat(resmean, [1 length(grid.dim3.lon) length(grid.dim3.lat)]);
-                    %     % resmean = permute(resmean, [2 3 1]);
+                    % integrate from south pole
+                    if grid.dim3.lat(1) > 0
+                        vh_mon.(land).(fw) = cumtrapz(flip(deg2rad(lat),1), flip(2*pi*par.a^2*cosd(lat).*tediv_z,1), 1); % cumulatively integrate
+                        vh_mon.(land).(fw) = flip(vh_mon.(land).(fw),1);
+                    else
+                        vh_mon.(land).(fw) = cumtrapz(deg2rad(lat), 2*pi*par.a^2*cosd(lat).*tediv_z, 1); % cumulatively integrate
+                    end
 
-                    %     vh_ann = nanmean(vh_mon.(land).(fw),2);
-                    %     disp(sprintf('Annual average imbalance = %g Wm^-2', vh_ann(end)/(4*pi*par.a^2)))
-                    %     resmean = vh_ann(end)*ones(length(grid.dim3.lon), length(grid.dim3.lat), 12);
+                    % remove annual mean global mean inbalance
+                    if any(strcmp(fw, {'mse_ac', 'mse_ac_ra', 'mse_sc', 'mse_sc_ra'}))
+                        if contains(fw, 'mse_sc')
+                            % remove global mean from flux divergence
+                            resmean = permute(vh_mon.(land).(fw)(end,:), [2 1]);
+                            disp(resmean)
+                            resmean = repmat(resmean, [1 length(grid.dim3.lon) length(grid.dim3.lat)]);
+                            resmean = permute(resmean, [2 3 1]);
+                        elseif contains(fw, 'mse_ac')
+                            vh_ann = nanmean(vh_mon.(land).(fw),2);
+                            disp(sprintf('Annual average imbalance = %g Wm^-2', vh_ann(end)/(4*pi*par.a^2)))
+                            resmean = vh_ann(end)*ones(length(grid.dim3.lon), length(grid.dim3.lat), 12);
+                        end
 
-                    %     if grid.dim3.lat(1) < 0;
-                    %         flux_n.(land).res.(fw) = flux_n.(land).res.(fw) - resmean./(4*pi*par.a^2);
-                    %     else
-                    %         flux_n.(land).res.(fw) = flux_n.(land).res.(fw) + resmean./(4*pi*par.a^2);
-                    %     end
+                        if contains(fw, '_ra')
+                            flux_n.(land).res.(fw) = flux_n.(land).res.(fw) - resmean./(4*pi*par.a^2);
+                            flux_n.(land).ra.(fw) = flux_n.(land).ra.(fw) - resmean./(4*pi*par.a^2);
+                            [flux_z, flux_t, flux_zt] = comp_flux(flux_z, flux_t, flux_zt, flux_n, land, 'ra', fw);
+                        else
+                            flux_n.(land).res.(fw) = flux_n.(land).res.(fw) - resmean./(4*pi*par.a^2);
+                        end
 
-                    %     % re-compute northward MSE transport using the residual data
-                    %     tediv_0 = fillmissing(flux_n.(land).res.(fw), 'constant', 0); % replace nans with 0s so missing data doesn't influence transport
-                    %     % tediv_z = squeeze(trapz(deg2rad(grid.dim2.lon), tediv_0, 1)); % zonally integrate
-                    %     tediv_z = squeeze(nanmean(tediv_0, 1)); % zonally average
-                    %     vh_mon.(land).(fw) = cumtrapz(deg2rad(lat), 2*pi*par.a^2*cosd(lat).*tediv_z, 1); % cumulatively integrate
-                    % end
+                        % re-compute northward MSE transport using the residual data
+                        tediv_0 = fillmissing(flux_n.(land).res.(fw), 'constant', 0); % replace nans with 0s so missing data doesn't influence transport
+                        % tediv_z = squeeze(trapz(deg2rad(grid.dim2.lon), tediv_0, 1)); % zonally integrate
+                        tediv_z = squeeze(nanmean(tediv_0, 1)); % zonally average
+
+                        if grid.dim3.lat(1) > 0
+                            vh_mon.(land).(fw) = cumtrapz(flip(deg2rad(lat),1), flip(2*pi*par.a^2*cosd(lat).*tediv_z,1), 1); % cumulatively integrate
+                            vh_mon.(land).(fw) = flip(vh_mon.(land).(fw),1);
+                        else
+                            vh_mon.(land).(fw) = cumtrapz(deg2rad(lat), 2*pi*par.a^2*cosd(lat).*tediv_z, 1); % cumulatively integrate
+                        end
+                    end
 
                     for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
                         if strcmp(time, 'ann')
@@ -302,29 +324,18 @@ function proc_flux(type, par)
                         % tediv_tz = trapz(deg2rad(grid.dim2.lon), tediv_t, 1); % zonally integrate
                         tediv_tz = squeeze(nanmean(tediv_t, 1)); % zonally integrate
                         tediv_tz = fillmissing(tediv_tz, 'constant', 0);
-                        vh.(land).(time).(fw) = cumtrapz(deg2rad(lat), 2*pi*par.a^2*cosd(lat).*tediv_tz',1); % cumulatively integrate in latitude
+
+                        if grid.dim3.lat(1) > 0
+                            vh.(land).(time).(fw) = cumtrapz(flip(deg2rad(lat),1), flip(2*pi*par.a^2*cosd(lat).*tediv_tz',1),1); % cumulatively integrate in latitude
+                            vh.(land).(time).(fw) = flip(vh.(land).(time).(fw),1);
+                        else
+                            vh.(land).(time).(fw) = cumtrapz(deg2rad(lat), 2*pi*par.a^2*cosd(lat).*tediv_tz',1); % cumulatively integrate in latitude
+                        end
                     end
                 end
 
-                % take zonal average
-                flux_z.(land).(fname).(fw) = squeeze(nanmean(flux_n.(land).(fname).(fw), 1));
+                [flux_z, flux_t, flux_zt] = comp_flux(flux_z, flux_t, flux_zt, flux_n, land, fname, fw);
 
-                % take time averages
-                for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
-                    if strcmp(time, 'ann')
-                        flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw), 3);
-                    elseif strcmp(time, 'djf')
-                        flux_shift.(land).(fname).(fw) = circshift(flux_n.(land).(fname).(fw), 1, 3);
-                        flux_t.(land).(time).(fname).(fw) = nanmean(flux_shift.(land).(fname).(fw)(:,:,1:3), 3);
-                    elseif strcmp(time, 'jja')
-                        flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,6:8), 3);
-                    elseif strcmp(time, 'mam')
-                        flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,3:5), 3);
-                    elseif strcmp(time, 'son')
-                        flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,9:11), 3);
-                    end
-                    flux_zt.(land).(time).(fname).(fw) = squeeze(nanmean(flux_t.(land).(time).(fname).(fw), 1));
-                end
             end
         end
     end
@@ -339,3 +350,25 @@ function proc_flux(type, par)
     end
 
 end % process radiative fluxes into one struct
+
+function [flux_z, flux_t, flux_zt] = comp_flux(flux_z, flux_t, flux_zt, flux_n, land, fname, fw)
+    % take zonal average
+    flux_z.(land).(fname).(fw) = squeeze(nanmean(flux_n.(land).(fname).(fw), 1));
+
+    % take time averages
+    for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
+        if strcmp(time, 'ann')
+            flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw), 3);
+        elseif strcmp(time, 'djf')
+            flux_shift.(land).(fname).(fw) = circshift(flux_n.(land).(fname).(fw), 1, 3);
+            flux_t.(land).(time).(fname).(fw) = nanmean(flux_shift.(land).(fname).(fw)(:,:,1:3), 3);
+        elseif strcmp(time, 'jja')
+            flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,6:8), 3);
+        elseif strcmp(time, 'mam')
+            flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,3:5), 3);
+        elseif strcmp(time, 'son')
+            flux_t.(land).(time).(fname).(fw) = nanmean(flux_n.(land).(fname).(fw)(:,:,9:11), 3);
+        end
+        flux_zt.(land).(time).(fname).(fw) = squeeze(nanmean(flux_t.(land).(time).(fname).(fw), 1));
+    end
+end

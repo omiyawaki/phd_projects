@@ -213,8 +213,18 @@ function plot_energy_lat(type, par)
                 xlabel('latitude (deg)'); ylabel('PW')
                 if strcmp(fw, 'db13s'); title(sprintf('Northward %s Transport, %s', 'DB13*', upper(time)));
                 else
-                    if any(strcmp(type, {'erai', 'era5', 'era5c', 'merra2', 'jra55'}))
-                        title(sprintf('%s, Northward %s Transport, %s', upper(type), upper(fw), upper(time)));
+                    if any(strcmp(type, {'erai', 'era5', 'merra2', 'jra55'}))
+                        if contains(fw, 'mse')
+                            title(sprintf('%s, Northward MSE Transport, %s', upper(type), upper(time)));
+                        elseif contains(fw, 'dse')
+                            title(sprintf('%s, Northward DSE Transport, %s', upper(type), upper(time)));
+                        end
+                    elseif strcmp(type, 'era5c')
+                        if contains(fw, 'mse')
+                            title(sprintf('%s, Northward MSE Transport, %s', upper('era5'), upper(time)));
+                        elseif contains(fw, 'dse')
+                            title(sprintf('%s, Northward DSE Transport, %s', upper('era5'), upper(time)));
+                        end
                     elseif strcmp(type, 'gcm')
                         if contains(par.model, 'mmm')
                             title(sprintf('CMIP5 %s, Northward %s Transport, %s', par.gcm.clim, upper(fw), upper(time)));
@@ -266,7 +276,11 @@ function plot_energy_lat(type, par)
             % clabel(C, h, [-4:2:4], 'fontsize', 6, 'interpreter', 'latex');
             caxis([-5 5]);
             xlabel('Month'); ylabel('latitude (deg)');
-            title(sprintf('Northward %s Transport (PW)', upper(fw)));
+            if contains(fw, 'mse')
+                title(sprintf('Northward MSE Transport (PW)'));
+            elseif contains(fw, 'dse')
+                title(sprintf('Northward MSE Transport (PW)'));
+            end
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
             set(gca, 'fontsize', par.fs, 'xtick', [1:12], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on')

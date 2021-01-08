@@ -3,35 +3,43 @@ function plot_temp_zon_select(type, par)
     make_dirs(type, par)
 
     % load data
-    if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ta_mon_lat.mat', type, par.lat_interp));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ma_mon_lat.mat', type, par.lat_interp));
-        plev = grid.dim3.plev/100;
-    elseif strcmp(type, 'gcm')
-        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/ta_mon_lat.mat', type, par.model, par.gcm.clim, par.lat_interp));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/ma_mon_lat.mat', type, par.model, par.gcm.clim, par.lat_interp));
-        plev = grid.dim3.plev/100;
-    elseif strcmp(type, 'echam')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.echam.clim, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.echam.clim));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/ta_mon_lat.mat', type, par.echam.clim, par.lat_interp));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/ma_mon_lat.mat', type, par.echam.clim, par.lat_interp));
-        plev = grid.dim3.plev/100;
-    elseif strcmp(type, 'echam_ml')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ta_mon_lat.mat', type, par.lat_interp));
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ma_mon_lat.mat', type, par.lat_interp));
-        plev = 1:47;
-    end
+    % if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
+    %     plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
+    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
+    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type));
+    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ta_mon_lat.mat', type, par.lat_interp));
+    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ma_mon_lat.mat', type, par.lat_interp));
+    %     plev = grid.dim3.plev/100;
+    % elseif strcmp(type, 'gcm')
+    %     plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
+    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/ta_mon_lat.mat', type, par.model, par.gcm.clim, par.lat_interp));
+    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/ma_mon_lat.mat', type, par.model, par.gcm.clim, par.lat_interp));
+    %     plev = grid.dim3.plev/100;
+    % elseif strcmp(type, 'echam')
+    %     plotdir = sprintf('./figures/%s/%s/%s', type, par.echam.clim, par.lat_interp);
+    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.echam.clim));
+    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/ta_mon_lat.mat', type, par.echam.clim, par.lat_interp));
+    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/ma_mon_lat.mat', type, par.echam.clim, par.lat_interp));
+    %     plev = grid.dim3.plev/100;
+    % elseif strcmp(type, 'echam_ml')
+    %     plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
+    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
+    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type));
+    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ta_mon_lat.mat', type, par.lat_interp));
+    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ma_mon_lat.mat', type, par.lat_interp));
+    %     plev = 1:47;
+    % end
+    %
+    prefix = make_prefix(type, par);
+    prefix_proc = make_prefix_proc(type, par);
+    plotdir = make_plotdir(type, par);
+
+    load(sprintf('%s/grid.mat', prefix));
+    load(sprintf('%s/ta_mon_lat.mat', prefix_proc));
+    load(sprintf('%s/ma_mon_lat.mat', prefix_proc));
 
     lat_pole = 85;
     lat_mid = 45;
@@ -97,7 +105,7 @@ function plot_temp_zon_select(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_np(:,m); tasi_nmid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-            print(sprintf('%s/temp_zon_sel/%s/%g/all', par.plotdir, land, month), '-dpng', '-r300');
+            print(sprintf('%s/temp_zon_sel/%s/%g/all', plotdir, land, month), '-dpng', '-r300');
             close;
 
             % NH HIGH ONLY
@@ -122,7 +130,7 @@ function plot_temp_zon_select(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_np(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-            print(sprintf('%s/temp_zon_sel/%s/%g/np', par.plotdir, land, month), '-dpng', '-r300');
+            print(sprintf('%s/temp_zon_sel/%s/%g/np', plotdir, land, month), '-dpng', '-r300');
             close;
 
             % NH MID ONLY
@@ -149,7 +157,7 @@ function plot_temp_zon_select(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_nmid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-            print(sprintf('%s/temp_zon_sel/%s/%g/nhmid', par.plotdir, land, month), '-dpng', '-r300');
+            print(sprintf('%s/temp_zon_sel/%s/%g/nhmid', plotdir, land, month), '-dpng', '-r300');
             close;
 
             % NH MID and HIGH ONLY
@@ -179,7 +187,7 @@ function plot_temp_zon_select(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_np(:,m); tasi_nmid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-            print(sprintf('%s/temp_zon_sel/%s/%g/nh_only', par.plotdir, land, month), '-dpng', '-r300');
+            print(sprintf('%s/temp_zon_sel/%s/%g/nh_only', plotdir, land, month), '-dpng', '-r300');
             close;
 
             % SH HIGH ONLY
@@ -200,7 +208,7 @@ function plot_temp_zon_select(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_sp(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-            print(sprintf('%s/temp_zon_sel/%s/%g/sp', par.plotdir, land, month), '-dpng', '-r300');
+            print(sprintf('%s/temp_zon_sel/%s/%g/sp', plotdir, land, month), '-dpng', '-r300');
             close;
 
             % SH MID ONLY
@@ -222,7 +230,7 @@ function plot_temp_zon_select(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_smid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-            print(sprintf('%s/temp_zon_sel/%s/%g/shmid', par.plotdir, land, month), '-dpng', '-r300');
+            print(sprintf('%s/temp_zon_sel/%s/%g/shmid', plotdir, land, month), '-dpng', '-r300');
             close;
 
             % SH MID and HIGH ONLY
@@ -246,7 +254,7 @@ function plot_temp_zon_select(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_sp(:,m); tasi_smid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-            print(sprintf('%s/temp_zon_sel/%s/%g/sh_only', par.plotdir, land, month), '-dpng', '-r300');
+            print(sprintf('%s/temp_zon_sel/%s/%g/sh_only', plotdir, land, month), '-dpng', '-r300');
             close;
 
             % NARROW NH MID and HIGH ONLY
@@ -275,7 +283,7 @@ function plot_temp_zon_select(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_vert)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_np(:,m); tasi_nmid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-            print(sprintf('%s/temp_zon_sel/%s/%g/nh_only_vert', par.plotdir, land, month), '-dpng', '-r300');
+            print(sprintf('%s/temp_zon_sel/%s/%g/nh_only_vert', plotdir, land, month), '-dpng', '-r300');
             close;
 
             % NARROW SH MID and HIGH ONLY
@@ -299,7 +307,7 @@ function plot_temp_zon_select(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_vert)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_sp(:,m); tasi_smid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-            print(sprintf('%s/temp_zon_sel/%s/%g/sh_only_vert', par.plotdir, land, month), '-dpng', '-r300');
+            print(sprintf('%s/temp_zon_sel/%s/%g/sh_only_vert', plotdir, land, month), '-dpng', '-r300');
             close;
 
         end
@@ -327,7 +335,7 @@ function plot_temp_zon_select(type, par)
         axis('tight');
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
         set(gca, 'fontsize', par.fs, 'xlim', [200 290], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-        print(sprintf('%s/temp_zon_sel/%s/nh_all', par.plotdir, land), '-dpng', '-r300');
+        print(sprintf('%s/temp_zon_sel/%s/nh_all', plotdir, land), '-dpng', '-r300');
         close;
 
         % ALL SH
@@ -353,7 +361,7 @@ function plot_temp_zon_select(type, par)
         axis('tight');
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
         set(gca, 'fontsize', par.fs, 'xlim', [200 290], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-        print(sprintf('%s/temp_zon_sel/%s/sh_all', par.plotdir, land), '-dpng', '-r300');
+        print(sprintf('%s/temp_zon_sel/%s/sh_all', plotdir, land), '-dpng', '-r300');
         close;
 
     end

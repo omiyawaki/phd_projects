@@ -1,11 +1,12 @@
 #!/bin/sh
 
-declare -a vtypes=("rad" "hydro" "stf" "temp" "srfc" "zg") # variable type
-yr_start="2000"
-mon_start="3"
+# declare -a vtypes=("rad" "hydro" "stf" "temp" "srfc" "zg") # variable type
+declare -a vtypes=("temp")
+yr_start="1980"
+mon_start="1"
 day_start="1"
-yr_end="2018"
-mon_end="2"
+yr_end="2005"
+mon_end="12"
 day_end="1"
 
 cwd=$(pwd)

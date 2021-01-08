@@ -1,28 +1,35 @@
 function proc_rcae_alt(type, par)
+    foldername = make_savedir_proc_ep(type, par);
+    prefix = make_prefix(type, par);
+    prefix_proc = make_prefix_proc(type, par);
+
+    load(sprintf('%s/vh.mat', prefix_proc)); % load atmospheric heat transport
+    load(sprintf('%s/vh_mon.mat', prefix_proc)); % load atmospheric heat transport
+
     for f = {'flux', 'flux_t', 'flux_z'}; ftype = f{1};
-        if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-            filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s.mat', type, par.lat_interp, ftype); % read ERA5 zonally averaged flux
-            foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g_ga_%g/', type, par.lat_interp, par.ep, par.ga);
-            prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-            prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.lat_interp);
-        elseif strcmp(type, 'gcm')
-            filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/%s.mat', type, par.model, par.gcm.clim, par.lat_interp, ftype); % read gcm zonally averaged flux
-            foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/eps_%g_ga_%g/', type, par.model, par.gcm.clim, par.lat_interp, par.ep, par.ga);
-            prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-            prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
-        elseif strcmp(type, 'echam')
-            filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s.mat', type, par.echam.clim, par.lat_interp, ftype); % read echam zonally averaged flux
-            foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g_ga_%g/', type, par.echam.clim, par.lat_interp, par.ep, par.ga);
-            prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
-            prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.echam.clim, par.lat_interp);
-        end
-        if ~exist(filename); error(sprintf('Data does not exist. Please run proc_%s.m first.', ftype)); else
-            load(filename);
-        end
+        % if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
+        %     filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s.mat', type, par.lat_interp, ftype); % read ERA5 zonally averaged flux
+        %     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g_ga_%g/', type, par.lat_interp, par.ep, par.ga);
+        %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
+        %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.lat_interp);
+        % elseif strcmp(type, 'gcm')
+        %     filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/%s.mat', type, par.model, par.gcm.clim, par.lat_interp, ftype); % read gcm zonally averaged flux
+        %     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/eps_%g_ga_%g/', type, par.model, par.gcm.clim, par.lat_interp, par.ep, par.ga);
+        %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+        %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+        % elseif strcmp(type, 'echam')
+        %     filename = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s.mat', type, par.echam.clim, par.lat_interp, ftype); % read echam zonally averaged flux
+        %     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g_ga_%g/', type, par.echam.clim, par.lat_interp, par.ep, par.ga);
+        %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+        %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.echam.clim, par.lat_interp);
+        % end
+        % if ~exist(filename); error(sprintf('Data does not exist. Please run proc_%s.m first.', ftype)); else
+        %     load(filename);
+        % end
+
 
         % load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
-        load(sprintf('%s/vh.mat', prefix_proc)); % load atmospheric heat transport
-        load(sprintf('%s/vh_mon.mat', prefix_proc)); % load atmospheric heat transport
+        load(sprintf('%s/%s.mat', prefix_proc, ftype)); % load land and ocean masks
 
         % identify locations of RCE and RAE
         if strcmp(ftype, 'flux')

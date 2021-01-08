@@ -11,13 +11,13 @@ if 1
 % par.erai.yr_span = '2000_2012'; % spanning years for ERA-Interim
 % par.erai.yr_span = '1979_2018'; % spanning years for ERA-Interim
 par.erai.yr_span = '2000_2018'; % spanning years for ERA-Interim
-% par.era5.yr_span = '1979_2005'; % spanning years for ERA5
-par.era5c.yr_span_list = {'1979_2005','2000_2018'}; % spanning years for ERA5
-% par.era5c.yr_span = par.era5.yr_span; % spanning years for ERA5
-par.merra2.yr_span = '2000_2018'; % spanning years for MERRA2
+par.era5.yr_span = '1979_2005'; % spanning years for ERA5
+% par.era5c.yr_span_list = {'1979_2005','2000_2018'}; % spanning years for ERA5
+par.era5c.yr_span = par.era5.yr_span; % spanning years for ERA5
+par.merra2.yr_span = '1980_2005'; % spanning years for MERRA2
 par.jra55.yr_span = '1979_2005'; % spanning years for JRA-55
 par.gcm.yr_span = 30; % number of years that I am considering in the GCM climatology
-par.echam_clims = {'echr0023'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
+par.echam_clims = par.echam.ice_mld; %{'echr0001'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 par.ceres.yr_span = '200003-201802'; % spanning years for CERES data
 par.era.vars.rad = {'ssr', 'str', 'tsr', 'ttr'}; % radiation variables to read
 par.era.vars.hydro = {'cp', 'lsp', 'e'}; % radiation variables to read
@@ -67,12 +67,12 @@ par.cpd = 1005.7; par.Rd = 287; par.Rv = 461; par.L = 2.501e6; par.g = 9.81; par
 end
 
 %% call functions
-type='jra55';
-run_func(type, par);
+% type='era5c';
+% run_func(type, par);
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-    % type='echam';
-    % disp(par.echam.clim)
-    % run_func(type, par);
+    type='echam';
+    disp(par.echam.clim)
+    run_func(type, par);
 end
 for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
     % type='gcm';
@@ -81,7 +81,7 @@ for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
 end
 
 function run_func(type, par)
-    read_grid(type, par) % grid, i.e. lon, lat, plev
+    % read_grid(type, par) % grid, i.e. lon, lat, plev
     % read_rad(type, par) % radiation fluxes
     % read_hydro(type, par) % hydrological variables, e.g. precip, evap
     % read_stf(type, par) % surface turbulent fluxes
@@ -89,14 +89,15 @@ function run_func(type, par)
     % make_tempsi(type, par) % convert temp from plev to sigma
     % make_zgsi(type, par) % convert zg from plev to sigma
     % make_psi(type, par) % compute plev in si coords
+    % read_lfrac(type, par) % land fraction (%)
 
     % read_radcs(type, par) % clear sky radiation fluxes
     % make_tempz(type, par) % convert temp from plev to z
     % make_pz(type, par) % compute plev in z coords
-    % read_lfrac(type, par) % land fraction (%)
     % read_orog(type, par) % orography (m)
     % read_siced(type, par) % sea ice thickness (m)
     % read_friac(type, par) % sea ice fraction (%)
+    read_ahfres(type, par) % melting of ice (W m^-2)
     % read_alb(type, par) % surface albedo (1)
 
     % make_thetaeqsi(type, par) % convert temp from plev to sigma

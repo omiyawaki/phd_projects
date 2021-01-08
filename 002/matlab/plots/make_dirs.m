@@ -32,6 +32,9 @@ function make_dirs(type, par)
             if ~exist(sprintf('%s/energy-flux/%s/%s', plotdir, land, time), 'dir')
                 mkdir(sprintf('%s/energy-flux/%s/%s', plotdir, land, time));
             end
+            if ~exist(sprintf('%s/energy-flux-comp/%s/%s', plotdir, land, time), 'dir')
+                mkdir(sprintf('%s/energy-flux-comp/%s/%s', plotdir, land, time));
+            end
             if ~exist(sprintf('%s/transport/%s/%s', plotdir, land, time), 'dir')
                 mkdir(sprintf('%s/transport/%s/%s', plotdir, land, time));
             end
@@ -53,6 +56,9 @@ function make_dirs(type, par)
                 if ~exist(sprintf('%s/flux/%s/%s/%s', plotdir, fw, land, time), 'dir')
                     mkdir(sprintf('%s/flux/%s/%s/%s', plotdir, fw, land, time));
                 end
+                if ~exist(sprintf('%s/flux-comp/%s/%s/%s', plotdir, fw, land, time), 'dir')
+                    mkdir(sprintf('%s/flux-comp/%s/%s/%s', plotdir, fw, land, time));
+                end
                 if ~exist(sprintf('%s/dr2/%s/%s/%s', plotdir, fw, land, time), 'dir')
                     mkdir(sprintf('%s/dr2/%s/%s/%s', plotdir, fw, land, time));
                 end
@@ -63,7 +69,7 @@ function make_dirs(type, par)
         end
     end
 
-    for vn = {'va', 'trop', 'alb', 'sol', 'tas', 'ts', 'sn', 'siced', 'friac', 'sftlf', 'legends'}; varname = vn{1};
+    for vn = {'va', 'trop', 'alb', 'sol', 'tas', 'ts', 'sn', 'siced', 'friac', 'ahfres', 'sftlf', 'legends'}; varname = vn{1};
         if ~exist(sprintf('%s/%s', plotdir, varname), 'dir')
             mkdir(sprintf('%s/%s', plotdir, varname));
         end

@@ -1,27 +1,32 @@
 function plot_dr1_polar_line(type, par)
     make_dirs(type, par)
 
-    if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    elseif strcmp(type, 'merra2')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    elseif strcmp(type, 'gcm')
-        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
-    elseif strcmp(type, 'echam')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.echam.clim, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.echam.clim);
-    end
+    % if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
+    %     plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
+    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
+    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
+    % elseif strcmp(type, 'merra2')
+    %     plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
+    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
+    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
+    % elseif strcmp(type, 'gcm')
+    %     plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
+    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
+    % elseif strcmp(type, 'echam')
+    %     plotdir = sprintf('./figures/%s/%s/%s', type, par.echam.clim, par.lat_interp);
+    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.echam.clim);
+    % end
+
+    prefix = make_prefix(type, par);
+    prefix_proc = make_prefix_proc(type, par);
+    plotdir = make_plotdir(type, par);
+
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     % load(sprintf('%s/sftlf.mat', prefix)); % read land fraction data
-    load(sprintf('%s/%s/flux_z.mat', prefix_proc, par.lat_interp)); % load lat x mon RCAE data
-    load(sprintf('%s/%s/flux_t.mat', prefix_proc, par.lat_interp)); % load lat x lon RCAE data
+    load(sprintf('%s/flux_z.mat', prefix_proc)); % load lat x mon RCAE data
+    load(sprintf('%s/flux_t.mat', prefix_proc)); % load lat x lon RCAE data
     % landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
     % par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
 
@@ -51,7 +56,7 @@ function plot_dr1_polar_line(type, par)
                 clat = cosd(lat); % cosine of latitude for cosine weighting
                 clat_mon = repmat(clat', [1 12]);
 
-                folder = sprintf('%s/dr1/%s/%s/0_poleward_of_lat_%g', par.plotdir, fw, land, lat_bound);
+                folder = sprintf('%s/dr1/%s/%s/0_poleward_of_lat_%g', plotdir, fw, land, lat_bound);
                 if ~exist(folder, 'dir'); mkdir(folder); end;
 
                 % R1 computed before zonal averaging
@@ -429,7 +434,7 @@ function plot_dr1_polar_line(type, par)
     %         clat = cosd(lat); % cosine of latitude for cosine weighting
     %         clat_mon = repmat(clat', [1 12]);
 
-    %         folder = sprintf('%s/dr1/%s/0_poleward_of_lat_%g', par.plotdir, fw, lat_bound);
+    %         folder = sprintf('%s/dr1/%s/0_poleward_of_lat_%g', plotdir, fw, lat_bound);
     %         if ~exist(folder, 'dir'); mkdir(folder); end;
 
     %         r1_ann = repmat(nanmean(flux_z.lo.r1.(fw), 2), [1 12]);

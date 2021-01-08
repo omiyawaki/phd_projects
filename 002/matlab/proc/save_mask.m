@@ -1,9 +1,9 @@
 function save_mask(type, par)
     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
     elseif strcmp(type, 'merra2')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
     elseif strcmp(type, 'gcm')
         foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/', type, par.model, par.gcm.clim, par.lat_interp);
@@ -12,7 +12,7 @@ function save_mask(type, par)
         foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.echam.clim, par.lat_interp);
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
     elseif strcmp(type, 'echam_ml') | strcmp(type, 'echam_pl')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
+        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
     end
 
@@ -23,7 +23,11 @@ function save_mask(type, par)
         lat = grid.dim3.lat;
     end
 
-    if strcmp(type, 'gcm') | strcmp(type, 'echam')
+    if any(strcmp(type, {'era5c'}))
+        load(sprintf('%s/sftlf.mat', prefix)); % load land fraction data
+        mask.ocean = nan(size(sftlf)); mask.ocean(sftlf>0.5) = 1;
+        mask.land = nan(size(mask.ocean)); mask.land(isnan(mask.ocean))=1;
+    elseif any(strcmp(type, {'gcm', 'echam'}))
         load(sprintf('%s/sftlf.mat', prefix)); % load land fraction data
 
         mask.ocean = nan(size(sftlf)); mask.ocean(sftlf>0.5) = 1; mask.ocean=repmat(mask.ocean,[1 1 12]);

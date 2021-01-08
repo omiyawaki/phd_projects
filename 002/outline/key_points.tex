@@ -1,0 +1,59 @@
+\documentclass{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{float}
+\usepackage{graphicx}
+
+\title{Key points of ``When and where do Radiative-Convective and Radiative-Advective Equilibrium regimes occur on modern Earth?''}
+
+\begin{document}
+
+\maketitle
+
+\begin{itemize}
+  \item We introduce a non-dimensional metric $R_{1}$ for identifying heat transfer regimes.
+\item Vertical temperature profiles are a monotonic function of $R_{1}$, making $R_{1}$ a suitable metric to define heat transfer regimes and their associated temperature profiles (Fig. 1(a,b)).
+  \item RCE exists yearround in the deep tropics and in the NH midlatitudes during summer. RAE exists yearround poleward of 70 S in the Antarctic but only during winter in the Arctic (Figs. 3(a) and 4(a)).
+  \item In the NH winter, the observed stratification is more stable than a moist adiabat in the midlatitudes and exhibits a near surface inversion in the high latitudes, consistent with the expected temperature profiles for RCAE and RAE regimes, respectively (Fig. 3(b) and 4(b)).
+  \item In NH summer, the observed stratification is moist adiabatic in the midlatitudes and does not exhibit a near surface inversion in the high latitudes, consistent with RCE and RCAE regimes, respectively (Figs. 3(c) and 4(c)).
+  \item The observed stratification is more stable than a moist adiabat in the SH midlatitudes and exhibits a near surface inversion in the SH high latitudes yearround, consistent with RCAE and RAE regimes, respectively (Figs. 3(d,e) and 4(d,e)).
+  \item The seasonality of $R_{1}$ in the midlatitudes mostly follows the seasonality of MSE flux divergence. Thus, the asymmetry in the seasonality of MSE flux divergence explains the hemispheric asymmetry in the midlatitude regime transitions (Fig. 6(a,b) and 7(a,b)).
+  \item Modifying the surface heat capacity in an aquaplanet captures the hemispheric asymmetry in the seasonality of MSE flux divergence and $R_{1}$ (Figs. 10(a,b)). The strong seasonality of MSE flux divergence in the NH midlatitudes is consistent with a lower heat capacity (20 m mixed layer depth) and the weak seasonality of MSE flux divergence in the SH midlatitudes is consistent with a higher heat capacity (40 m mixed layer depth). The control of mixed layer depth on MSE flux divergence seasonality is consistent with Barpanda and Shaw (2020).
+\end{itemize}
+
+\textbf{Work in progress}
+\begin{itemize}
+  \item The control of the mixed layer depth on the seasonality of $R_{1}$ as diagnosed from ECHAM simulations agrees well with that predicted by a simple 0-D surface radiative balance model (Fig. A3(b)). However, the amplitude of surface temperature as predicted by the 0-D model is a factor of 2 larger than in the ECHAM simulations, so the assumptions made in the 0-D model does not hold well. The key mechanism missing in the 0-D model is heat transport.
+  \item On modern Earth, the melting of sea ice appears to be a necessary condition for RCAE in the high latitudes:
+        \begin{figure}[H]
+          \includegraphics{/project2/tas1/miyawaki/projects/002/figures_post/test/melting_echam/melting_echam_echr0001.pdf}
+          \caption{The spatio-temporal structure of the variable ahfres (panel (a), quantifies ice melt in W m$^{-2}$) is correlated with high latitude $R_{1}$ (panel (b)) in the ECHAM AGCM run (echr0001). Specifically, high latitude RCAE is confined to the summer when there is significant ice melt.}
+        \end{figure}
+  \item In other words, our current hypothesis is that the presence of sea ice that is not melting is a necessary and sufficient condition for high latitude RAE.
+  \item \textbf{To do:} Find out if it is possible to disable melting in ECHAM to test this hypothesis.
+\end{itemize}
+
+\textbf{Update on addressing the global imbalance in the MSE budget in ERA5}
+\begin{itemize}
+  \item \textbf{Original problem:} The inferred MSE flux divergence profile does not integrate to 0 when integrated over the globe.
+  \item Previously, I addressed this by subtracting the global imbalance from the inferred MSE flux divergence for each month. I used the corrected MSE flux divergence and the unmodified $R_{a}$ field to compute $R_{1}$. However, this  $R_{1}$ exhibited a long period of RCAE in the high latitudes compared to the CMIP5 multimodel mean:
+        \begin{figure}[H]
+          \includegraphics{/project2/tas1/miyawaki/projects/002/figures_post/test/comp_era5_cmip/r1/comp_era5_cmip_r1_sc.pdf}
+          \caption{The spatio-temporal structure of $R_{1}$ for (a) ERA5 with the corrected MSE flux divergence by removing the imbalance from the surface turbulent fluxes and (b) CMIP5 historical multi-model mean.}
+        \end{figure}
+  \item A simple alternative is to correct for the global imbalance by subtracting the imbalance from radiative cooling. This correction has a much smaller impact on $R_{1}$ because the correction applies to both the numerator and denominator of $R_{1}$:
+        \begin{figure}[H]
+          \includegraphics{/project2/tas1/miyawaki/projects/002/figures_post/test/comp_era5_cmip/r1/comp_era5_cmip_r1_sc_ra.pdf}
+          \caption{The spatio-temporal structure of $R_{1}$ for (a) ERA5 with the corrected MSE flux divergence by removing the imbalance from radiative cooling and (b) CMIP5 historical multi-model mean.}
+        \end{figure}
+  \item Without knowing the true source of the bias in surface turbulent fluxes and radiative cooling, it is difficult to justify which correction to use, if any. Nevertheless, it may still be useful to compare the fluxes between the unmodified ERA5 and the CMIP5 multimodel mean as a reference to see which flux contributes the most to the imbalance:
+        \begin{figure}[H]
+          \includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm_piControl/historical/1.00/energy-flux-comp/lo/ann/era5-diff-all.png}
+          \caption{The annually averaged difference between ERA5 and the CMIP5 historical multimodel mean of each flux in the MSE equation.}
+        \end{figure}
+  \item The difference in MSE flux divergence most closely follows the difference in radiative cooling, which is about 5 W m${-2}$ stronger (more negative) in ERA5 compared to CMIP5.
+  \item \textbf{To do:} Compare the each component of the radiative fluxes (decomposed into SW, LW, TOA, SFC) between ERA5 and CMIP5 to see if any of them dominate. Are there any papers that identify biases in radiative fluxes in ERA5?
+
+\end{itemize}
+
+\end{document}

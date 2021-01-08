@@ -1,18 +1,22 @@
 clc; close all; clear variables;
 
 addpath(genpath('/project2/tas1/miyawaki/matlab'));
+addpath(genpath('./matlab'));
 
 gcm_info
 echam_info
 
+figure_params
+
 %% set parameters
 % lat grid type
 if 1
-% par.echam_clims = {'echr0023', 'echr0001'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
-par.echam_clims = {'echr0001'}; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+% par.echam_clims = {'echr0001'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+par.echam_clims = par.echam.ice_mld; % {'echr0001'}; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 par.era5.yr_span = '1979_2005';
 par.era5c.yr_span = '1979_2005';
 par.jra55.yr_span = '1979_2005';
+par.merra2.yr_span = '1980_2005';
 par.ep_swp = 0.1; %[0.25 0.3 0.35]; % threshold value for determining RCE
 par.ga_swp = 0.9; % threshold for determining RAE
 par.si_eval = [0.8 0.85 0.9]; % sigma level for calculating inversion strength
@@ -31,7 +35,7 @@ par.albcs_thresh = 0.8; % criteria for surface albedo of plotting contour for in
 par.r1_bins = [-0.55:0.1:1.35]; % bins for sorting temperature profiles according to r1 values
 % par.era.fw = {'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt', 'div79'};
 % par.era.fw = {'div79', 'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt'};
-par.era.fw = {'mse', 'dse'};
+par.era.fw = {'mse', 'mse_ac', 'mse_sc', 'mse_ac_ra', 'mse_sc_ra', 'dse'};
 par.jra55.fw = {'mse', 'dse'};
 par.merra2.fw = {'mse', 'dse'};
 par.gcm.fw = {'mse', 'dse'};
@@ -47,57 +51,25 @@ par.do_surf = 0; % whether or not to calculate temperature profile in pressure g
 par.cpd = 1005.7; par.Rd = 287; par.Rv = 461; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3; par.eps = 0.622; % common constants, all in SI units for brevity
 end
 
-% set default figure parameters
-if 1
-    par.monlabel = {'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'};
-    par.monlabelsh = {'J', 'A', 'S', 'O', 'N', 'D', 'J', 'F', 'M', 'A', 'M', 'J'};
-    par.ppos = [0 0 10/3 7/3];
-    par.ppos_larger = [0 0 16/3 13/3];
-    par.ppos_vert = [0 0 7/3 10/3];
-    par.ppos_sq = [0 0 10/3 10/3];
-    par.ppos_wide = [0 0 13/3 7/3];
-    par.ppos_verywide = [0 0 16/3 7/3];
-    par.ppos_superwide = [0 0 21/3 7/3];
-    par.fs = 10;
-    set(0, 'DefaultLineLineWidth', 1.1);
-    set(0, 'DefaultFigureUnits', 'inches', 'DefaultFigurePosition', par.ppos_wide);
-    set(0, 'DefaultTextInterpreter', 'latex');
-    set(0, 'DefaultLegendInterpreter', 'latex');
-    set(0, 'DefaultAxesTickLabelInterpreter', 'latex');
-    par.navy = 0.2*[0, 0.447, 0.741];
-    par.darkblue = 0.5*[0, 0.447, 0.741];
-    par.blue = [0, 0.447, 0.741];
-    par.orange = [0.85, 0.325, 0.098];
-    par.yellow = [0.929, 0.694, 0.125];
-    par.purple = [0.494, 0.184, 0.556];
-    par.green = [0.466, 0.674, 0.188];
-    par.cyan = [0.301, 0.745, 0.933];
-    par.maroon = [0.635, 0.078, 0.184];
-    par.brown = 0.5*[0.635, 0.078, 0.184];
-    par.darkbrown = 0.2*[0.635, 0.078, 0.184];
-    par.purple = 0.5*[0.4940, 0.1840, 0.5560];
-    par.gray = 0.5*[1 1 1];
-end
-
 %% call functions
 % plot_rad_lat(par)
 % plot_rad_lon_lat(par)
 % plot_tediv_lat(par)
 
-% type = 'era5c';
-% % par.lat_interp = 'native';
-% % choose_plots(type, par);
-% for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-%     type='echam';
-%     par.lat_interp = 'native';
-%     disp(par.echam.clim)
-%     choose_plots(type, par);
-% end
-% for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
-%     % type = 'gcm';
-%     % disp(par.model)
-%     % choose_plots(type, par);
-% end
+type = 'jra55';
+par.lat_interp = 'native';
+choose_plots(type, par);
+for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
+    % type='echam';
+    % par.lat_interp = 'native';
+    % disp(par.echam.clim)
+    % choose_plots(type, par);
+end
+for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
+    % type = 'gcm';
+    % disp(par.model)
+    % choose_plots(type, par);
+end
 
 % % sweep through various boundary layer heights
 % for i = 1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
@@ -117,21 +89,21 @@ end
 %     end
 % end
 
-% sweep through various threshold values
-for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
-    type = 'jra55'; par.lat_interp = 'native';
-    choose_plots_ep(type, par)
-    for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-        % type='echam'; par.lat_interp = 'native';
-        % disp(par.echam.clim)
-        % choose_plots_ep(type, par);
-    end
-    for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-        % type = 'gcm';
-        % disp(par.model)
-        % choose_plots_ep(type, par)
-    end
-end
+% % sweep through various threshold values
+% for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
+%     type = 'jra55'; par.lat_interp = 'native';
+%     choose_plots_ep(type, par)
+%     for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
+%         % type='echam'; par.lat_interp = 'native';
+%         % disp(par.echam.clim)
+%         % choose_plots_ep(type, par);
+%     end
+%     for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
+%         % type = 'gcm';
+%         % disp(par.model)
+%         % choose_plots_ep(type, par)
+%     end
+% end
 
 function choose_plots(type, par)
     % plot_temp_zon(type, par) % plot temperature profiles at specific latitudes
@@ -143,15 +115,16 @@ function choose_plots(type, par)
     % plot_ma_diff(type, par) % plot difference of temperature profile from moist adiabat
     % plot_ga_diff(type, par) % plot difference of temperature profile from moist adiabat
     % plot_ga_malr_si_diff(type, par) % plot difference of temperature profile from moist adiabat in sigma
-    % plot_dmse_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    plot_dmse_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dmse_polar_line_asym(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
-    plot_dmse_polar_line_topocomp(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dmse_polar_line_topocomp(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dmse_so_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dra_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
-    % plot_dmse_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    plot_dmse_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dmse_toasfc_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_siced(type, par) % sea ice depth
     % plot_friac(type, par) % sea ice fraction
+    % plot_ahfres(type, par) % ice melt
     % plot_alb(type, par) % surface albedo
     % plot_sftlf(type, par) % land fraction
     % plot_tas(type, par) % 2m temperature
@@ -168,13 +141,15 @@ function choose_plots_si_bl(type, par)
 end
 function choose_plots_ep(type, par)
     % plot_energy_lat(type, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
+    % plot_energy_lat_comp(type, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
     % plot_r1z_lat(type, par); % compare r1 line plot with ERA5
-    plot_flux(type, par) % plot various energy fluxes in mon x lat and lon x lat space
+    % plot_flux(type, par) % plot various energy fluxes in mon x lat and lon x lat space
+    % plot_flux_comp(type, par) % plot various energy fluxes in mon x lat and lon x lat space
     % plot_temp(type, par) % plot temperature profiles
     % plot_temp_ann(type, par) % plot temperature profiles
     % plot_dr1_midlatitude_line(type, par) % plot decomposition of R1 in mon at specific latitudes
     % plot_dr1_so_line(type, par) % plot decomposition of R1 in mon at specific latitudes
-    % plot_dr1_polar_line(type, par) % plot decomposition of R1 in mon at specific latitudes
+    plot_dr1_polar_line(type, par) % plot decomposition of R1 in mon at specific latitudes
     % plot_dr1_polar_line_repl(type, par) % plot decomposition of R1 in mon at specific latitudes
     % plot_dr1_polar_line_topocomp(type, par) % plot decomposition of R1 in mon at specific latitudes
 end % select which ep-functions to run at a time

@@ -1,26 +1,31 @@
 function proc_ma_si(type, par)
 % calculate moist adiabats
-    if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g_ga_%g/', type, par.lat_interp, par.ep, par.ga);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    elseif strcmp(type, 'merra2')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g_ga_%g/', type, par.lat_interp, par.ep, par.ga);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    elseif strcmp(type, 'gcm')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/eps_%g_ga_%g/', type, par.model, par.gcm.clim, par.lat_interp, par.ep, par.ga);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
-    elseif strcmp(type, 'echam')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g_ga_%g/', type, par.echam.clim, par.lat_interp, par.ep, par.ga);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.echam.clim);
-    end
+    % if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
+    %     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g_ga_%g/', type, par.lat_interp, par.ep, par.ga);
+    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
+    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
+    % elseif strcmp(type, 'merra2')
+    %     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/eps_%g_ga_%g/', type, par.lat_interp, par.ep, par.ga);
+    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
+    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
+    % elseif strcmp(type, 'gcm')
+    %     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/eps_%g_ga_%g/', type, par.model, par.gcm.clim, par.lat_interp, par.ep, par.ga);
+    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
+    % elseif strcmp(type, 'echam')
+    %     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g_ga_%g/', type, par.echam.clim, par.lat_interp, par.ep, par.ga);
+    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
+    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.echam.clim);
+    % end
+
+    foldername = make_savedir_proc_ep(type, par);
+    prefix = make_prefix(type, par);
+    prefix_proc = make_prefix_proc(type, par);
+
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/srfc.mat', prefix)); % read surface variable data
     % load(sprintf('%s/%s/masks.mat', prefix_proc, par.lat_interp)); % load land and ocean masks
-    load(sprintf('%s/%s/eps_%g_ga_%g/rcae_alt_t.mat', prefix_proc, par.lat_interp, par.ep, par.ga)); % load rcae data
+    load(sprintf('%s/eps_%g_ga_%g/rcae_alt_t.mat', prefix_proc, par.ep, par.ga)); % load rcae data
 
     if strcmp(par.lat_interp, 'std')
         lat = par.lat_std;
@@ -141,6 +146,7 @@ function proc_ma_si(type, par)
                         ma_si.rcae.nh.(fw).(crit).(land).(time).ta = calc_ma_dew_si(ma_si.rcae.nh.(fw).(crit).(land).(time), grid.dim3.plev, par, type, grid); % compute moist adiabat with dew_si point temperature
                         ma_si.rcae.sh.(fw).(crit).(land).(time).ta = calc_ma_dew_si(ma_si.rcae.sh.(fw).(crit).(land).(time), grid.dim3.plev, par, type, grid); % compute moist adiabat with dew_si point temperature
                     elseif strcmp(type, 'merra2')
+ma_si.rce.all.(fw).(crit).(land).(time)
                         ma_si.rce.all.(fw).(crit).(land).(time).ta = calc_ma_dew_si(ma_si.rce.all.(fw).(crit).(land).(time), grid.dim3.plev, par, type, grid); % compute moist adiabat with dew_si point temperature
                         ma_si.rce.tp.(fw).(crit).(land).(time).ta = calc_ma_dew_si(ma_si.rce.tp.(fw).(crit).(land).(time), grid.dim3.plev, par, type, grid); % compute moist adiabat with dew_si point temperature
                         ma_si.rce.nh.(fw).(crit).(land).(time).ta = calc_ma_dew_si(ma_si.rce.nh.(fw).(crit).(land).(time), grid.dim3.plev, par, type, grid); % compute moist adiabat with dew_si point temperature
