@@ -1,23 +1,10 @@
 function plot_dmse_polar_line(type, par)
     make_dirs(type, par)
 
-    if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    elseif strcmp(type, 'merra2')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    elseif strcmp(type, 'gcm')
-        par.plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
-    elseif strcmp(type, 'echam')
-        par.plotdir = sprintf('./figures/%s/%s/%s', type, par.echam.clim, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.echam.clim);
-    end
+    prefix = make_prefix(type, par);
+    prefix_proc = make_prefix_proc(type, par);
+    plotdir = make_plotdir(type, par);
+
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     % load(sprintf('%s/sftlf.mat', prefix)); % read land fraction data
     load(sprintf('%s/%s/flux_z.mat', prefix_proc, par.lat_interp)); % load lat x mon RCAE data
@@ -55,7 +42,7 @@ function plot_dmse_polar_line(type, par)
                 clat = cosd(lat); % cosine of latitude for cosine weighting
                 clat_mon = repmat(clat', [1 12]);
 
-                folder = sprintf('%s/dmse/%s/%s/0_poleward_of_lat_%g', par.plotdir, fw, land, lat_bound);
+                folder = sprintf('%s/dmse/%s/%s/0_poleward_of_lat_%g', plotdir, fw, land, lat_bound);
                 if ~exist(folder, 'dir'); mkdir(folder); end;
 
                 ra = flux_z.(land).ra.(fw);
@@ -80,16 +67,7 @@ function plot_dmse_polar_line(type, par)
                 res=plot([1:12], circshift(res_lat,shiftby,2), 'color', par.maroon);
                 lhf=plot([1:12], circshift(lh_lat,shiftby,2), 'color', par.blue);
                 shf=plot([1:12], circshift(sh_lat,shiftby,2), 'color', par.orange);
-                if any(strcmp(type, {'era5', 'era5c', 'erai'})); title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), lat_bound, lat_pole));
-                elseif any(strcmp(type, 'merra2')); title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), lat_bound, lat_pole));
-                elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), land_text, lat_bound, lat_pole));
-                elseif strcmp(type, 'gcm');
-                    if contains(par.model, 'mmm')
-                        title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $%g^\\circ$', par.gcm.clim, lat_bound, lat_pole));
-                    else
-                        title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', par.model, lat_bound, lat_pole));
-                    end
-                end;
+                make_title_type_lat(type, lat_bound, lat_pole);
                 % xlabel('Month');
                 ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                 legend([ra res lhf shf], '$R_a$', '$\nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', 'location', 'eastoutside', 'numcolumns', 2);
@@ -105,16 +83,7 @@ function plot_dmse_polar_line(type, par)
                 res=plot([1:12], circshift(res_lat,shiftby,2), 'color', par.maroon);
                 lhf=plot([1:12], circshift(lh_lat,shiftby,2), 'color', par.blue);
                 shf=plot([1:12], circshift(sh_lat,shiftby,2), 'color', par.orange);
-                if any(strcmp(type, {'era5', 'era5c', 'erai'})); title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), lat_bound, lat_pole));
-                elseif any(strcmp(type, 'merra2')); title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), lat_bound, lat_pole));
-                elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), land_text, lat_bound, lat_pole));
-                elseif strcmp(type, 'gcm');
-                    if contains(par.model, 'mmm')
-                        title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $%g^\\circ$', par.gcm.clim, lat_bound, lat_pole));
-                    else
-                        title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', par.model, lat_bound, lat_pole));
-                    end
-                end;
+                make_title_type_lat(type, lat_bound, lat_pole);
                 % xlabel('Month');
                 ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                 % legend([ra res stf], '$R_a$', '$\nabla\cdot F_m$', '$\mathrm{LH+SH}$', 'location', 'eastoutside');
@@ -147,16 +116,7 @@ function plot_dmse_polar_line(type, par)
                 dra=plot([1:12],  circshift(dra_lat ,shiftby,2), 'color', 0.5*[1 1 1]);
                 dres=plot([1:12], circshift(dres_lat,shiftby,2), 'color', par.maroon);
                 dstf=plot([1:12], circshift(dstf_lat,shiftby,2), 'color', par.blue);
-                if any(strcmp(type, {'era5', 'era5c', 'erai'})); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), land_text, lat_bound, lat_pole));
-                elseif any(strcmp(type, 'merra2')); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), land_text, lat_bound, lat_pole));
-                elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), land_text, lat_bound, lat_pole));
-                elseif strcmp(type, 'gcm');
-                    if contains(par.model, 'mmm')
-                        title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $%g^\\circ$', par.gcm.clim, lat_bound, lat_pole));
-                    else
-                        title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', par.model, lat_bound, lat_pole));
-                    end
-                end;
+                make_title_type_lat(type, lat_bound, lat_pole);
                 % xlabel('Month');
                 ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                 legend([dra dres dstf], '$\Delta R_a$', '$\Delta(\nabla\cdot F_m)$', '$\Delta (\mathrm{LH+SH})$', 'location', 'eastoutside');
@@ -179,16 +139,7 @@ function plot_dmse_polar_line(type, par)
                 ra=plot([1:12], circshift(ra_lat,shiftby,2), 'k');
                 sw=plot([1:12], circshift(sw_lat,shiftby,2), 'color', par.blue);
                 lw=plot([1:12], circshift(lw_lat,shiftby,2), 'color', par.maroon);
-                if any(strcmp(type, {'era5', 'era5c', 'erai'})); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), land_text, lat_bound, lat_pole));
-                elseif any(strcmp(type, 'merra2')); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), land_text, lat_bound, lat_pole));
-                elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), land_text, lat_bound, lat_pole));
-                elseif strcmp(type, 'gcm');
-                    if contains(par.model, 'mmm')
-                        title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $%g^\\circ$', par.gcm.clim, lat_bound, lat_pole));
-                    else
-                        title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', par.model, lat_bound, lat_pole));
-                    end
-                end;
+                make_title_type_lat(type, lat_bound, lat_pole);
                 % xlabel('Month');
                 ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                 legend([ra sw lw], '$R_a$', '$\mathrm{Net SW}$', '$\mathrm{Net LW}$', 'location', 'eastoutside');
@@ -220,16 +171,7 @@ function plot_dmse_polar_line(type, par)
                 dra=plot([1:12], circshift(dra_lat,shiftby,2), 'color', 0.5*[1 1 1]);
                 dsw=plot([1:12], circshift(dsw_lat,shiftby,2), 'color', par.blue);
                 dlw=plot([1:12], circshift(dlw_lat,shiftby,2), 'color', par.maroon);
-                if any(strcmp(type, {'era5', 'era5c', 'erai'})); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), land_text, lat_bound, lat_pole));
-                elseif any(strcmp(type, 'merra2')); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), land_text, lat_bound, lat_pole));
-                elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), land_text, lat_bound, lat_pole));
-                elseif strcmp(type, 'gcm');
-                    if contains(par.model, 'mmm')
-                        title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $%g^\\circ$', par.gcm.clim, lat_bound, lat_pole));
-                    else
-                        title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', par.model, lat_bound, lat_pole));
-                    end
-                end;
+                make_title_type_lat(type, lat_bound, lat_pole);
                 % xlabel('Month');
                 ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                 legend([dra dsw dlw], '$\Delta R_a$', '$\Delta(\mathrm{Net SW})$', '$\Delta (\mathrm{Net LW})$', 'location', 'eastoutside');
@@ -312,7 +254,7 @@ function plot_dmse_polar_line(type, par)
     %         clat = cosd(lat); % cosine of latitude for cosine weighting
     %         clat_mon = repmat(clat', [1 12]);
 
-    %         folder = sprintf('%s/dmse/%s/0_poleward_of_lat_%g', par.plotdir, fw, lat_bound);
+    %         folder = sprintf('%s/dmse/%s/0_poleward_of_lat_%g', plotdir, fw, lat_bound);
     %         if ~exist(folder, 'dir'); mkdir(folder); end;
 
     %         ra = flux_z.lo.ra.(fw);

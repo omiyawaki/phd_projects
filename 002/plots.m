@@ -11,8 +11,8 @@ figure_params
 %% set parameters
 % lat grid type
 if 1
-% par.echam_clims = {'echr0001'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
-par.echam_clims = par.echam.ice_mld; % {'echr0001'}; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+par.echam_clims = {'echr0001'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+% par.echam_clims = par.echam.ice_mld; % {'echr0001'}; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 par.era5.yr_span = '1979_2005';
 par.era5c.yr_span = '1979_2005';
 par.jra55.yr_span = '1979_2005';
@@ -106,33 +106,37 @@ end
 % end
 
 function choose_plots(type, par)
-    % plot_temp_zon(type, par) % plot temperature profiles at specific latitudes
-    % plot_temp_zon_select(type, par) % plot temperature profiles at specific latitudes
+    plot_temp_zon_select(type, par) % plot temperature profiles at specific latitudes
     % plot_temp_binned_r1(type, par) % plot temperature profiles at specific latitudes
-    % plot_dtdz_binned_r1(type, par) % plot temperature profiles at specific latitudes
-    % plot_thetaeq_zon_select(type, par) % plot eq pot temp profiles at specific latitudes
-    % plot_dtdz_zon_select(type, par) % plot temperature profiles at specific latitudes
-    % plot_ma_diff(type, par) % plot difference of temperature profile from moist adiabat
-    % plot_ga_diff(type, par) % plot difference of temperature profile from moist adiabat
-    % plot_ga_malr_si_diff(type, par) % plot difference of temperature profile from moist adiabat in sigma
-    plot_dmse_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
-    % plot_dmse_polar_line_asym(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
-    % plot_dmse_polar_line_topocomp(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
-    % plot_dmse_so_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
-    % plot_dra_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
-    plot_dmse_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
-    % plot_dmse_toasfc_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dmse_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dmse_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dlh_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_siced(type, par) % sea ice depth
     % plot_friac(type, par) % sea ice fraction
     % plot_ahfres(type, par) % ice melt
+    % plot_ahfliac(type, par) % LH over ice
+    % plot_ahfllac(type, par) % LH over land
+    % plot_ahflwac(type, par) % LH over water
     % plot_alb(type, par) % surface albedo
     % plot_sftlf(type, par) % land fraction
+
+    % plot_dmse_toasfc_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dmse_polar_line_asym(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dmse_polar_line_topocomp(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dmse_so_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_tas(type, par) % 2m temperature
     % plot_tas_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_sol_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_ts(type, par) % skin temperature
-
     % plot_dmse_toasfc_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dra_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_ma_diff(type, par) % plot difference of temperature profile from moist adiabat
+    % plot_ga_diff(type, par) % plot difference of temperature profile from moist adiabat
+    % plot_dtdz_binned_r1(type, par) % plot temperature profiles at specific latitudes
+    % plot_thetaeq_zon_select(type, par) % plot eq pot temp profiles at specific latitudes
+    % plot_dtdz_zon_select(type, par) % plot temperature profiles at specific latitudes
+    % plot_ga_malr_si_diff(type, par) % plot difference of temperature profile from moist adiabat in sigma
+    % plot_temp_zon(type, par) % plot temperature profiles at specific latitudes
 
 end % select which functions to run at a time
 function choose_plots_si_bl(type, par)
@@ -148,8 +152,9 @@ function choose_plots_ep(type, par)
     % plot_temp(type, par) % plot temperature profiles
     % plot_temp_ann(type, par) % plot temperature profiles
     % plot_dr1_midlatitude_line(type, par) % plot decomposition of R1 in mon at specific latitudes
-    % plot_dr1_so_line(type, par) % plot decomposition of R1 in mon at specific latitudes
     plot_dr1_polar_line(type, par) % plot decomposition of R1 in mon at specific latitudes
+
+    % plot_dr1_so_line(type, par) % plot decomposition of R1 in mon at specific latitudes
     % plot_dr1_polar_line_repl(type, par) % plot decomposition of R1 in mon at specific latitudes
     % plot_dr1_polar_line_topocomp(type, par) % plot decomposition of R1 in mon at specific latitudes
 end % select which ep-functions to run at a time

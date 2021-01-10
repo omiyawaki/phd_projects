@@ -1,4 +1,4 @@
-function read_friac(type, par)
+function read_ahfliac(type, par)
 % read sea ice depth
     if strcmp(type, 'echam')
         if contains(par.echam.clim, 'rp000')
@@ -7,11 +7,11 @@ function read_friac(type, par)
             file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/BOT*_%s_*.ymonmean.nc', par.echam.clim));
         end
         fullpath=sprintf('%s/%s', file.folder, file.name);
-        friac=double(ncread(fullpath, 'friac'));
+        ahfliac=double(ncread(fullpath, 'ahfliac'));
         newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/echam/%s', par.echam.clim);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
-        filename='friac.mat';
-        save(sprintf('%s/%s', newdir, filename), 'friac');
+        filename='ahfliac.mat';
+        save(sprintf('%s/%s', newdir, filename), 'ahfliac');
     else
         error('This function only works for ECHAM data.');
     end

@@ -42,10 +42,16 @@ function plot_temp_binned_r1(type, par)
                 end
             end
 
+            [~,idx09]=min(abs(par.r1_bins-0.85));
+            [~,idx01]=min(abs(par.r1_bins-0.05));
             figure(); clf; hold all; box on;
             cmp = flip(parula(length(par.r1_bins)-1));
             for bin = 1:length(par.r1_bins)-1
-                plot(ta_area(bin,:), grid.dim3.si, 'k', 'color', cmp(bin,:));
+                if bin==idx09 | bin==idx01
+                    plot(ta_area(bin,:), grid.dim3.si, 'k', 'color', cmp(bin,:), 'linewidth', 1.5);
+                else
+                    plot(ta_area(bin,:), grid.dim3.si, 'k', 'color', cmp(bin,:), 'linewidth', 0.5);
+                end
             end
             % text(5+ta_area(1,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(1),par.r1_bins(2)), 'fontsize',6, 'rotation', -55);
             % text(-5+ta_area(end,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(end-1),par.r1_bins(end)), 'fontsize',6, 'rotation', -55);
@@ -59,7 +65,6 @@ function plot_temp_binned_r1(type, par)
             print(sprintf('%s/temp_binned_r1/%s/%s/temp_r1_all.png', plotdir, fw, land), '-dpng', '-r300');
             close;
 
-            [~,idx09]=min(abs(par.r1_bins-0.85));
             figure(); clf; hold all; box on;
             cmp = flip(parula(length(par.r1_bins)-1));
             for bin = idx09-1:idx09+1
@@ -80,7 +85,6 @@ function plot_temp_binned_r1(type, par)
             print(sprintf('%s/temp_binned_r1/%s/%s/temp_r1_0-9.png', plotdir, fw, land), '-dpng', '-r300');
             close;
 
-            [~,idx01]=min(abs(par.r1_bins-0.05));
             figure(); clf; hold all; box on;
             cmp = flip(parula(length(par.r1_bins)-1));
             for bin = idx01-1:idx01+1

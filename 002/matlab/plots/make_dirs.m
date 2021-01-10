@@ -69,7 +69,7 @@ function make_dirs(type, par)
         end
     end
 
-    for vn = {'va', 'trop', 'alb', 'sol', 'tas', 'ts', 'sn', 'siced', 'friac', 'ahfres', 'sftlf', 'legends'}; varname = vn{1};
+    for vn = {'va', 'trop', 'alb', 'sol', 'tas', 'ts', 'sn', 'siced', 'friac', 'ahfres', 'ahfliac', 'ahfllac', 'ahflwac', 'sftlf', 'legends'}; varname = vn{1};
         if ~exist(sprintf('%s/%s', plotdir, varname), 'dir')
             mkdir(sprintf('%s/%s', plotdir, varname));
         end
