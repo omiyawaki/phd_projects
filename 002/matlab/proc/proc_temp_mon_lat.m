@@ -1,25 +1,4 @@
 function proc_temp_mon_lat(type, par)
-    % if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'merra2') | strcmp(type, 'era5c')
-    %     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    % elseif strcmp(type, 'gcm')
-    %     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/', type, par.model, par.gcm.clim, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
-    % elseif strcmp(type, 'echam')
-    %     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.echam.clim, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type, par.echam.clim);
-    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.echam.clim);
-    % elseif strcmp(type, 'echam_ml')
-    %     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    % elseif strcmp(type, 'echam_pl')
-    %     foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    % end
 
     prefix = make_prefix(type, par);
     foldername = make_savedir_proc(type, par);
@@ -86,16 +65,10 @@ function proc_temp_mon_lat(type, par)
 
     % save filtered data
     printname = [foldername 'ta_mon_lat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
     if par.do_surf; save(printname, 'tasi', 'lat');
     else save(printname, 'tasi', 'pasi', 'lat', '-v7.3'); end
 
     printname = [foldername 'ta_lon_lat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
     if par.do_surf; save(printname, 'tasi_t', 'lat');
     else save(printname, 'tasi_t', 'pasi_t', 'lat', '-v7.3'); end
 end % compute mon x lat temperature field

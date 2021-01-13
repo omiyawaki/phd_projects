@@ -81,6 +81,23 @@
 %% Necessary!
 \maketitle
 
+% Key points
+\section*{Key points}
+\begin{itemize}
+  \item We introduce a non-dimensional metric $R_{1}$ for identifying heat transfer regimes.
+\item Vertical temperature profiles are a monotonic function of $R_{1}$, making $R_{1}$ a suitable metric to define heat transfer regimes and their associated temperature profiles (Fig. 1(a,b)).
+  \item RCE exists yearround in the deep tropics and in the NH midlatitudes during summer. RAE exists yearround poleward of 70 S in the Antarctic but only during winter in the Arctic (Figs. 3(a) and 4(a)).
+  \item In the NH winter, the observed stratification is more stable than a moist adiabat in the midlatitudes and exhibits a near surface inversion in the high latitudes, consistent with the expected temperature profiles for RCAE and RAE regimes, respectively (Fig. 3(b) and 4(b)).
+  \item In NH summer, the observed stratification is moist adiabatic in the midlatitudes and does not exhibit a near surface inversion in the high latitudes, consistent with RCE and RCAE regimes, respectively (Figs. 3(c) and 4(c)).
+  \item The observed stratification is more stable than a moist adiabat in the SH midlatitudes and exhibits a near surface inversion in the SH high latitudes yearround, consistent with RCAE and RAE regimes, respectively (Figs. 3(d,e) and 4(d,e)).
+  \item The seasonality of $R_{1}$ in the midlatitudes mostly follows the seasonality of MSE flux divergence. Thus, the asymmetry in the seasonality of MSE flux divergence explains the hemispheric asymmetry in the midlatitude regime transitions (Fig. 6(a,b) and 7(a,b)).
+  \item Modifying the surface heat capacity in an aquaplanet captures the hemispheric asymmetry in the seasonality of MSE flux divergence and $R_{1}$ (Figs. 10(a,b)). The strong seasonality of MSE flux divergence in the NH midlatitudes is consistent with a lower heat capacity (20 m mixed layer depth) and the weak seasonality of MSE flux divergence in the SH midlatitudes is consistent with a higher heat capacity (40 m mixed layer depth). The control of mixed layer depth on MSE flux divergence seasonality is consistent with Barpanda and Shaw (2020).
+  \item On modern Earth, the melting of sea ice appears to be a necessary condition for RCAE in the high latitudes:
+  \item In other words, our current hypothesis is that the presence of sea ice that is not melting is a necessary and sufficient condition for high latitude RAE.
+\end{itemize}
+
+\newpage
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SIGNIFICANCE STATEMENT/CAPSULE SUMMARY
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -360,29 +377,22 @@ If data access is restricted, authors must mention this in the statement.
         \begin{equation} \label{eq:r1-linear2}
           \Delta R_{1} = \frac{1}{\overline{R_{a}}}\left(\Delta F_{\mathrm{TOA}}-\rho c_{w} d \Delta\frac{\partial T_{s}}{\partial t}\right) \, .
         \end{equation}
-  \item At this point we make the following assumptions:
+  \item Following \cite{rose2017}, we make the following assumptions to rewrite the RHS:
         \begin{enumerate}
-                \item $\Delta F_{\mathrm{TOA}} \approx \Delta Q$, where $Q$ is net TOA shortwave radiation; i.e., the seasonality of net TOA shortwave dominates over the seasonality of OLR.
-                \item $\Delta Q = Q^{*}\sin(\omega t)$, where $Q^{*}$ is the amplitude of net TOA shortwave and $\omega=2\pi$ yr$^{-1}$.
-                \item $\Delta T_{s} = T_{s}^{*}\sin(\omega t - \Phi)$, where $T_{s}^{*}$ is the amplitude of surface temperature and $\Phi$ is the phase shift of $\Delta T_{s}$ relative to $\Delta Q$.
+          \item $\Delta F_{\mathrm{TOA}} \approx a\Delta Q - B\Delta T_{s}$, where $a$ is the co-albedo, $Q$ is insolation, and $B$ is the sensitivity of OLR to surface temperature $T_{s}$.
+          \item $\Delta Q = Q^{*}\cos(\omega t)$, where $Q^{*}=as_{11}Q_{g}P_{1}(x)$ is the amplitude of net TOA shortwave, $s_{11}=-2\sin{\beta}$ where $\beta$ is the obliquity, and $Q_{g}=340$ Wm$^{-2}$. For simplicity we only consider the annual mode.
+          \item $\Delta T_{s} = T_{s}^{*}\cos(\omega t - \Phi)$, where $T_{s}^{*}$ is the amplitude of surface temperature and $\Phi$ is the phase shift of $\Delta T_{s}$ relative to $\Delta Q$.
+          \item As with insolation, we only consider the annual mode, so $T_{s}^{*}=Q^{*}B^{-1}\left((1+2\delta)^{2}+\gamma^{2}\right)^{-1/2}$ and $\Phi=\arctan\left(\frac{\gamma}{1+2\delta}\right)$.
         \end{enumerate}
   \item Using the above assumptions, we can write Equation~(\ref{eq:r1-linear2}) as
         \begin{equation} \label{eq:r1-linear3}
-          \Delta R_{1} = \frac{1}{\overline{R_{a}}}\left(Q^{*}\sin(\omega t) -\rho c_{w} d \omega T_{s}^{*}\cos(\omega t - \Phi) \right) \, .
+          \Delta R_{1} = \frac{1}{\overline{R_{a}}}\left(Q^{*}\cos(\omega t) -BT^{*}\cos(\omega t - \Phi)+\rho c_{w} d \omega T_{s}^{*}\sin(\omega t - \Phi) \right) \, .
         \end{equation}
-  \item We now use the solution for $T_{s}^{*}$ and $\Phi$ from the 0-dimensional energy balance model, where
-        \begin{align}
-          T_{s}^{*} &= \frac{Q^{*}}{B}\left(1+\tilde{C}^{2}\right)^{-1/2} \label{eq:0d-ts} \\
-          \Phi &= \arctan\left(\tilde{C}\right) \label{eq:0d-phi}
-        \end{align}
-  \item where $\tilde{C}=\frac{\rho c_{w} d \omega}{B}$ and $B=2$ Wm$^{-2}$K$^{-1}$. Substituting Equations~(\ref{eq:0d-ts}) and (\ref{eq:0d-phi}) into (\ref{eq:r1-linear3}),
+  \item Substituting in $T_{s}^{*}$ and $\Phi$ and simplifying, we obtain
         \begin{equation} \label{eq:r1-linear4}
-          \Delta R_{1} = \frac{Q^{*}}{\overline{R_{a}}}\left(\sin(\omega t) -\tilde{C}\left(1+\tilde{C}^{2}\right)^{-1/2}\cos(\omega t - \arctan(\tilde{C})) \right) \, .
+          \Delta R_{1} = \frac{Q^{*}}{\overline{R_{a}}}\frac{2\delta}{(1+2\delta)^{2}+\gamma^{2}}\left((1+2\delta)\cos(\omega t)+\gamma\sin(\omega t)\right) \, .
         \end{equation}
-  \item which simplifies to
-        \begin{equation} \label{eq:r1-linear4}
-          \Delta R_{1} = \frac{Q^{*}}{\overline{R_{a}}}\left(\left(1-\frac{\tilde{C}^{2}}{1+\tilde{C}^{2}}\right)\sin(\omega t) -\frac{\tilde{C}}{1+\tilde{C}^{2}}\cos(\omega t) \right) \, .
-        \end{equation}
+        \item While the predicted relationship between $T_{s}^{*}$ and the mixed layer depth agrees well with the ECHAM simulations (Fig.~B1(a)), the predicted amplitude of $R_{1}$ underestimates those in ECHAM (Fig.~B1(b)).
 \end{itemize}
 
 \subsection{Critical mixed layer depth}
@@ -451,7 +461,7 @@ If data access is restricted, authors must mention this in the statement.
 
 \begin{figure}
   \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/temp_binned_r1/temp_binned_r1.pdf}\\
-  \caption{Temperature profiles binned according to $R_{1}$ for (a) ERA-5 reanalysis and (b) CMIP5 historical multi-model mean. Tropospheric temperature profiles are a monotonic function of $R_{1}$, making $R_{1}$ a suitable metric to characterize temperature profile regimes. (c, d) The near surface inversion becomes weaker with decreasing $R_{1}$ (in the direction of increasing temperatures) and vanishes for $R_{1}<0.9$. For this reason we choose the critical threshold for RAE as $R_{1} \ge 0.9$, which corresponds to $\epsilon=0.1$.}
+  \caption{Temperature profiles binned according to $R_{1}$ for (a) ERA-5 reanalysis and (b) CMIP5 historical multi-model mean. Tropospheric temperature profiles are a monotonic function of $R_{1}$, making $R_{1}$ a suitable metric to characterize temperature profile regimes. Temperature profiles corresponding to the threshold of RCE ($R_1=0.1$) and RAE ($R_1=0.9$) are presented as thicker lines.}
   \label{fig:temp-binned-r1}
 \end{figure}
 
@@ -480,13 +490,13 @@ If data access is restricted, authors must mention this in the statement.
 \end{figure}
 
 \begin{figure}[t]
-  \noindent\includegraphics[width=\textwidth]{era5-r1-decomp-mid.png}\\
-  \caption{The seasonality of $R_{1}$ in midlatitudes ($40$--$50^{\circ}$) and its deviation from the annual-mean for the (a) NH and (b) SH. The seasonality of the terms in the MSE budget in midlatitudes for the (c) NH and (d) SH.}
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_mid/r1_decomp_mid_era5.pdf}\\
+  \caption{The seasonality of $R_{1}$ in midlatitudes ($30$--$60^{\circ}$) and its deviation from the annual-mean for the (a) NH and (b) SH. The seasonality of the terms in the MSE budget in midlatitudes for the (c) NH and (d) SH.}
   \label{fig:era5-r1-decomp-mid}
 \end{figure}
 
 \begin{figure}[t]
-  \noindent\includegraphics[width=\textwidth]{cmip5hist-r1-decomp-mid.png}\\
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_mid/r1_decomp_mid_cmip5hist.pdf}\\
   \caption{Same as Fig.~\ref{fig:era5-r1-decomp-mid} but for the CMIP5 historical multi-model mean.}
   \label{fig:cmip5hist-r1-decomp-mid}
 \end{figure}
@@ -504,7 +514,7 @@ If data access is restricted, authors must mention this in the statement.
 \end{figure}
 
 \begin{figure}[t]
-  \noindent\includegraphics[width=\textwidth]{echam-rce.png}\\
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_mid/r1_decomp_mid_echamslab.pdf}\\
   \caption{Varying the mixed layer depth in the ECHAM slab ocean aquaplanet model without sea ice captures the hemispheric asymmetry of the \(R_{1}\) seasonality. a) When the mixed layer depth is set to 20 m, the seasonality of \(R_{1}\) in ECHAM is comparable to that of the NH midlatitudes (cf. Fig.~\ref{fig:cmip5hist-r1-decomp-mid}(a)) and transitions to RCE in the summer. b) As in Fig.~\ref{fig:cmip5hist-r1-decomp-mid}(b), the transition to RCE is driven by a weakening of MSE flux convergence. In ECHAM, the maximum weakening of MSE flux divergence and strengthening of turbulent heat fluxes occur in late summer/early fall. c) When the mixed layer depth is set to 40 m, the seasonality of \(R_{1}\) in ECHAM is comparable to that of the SH midlatitudes (cf. Fig.~\ref{fig:cmip5hist-r1-decomp-mid}(c)) and stays in RCAE yearround. d) As in Fig.~\ref{fig:cmip5hist-r1-decomp-mid}(d), the weaker seasonality of \(R_{1}\) is attributed to a weaker seasonality of MSE flux divergence, which is balanced by a seasonality of turbulent heat fluxes that is out of phase with insolation.}
   \label{fig:echam-rce}
 \end{figure}
@@ -528,8 +538,8 @@ If data access is restricted, authors must mention this in the statement.
 \end{figure}
 
 \begin{figure}
-  \noindent\includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/amp_echam.pdf}\\
-  \appendcaption{A3}{(a) The seasonal amplitude of surface temperature between 40--50$^{\circ}$ latitude as diagnosed from ECHAM with varied mixed layer depths (asterisks) and that predicted from the 0-D energy balance model (line) for $B=2$ Wm$^{-2}$K$^{-1}$, $\rho=1000$ kg m$^{-3}$, $c_{w}=4000$ J kg$^{-1} $K$^{-1}$, and $Q^{*}=200$ W m$^{-2}$. (b) Minimum of the seasonal deviation of $R_{1}$ as diagnosed from ECHAM (asterisks) and the 0-D EBM (line).}
+  \noindent\includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/amp_echam_del0-5.pdf}\\
+  \appendcaption{B1}{(a) The seasonal amplitude of surface temperature between 30--60$^{\circ}$ latitude as diagnosed from ECHAM with varied mixed layer depths (asterisks) and that predicted from the \cite{rose2017} energy balance model (line) for $B=1.45$ Wm$^{-2}$K$^{-1}$, $\rho=1000$ kg m$^{-3}$, $c_{w}=4000$ J kg$^{-1} $K$^{-1}$, $a=0.68$, and $\delta=0.5$. (b) Minimum of the seasonal deviation of $R_{1}$ as diagnosed from ECHAM (asterisks) and the EBM (line).}
   \label{fig:amp-r1-echam}
 \end{figure}
 

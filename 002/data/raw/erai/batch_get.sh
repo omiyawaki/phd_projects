@@ -3,13 +3,14 @@
 module unload python
 module load python
 
-declare -a vtypes=("rad" "hydro" "stf" "temp" "temp_ml" "srfc" "zg" "w500" "tend" "div" "vas" "albedo") # variable type
-yr_start=2000
-mon_start=3
+# declare -a vtypes=("rad" "hydro" "stf" "temp" "temp_ml" "srfc" "zg" "w500" "tend" "div" "vas" "albedo") # variable type
+declare -a vtypes=("temp" "hur") # variable type
+yr_start=1979
+mon_start=1
 day_start=1
-yr_end=2018
-mon_end=2
-day_end=1
+yr_end=2005
+mon_end=12
+day_end=31
 
 cwd=$(pwd)
 

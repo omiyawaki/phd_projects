@@ -1,65 +1,12 @@
 function make_tai(type, par)
     % add surface data to temperature and interpolate to hi-res grid
-    if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span));
-        fullpath=sprintf('%s/%s', file.folder, file.name);
-        temp = double(ncread(fullpath, 't'));
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
-        fullpath=sprintf('%s/%s', file.folder, file.name);
-        zg = double(ncread(fullpath, 'z')); zg = zg/par.g; % convert from geopotential to height in m
-    elseif strcmp(type, 'merra2')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span));
-        fullpath=sprintf('%s/%s', file.folder, file.name);
-        temp = double(ncread(fullpath, 'T'));
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
-        fullpath=sprintf('%s/%s', file.folder, file.name);
-        zg = double(ncread(fullpath, 'H'));
-    elseif strcmp(type, 'gcm')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/', type, par.model, par.gcm.clim, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
-        var = 'ta';
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, var, par.model, par.gcm.clim));
-        fullpath=sprintf('%s/%s', file.folder, file.name);
-        temp = double(ncread(fullpath, var));
-        var = 'zg';
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, var, par.model, par.gcm.clim));
-        fullpath=sprintf('%s/%s', file.folder, file.name);
-        zg = double(ncread(fullpath, var));
-    elseif strcmp(type, 'echam')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.echam.clim, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.echam.clim);
-        var = 't';
-        if contains(par.echam.clim, 'rp000')
-            file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/ATM_%s_0020_39.nc', par.echam.clim, par.echam.clim));
-        else
-            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/ATM*_%s_*.ymonmean.nc', par.echam.clim));
-        end
-        fullpath=sprintf('%s/%s', file.folder, file.name);
-        temp = double(ncread(fullpath, var));
-        var = 'geopoth';
-        fullpath=sprintf('%s/%s', file.folder, file.name);
-        zg = double(ncread(fullpath, var));
-    elseif any(strcmp(type, {'echam_ml', 'echam_pl'}))
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-        var = 't';
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/ATM*.ymonmean.nc', type));
-        fullpath=sprintf('%s/%s', file.folder, file.name);
-        temp = double(ncread(fullpath, var));
-        var = 'geopoth';
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/ATM_*.ymonmean.nc', type));
-        fullpath=sprintf('%s/%s', file.folder, file.name);
-        zg = double(ncread(fullpath, var));
-    end
+
+    prefix = make_prefix(type, par);
+    prefix_proc = make_prefix(type, par);
+    foldername = make_savedir(type, par);
+    temp = load_temp(type, par);
+    zg = load_zg(type, par);
+
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/srfc.mat', prefix)); % read surface variable data
 
@@ -87,7 +34,7 @@ function make_tai(type, par)
         ts_vert = permute(ts_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
         zs_vert = repmat(srfc.zs, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
         zs_vert = permute(zs_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
-    elseif strcmp(type, 'gcm')
+    elseif any(strcmp(type, 'gcm', 'jra55'))
         ps_vert = repmat(srfc.ps, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
         ps_vert = permute(ps_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
         pa = permute(repmat(grid.dim3.plev, [1 size(srfc.ps)]), [2 3 1 4]);
@@ -183,13 +130,7 @@ function make_tai(type, par)
     zgi_sm.lo = permute(zgi_sm.lo, [2 3 1 4]); % bring plev back to third dimension
     zgi = zgi_sm.lo;
 
-    if any(strcmp(type, {'era5', 'era5c', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    elseif strcmp(type, 'merra2'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s', par.model, par.gcm.clim);
-    elseif strcmp(type, 'echam'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/echam/%s', par.echam.clim);
-    elseif any(strcmp(type, {'echam_ml', 'echam_pl'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span); end;
-    if ~exist(newdir, 'dir'); mkdir(newdir); end
     filename='tai.mat';
-    save(sprintf('%s/%s', newdir, filename), 'tai', 'zgi', '-v7.3');
+    save(sprintf('%s/%s', foldername, filename), 'tai', 'zgi', '-v7.3');
 
 end

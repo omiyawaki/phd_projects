@@ -94,7 +94,7 @@ function make_tempsi(type, par)
                 elseif strcmp(type, 'merra2')
                     tmp(1) = srfc.T2M(lo,la,mo);
                 elseif strcmp(type, 'jra55')
-                    tmp(1) = srfc.tas(lo,la,mo);
+                    tmp(end) = srfc.tas(lo,la,mo); % surface is last element in jra
                 elseif strcmp(type, 'gcm')
                     tmp(1) = srfc.tas(lo,la,mo);
                 elseif contains(type, 'echam')

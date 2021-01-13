@@ -23,8 +23,6 @@
     "eq:sfc-simple"
     "eq:r1-linear2"
     "eq:r1-linear3"
-    "eq:0d-ts"
-    "eq:0d-phi"
     "eq:r1-linear4"
     "fig:temp-binned-r1"
     "fig:era5-r1-ann"

@@ -1,0 +1,102 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+
+\title{Research notes}
+\date{\today}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+\section{Using the \cite{rose2017} EBM to predict $\min(\Delta R_1)$ as a function of mixed layer depth}
+\textbf{Background:} A 0-D EBM that only considers the radiative fluxes on the seasonality of surface temperature accurately predicted the dependence of $\min(\Delta R_1)$ (which is related to the existence of a midlatitude regime transition) on mixed layer depth. However, it overpredicted the amplitude of the temperature seasonality, suggesting that there are compensating errors in the simple model. This motivated us to use an EBM that includes the effect of heat transport, as we expect heat transport to dampen the seasonality of temperature in the midlatitudes.
+
+Arguably, the simplest parameterization of heat transport is Newtonian cooling (e.g., \cite{checlair2017}) toward some reference temperature. If the reference temperature is set as the annual mean temperature, the strength of the heat transport as expressed by $C$ can simply be absorbed into the OLR term, where the combined damping term is expressed as $(B+C)T$. Thus, parameterizing heat transport as Newtonian cooling leads to the same solution as the pure radiative model, except that the parameter $B$ is replaced by $B+C$. The best fit for the surface temperature seasonality with ECHAM is obtained for $B+C=20$ (Fig.~\ref{fig:amp-echam-jade}(a)). This is significantly larger than values used in \cite{checlair2017}, where $B=1.5$ and $C=3$ Wm$^{-2}$. In addition, fitting $B+C$ for surface temperature leads to a poor fit for $\min(\Delta R_1)$ (Fig.~\ref{fig:amp-echam-jade}(b)). This suggests that the Newtonian cooling parameterization may not be appropriate for representing the seasonality of MSE flux divergence and is the motivation behind using the \cite{rose2017} model.
+
+\begin{figure}
+    \includegraphics{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/amp_echam_jade.pdf}
+    \caption{(a) The seasonal amplitude of surface temperature between 30--60$^{\circ}$ latitude as diagnosed from ECHAM with varied mixed layer depths (asterisks) and that predicted from the EBM with Newtonian cooling (line) for $B+C=20$ Wm$^{-2}$K$^{-1}$. (b) Minimum of the seasonal deviation of $R_{1}$ as diagnosed from ECHAM (asterisks) and the EBM (line). Obtaining a reasonable fit for the surface temperature amplitude leads to a poor fit for $\min(\Delta R_1)$.}
+    \label{fig:amp-echam-jade}
+\end{figure}
+
+The \cite{rose2017} EBM parameterizes heat transport as a diffusive process and derives an analytical expression for surface temperature (see their Equations (15)--(17)). I adapted these equations into my derivation of $\min(\Delta R_1)$ in Appendix B in the outline. For simplicity I only considered the annual mode (the terms with the 11 subscript), which should be a reasonable approximation in the midlatitudes, where the second Legendre polynomial is small. I first set the co-albedo $a=0.68$ to fit the annual mean global mean temperature in ECHAM and used the same parameters as in \cite{rose2017}. With the default parameters, the EBM only slightly overpredicts the surface temperature amplitude but significantly underestimates the R1 amplitudes (Fig.~\ref{fig:amp-echam-rose}). Next, I tuned $\delta=0.5$ ($\delta$ is proportional to the diffusivity; the default value is $\delta=0.31$) to fit the meridional temperature profile in ECHAM. This only slightly improves both the temperature and $R_1$ seasonality (Fig.~\ref{fig:amp-echam-del0-5}). It is possible to tune $\delta$ to accurately fit the seasonality in ECHAM (Fig.~\ref{fig:amp-echam-best}), but unfortunately this is not consistent with the choice of $\delta$ that fits the meridional temperature profile.
+
+\textbf{To do:} Investigate why $\delta$ that best fits the meridional temperature profile does not provide a good fit for the seasonality of $R_1$. Compare the predicted seasonality of each flux (net TOA shortwave, OLR, and temperature tendency) with ECHAM to see what the source of the discrepancy is. Derive the expression for $\min(\Delta R_1)$ including the semiannual mode and see if this leads to a better fit.
+
+\begin{figure}
+    \includegraphics{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/amp_echam_rose.pdf}
+    \caption{Same as Fig.~\ref{fig:amp-echam-jade}, except the solid line shows the prediction based on the \cite{rose2017} EBM with the default parameter choice. The only exception is the co-albedo, which I set to $a=0.68$ (the default is $a=0.62$ following \cite{north1975}) to better fit the annual mean temperature of ECHAM.}
+    \label{fig:amp-echam-rose}
+\end{figure}
+
+\begin{figure}
+    \includegraphics{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/amp_echam_del0-5.pdf}
+    \caption{Same as Fig.~\ref{fig:amp-echam-rose}, except the solid line shows the prediction based on the \cite{rose2017} EBM with $\delta=0.5$, which provides a good fit to the ECHAM meridional temperature profile.}
+    \label{fig:amp-echam-del0-5}
+\end{figure}
+
+\begin{figure}
+    \includegraphics{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/amp_echam_best.pdf}
+    \caption{Same as Fig.~\ref{fig:amp-echam-rose}, except the solid line shows the prediction based on the \cite{rose2017} EBM with $\delta=1.2$, which provides a good fit to the ECHAM $R_1$ seasonality.}
+    \label{fig:amp-echam-best}
+\end{figure}
+
+\section{Plausibility of melting sea ice as source of summertime latent heat flux}
+\textbf{Background:} One of the key differences between the NH and SH high latitude seasonality is the latent heat flux (LH). LH remains nearly 0 (order of 0.1 Wm$^{-2}$) yearround in the SH, whereas it increases up to 12 Wm$^{-2}$ in the NH. We hypothesize that this asymmetry in LH seasonality explains the asymmetry in high latitude heat transfer regimes. The goal is to identify a physical mechanism that controls the asymmetry in LH seasonality. Previously, I showed that melting of sea ice may play a key role in ECHAM because sea ice melt is predominantly a NH phenomenon and occurs only during summertime. We further explore this idea by comparing the seasonality of melting with LH.
+
+First, I decomposed the LH in ECHAM into contributions over ice, land, and water using the variables ahfliac, ahfllac, and ahflwac, respectively. We find that the increase in LH during summertime is due mostly to LH over ice (Fig.~\ref{fig:lh-echam}). This suggests that the increase in summertime LH predominantly originates from a source over ice (e.g., evaporation over meltponds or sublimation directly over ice) rather than evaporation over an exposed ocean. However, we note that the latter becomes the dominant term for a short period in late summer/early fall, consistent with when the ice concentration is at a minimum (Fig.~\ref{fig:icef-lhw-echam}).
+
+Interestingly, LH over ice starts to increase a month before significant melting begins (Fig.~\ref{fig:melting-lhi-echam}). This phase shift weakens the plausability of sea ice melting as the source of increased LH during summertime.   
+
+\begin{figure}
+    \includegraphics{/project2/tas1/miyawaki/projects/002/figures/echam/echr0001/native/dmse/mse/lo/0_poleward_of_lat_80/0_mon_lh.png}
+    \caption{Seasonality of NH high latitude latent heat flux decomposed into contributions over ice, land, and water. The increase in LH during summertime is mostly due to an increase in LH over ice.}
+    \label{fig:lh-echam}
+\end{figure}
+
+\begin{figure}
+    \includegraphics{/project2/tas1/miyawaki/projects/002/figures/echam/echr0001/native/dmse/mse/lo/0_poleward_of_lat_80/0_mon_icef_lhw.png}
+    \caption{The seasonality of sea ice fraction (black) compared with LH over water. Note that the right y-axis is reversed to fascilitate comparison. As expected, LH over water is well correlated with sea ice fraction.}
+    \label{fig:icef-lhw-echam}
+\end{figure}
+
+\begin{figure}
+    \includegraphics{/project2/tas1/miyawaki/projects/002/figures/echam/echr0001/native/dmse/mse/lo/0_poleward_of_lat_80/0_mon_melting_lhi.png}
+    \caption{The seasonality of energy flux due to melting of sea ice (black) compared with LH over ice. The increase in LH over ice precedes melting, suggesting that melting may not be the cause of increasing LH in the NH.}
+    \label{fig:melting-lhi-echam}
+\end{figure}
+
+\section{Disabling melt ponds in ECHAM}
+I've been running an ECHAM run with meltponds disabled before I obtained the above findings. Nevertheless, it may be useful to study what the NH high latitudes look like without meltponds. The simulation has not yet finished running through the full 60 year duration, so as a preliminary result I performed the following analyses using 1 year of output (year 37).
+
+When ECHAM is run without meltponds, summertime LH peaks at 8 Wm$^{-2}$ compared to 12 Wm$^{-2}$ when meltponds are present (Fig.~\ref{fig:lh-echam25}). Thus while meltponds contribute to about a third of the total seasonal increase in LH, the majority still remains unaccounted. Interestingly, disabling meltponds does not significantly alter the amount of sea ice melt (Fig.~\ref{fig:melting-lhi-echam25}). This suggests that the majority of melting occurs either on the horizontal or bottom edges of sea ice.
+
+The NH high latitudes continue to transition to RCAE in ECHAM even with meltponds disabled (Fig.~\ref{fig:dr1-echam-01-25}). However, we can see that the duration of RCAE is much shorter as a result of the weaker seasonality of LH.  
+
+\textbf{To do:} Figure out where the remaining 8 Wm$^{-2}$ of summer LH originates from. Is sublimation the only remaining mechanism? If so, is the hemispheric asymmetry in sublimation due to the asymmetry in near-surface temperature?
+
+\begin{figure}
+    \includegraphics{/project2/tas1/miyawaki/projects/002/figures/echam/echr0025/native/dmse/mse/lo/0_poleward_of_lat_80/0_mon_lh.png}
+    \caption{Same as Fig.~\ref{fig:lh-echam} but for ECHAM with meltponds disabled. Without meltponds, summertime LH increases only up to 8 Wm$^{-2}$, compared to 12 Wm$^{-2}$ with meltponds.}
+    \label{fig:lh-echam25}
+\end{figure}
+
+\begin{figure}
+    \includegraphics{/project2/tas1/miyawaki/projects/002/figures/echam/echr0025/native/dmse/mse/lo/0_poleward_of_lat_80/0_mon_melting_lhi.png}
+    \caption{Same as Fig.~\ref{fig:melting-lhi-echam} but for ECHAM with meltponds disabled. Even though meltponds are disabled, there is little change in the amount of seasonal sea ice melt.}
+    \label{fig:melting-lhi-echam25}
+\end{figure}
+
+\begin{figure}
+    \includegraphics{/project2/tas1/miyawaki/projects/002/figures_post/test/dr1_echam_01_25/dr1_echam_01_25.pdf}
+    \caption{The seasonality of $R_1$ for ECHAM (a) with meltponds and (b) without meltponds. ECHAM with meltponds disabled still transitions to RCAE.}
+    \label{fig:dr1-echam-01-25}
+\end{figure}
+
+
+\bibliographystyle{apalike}
+\bibliography{../../outline/references.bib}
+
+\end{document}

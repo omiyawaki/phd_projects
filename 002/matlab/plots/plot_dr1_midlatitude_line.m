@@ -1,24 +1,6 @@
 function plot_dr1_midlatitude_line(type, par)
     make_dirs(type, par)
 
-    % if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-    %     plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    % elseif strcmp(type, 'merra2')
-    %     plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    % elseif strcmp(type, 'gcm')
-    %     plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
-    % elseif strcmp(type, 'echam')
-    %     plotdir = sprintf('./figures/%s/%s/%s', type, par.echam.clim, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
-    %     prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.echam.clim);
-    % end
-
     prefix = make_prefix(type, par);
     prefix_proc = make_prefix_proc(type, par);
     plotdir = make_plotdir(type, par);
@@ -33,7 +15,7 @@ function plot_dr1_midlatitude_line(type, par)
     % sftlf = nanmean(sftlf, 1); % zonal average
     % sftlf = repmat(sftlf', [1 12]); % expand land fraction data to time
 
-    lat_bound_list = [-5 5];
+    lat_bound_list = [-15 15 -5 5];
 
     % for l = {'lo', 'l', 'o'}; land = l{1};
     for l = {'lo'}; land = l{1};
@@ -84,15 +66,7 @@ function plot_dr1_midlatitude_line(type, par)
                 line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
                 line([1 12], [1 1], 'linewidth', 0.5, 'color', 'k');
                 tot=plot([1:12], circshift(r1_lat,shiftby, 2), 'k');
-                if any(strcmp(type, {'era5', 'era5c', 'erai'})); title(sprintf('%s, %s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), var_text, land_text, -lat_bound+lat_center, lat_bound+lat_center));
-                elseif any(strcmp(type, 'merra2')); title(sprintf('%s, %s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), var_text, land_text, -lat_bound+lat_center, lat_bound+lat_center));
-                elseif strcmp(type, 'gcm');
-                    if contains(par.model, 'mmm')
-                        title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.gcm.clim, -lat_bound+lat_center, lat_bound+lat_center));
-                    else
-                        title(sprintf('%s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.model, -lat_bound+lat_center, lat_bound+lat_center));
-                    end
-                end
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('$R_1$ (unitless)'));
                 set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
@@ -195,15 +169,7 @@ function plot_dr1_midlatitude_line(type, par)
                 c12=plot([1:12], circshift(comp1a_lat+comp2a_lat, shiftby, 2), '-.k');
                 c1=plot([1:12],  circshift(comp1a_lat, shiftby, 2), '--k');
                 c2=plot([1:12],  circshift(comp2a_lat, shiftby, 2), ':k');
-                if any(strcmp(type, {'era5', 'era5c', 'erai'})); title(sprintf('%s, %s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), var_text, land_text, -lat_bound+lat_center, lat_bound+lat_center));
-                elseif any(strcmp(type, 'merra2')); title(sprintf('%s, %s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), var_text, land_text, -lat_bound+lat_center, lat_bound+lat_center));
-                elseif strcmp(type, 'gcm');
-                    if contains(par.model, 'mmm')
-                        title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.gcm.clim, -lat_bound+lat_center, lat_bound+lat_center));
-                    else
-                        title(sprintf('%s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.model, -lat_bound+lat_center, lat_bound+lat_center));
-                    end
-                end
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('$\\Delta R_1$ (unitless)'));
                 legend([tot c12 c1 c2], '$\Delta R_1$', '$\Delta R_{1\mathrm{\,linear}}$', '$\Delta (\nabla\cdot F_m)$', '$\Delta (LH + SH)$', 'location', 'eastoutside');
@@ -251,15 +217,7 @@ function plot_dr1_midlatitude_line(type, par)
                 c12=plot([1:12], circshift(comp1r_lat+comp2s_lat,shiftby,2), '-.k');
                 c1=plot([1:12],  circshift(comp1r_lat,shiftby,2), '--k');
                 c2=plot([1:12],  circshift(comp2s_lat,shiftby,2), ':k');
-                if any(strcmp(type, {'era5', 'era5c', 'erai'})); title(sprintf('%s, %s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), var_text, land_text, -lat_bound+lat_center, lat_bound+lat_center));
-                elseif any(strcmp(type, 'merra2')); title(sprintf('%s, %s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), var_text, land_text, -lat_bound+lat_center, lat_bound+lat_center));
-                elseif strcmp(type, 'gcm');
-                    if contains(par.model, 'mmm')
-                        title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.gcm.clim, -lat_bound+lat_center, lat_bound+lat_center));
-                    else
-                        title(sprintf('%s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.model, -lat_bound+lat_center, lat_bound+lat_center));
-                    end
-                end
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('$\\Delta R_1$ (unitless)'));
                 legend([tot c12 c1 c2], '$\Delta R_1$', '$\Delta R_{1\mathrm{\,linear}}$', '$\Delta (\nabla\cdot F_m)$', '$\Delta R_a$', 'location', 'southoutside');
@@ -296,15 +254,7 @@ function plot_dr1_midlatitude_line(type, par)
                 c12=plot([1:12], circshift(comp1r_lat+comp2s_lat,shiftby,2), '-.k');
                 c1=plot([1:12],  circshift(comp1r_lat,shiftby,2), '--k');
                 c2=plot([1:12],  circshift(comp2s_lat,shiftby,2), ':k');
-                if any(strcmp(type, {'era5', 'era5c', 'erai'})); title(sprintf('%s, %s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), var_text, land_text, -lat_bound+lat_center, lat_bound+lat_center));
-                elseif any(strcmp(type, 'merra2')); title(sprintf('%s, %s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), var_text, land_text, -lat_bound+lat_center, lat_bound+lat_center));
-                elseif strcmp(type, 'gcm');
-                    if contains(par.model, 'mmm')
-                        title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.gcm.clim, -lat_bound+lat_center, lat_bound+lat_center));
-                    else
-                        title(sprintf('%s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.model, -lat_bound+lat_center, lat_bound+lat_center));
-                    end
-                end
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('$\\Delta R_1$ (unitless)'));
                 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
@@ -346,16 +296,7 @@ function plot_dr1_midlatitude_line(type, par)
                 res=plot([1:12], circshift(dr1z_lat,shiftby,2) - circshift(comp1s_lat+comp2s_lat,shiftby,2), '-.k');
                 c1=plot([1:12],  circshift(comp1s_lat,shiftby,2), '-', 'color', par.maroon);
                 c2=plot([1:12],  circshift(comp2s_lat,shiftby,2), '-', 'color', 0.5*[1 1 1]);
-                if any(strcmp(type, {'era5', 'era5c', 'erai'})); title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), -lat_bound+lat_center, lat_bound+lat_center));
-                elseif any(strcmp(type, 'merra2')); title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), -lat_bound+lat_center, lat_bound+lat_center));
-                elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), echamtext , -lat_bound+lat_center, lat_bound+lat_center));
-                elseif strcmp(type, 'gcm');
-                    if contains(par.model, 'mmm')
-                        title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.gcm.clim, -lat_bound+lat_center, lat_bound+lat_center));
-                    else
-                        title(sprintf('%s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.model, -lat_bound+lat_center, lat_bound+lat_center));
-                    end
-                end
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('$\\Delta R_1$ (unitless)'));
                 % legend([tot res c1 c2], '$\Delta R_1$', 'Residual', '$\Delta (\nabla\cdot F_m)$', '$\Delta R_a$', 'location', 'eastoutside', 'NumColumns', 2);
@@ -399,16 +340,7 @@ function plot_dr1_midlatitude_line(type, par)
                 res=plot([1:12], circshift(dr1z_lat,shiftby,2) - circshift(comp1s_lat+comp2s_lat,shiftby,2), '-.k');
                 c1=plot([1:12],  circshift(comp1s_lat,shiftby,2), '-', 'color', par.maroon);
                 c2=plot([1:12],  circshift(comp2s_lat,shiftby,2), '-', 'color', 0.5*[1 1 1]);
-                if any(strcmp(type, {'era5', 'era5c', 'erai'})); title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), -lat_bound+lat_center, lat_bound+lat_center));
-                elseif any(strcmp(type, 'merra2')); title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), -lat_bound+lat_center, lat_bound+lat_center));
-                elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), echamtext, -lat_bound+lat_center, lat_bound+lat_center));
-                elseif strcmp(type, 'gcm');
-                    if contains(par.model, 'mmm')
-                        title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.gcm.clim, -lat_bound+lat_center, lat_bound+lat_center));
-                    else
-                        title(sprintf('%s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.model, -lat_bound+lat_center, lat_bound+lat_center));
-                    end
-                end
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('$\\Delta R_1$ (unitless)'));
                 % legend([tot res c1 c2], '$\Delta R_1$', 'Residual', '$\Delta (\nabla\cdot F_m)$', '$\Delta R_a$', 'location', 'eastoutside', 'NumColumns', 2);
@@ -452,17 +384,7 @@ function plot_dr1_midlatitude_line(type, par)
                 res=plot([1:12], circshift(dr1z_lat,shiftby,2) - circshift(comp1s_lat+comp2s_lat,shiftby,2), '-.k');
                 c1=plot([1:12],  circshift(comp1s_lat,shiftby,2), '-', 'color', par.maroon);
                 c2=plot([1:12],  circshift(comp2s_lat,shiftby,2), '-', 'color', 0.5*[1 1 1]);
-                if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), -lat_bound+lat_center, lat_bound+lat_center));
-                elseif any(strcmp(type, 'era5c')); title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper('era5'), -lat_bound+lat_center, lat_bound+lat_center));
-                elseif any(strcmp(type, 'merra2')); title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), -lat_bound+lat_center, lat_bound+lat_center));
-                elseif any(strcmp(type, 'echam')); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), echamtext, -lat_bound+lat_center, lat_bound+lat_center));
-                elseif strcmp(type, 'gcm');
-                    if contains(par.model, 'mmm')
-                        title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.gcm.clim, -lat_bound+lat_center, lat_bound+lat_center));
-                    else
-                        title(sprintf('%s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.model, -lat_bound+lat_center, lat_bound+lat_center));
-                    end
-                end
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('$\\Delta R_1$ (unitless)'));
                 % legend([tot c12 c1 c2], '$\Delta R_1$', '$\Delta R_{1\mathrm{\,linear}}$', '$\Delta (\nabla\cdot F_m)$', '$\Delta R_a$', 'location', 'eastoutside');

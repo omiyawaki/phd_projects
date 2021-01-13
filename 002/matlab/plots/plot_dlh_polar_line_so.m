@@ -1,4 +1,4 @@
-function plot_dlh_polar_line(type, par)
+function plot_dlh_polar_line_so(type, par)
     if strcmp(type, 'echam')
         make_dirs(type, par)
 
@@ -8,9 +8,6 @@ function plot_dlh_polar_line(type, par)
 
         load(sprintf('%s/grid.mat', prefix)); % read grid data
         % load(sprintf('%s/sftlf.mat', prefix)); % read land fraction data
-        load(sprintf('%s/rad.mat', prefix)); % read melting of ice
-        load(sprintf('%s/srfc.mat', prefix)); % read melting of ice
-        load(sprintf('%s/friac.mat', prefix)); % read melting of ice
         load(sprintf('%s/ahfres.mat', prefix)); % read melting of ice
         load(sprintf('%s/ahfliac.mat', prefix)); % read LH over ice
         load(sprintf('%s/ahfllac.mat', prefix)); % read LH over land
@@ -23,16 +20,13 @@ function plot_dlh_polar_line(type, par)
         % sftlf = repmat(sftlf', [1 12]); % expand land fraction data to time
 
         % take zonal mean of LH components
-        tas = squeeze(nanmean(srfc.temp2, 1));
-        swabs = squeeze(nanmean(rad.srad0, 1));
-        friac = squeeze(nanmean(friac, 1));
         ahfres = squeeze(nanmean(ahfres, 1));
         ahfliac = -squeeze(nanmean(ahfliac, 1));
         ahfllac = -squeeze(nanmean(ahfllac, 1));
         ahflwac = -squeeze(nanmean(ahflwac, 1));
 
         % lat_bound_list = [-85 -80 -70 70 80 85];
-        lat_bound_list = [-80 80];
+        lat_bound_list = [-5 5];
 
         % for l = {'lo', 'l', 'o'}; land = l{1};
         for l = {'lo'}; land = l{1};
@@ -53,23 +47,17 @@ function plot_dlh_polar_line(type, par)
             for f = f_vec; fw = f{1};
                 for lb = 1:length(lat_bound_list); lat_bound = lat_bound_list(lb);
                     dlat = 0.25; % step size for standard lat grid
-                    if lat_bound>0; lat_pole = 90; lat = lat_bound:dlat:lat_pole; shiftby=0; monlabel=par.monlabel;
-                    else lat_pole = -90; lat = lat_bound:-dlat:lat_pole; shiftby=6; monlabel=par.monlabelsh; end;
+                    if lat_bound>0; lat_center=75; lat = [-lat_bound:dlat:lat_bound]+lat_center; shiftby=0; monlabel=par.monlabel;
+                    else; lat_center=-75; lat = [-lat_bound:-dlat:lat_bound]+lat_center; shiftby=6; monlabel=par.monlabelsh; end;
                     clat = cosd(lat); % cosine of latitude for cosine weighting
                     clat_mon = repmat(clat', [1 12]);
 
-                    folder = sprintf('%s/dmse/%s/%s/0_poleward_of_lat_%g', plotdir, fw, land, lat_bound);
+                    folder = sprintf('%s/dmse/%s/%s/0_polar_pm_lat_%g', plotdir, fw, land, lat_bound);
                     if ~exist(folder, 'dir'); mkdir(folder); end;
 
                     [lh, sh] = rename_stf(type, flux_z, land);
                     lh_lat = interp1(grid.dim3.lat, lh, lat);
                     lh_lat = nansum(lh_lat.*clat_mon)/nansum(clat);
-                    swabs_lat = interp1(grid.dim2.lat, swabs, lat);
-                    swabs_lat = nansum(swabs_lat.*clat_mon)/nansum(clat);
-                    tas_lat = interp1(grid.dim2.lat, tas, lat);
-                    tas_lat = nansum(tas_lat.*clat_mon)/nansum(clat);
-                    friac_lat = interp1(grid.dim2.lat, friac, lat);
-                    friac_lat = nansum(friac_lat.*clat_mon)/nansum(clat);
                     ahfres_lat = interp1(grid.dim2.lat, ahfres, lat);
                     ahfres_lat = nansum(ahfres_lat.*clat_mon)/nansum(clat);
                     ahfliac_lat = interp1(grid.dim2.lat, ahfliac, lat);
@@ -86,7 +74,7 @@ function plot_dlh_polar_line(type, par)
                     lhfi=plot([1:12], circshift(ahfliac_lat,shiftby,2), '--c', 'linewidth', 1.2);
                     lhfl=plot([1:12], circshift(ahfllac_lat,shiftby,2), ':c', 'linewidth', 1.2);
                     lhfw=plot([1:12], circshift(ahflwac_lat,shiftby,2), '-.c', 'linewidth', 1.2);
-                    make_title_type_lat(type, lat_bound, lat_pole);
+                    make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound);
                     % xlabel('Month');
                     ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                     legend([lhf, lhfi, lhfl, lhfw], '$\mathrm{LH_{tot}}$', '$\mathrm{LH_{ice}}$', '$\mathrm{LH_{land}}$', '$\mathrm{LH_{water}}$',  'location', 'eastoutside');
@@ -102,7 +90,7 @@ function plot_dlh_polar_line(type, par)
                     lhfi=plot([1:12], circshift(ahfliac_lat,shiftby,2), '--c', 'linewidth', 1.2);
                     lhfl=plot([1:12], circshift(ahfllac_lat,shiftby,2), ':c', 'linewidth', 1.2);
                     lhfw=plot([1:12], circshift(ahflwac_lat,shiftby,2), '-.c', 'linewidth', 1.2);
-                    make_title_type_lat(type, lat_bound, lat_pole);
+                    make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound);
                     % xlabel('Month');
                     ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
@@ -113,73 +101,15 @@ function plot_dlh_polar_line(type, par)
                     % ALL lat x mon dependence of RCE and RAE
                     figure(); clf; hold all; box on;
                     line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
-                    yyaxis right
-                    icef=plot([1:12], circshift(friac_lat,shiftby,2), '-k', 'linewidth', 1.2);
-                    ylabel('Sea ice fraction (unitless)');
-                    set(gca, 'ydir', 'reverse');
-                    yyaxis left
-                    lhfw=plot([1:12], circshift(ahflwac_lat,shiftby,2), '-.c', 'linewidth', 1.2);
-                    make_title_type_lat(type, lat_bound, lat_pole);
-                    % xlabel('Month');
-                    ylabel(sprintf('LH over water (Wm$^{-2}$)'));
-                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
-                    set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'yminortick', 'on', 'tickdir', 'out');
-                    ax = gca;
-                    ax.YAxis(2).Color = 'k';
-                    ax.YAxis(1).Color = 'c';
-                    print(sprintf('%s/0_mon_icef_lhw', folder), '-dpng', '-r300');
-                    close;
-
-                    % ALL lat x mon dependence of RCE and RAE
-                    figure(); clf; hold all; box on;
-                    line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
                     melt=plot([1:12], circshift(ahfres_lat,shiftby,2), '-k', 'linewidth', 1.2);
                     lhfi=plot([1:12], circshift(ahfliac_lat,shiftby,2), '--c', 'linewidth', 1.2);
-                    make_title_type_lat(type, lat_bound, lat_pole);
+                    make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound);
                     % xlabel('Month');
                     ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                     legend([melt, lhfi], '$\mathrm{F_{melt}}$', '$\mathrm{LH_{ice}}$', 'location', 'eastoutside');
                     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide)
                     set(gca, 'ylim', [-1 50], 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'yminortick', 'on', 'tickdir', 'out');
                     print(sprintf('%s/0_mon_melting_lhi', folder), '-dpng', '-r300');
-                    close;
-
-                    % ALL lat x mon dependence of RCE and RAE
-                    figure(); clf; hold all; box on;
-                    line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
-                    yyaxis right
-                    ptas=plot([1:12], circshift(tas_lat,shiftby,2), '-k', 'linewidth', 1.2);
-                    ylabel('$T_{2\,\mathrm{m}}$ (K)');
-                    yyaxis left
-                    lhfi=plot([1:12], circshift(ahfliac_lat,shiftby,2), '-.c', 'linewidth', 1.2);
-                    make_title_type_lat(type, lat_bound, lat_pole);
-                    % xlabel('Month');
-                    ylabel(sprintf('LH over water (Wm$^{-2}$)'));
-                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
-                    set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'yminortick', 'on', 'tickdir', 'out');
-                    ax = gca;
-                    ax.YAxis(2).Color = 'k';
-                    ax.YAxis(1).Color = 'c';
-                    print(sprintf('%s/0_mon_tas_lhi', folder), '-dpng', '-r300');
-                    close;
-
-                    % ALL lat x mon dependence of RCE and RAE
-                    figure(); clf; hold all; box on;
-                    line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
-                    yyaxis right
-                    psw=plot([1:12], circshift(swabs_lat,shiftby,2), '-k', 'linewidth', 1.2);
-                    ylabel('$T_{2\,\mathrm{m}}$ (K)');
-                    yyaxis left
-                    lhfi=plot([1:12], circshift(ahfliac_lat,shiftby,2), '-.c', 'linewidth', 1.2);
-                    make_title_type_lat(type, lat_bound, lat_pole);
-                    % xlabel('Month');
-                    ylabel(sprintf('LH over water (Wm$^{-2}$)'));
-                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
-                    set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'yminortick', 'on', 'tickdir', 'out');
-                    ax = gca;
-                    ax.YAxis(2).Color = 'k';
-                    ax.YAxis(1).Color = 'c';
-                    print(sprintf('%s/0_mon_swabs_lhi', folder), '-dpng', '-r300');
                     close;
 
 

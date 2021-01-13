@@ -6,5 +6,6 @@ function savedir = make_savedir_proc_ep(type, par)
     elseif strcmp(type, 'echam')
         foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/eps_%g_ga_%g/', type, par.echam.clim, par.lat_interp, par.ep, par.ga);
     end
+
     if ~exist(savedir, 'dir'); mkdir(savedir); end
 end

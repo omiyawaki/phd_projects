@@ -36,6 +36,7 @@ par.echam.r20170908 = "Snowball";
 
 par.echam.echr0001 = "AGCM, control";
 par.echam.echr0023 = "AGCM, flat";
+par.echam.echr0025 = "AGCM, no meltponds";
 
 par.echam.rp000046 = "50 m, w/o ice";
 par.echam.rp000126 = "50 m, w ice";

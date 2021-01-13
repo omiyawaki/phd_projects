@@ -117,10 +117,10 @@ function make_zgsi(type, par)
                     zgsi(:,lo,la,mo) = nan(size(grid.dim3.si));
                 else
 
-                    if any(strcmp(type, {'era5', 'era5c', 'erai'}))
-                        tmp(end) = srfc.zs(lo,la,mo); % add surface height
+                    if any(strcmp(type, {'era5', 'era5c', 'erai', 'jra55'}))
+                        tmp(end) = srfc.zs(lo,la,mo); % add surface height (surface is last element)
                     else
-                        tmp(1) = srfc.zs(lo,la,mo); % add surface height
+                        tmp(1) = srfc.zs(lo,la,mo); % add surface height (surface is first element)
                     end
 
                     notnan = find(~isnan(squeeze(tmp))); % only keep nonnan data and redo interpolation

@@ -14,7 +14,7 @@ par.era5.yr_span = '1979_2005'; % spanning years for ERA5
 par.jra55.yr_span = '1979_2005'; % spanning years for JRA55
 par.era5c.yr_span = par.era5.yr_span;
 par.merra2.yr_span = '1980_2005'; % spanning years for MERRA2
-par.echam_clims = {'echr0023','echr0001'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+par.echam_clims = {'echr0025'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 par.lat_interp = 'native'; % which latitudinal grid to interpolate to: native (no interpolation), don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
 par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' interpolation
 par.ep_swp = 0.1; %[0.25 0.3 0.35]; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
@@ -48,18 +48,18 @@ end
 % ceres_flux(par)
 % choose_disp(par)
 
-% type = 'jra55'; % data type to run analysis on
+% type = 'era5c'; % data type to run analysis on
 % choose_proc(type, par)
-% for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-%     % type='echam';
-%     % disp(par.echam.clim)
-%     % choose_proc(type, par);
-% end
-% for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-%     % type = 'gcm';
-%     % disp(par.model)
-%     % choose_proc(type, par)
-% end
+for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
+    type='echam';
+    disp(par.echam.clim)
+    choose_proc(type, par);
+end
+for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
+    % type = 'gcm';
+    % disp(par.model)
+    % choose_proc(type, par)
+end
 
 % for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
 %     type = 'era5'; % data type to run analysis on
@@ -76,23 +76,23 @@ end
 %     end
 % end
 
-for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
-    type = 'merra2';
-    choose_proc_ep(type, par)
-    for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-        % type='echam';
-        % disp(par.echam.clim)
-        % choose_proc_ep(type, par);
-    end
-    for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
-        % type = 'gcm';
-        % disp(par.model)
-        % choose_proc_ep(type, par)
-    end
-end
+% for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
+%     type = 'jra55';
+%     choose_proc_ep(type, par)
+%     for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
+%         % type='echam';
+%         % disp(par.echam.clim)
+%         % choose_proc_ep(type, par);
+%     end
+%     for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
+%         % type = 'gcm';
+%         % disp(par.model)
+%         % choose_proc_ep(type, par)
+%     end
+% end
 
 function choose_proc(type, par)
-    % proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+    proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
     % proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
     % make_masi(type, par) % calculate moist adiabats at every lon x lat x mon
     % proc_ma_mon_lat(type, par) % calculate mon x lat moist adiabats

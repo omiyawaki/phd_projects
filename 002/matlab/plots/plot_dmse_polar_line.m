@@ -7,7 +7,7 @@ function plot_dmse_polar_line(type, par)
 
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     % load(sprintf('%s/sftlf.mat', prefix)); % read land fraction data
-    load(sprintf('%s/%s/flux_z.mat', prefix_proc, par.lat_interp)); % load lat x mon RCAE data
+    load(sprintf('%s/flux_z.mat', prefix_proc)); % load lat x mon RCAE data
     % load(sprintf('%s/%s/flux_t.mat', prefix_proc, par.lat_interp)); % load lat x lon RCAE data
     % landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
     % par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;

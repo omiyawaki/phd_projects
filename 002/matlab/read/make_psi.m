@@ -72,11 +72,11 @@ function make_psi(type, par)
 
                 % add surface dapa
                 if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-                    tmp(end) = srfc.sp(lo,la,mo);
+                    tmp(end) = srfc.sp(lo,la,mo); % surface is last element
                 elseif strcmp(type, 'merra2')
                     tmp(1) = srfc.PS(lo,la,mo);
                 elseif strcmp(type, 'jra55')
-                    tmp(1) = srfc.ps(lo,la,mo);
+                    tmp(end) = srfc.ps(lo,la,mo); % surface is last element
                 elseif strcmp(type, 'gcm')
                     tmp(1) = srfc.ps(lo,la,mo);
                 elseif contains(type, 'echam')

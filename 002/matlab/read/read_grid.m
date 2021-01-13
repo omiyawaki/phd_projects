@@ -71,7 +71,11 @@ function read_grid(type, par)
         grid.dim3.lon=double(ncread(fullpath.dim3, 'lon'));
         grid.dim2.lat=double(ncread(fullpath.dim2, 'lat'));
         grid.dim3.lat=double(ncread(fullpath.dim3, 'lat'));
-        grid.dim3.plev=double(ncread(fullpath.dim3, 'lev'));
+        if strcmp(par.echam.clim, 'echr0025')
+                grid.dim3.plev=double(ncread(fullpath.dim3, 'plev'));
+        else
+                grid.dim3.plev=double(ncread(fullpath.dim3, 'lev'));
+        end
         grid.dim3.z = par.z;
         grid.dim3.si = 1e-5*par.pa;
         newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/echam/%s', par.echam.clim);

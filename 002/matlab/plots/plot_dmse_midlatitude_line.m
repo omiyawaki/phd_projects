@@ -7,7 +7,7 @@ function plot_dmse_midlatitude_line(type, par)
 
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     % load(sprintf('%s/sftlf.mat', prefix)); % read land fraction data
-    load(sprintf('%s/%s/flux_z.mat', prefix_proc, par.lat_interp)); % load lat x mon RCAE data
+    load(sprintf('%s/flux_z.mat', prefix_proc)); % load lat x mon RCAE data
     % load(sprintf('%s/%s/flux_t.mat', prefix_proc, par.lat_interp)); % load lat x lon RCAE data
     % landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
     % par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
@@ -15,7 +15,7 @@ function plot_dmse_midlatitude_line(type, par)
     % sftlf = nanmean(sftlf, 1); % zonal average
     % sftlf = repmat(sftlf', [1 12]); % expand land fraction data to time
 
-    lat_bound_list = [5 -5];
+    lat_bound_list = [15 -15 5 -5];
 
     % for l = {'lo', 'l', 'o'}; land = l{1};
     for l = {'lo'}; land = l{1};
@@ -66,7 +66,7 @@ function plot_dmse_midlatitude_line(type, par)
                 res=plot([1:12], circshift(res_lat,shiftby,2), 'color', par.maroon);
                 lhf=plot([1:12], circshift(lh_lat,shiftby,2), 'color', par.blue);
                 shf=plot([1:12], circshift(sh_lat,shiftby,2), 'color', par.orange);
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound);
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                 legend([ra res lhf, shf], '$R_a$', '$\nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', 'location', 'eastoutside', 'numcolumns', 2);
@@ -82,7 +82,7 @@ function plot_dmse_midlatitude_line(type, par)
                 res=plot([1:12], circshift(res_lat,shiftby,2), 'color', par.maroon);
                 lhf=plot([1:12], circshift(lh_lat,shiftby,2), 'color', par.blue);
                 shf=plot([1:12], circshift(sh_lat,shiftby,2), 'color', par.orange);
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound);
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                 % legend([ra res stf], '$R_a$', '$\nabla\cdot F_m$', '$\mathrm{LH+SH}$', 'location', 'eastoutside');
@@ -116,7 +116,7 @@ function plot_dmse_midlatitude_line(type, par)
                 dra=plot([1:12],  circshift(dra_lat ,shiftby,2), 'color', 0.5*[1 1 1]);
                 dres=plot([1:12], circshift(dres_lat,shiftby,2), 'color', par.maroon);
                 dstf=plot([1:12], circshift(dstf_lat,shiftby,2), 'color', par.blue);
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound);
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                 legend([dra dres dstf], '$\Delta R_a$', '$\Delta(\nabla\cdot F_m)$', '$\Delta (\mathrm{LH+SH})$', 'location', 'eastoutside');
@@ -131,7 +131,7 @@ function plot_dmse_midlatitude_line(type, par)
                 dra=plot([1:12],  circshift(dra_lat ,shiftby,2), 'color', 0.5*[1 1 1]);
                 dres=plot([1:12], circshift(dres_lat,shiftby,2), 'color', par.maroon);
                 dstf=plot([1:12], circshift(dstf_lat,shiftby,2), 'color', par.blue);
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound);
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                 % legend([dra dres dstf], '$\Delta R_a$', '$\Delta(\nabla\cdot F_m)$', '$\Delta (\mathrm{LH+SH})$', 'location', 'eastoutside');
@@ -155,7 +155,7 @@ function plot_dmse_midlatitude_line(type, par)
                 ra=plot([1:12], circshift(ra_lat,shiftby,2), 'k');
                 sw=plot([1:12], circshift(sw_lat,shiftby,2), 'color', par.blue);
                 lw=plot([1:12], circshift(lw_lat,shiftby,2), 'color', par.maroon);
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound);
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                 legend([ra sw lw], '$R_a$', '$\mathrm{Net SW}$', '$\mathrm{Net LW}$', 'location', 'eastoutside');
@@ -187,7 +187,7 @@ function plot_dmse_midlatitude_line(type, par)
                 dra=plot([1:12], circshift(dra_lat,shiftby,2), 'color', 0.5*[1 1 1]);
                 dsw=plot([1:12], circshift(dsw_lat,shiftby,2), 'color', par.blue);
                 dlw=plot([1:12], circshift(dlw_lat,shiftby,2), 'color', par.maroon);
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound);
+                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
                 % xlabel('Month');
                 ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                 legend([dra dsw dlw], '$\Delta R_a$', '$\Delta(\mathrm{Net SW})$', '$\Delta (\mathrm{Net LW})$', 'location', 'eastoutside');
