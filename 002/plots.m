@@ -11,8 +11,8 @@ figure_params
 %% set parameters
 % lat grid type
 if 1
-% par.echam_clims = {'echr0001'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
-par.echam_clims = par.echam.noice_mld; % {'echr0001'}; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+par.echam_clims = {'echr0001'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+% par.echam_clims = par.echam.noice_mld; % {'echr0001'}; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 par.era5.yr_span = '1979_2005';
 par.era5c.yr_span = '1979_2005';
 par.jra55.yr_span = '1979_2005';
@@ -56,7 +56,7 @@ end
 % plot_rad_lon_lat(par)
 % plot_tediv_lat(par)
 
-% type = 'era5c';
+% type = 'jra55';
 % par.lat_interp = 'native';
 % choose_plots(type, par);
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
@@ -89,29 +89,30 @@ end
 %     end
 % end
 
-% sweep through various threshold values
-for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
-    % type = 'era5c'; par.lat_interp = 'native';
-    % choose_plots_ep(type, par)
-    for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-        type='echam'; par.lat_interp = 'native';
-        disp(par.echam.clim)
-        choose_plots_ep(type, par);
-    end
-    for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-        % type = 'gcm';
-        % disp(par.model)
-        % choose_plots_ep(type, par)
-    end
-end
+% % sweep through various threshold values
+% for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
+%     % type = 'era5c'; par.lat_interp = 'native';
+%     % choose_plots_ep(type, par)
+%     for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
+%         type='echam'; par.lat_interp = 'native';
+%         disp(par.echam.clim)
+%         choose_plots_ep(type, par);
+%     end
+%     for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
+%         % type = 'gcm';
+%         % disp(par.model)
+%         % choose_plots_ep(type, par)
+%     end
+% end
 
 function choose_plots(type, par)
     % plot_temp_zon_select(type, par) % plot temperature profiles at specific latitudes
     % plot_temp_binned_r1(type, par) % plot temperature profiles at specific latitudes
-    plot_dmse_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dmse_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dmse_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dlh_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dlh_polar_line_so(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    plot_srfc_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_siced(type, par) % sea ice depth
     % plot_friac(type, par) % sea ice fraction
     % plot_ahfres(type, par) % ice melt

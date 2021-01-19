@@ -18,7 +18,7 @@ par.merra2.yr_span = '1980_2005'; % spanning years for MERRA2
 par.jra55.yr_span = '1979_2005'; % spanning years for JRA-55
 par.gcm.yr_span = 30; % number of years that I am considering in the GCM climatology
 % par.echam_clims = par.echam.ice_mld; %{'echr0001'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
-par.echam_clims = {'echr0025'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
+par.echam_clims = {'echr0001'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 par.ceres.yr_span = '200003-201802'; % spanning years for CERES data
 par.era.vars.rad = {'ssr', 'str', 'tsr', 'ttr'}; % radiation variables to read
 par.era.vars.hydro = {'cp', 'lsp', 'e'}; % radiation variables to read
@@ -47,7 +47,7 @@ par.gcm.vars.hydro = {'pr', 'evspsbl'}; % radiation variables to read
 par.gcm.vars.stf = {'hfss', 'hfls'}; % surface turbulent flux variables to read
 par.gcm.vars.vert = {'ta'}; % 3d variables to read (removed va)
 par.gcm.vars.srfc = {'ps', 'ts', 'tas', 'hurs', 'zs'}; % surface variables to read
-par.echam.vars.rad = {'srads', 'trads', 'srad0', 'trad0'}; % radiation variables to read
+par.echam.vars.rad = {'srads', 'trads', 'srad0', 'trad0', 'tradsu', 'sradsu'}; % radiation variables to read
 par.echam.vars.radcs = {'srafs', 'trafs', 'sraf0', 'traf0'}; % radiation variables to read
 par.echam.vars.hydro = {'aprc', 'aprl', 'evap'}; % radiation variables to read
 par.echam.vars.stf = {'ahfl', 'ahfs'}; % surface turbulent flux variables to read
@@ -82,11 +82,11 @@ for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
 end
 
 function run_func(type, par)
-    read_grid(type, par) % grid, i.e. lon, lat, plev
+    % read_grid(type, par) % grid, i.e. lon, lat, plev
     read_rad(type, par) % radiation fluxes
-    read_hydro(type, par) % hydrological variables, e.g. precip, evap
-    read_stf(type, par) % surface turbulent fluxes
-    read_srfc(type, par) % other surface variables, e.g. 2-m temperature, surface pressure
+    % read_hydro(type, par) % hydrological variables, e.g. precip, evap
+    % read_stf(type, par) % surface turbulent fluxes
+    % read_srfc(type, par) % other surface variables, e.g. 2-m temperature, surface pressure
     % make_tempsi(type, par) % convert temp from plev to sigma
     % make_zgsi(type, par) % convert zg from plev to sigma
     % make_psi(type, par) % compute plev in si coords
@@ -96,12 +96,12 @@ function run_func(type, par)
     % make_tempz(type, par) % convert temp from plev to z
     % make_pz(type, par) % compute plev in z coords
     % read_orog(type, par) % orography (m)
-    read_siced(type, par) % sea ice thickness (m)
-    read_friac(type, par) % sea ice fraction (%)
-    read_ahfres(type, par) % melting of ice (W m^-2)
-    read_ahfliac(type, par) % LH over ice (W m^-2)
-    read_ahfllac(type, par) % LH over land (W m^-2)
-    read_ahflwac(type, par) % LH over water (W m^-2)
+    % read_siced(type, par) % sea ice thickness (m)
+    % read_friac(type, par) % sea ice fraction (%)
+    % read_ahfres(type, par) % melting of ice (W m^-2)
+    % read_ahfliac(type, par) % LH over ice (W m^-2)
+    % read_ahfllac(type, par) % LH over land (W m^-2)
+    % read_ahflwac(type, par) % LH over water (W m^-2)
     % read_alb(type, par) % surface albedo (1)
 
     % make_thetaeqsi(type, par) % convert temp from plev to sigma
