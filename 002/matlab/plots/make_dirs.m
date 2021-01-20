@@ -69,9 +69,17 @@ function make_dirs(type, par)
         end
     end
 
-    for vn = {'va', 'trop', 'alb', 'sol', 'tas', 'ts', 'sn', 'siced', 'friac', 'ahfres', 'ahfliac', 'ahfllac', 'ahflwac', 'sftlf', 'legends'}; varname = vn{1};
+    for vn = {'olr_ts', 'divfm_lapt', 'va', 'trop', 'alb', 'sol', 'tas', 'ts', 'sn', 'sftlf', 'legends'}; varname = vn{1};
         if ~exist(sprintf('%s/%s', plotdir, varname), 'dir')
             mkdir(sprintf('%s/%s', plotdir, varname));
+        end
+    end
+    
+    if strcmp(type, 'echam')
+        for vn = {'siced', 'friac', 'ahfres', 'ahfliac', 'ahfllac', 'ahflwac', 'ameltdepth'}; varname = vn{1};
+            if ~exist(sprintf('%s/%s', plotdir, varname), 'dir')
+                mkdir(sprintf('%s/%s', plotdir, varname));
+            end
         end
     end
 end

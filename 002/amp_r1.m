@@ -16,13 +16,15 @@ par.Ra = -100; % annual mean radiative cooling W m^-2
 par.rho = 1000; % density of water kg m^-3
 par.cw = 4000; % specific heat capacity of water J kg^-1 K^-1
 par.omega = 2*pi/(86400*365);
-par.A = 201.4; % OLR at T = 273 K from North (1975)
-par.B = 1.45; % OLR vs T W m^-2 K^-1 from North (1975)
-% par.B = 20; % OLR vs T W m^-2 K^-1 from North (1975)
+% par.A = 201.4; % OLR at T = 273 K from North (1975)
+% par.B = 1.45; % OLR vs T W m^-2 K^-1 from North (1975)
+par.B = 2.42; % best fit to ECHAM
+par.A = -435+par.B*273.15; % best fit to ECHAM
 % par.de = 0.31;
 % par.de = 0.5;
-par.de = 1.2;
-par.a0 = 0.68;
+par.de = 0.9/par.B; % best fit to ECHAM
+% par.a0 = 0.68;
+par.a0 = 0.8;
 par.Qg = 340;
 par.be = 23;
 par.Tf = -10; % reference temperature for nondimensionalized annual mean temperature

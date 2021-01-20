@@ -11,7 +11,7 @@ figure_params
 %% set parameters
 % lat grid type
 if 1
-par.echam_clims = {'echr0001'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+par.echam_clims = {'echr0023'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 % par.echam_clims = par.echam.noice_mld; % {'echr0001'}; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 par.era5.yr_span = '1979_2005';
 par.era5c.yr_span = '1979_2005';
@@ -56,7 +56,7 @@ end
 % plot_rad_lon_lat(par)
 % plot_tediv_lat(par)
 
-% type = 'jra55';
+% type = 'era5c';
 % par.lat_interp = 'native';
 % choose_plots(type, par);
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
@@ -110,17 +110,20 @@ function choose_plots(type, par)
     % plot_temp_binned_r1(type, par) % plot temperature profiles at specific latitudes
     % plot_dmse_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dmse_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
-    % plot_dlh_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    plot_dlh_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dlh_polar_line_so(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
-    plot_srfc_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_srfc_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_siced(type, par) % sea ice depth
     % plot_friac(type, par) % sea ice fraction
     % plot_ahfres(type, par) % ice melt
     % plot_ahfliac(type, par) % LH over ice
     % plot_ahfllac(type, par) % LH over land
     % plot_ahflwac(type, par) % LH over water
+    % plot_ameltdepth(type, par) % LH over water
     % plot_alb(type, par) % surface albedo
     % plot_sftlf(type, par) % land fraction
+    % plot_olr_ts(type, par) % regress OLR vs Ts to obtain B
+    % plot_divfm_lapts(type, par) % regress OLR vs Ts to obtain B
 
     % plot_dmse_toasfc_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dmse_polar_line_asym(type, par) % plot decomposition of R1 in mon x lat and lon x lat space

@@ -1,15 +1,24 @@
-function read_srfc(type, par)
+function read_srfc(type, ymonmean, par)
+
+    if strcmp(ymonmean, 'ymonmean')
+        ymm_in = '.ymonmean';
+        ymm_out = '';
+    elseif strcmp(ymonmean, 'mon')
+        ymm_in = '';
+        ymm_out = '_mon';
+    end
+    
     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
         srfc_vars=par.era.vars.srfc;
         for i=1:length(srfc_vars); var = srfc_vars{i};
-            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_srfc_%s.ymonmean.nc', type, type, par.(type).yr_span));
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_srfc_%s%s.nc', type, type, par.(type).yr_span, ymm_in));
             fullpath=sprintf('%s/%s', file.folder, file.name);
 
             if strcmp(var, 'zs'); % use orography as surface geopotential if data exists
                 if strcmp(type, 'erai')
                     file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/orog/interim_%s.nc', type, 'orog'));
                 elseif contains(type, 'era5')
-                    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/orog/%s_%s_%s.ymonmean.nc', type, type, 'orog', par.(type).yr_span));
+                    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/orog/%s_%s_%s%s.nc', type, type, 'orog', par.(type).yr_span, ymm_in));
                 end
                 fullpath=sprintf('%s/%s', file.folder, file.name);
                 if exist(fullpath, 'file')
@@ -20,7 +29,7 @@ function read_srfc(type, par)
                 else % create surface geopotential height using surface pressure data
                     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
                     load(sprintf('%s/grid.mat', prefix)); % read grid data
-                    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
+                    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s%s.nc', type, type, par.(type).yr_span, ymm_in));
                     fullpath=sprintf('%s/%s', file.folder, file.name);
                     zg = double(ncread(fullpath, 'z'));
                     zg = permute(zg, [3 1 2 4]);
@@ -39,12 +48,12 @@ function read_srfc(type, par)
             end
 
         end
-        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/srfc.mat', type, par.(type).yr_span), 'srfc', 'srfc_vars');
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/srfc%s.mat', type, par.(type).yr_span, ymm_out), 'srfc', 'srfc_vars');
 
     elseif strcmp(type, 'merra2')
         srfc_vars=par.merra2.vars.srfc;
         for i=1:length(srfc_vars); var = srfc_vars{i};
-            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_srfc_%s.ymonmean.nc', type, type, par.(type).yr_span));
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_srfc_%s%s.nc', type, type, par.(type).yr_span, ymm_in));
             fullpath=sprintf('%s/%s', file.folder, file.name);
 
             if strcmp(var, 'zs'); % use orography as surface geopotential if data exists
@@ -56,7 +65,7 @@ function read_srfc(type, par)
                 else % create surface geopotential height using surface pressure data
                     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
                     load(sprintf('%s/grid.mat', prefix)); % read grid data
-                    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
+                    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s%s.nc', type, type, par.(type).yr_span, ymm_in));
                     fullpath=sprintf('%s/%s', file.folder, file.name);
                     zg = double(ncread(fullpath, 'H'));
                     zg = permute(zg, [3 1 2 4]);
@@ -75,39 +84,39 @@ function read_srfc(type, par)
             end
 
         end
-        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/srfc.mat', type, par.(type).yr_span), 'srfc', 'srfc_vars');
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/srfc%s.mat', type, par.(type).yr_span, ymm_out), 'srfc', 'srfc_vars');
 
     elseif strcmp(type, 'jra55')
         srfc_vars=par.jra55.vars.srfc;
         for i=1:length(srfc_vars); var = srfc_vars{i};
             if strcmp(var, 'ps')
-                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_pres_%s.ymonmean.nc', type, type, par.(type).yr_span));
+                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_pres_%s%s.nc', type, type, par.(type).yr_span, ymm_in));
                 fullpath=sprintf('%s/%s', file.folder, file.name);
                 srfc.(var) = double(squeeze(ncread(fullpath, 'PRES_GDS0_SFC_S123')));
             elseif strcmp(var, 'tas')
-                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_tmp_%s.ymonmean.nc', type, type, par.(type).yr_span));
+                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_tmp_%s%s.nc', type, type, par.(type).yr_span, ymm_in));
                 fullpath=sprintf('%s/%s', file.folder, file.name);
                 srfc.(var) = double(squeeze(ncread(fullpath, 'TMP_GDS0_HTGL_S123')));
             elseif strcmp(var, 'hurs')
-                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_rh_%s.ymonmean.nc', type, type, par.(type).yr_span));
+                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_rh_%s%s.nc', type, type, par.(type).yr_span, ymm_in));
                 fullpath=sprintf('%s/%s', file.folder, file.name);
                 srfc.(var) = double(squeeze(ncread(fullpath, 'RH_GDS0_HTGL_S123')));
             elseif strcmp(var, 'zs'); % use orography as surface geopotential if data exists
-                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/orog/jra55_orog_*.ymonmean.nc', type));
+                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/orog/jra55_orog_*%s.nc', type, ymm_in));
                 fullpath=sprintf('%s/%s', file.folder, file.name);
                 srfc.(var) = double(ncread(fullpath, 'GP_GDS0_SFC')); srfc.(var)=srfc.(var)/par.g; % convert geopotential to height
                 srfc.(var) = repmat(srfc.(var), [1 1 12]);
             end
 
         end
-        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/srfc.mat', type, par.(type).yr_span), 'srfc', 'srfc_vars');
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/srfc%s.mat', type, par.(type).yr_span, ymm_out), 'srfc', 'srfc_vars');
 
     elseif strcmp(type, 'gcm')
         load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s/grid.mat', par.model, par.gcm.clim));
 
         srfc_vars=par.gcm.vars.srfc;
         for i=1:length(par.gcm.vars.srfc); var = par.gcm.vars.srfc{i};
-            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, var, par.model, par.gcm.clim));
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*%s.nc', par.model, var, par.model, par.gcm.clim, ymm_in));
             fullpath=sprintf('%s/%s', file.folder, file.name);
             if ~exist(fullpath)
                 if strcmp(var, 'hurs')
@@ -141,7 +150,7 @@ function read_srfc(type, par)
                         % create surface geopotential height using surface pressure data
                         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
                         load(sprintf('%s/grid.mat', prefix)); % read grid data
-                        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, 'zg', par.model, par.gcm.clim));
+                        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*%s.nc', par.model, 'zg', par.model, par.gcm.clim, ymm_in));
                         fullpath=sprintf('%s/%s', file.folder, file.name);
                         zg = double(ncread(fullpath, 'zg'));
                         if any(contains(par.model, {'GISS-E2-H', 'GISS-E2-R'})) % zg data in GISS-E2-H has an anomalous lat grid
@@ -180,7 +189,7 @@ function read_srfc(type, par)
         end
         newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s', par.model, par.gcm.clim);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
-        filename='srfc.mat';
+        filename=sprintf('srfc%s.mat', ymm_out);
         save(sprintf('%s/%s', newdir, filename), 'srfc', 'srfc_vars');
     elseif strcmp(type, 'echam')
         srfc_vars=par.echam.vars.srfc;
@@ -188,7 +197,7 @@ function read_srfc(type, par)
             if contains(par.echam.clim, 'rp000')
                 file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/BOT_%s_0020_39.nc', par.echam.clim, par.echam.clim));
             else
-                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/BOT*_%s_*.ymonmean.nc', par.echam.clim));
+                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/BOT*_%s_*%s.nc', par.echam.clim, ymm_in));
             end
             fullpath=sprintf('%s/%s', file.folder, file.name);
             srfc.(var)=double(ncread(fullpath, var));
@@ -199,7 +208,7 @@ function read_srfc(type, par)
                 if contains(par.echam.clim, 'rp000')
                     file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/ATM_%s_0020_39.nc', par.echam.clim, par.echam.clim));
                 else
-                    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/ATM*_%s_*.ymonmean.nc', par.echam.clim));
+                    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/ATM*_%s_*%s.nc', par.echam.clim, ymm_in));
                 end
                 fullpath=sprintf('%s/%s', file.folder, file.name);
                 zg = double(ncread(fullpath, 'geopoth'));
@@ -218,19 +227,19 @@ function read_srfc(type, par)
         end
         newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/echam/%s', par.echam.clim);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
-        filename='srfc.mat';
+        filename=sprintf('srfc%s.mat', ymm_out);
         save(sprintf('%s/%s', newdir, filename), 'srfc', 'srfc_vars');
     elseif strcmp(type, 'echam_ml')
         srfc_vars=par.echam.vars.srfc;
         for i=1:length(par.echam.vars.srfc); var = par.echam.vars.srfc{i};
-            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam_ml/BOT*.ymonmean.nc'));
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam_ml/BOT*%s.nc', ymm_in));
             fullpath=sprintf('%s/%s', file.folder, file.name);
             srfc.(var)=double(ncread(fullpath, var));
 
             if strcmp(var, 'aps'); % create surface geopotential height using surface pressure data
                 prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
                 load(sprintf('%s/grid.mat', prefix)); % read grid data
-                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam_ml/ATM*.ymonmean.nc'));
+                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam_ml/ATM*%s.nc', ymm_in));
                 fullpath=sprintf('%s/%s', file.folder, file.name);
                 zg = double(ncread(fullpath, 'geopoth'));
                 srfc.zs(:,:,:) = squeeze(zg(:,:,1,:));
@@ -239,19 +248,19 @@ function read_srfc(type, par)
         end
         newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/echam_ml');
         if ~exist(newdir, 'dir'); mkdir(newdir); end
-        filename='srfc.mat';
+        filename=sprintf('srfc%s.mat', ymm_out);
         save(sprintf('%s/%s', newdir, filename), 'srfc', 'srfc_vars');
     elseif strcmp(type, 'echam_pl')
         srfc_vars=par.echam.vars.srfc;
         for i=1:length(par.echam.vars.srfc); var = par.echam.vars.srfc{i};
-            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam_pl/BOT*.ymonmean.nc'));
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam_pl/BOT*%s.nc', ymm_in));
             fullpath=sprintf('%s/%s', file.folder, file.name);
             srfc.(var)=double(ncread(fullpath, var));
 
             if strcmp(var, 'aps'); % create surface geopotential height using surface pressure data
                 prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', type);
                 load(sprintf('%s/grid.mat', prefix)); % read grid data
-                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam_pl/ATM*.ymonmean.nc'));
+                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam_pl/ATM*%s.nc', ymm_in));
                 fullpath=sprintf('%s/%s', file.folder, file.name);
                 zg = double(ncread(fullpath, 'geopoth'));
                 srfc.zs(:,:,:) = squeeze(zg(:,:,1,:));
@@ -260,7 +269,7 @@ function read_srfc(type, par)
         end
         newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/echam_pl');
         if ~exist(newdir, 'dir'); mkdir(newdir); end
-        filename='srfc.mat';
+        filename=sprintf('srfc%s.mat', ymm_out);
         save(sprintf('%s/%s', newdir, filename), 'srfc', 'srfc_vars');
     end
 end

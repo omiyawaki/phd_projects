@@ -10,11 +10,11 @@ function plot_dlh_polar_line(type, par)
         % load(sprintf('%s/sftlf.mat', prefix)); % read land fraction data
         load(sprintf('%s/rad.mat', prefix)); % read melting of ice
         load(sprintf('%s/srfc.mat', prefix)); % read melting of ice
-        load(sprintf('%s/friac.mat', prefix)); % read melting of ice
-        load(sprintf('%s/ahfres.mat', prefix)); % read melting of ice
-        load(sprintf('%s/ahfliac.mat', prefix)); % read LH over ice
-        load(sprintf('%s/ahfllac.mat', prefix)); % read LH over land
-        load(sprintf('%s/ahflwac.mat', prefix)); % read LH over water
+        load(sprintf('%s/friac.mat', prefix)); friac = echamvar; % read melting of ice
+        load(sprintf('%s/ahfres.mat', prefix)); ahfres = echamvar; % read melting of ice
+        load(sprintf('%s/ahfliac.mat', prefix)); ahfliac = echamvar; % read LH over ice
+        load(sprintf('%s/ahfllac.mat', prefix)); ahfllac = echamvar; % read LH over land
+        load(sprintf('%s/ahflwac.mat', prefix)); ahflwac = echamvar; % read LH over water
         load(sprintf('%s/flux_z.mat', prefix_proc)); % load lat x mon RCAE data
         % landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
         % par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
@@ -86,7 +86,7 @@ function plot_dlh_polar_line(type, par)
                     lhfi=plot([1:12], circshift(ahfliac_lat,shiftby,2), '--c', 'linewidth', 1.2);
                     lhfl=plot([1:12], circshift(ahfllac_lat,shiftby,2), ':c', 'linewidth', 1.2);
                     lhfw=plot([1:12], circshift(ahflwac_lat,shiftby,2), '-.c', 'linewidth', 1.2);
-                    make_title_type_lat(type, lat_bound, lat_pole);
+                    make_title_type_lat(type, lat_bound, lat_pole, par);
                     % xlabel('Month');
                     ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                     legend([lhf, lhfi, lhfl, lhfw], '$\mathrm{LH_{tot}}$', '$\mathrm{LH_{ice}}$', '$\mathrm{LH_{land}}$', '$\mathrm{LH_{water}}$',  'location', 'eastoutside');
@@ -102,7 +102,7 @@ function plot_dlh_polar_line(type, par)
                     lhfi=plot([1:12], circshift(ahfliac_lat,shiftby,2), '--c', 'linewidth', 1.2);
                     lhfl=plot([1:12], circshift(ahfllac_lat,shiftby,2), ':c', 'linewidth', 1.2);
                     lhfw=plot([1:12], circshift(ahflwac_lat,shiftby,2), '-.c', 'linewidth', 1.2);
-                    make_title_type_lat(type, lat_bound, lat_pole);
+                    make_title_type_lat(type, lat_bound, lat_pole, par);
                     % xlabel('Month');
                     ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
@@ -119,7 +119,7 @@ function plot_dlh_polar_line(type, par)
                     set(gca, 'ydir', 'reverse');
                     yyaxis left
                     lhfw=plot([1:12], circshift(ahflwac_lat,shiftby,2), '-.c', 'linewidth', 1.2);
-                    make_title_type_lat(type, lat_bound, lat_pole);
+                    make_title_type_lat(type, lat_bound, lat_pole, par);
                     % xlabel('Month');
                     ylabel(sprintf('LH over water (Wm$^{-2}$)'));
                     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
@@ -135,7 +135,7 @@ function plot_dlh_polar_line(type, par)
                     line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
                     melt=plot([1:12], circshift(ahfres_lat,shiftby,2), '-k', 'linewidth', 1.2);
                     lhfi=plot([1:12], circshift(ahfliac_lat,shiftby,2), '--c', 'linewidth', 1.2);
-                    make_title_type_lat(type, lat_bound, lat_pole);
+                    make_title_type_lat(type, lat_bound, lat_pole, par);
                     % xlabel('Month');
                     ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
                     legend([melt, lhfi], '$\mathrm{F_{melt}}$', '$\mathrm{LH_{ice}}$', 'location', 'eastoutside');
@@ -151,15 +151,15 @@ function plot_dlh_polar_line(type, par)
                     ptas=plot([1:12], circshift(tas_lat,shiftby,2), '-k', 'linewidth', 1.2);
                     ylabel('$T_{2\,\mathrm{m}}$ (K)');
                     yyaxis left
-                    lhfi=plot([1:12], circshift(ahfliac_lat,shiftby,2), '-.c', 'linewidth', 1.2);
-                    make_title_type_lat(type, lat_bound, lat_pole);
+                    lhfi=plot([1:12], circshift(lh_lat,shiftby,2), '-', 'color', par.blue, 'linewidth', 1.2);
+                    make_title_type_lat(type, lat_bound, lat_pole, par);
                     % xlabel('Month');
-                    ylabel(sprintf('LH over water (Wm$^{-2}$)'));
+                    ylabel(sprintf('LH (Wm$^{-2}$)'));
                     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
                     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'yminortick', 'on', 'tickdir', 'out');
                     ax = gca;
                     ax.YAxis(2).Color = 'k';
-                    ax.YAxis(1).Color = 'c';
+                    ax.YAxis(1).Color = par.blue;
                     print(sprintf('%s/0_mon_tas_lhi', folder), '-dpng', '-r300');
                     close;
 
@@ -171,7 +171,7 @@ function plot_dlh_polar_line(type, par)
                     ylabel('$T_{2\,\mathrm{m}}$ (K)');
                     yyaxis left
                     lhfi=plot([1:12], circshift(ahfliac_lat,shiftby,2), '-.c', 'linewidth', 1.2);
-                    make_title_type_lat(type, lat_bound, lat_pole);
+                    make_title_type_lat(type, lat_bound, lat_pole, par);
                     % xlabel('Month');
                     ylabel(sprintf('LH over water (Wm$^{-2}$)'));
                     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
