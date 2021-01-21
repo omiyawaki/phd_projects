@@ -171,7 +171,7 @@
     \begin{equation} \label{eq:mse}
         \frac{\partial \langle h \rangle}{\partial t} + \nabla\cdot \langle F_{m} \rangle = R_{a} + \mathrm{LH+SH} \, ,
     \end{equation}
-    where $h=c_p T + gz + Lq$ is MSE, $F_m$ is the MSE flux, $R_a$ is radiative cooling, $\mathrm{LH}$ is surface latent flux, $\mathrm{SH}$ is surface sensible heat flux, and $\langle \cdot \rangle$ is the mass-weighted vertical integral. We divide Equation (\ref{eq:mse}) by \(R_{a}\) (a negative definite quantity in modern Earth that exhibits smaller spatial structure compared to the other terms) to obtain the non-dimensionalized MSE equation:
+    where $h=c_p T + gz + Lq$ is MSE, $F_m$ is the MSE flux, $R_a$ is radiative cooling, $\mathrm{LH}$ is surface latent flux, $\mathrm{SH}$ is surface sensible heat flux, and $\langle \cdot \rangle$ is the mass-weighted vertical integral. We nondimensionalize Equation (\ref{eq:mse}) by dividing by \(R_{a}\). We choose to divide by $R_a$ because it is a negative definite quantity (other terms changes signs over the annual cycle) on modern Earth. The nondimensionalized equation is
     \begin{align}
         \frac{\frac{\partial \langle h \rangle}{\partial t} + \nabla\cdot \langle F_{m} \rangle }{R_{a}} &= 1 + \frac{\mathrm{LH+SH}}{R_{a}} \\
         R_{1} &= 1 + R_{2}
@@ -180,20 +180,20 @@
     
     Strict radiative convective equilibrium requires that all fluxes in the column be oriented in the vertical direction (i.e., \(R_{1}=0\)). This is only satisfied in the global mean and where the MSE flux divergence changes sign in the midlatitudes, so we define approximate radiative convective equilibrium as regions where the MSE flux convergence is negligibly small (\(0 \le R_{1} \le \epsilon\)) or the MSE flux is divergent \(R_{1}\le 0\). The reason we allow all magnitudes of a positive MSE flux divergence is because MSE flux divergence cools the atmosphere aloft and thus is a destabilizing flux that is balanced by stronger surface turbulent fluxes (convection).
     
-    Strict radiative advective equilibrium requires that all fluxes be in the horizontal direction (i.e., \(R_{2}=0\) or equivalently \(R_{1}=1\)).
+    Strict radiative advective equilibrium requires that all fluxes be in the horizontal direction (i.e., \(R_{2}=0\) or equivalently \(R_{1}=1\)). To be consistent with the approximate definition of RCE, we define approximate radiative advective equilibrium as regions where positive surface turbulent fluxes are small (\(-\epsilon \le R_{2} \le 0 \) or equivalently \(1-\epsilon \le R_{1} \le 1\)) or the surface turbulent fluxes are negative (\(R_{2} \ge 0 \) or equivalently \(R_{1} \ge 1\)).
     
-    To be consistent with the approximate definition of RCE, we define approximate radiative advective equilibrium as regions where positive surface turbulent fluxes are small (\(-\epsilon \le R_{2} \le 0 \) or equivalently \(1-\epsilon \le R_{1} \le 1\)) or the surface turbulent fluxes are negative (\(R_{2} \ge 0 \) or equivalently \(R_{1} \ge 1\)).
+    Tropospheric temperature profiles are a monotonic function of $R_{1}$ (Fig.~\ref{fig:temp-binned-r1}(a,b)). Thus, $R_{1}$ is a useful metric for identifying heat transfer regimes and its associated vertical temperature profiles. We choose $\epsilon=0.1$ on the basis that the near-surface inversion exists for $R_{1} \ge 0.9$ (bold lines in Fig.~\ref{fig:temp-binned-r1}(a,b)).
     
-    Tropospheric temperature profiles are a monotonic function of $R_{1}$ (Fig.~\ref{fig:temp-binned-r1}(a,b)). Thus, $R_{1}$ is a suitable metric for identifying heat transfer regimes and its associated vertical temperature profiles. We choose $\epsilon=0.1$ on the basis that the near-surface inversion exists for $R_{1} \ge 0.9$ (Fig.~\ref{fig:temp-binned-r1}(c,d)).
-    
-    In summary, we define RCE as regions that satisfy \(R_{1}\le 0.1\) and RAE as regions that satisfy \(R_{1}\ge 0.9\). We identify intermediate values of \(R_{1}\) (i.e. \(0.1 < R_{1} < 0.9\)) as radiative convective advective equilibrium (RCAE), where all terms in the MSE equation (except MSE tendency) are important.
+    In summary, we define RCE as regions that satisfy \(R_{1}\le 0.1\) and RAE as regions that satisfy \(R_{1}\ge 0.9\). We identify intermediate values of \(R_{1}\) (i.e. \(0.1 < R_{1} < 0.9\)) as RCAE, where radiation, convection, and advection all contribute to its vertical temperature profile.
 
 \subsection{Data}
-\begin{itemize}
-  \item We use the ERA-5 reanalysis data to evaluate heat transfer regimes in the observed modern Earth and the historical run of the CMIP5 archive for state-of-the-art simulations of modern Earth.
-  \item We infer the sum of MSE flux divergence and MSE tendency as the residual ($R_{a}+\mathrm{LH+SH}$).
-  \item We obtain the monthly climatology from monthly averaged data between 1979 and 2005.
-\end{itemize}
+    We use the ERA5 reanalysis data to evaluate heat transfer regimes in the observed modern Earth and the historical run of the Coupled Model Intercomparison Project Phase 5 (CMIP5) archive for state-of-the-art climate model simulations of modern Earth. We perform our analysis on a monthly climatology averaged between 1979 and 2005, which corresponds to the time period where both ERA5 and CMIP5 historical data are both available. 
+  
+    \subsubsection{ERA5 Reanalysis}
+    ERA5 is the latest generation reanalysis product provided by the European Centre for Medium-Range Weather Forecasts \citep{hersbach2020}. $R_a$, $\mathrm{LH}$, and $\mathrm{SH}$ are available as part of the standard single level output in ERA5. We infer $\partial_t \langle h \rangle + \nabla\cdot\langle F_m \rangle$ as the sum $R_a + \mathrm{LH} + \mathrm{SH}$ to compute $R_1$.
+    
+    \subsubsection{CMIP5 Historical Runs}
+    The historical run of the CMIP5 archive are atmosphere-ocean general circulation models (AOGCMs) forced with the historically observed atmospheric composition evolution. We obtain a multimodel mean of the CMIP5 historical run that is comprised of 41 models. As with ERA5, we use the output of $R_a$, $\mathrm{LH}$, and $\mathrm{SH}$ and infer $\partial_t \langle h \rangle + \nabla\cdot\langle F_m \rangle$ as the sum $R_a + \mathrm{LH} + \mathrm{SH}$.
 
 \subsection{ECHAM6 slab ocean aquaplanet experiments}
 \begin{itemize}
@@ -210,13 +210,12 @@
 \section{Results} \label{sec:results}
 
 \subsection{RCE and RAE regimes}
-\begin{itemize}
-  \item In the annual mean, RCE is satisfied in the low latitudes and RAE in the high latitudes, as expected (Fig.~\ref{fig:era5-r1-ann}(a)).
-  \item The temporally and spatially averaged temperature profile over the RCE regime is close to moist adiabatic in both the NH (orange line in Fig.~\ref{fig:era5-r1-ann}(b)) and SH (orange line in Fig.~\ref{fig:era5-r1-ann}(c)).
-  \item The temporally and spatially averaged temperature profile over the RAE regime exhibits a near surface inversion (blue lines in Figs.~\ref{fig:era5-r1-ann}(b) and (c)). The inversion is stronger in the SH, consistent with the higher values of $R_{1}$ indicating that it is in a stronger state of RAE.
-  \item The temporally and spatially averaged temperature profile over the RCAE regime is more stable than a moist adiabat and does not exhibit a near surface inversion (gray lines in Figs.~\ref{fig:era5-r1-ann}(b) and (c)).
-  \item These results carry over for the CMIP5 multi-model mean (Fig.~\ref{fig:cmip5hist-r1-ann}).
-  \item The seasonality of \(R_{1}\) in the mid and high latitudes is larger in the NH (Fig.~\ref{fig:era5-r1-dev}). The strong increase in \(R_{1}\) during NH summer drives a regime transition from RCAE to RCE in the NH midlatitudes and from RAE to RCAE in the NH high latitudes.
+    \subsubsection{Annual mean $R_1$}
+    In the annual mean, RCE is satisfied in the low latitudes and RAE in the high latitudes, as expected (Fig.~\ref{fig:era5-r1-ann}(a)). The temporally and spatially averaged temperature profile over the RCE regime is close to moist adiabatic in both the NH (orange line in Fig.~\ref{fig:era5-r1-ann}(b)) and SH (orange line in Fig.~\ref{fig:era5-r1-ann}(c)). Over the RAE regime, the temporally and spatially averaged temperature profile exhibits a near surface inversion (blue lines in Figs.~\ref{fig:era5-r1-ann}(b) and (c)). The inversion is stronger in the SH, consistent with the higher values of $R_{1}$ indicating that it is in a stronger state of RAE. Over the RCAE regime, the temporally and spatially averaged temperature profile is more stable than a moist adiabat and does not exhibit a near surface inversion, distinct from both RCE and RAE regimes (gray lines in Figs.~\ref{fig:era5-r1-ann}(b) and (c)).
+    
+    \subsubsection{Seasonality of $R_1$}
+    The seasonality of \(R_{1}\) in the mid and high latitudes is larger in the NH (Fig.~\ref{fig:era5-r1-dev}). The strong increase in \(R_{1}\) during NH summer drives a regime transition from RCAE to RCE in the NH midlatitudes and from RAE to RCAE in the NH high latitudes.
+  
   \item The seasonality of vertical temperature profiles are consistent with the diagnosed heat transfer regimes in both the NH and SH. For example, the temperature profile at 45$^{\circ}$ N in January is significantly more stable than a moist adiabat (compare solid to dashed gray lines in Fig.~\ref{fig:era5-r1-dev}(b)) while the temperature profile in July is close to a moist adiabat (compare solid to dashed orange lines in Fig.~\ref{fig:era5-r1-dev}(c)). Similarly, the temperature profile at 85 $^{\circ}$ N in January exhibits a strong near surface inversion (blue line in Fig.~\ref{fig:era5-r1-dev}(b)) while no surface inversion is present in July (gray line in Fig.~\ref{fig:era5-r1-dev}(c)). In the SH, the temperature profile at 45$^{\circ}$S remains more stable than a moist adiabat yearround (gray lines in Fig.~\ref{fig:era5-r1-dev}(d,e)), consistent with $R_{1}$ indicating that the SH midlatitudes is in a state of RCAE yearround. The temperature profile at 85$^{\circ}$S exhibits a near surface inversion yearround (blue lines in Fig.~\ref{fig:era5-r1-dev}(d,e)), consistent with $R_{1}$ indicating that the SH high latitudes is in a state of RAE yearround.
   \item More generally, the spatio-temporal structure of the critical \(R_{1}\) values for RCE (\(R_{1}\le 0.1\)) and RAE (\(R_{1}\ge 0.9\)) closely follow the structure of convective (\(\delta_{c}\le 10\%\)) and inversion (\(\delta_{i}\ge 90\%\)) lapse rate regimes, respectively (compare orange and cyan contours in Fig.~\ref{fig:era5-r1-dev}(a) with Figs.~A1 and A2).
   \item These results suggest that RCE and RAE as diagnosed by \(R_{1}\) is a good proxy for identifying convective and inversion lapse rate regimes.
@@ -476,19 +475,19 @@ If data access is restricted, authors must mention this in the statement.
 \end{figure}
 
 \begin{figure}[t]
-  \noindent\includegraphics[width=\textwidth]{cmip5hist-r1-ann.png}\\
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1z_ann/r1z_ann_cmip5hist.pdf}\\
   \caption{Same as Fig.~\ref{fig:era5-r1-ann} but for the CMIP5 historical multi-model mean.}
   \label{fig:cmip5hist-r1-ann}
 \end{figure}
 
 \begin{figure}[t]
-  \noindent\includegraphics[width=0.7\textwidth]{era5-r1-dev.png}\\
+  \noindent\includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_dev/r1_dev_era5.pdf}\\
   \caption{(a) The seasonality of $R_{1}$ for the ERA-5 reanalysis. The vertical temperature structure during (b,d) January and (c,e) June at 45$^{\circ}$ and 85$^{\circ}$ in the NH and SH.}
   \label{fig:era5-r1-dev}
 \end{figure}
 
 \begin{figure}[t]
-  \noindent\includegraphics[width=0.7\textwidth]{cmip5hist-r1-dev.png}\\
+  \noindent\includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_dev/r1_dev_cmip5hist.pdf}\\
   \caption{Same as Fig.~\ref{fig:era5-r1-dev} but for the CMIP5 historical multi-model mean.}
   \label{fig:cmip5hist-r1-dev}
 \end{figure}
@@ -506,13 +505,13 @@ If data access is restricted, authors must mention this in the statement.
 \end{figure}
 
 \begin{figure}[t]
-  \noindent\includegraphics[width=\textwidth]{era5-r1-decomp-pole.png}\\
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_pole/r1_decomp_pole_era5.pdf}\\
   \caption{Same as Fig.~\ref{fig:era5-r1-decomp-mid} but averaged over the polar region ($80$--$90^{\circ}$).}
   \label{fig:era5-r1-decomp-pole}
 \end{figure}
 
 \begin{figure}[t]
-  \noindent\includegraphics[width=\textwidth]{cmip5hist-r1-decomp-pole.png}\\
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_pole/r1_decomp_pole_cmip5hist.pdf}\\
   \caption{Same as Fig.~\ref{fig:era5-r1-decomp-pole} but for the CMIP5 historical multi-model mean.}
   \label{fig:cmip5hist-r1-decomp-pole}
 \end{figure}
