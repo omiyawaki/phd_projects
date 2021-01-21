@@ -256,7 +256,7 @@
 
 \section{Summary and Discussion}
 % \begin{itemize}
-%   \item We find that the northern boundary of the convective lapse rate regime expands poleward to the NH midlatitudes during NH summer in both ERA-5 and the CMIP5 multi-model mean. The southern boundary does not expand poleward during SH summer. The amplitude of the seasonality of the southern boundary is different in ERA-Interim (contracts equatorward in SH winter) compared to CMIP5HIST-ESM-LR (negligible contraction).
+%   \item We find that the northern boundary of the convective lapse rate regime expands poleward to the NH midlatitudes during NH summer in both ERA5 and the CMIP5 multi-model mean. The southern boundary does not expand poleward during SH summer. The amplitude of the seasonality of the southern boundary is different in ERA-Interim (contracts equatorward in SH winter) compared to CMIP5HIST-ESM-LR (negligible contraction).
 %   \item The equatorward boundary of the NH inversion lapse rate regime extends to \(60^{\circ}\) N during NH winter and vanishes during summer in both ERA-Interim and CMIP5HIST-ESM-LR. The boundary of the SH inversion lapse rate regime also vanishes during SH summer in ERA-Interim, whereas there is negligible migration of the boundary in CMIP5HIST-ESM-LR.
 
 % \end{itemize}
@@ -465,13 +465,13 @@ If data access is restricted, authors must mention this in the statement.
 
 \begin{figure}
   \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/temp_binned_r1/temp_binned_r1.pdf}\\
-  \caption{Temperature profiles binned according to $R_{1}$ for (a) ERA-5 reanalysis and (b) CMIP5 historical multi-model mean. Tropospheric temperature profiles are a monotonic function of $R_{1}$, making $R_{1}$ a suitable metric to characterize temperature profile regimes. Temperature profiles corresponding to the threshold of RCE ($R_1=0.1$) and RAE ($R_1=0.9$) are presented as thicker lines.}
+  \caption{Temperature profiles binned according to $R_{1}$ for (a) ERA5 reanalysis and (b) CMIP5 historical multi-model mean. Temperature profiles corresponding to the threshold of RCE ($R_1=0.1$) and RAE ($R_1=0.9$) are presented as thicker lines.}
   \label{fig:temp-binned-r1}
 \end{figure}
 
 \begin{figure}[t]
   \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1z_ann/r1z_ann_era5.pdf}\\
-  \caption{(a) The annual mean zonal-mean structure of $R_{1}$ for the ERA-5 reanalysis. Orange, black, and blue regions indicate RCE, RCAE, and RAE, respectively. The annual-mean zonal-mean vertical temperature structure for RCE, RCAE, and RAE for (b) SH and (c) NH. The dotted lines indicate a moist adiabat.}
+  \caption{(a) The annual mean zonal-mean structure of $R_{1}$ for the ERA5 reanalysis. Orange, black, and blue regions indicate RCE, RCAE, and RAE, respectively. The annual-mean zonal-mean vertical temperature structure for RCE, RCAE, and RAE for (b) SH and (c) NH. The dotted lines indicate a moist adiabat.}
   \label{fig:era5-r1-ann}
 \end{figure}
 
@@ -483,7 +483,7 @@ If data access is restricted, authors must mention this in the statement.
 
 \begin{figure}[t]
   \noindent\includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_dev/r1_dev_era5.pdf}\\
-  \caption{(a) The seasonality of $R_{1}$ for the ERA-5 reanalysis. The vertical temperature structure during (b,d) January and (c,e) June at 45$^{\circ}$ and 85$^{\circ}$ in the NH and SH.}
+  \caption{(a) The seasonality of $R_{1}$ for the ERA5 reanalysis. The vertical temperature structure during (b,d) January and (c,e) June at 45$^{\circ}$ and 85$^{\circ}$ in the NH and SH.}
   \label{fig:era5-r1-dev}
 \end{figure}
 
@@ -518,15 +518,15 @@ If data access is restricted, authors must mention this in the statement.
 \end{figure}
 
 \begin{figure}[t]
-  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_mid/r1_decomp_mid_echamslab.pdf}\\
-  \caption{Varying the mixed layer depth in the ECHAM slab ocean aquaplanet model without sea ice captures the hemispheric asymmetry of the \(R_{1}\) seasonality. a) When the mixed layer depth is set to 20 m, the seasonality of \(R_{1}\) in ECHAM is comparable to that of the NH midlatitudes (cf. Fig.~\ref{fig:cmip5hist-r1-decomp-mid}(a)) and transitions to RCE in the summer. b) As in Fig.~\ref{fig:cmip5hist-r1-decomp-mid}(b), the transition to RCE is driven by a weakening of MSE flux convergence. In ECHAM, the maximum weakening of MSE flux divergence and strengthening of turbulent heat fluxes occur in late summer/early fall. c) When the mixed layer depth is set to 40 m, the seasonality of \(R_{1}\) in ECHAM is comparable to that of the SH midlatitudes (cf. Fig.~\ref{fig:cmip5hist-r1-decomp-mid}(c)) and stays in RCAE yearround. d) As in Fig.~\ref{fig:cmip5hist-r1-decomp-mid}(d), the weaker seasonality of \(R_{1}\) is attributed to a weaker seasonality of MSE flux divergence, which is balanced by a seasonality of turbulent heat fluxes that is out of phase with insolation.}
-  \label{fig:echam-rce}
+    \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_mid/r1_decomp_mid_echamslab.pdf}\\
+    \caption{Same as Fig.~\ref{fig:era5-r1-decomp-mid} but for the ECHAM6 aquaplanet model with (a), (b) 15 m and (c),(d) 40 m mixed layer depth}
+\label{fig:echam-rce}
 \end{figure}
 
 \begin{figure}[t]
-  \noindent\includegraphics[width=\textwidth]{echam-rae.png}\\
-  \caption{a) When ECHAM is configured without sea ice, the annual mean state in the high latitudes is in RCAE. b) In the absence of sea ice, positive turbulent fluxes persist yearround (cf. Fig.~\ref{fig:cmip5hist-r1-decomp-pole}(b)). c) When ECHAM is configured with thermodynamic sea ice, the annual mean state in the high latitudes is in RAE. The seasonality of \(R_{1}\) increases and transitions to RCAE during summer. d) In the presence of sea ice, turbulent fluxes are surpressed most of the year. Here, positive turbulent fluxes are only found during the summer when the sea ice melts during summer.}
-  \label{fig:echam-rae}
+    \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_pole/r1_decomp_pole_echamslab.pdf}\\
+    \caption{Same as Fig.~\ref{fig:era5-r1-decomp-pole} but for the ECHAM6 aquaplanet with a 40 m mixed layer depth and (a),(b) with and (c),(d) without thermodynamic sea ice.}
+    \label{fig:echam-rae}
 \end{figure}
 
 \begin{figure}[t]
