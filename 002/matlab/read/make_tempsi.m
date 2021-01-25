@@ -50,7 +50,12 @@ function make_tempsi(type, par)
         pb.print(lo, size(pa,2));
         for la=1:size(pa,3)
             for mo=1:size(pa,4)
-                tmp = interp1(pa(:,lo,la,mo)./ps_vert(1,lo,la,mo), ta_sm(:,lo,la,mo), 1e-5*grid.dim3.plev);
+                if strcmp(type, 'hahn')
+                    plevp1 = 1e-5*[grid.dim3.plev; 1e5];
+                    tmp = interp1(pa(:,lo,la,mo)./ps_vert(1,lo,la,mo), ta_sm(:,lo,la,mo), plevp1); % include 10000 Pa level to Hahn
+                else
+                    tmp = interp1(pa(:,lo,la,mo)./ps_vert(1,lo,la,mo), ta_sm(:,lo,la,mo), 1e-5*grid.dim3.plev);
+                end
 
                 % add surface data
                 if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
@@ -62,7 +67,7 @@ function make_tempsi(type, par)
                 elseif strcmp(type, 'gcm')
                     tmp(1) = srfc.tas(lo,la,mo);
                 elseif contains(type, 'hahn') % surface is last element in hahn data
-                    tmp(end) = srfc.TREFHT(lo,la,mo);
+                    tmp(end) = srfc.TS(lo,la,mo);
                 elseif contains(type, 'echam')
                     tmp(1) = srfc.temp2(lo,la,mo);
                 end
@@ -70,10 +75,14 @@ function make_tempsi(type, par)
                 % only keep nonnan data and redo interpolation
                 notnan = find(~isnan(squeeze(tmp)));
 
-                % ta_si.lin(:,lo,la,mo) = interp1(1e-5*grid.dim3.plev(notnan), tmp(notnan), grid.dim3.si, 'linear', nan);
-                % ta_si.cub(:,lo,la,mo) = interp1(1e-5*grid.dim3.plev(notnan), tmp(notnan), grid.dim3.si, 'pchip', nan);
-                ta_si.spl(:,lo,la,mo) = interp1(1e-5*grid.dim3.plev(notnan), tmp(notnan), grid.dim3.si, 'spline', nan);
-                % ta_si.mak(:,lo,la,mo) = interp1(1e-5*grid.dim3.plev(notnan), tmp(notnan), grid.dim3.si, 'makima', nan);
+                if strcmp(type, 'hahn')
+                    ta_si.spl(:,lo,la,mo) = interp1(plevp1(notnan), tmp(notnan), grid.dim3.si, 'spline', nan);
+                else
+                    % ta_si.lin(:,lo,la,mo) = interp1(1e-5*grid.dim3.plev(notnan), tmp(notnan), grid.dim3.si, 'linear', nan);
+                    % ta_si.cub(:,lo,la,mo) = interp1(1e-5*grid.dim3.plev(notnan), tmp(notnan), grid.dim3.si, 'pchip', nan);
+                    ta_si.spl(:,lo,la,mo) = interp1(1e-5*grid.dim3.plev(notnan), tmp(notnan), grid.dim3.si, 'spline', nan);
+                    % ta_si.mak(:,lo,la,mo) = interp1(1e-5*grid.dim3.plev(notnan), tmp(notnan), grid.dim3.si, 'makima', nan);
+                end
 
                 clear tmp
 

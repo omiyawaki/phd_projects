@@ -10,8 +10,10 @@ function make_title_type_time(type, time, par)
         else
             title(sprintf('%s, %s', par.model, upper(time)));
         end
-    elseif any(strcmp(type, {'echam', 'hahn'}));
+    elseif any(strcmp(type, {'echam'}));
         title(sprintf('%s, %s, %s', upper(type), par.(type).(par.(type).clim), upper(time)));
+    elseif any(strcmp(type, {'hahn'}));
+        title(sprintf('%s, %s, %s', upper('CESM'), par.(type).(par.(type).clim), upper(time)));
     end
 
 end

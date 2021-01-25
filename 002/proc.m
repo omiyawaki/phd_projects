@@ -5,6 +5,7 @@ addpath(genpath('./matlab'));
 
 gcm_info
 echam_info
+hahn_info
 
 %% set parameters
 if 1
@@ -15,6 +16,7 @@ par.jra55.yr_span = '1979_2005'; % spanning years for JRA55
 par.era5c.yr_span = par.era5.yr_span;
 par.merra2.yr_span = '1980_2005'; % spanning years for MERRA2
 par.echam_clims = {'echr0026'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+par.hahn_clims = {'Control1850'}; % Control1850, Flat1850, Control2xCO2, Flat2xCO2
 par.lat_interp = 'native'; % which latitudinal grid to interpolate to: native (no interpolation), don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
 par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' interpolation
 par.ep_swp = 0.1; %[0.25 0.3 0.35]; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
@@ -40,6 +42,7 @@ par.jra55.fw = {'mse', 'dse'};
 par.merra2.fw = {'mse', 'dse'};
 par.gcm.fw = {'mse', 'dse'};
 par.echam.fw = {'mse', 'dse'};
+par.hahn.fw = {'mse', 'dse'};
 par.cpd = 1005.7; par.cpv = 1870; par.cpl = 4186; par.cpi = 2108; par.Rd = 287; par.Rv = 461; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3; par.eps = 0.622; % common constants, all in SI units for brevity
 end
 
@@ -51,8 +54,13 @@ end
 % type = 'era5c'; % data type to run analysis on
 % choose_proc(type, par)
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-    type='echam';
-    disp(par.echam.clim)
+    % type='echam';
+    % disp(par.echam.clim)
+    % choose_proc(type, par);
+end
+for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
+    type='hahn';
+    disp(par.hahn.clim)
     choose_proc(type, par);
 end
 for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
@@ -92,8 +100,8 @@ end
 % end
 
 function choose_proc(type, par)
-    proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
-    % proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
+    % proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+    proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
     % make_masi(type, par) % calculate moist adiabats at every lon x lat x mon
     % proc_ma_mon_lat(type, par) % calculate mon x lat moist adiabats
     % make_tai(type, par) % calculate moist adiabat in lon x lat x mon

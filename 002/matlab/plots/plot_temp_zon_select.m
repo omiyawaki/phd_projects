@@ -5,10 +5,12 @@ function plot_temp_zon_select(type, par)
     prefix = make_prefix(type, par);
     prefix_proc = make_prefix_proc(type, par);
     plotdir = make_plotdir(type, par);
-
+    
     load(sprintf('%s/grid.mat', prefix));
     load(sprintf('%s/ta_mon_lat.mat', prefix_proc));
-    load(sprintf('%s/ma_mon_lat.mat', prefix_proc));
+    if par.ma
+        load(sprintf('%s/ma_mon_lat.mat', prefix_proc));
+    end
 
     lat_pole = 85;
     lat_mid = 45;
@@ -25,11 +27,13 @@ function plot_temp_zon_select(type, par)
             elseif month==7; mon_str = 'July'; end;
 
             tasi_mon.(land) = squeeze(tasi.(land)(:,month,:));
-            masi_mon.(land) = squeeze(masi.(land)(:,month,:));
+            if par.ma
+                masi_mon.(land) = squeeze(masi.(land)(:,month,:));
 
-            % remove moist adiabat data below initialization level
-            if ~strcmp(par.ma_init, 'surf')
-                masi_mon.(land)(:, grid.dim3.si>par.ma_init) = nan;
+                % remove moist adiabat data below initialization level
+                if ~strcmp(par.ma_init, 'surf')
+                    masi_mon.(land)(:, grid.dim3.si>par.ma_init) = nan;
+                end
             end
 
             tasi_sp(:,m) = interp1(lat, tasi_mon.(land), -lat_pole); % sounding at -lat_pole S
@@ -38,29 +42,39 @@ function plot_temp_zon_select(type, par)
             tasi_nmid(:,m) = interp1(lat, tasi_mon.(land), lat_mid); % sounding at lat_mid N
             tasi_eq(:,m) = interp1(lat, tasi_mon.(land), 0); % sounding at equator
 
-            masi_sp(:,m) = interp1(lat, masi_mon.(land), -lat_pole); % sounding at -lat_pole S
-            masi_np(:,m) = interp1(lat, masi_mon.(land), lat_pole); % sounding at lat_pole N
-            masi_smid(:,m) = interp1(lat, masi_mon.(land), -lat_mid); % sounding at -lat_mid S
-            masi_nmid(:,m) = interp1(lat, masi_mon.(land), lat_mid); % sounding at lat_mid N
-            masi_eq(:,m) = interp1(lat, masi_mon.(land), 0); % sounding at equator
+            if par.ma
+                masi_sp(:,m) = interp1(lat, masi_mon.(land), -lat_pole); % sounding at -lat_pole S
+                masi_np(:,m) = interp1(lat, masi_mon.(land), lat_pole); % sounding at lat_pole N
+                masi_smid(:,m) = interp1(lat, masi_mon.(land), -lat_mid); % sounding at -lat_mid S
+                masi_nmid(:,m) = interp1(lat, masi_mon.(land), lat_mid); % sounding at lat_mid N
+                masi_eq(:,m) = interp1(lat, masi_mon.(land), 0); % sounding at equator
+            end
 
             % ALL
             figure(); clf; hold all; box on;
             if m == 1
                 h_np = plot(tasi_np(:,m), grid.dim3.si, 'color', par.blue);
                 h_nmid = plot(tasi_nmid(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
-                h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+                if par.ma
+                    h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+                end
             elseif m==6 | m == 7
                 h_np = plot(tasi_np(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
                 h_nmid = plot(tasi_nmid(:,m), grid.dim3.si, 'color', par.orange);
-                h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', par.orange);
+                if par.ma
+                    h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', par.orange);
+                end
             end
             h_sp = plot(tasi_sp(:,m), grid.dim3.si, '--', 'color', par.blue);
             h_smid = plot(tasi_smid(:,m), grid.dim3.si, '--', 'color', 0.25*[1 1 1]);
-            h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+            if par.ma
+                h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+            end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             make_title_type_mon(type, mon_str, par);
-            legend([h_np h_sp h_nmid h_smid], sprintf('%g N', lat_pole), sprintf('%g S', lat_pole), sprintf('%g N', lat_mid), sprintf('%g S', lat_mid), 'location', 'northeast');
+            if par.ma
+                legend([h_np h_sp h_nmid h_smid], sprintf('%g N', lat_pole), sprintf('%g S', lat_pole), sprintf('%g N', lat_mid), sprintf('%g S', lat_mid), 'location', 'northeast');
+            end
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_np(:,m); tasi_nmid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
@@ -86,10 +100,14 @@ function plot_temp_zon_select(type, par)
             figure(); clf; hold all; box on;
             if m == 1
                 h_nmid = plot(tasi_nmid(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
-                h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+                if par.ma
+                    h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+                end
             elseif m==6 | m == 7
                 h_nmid = plot(tasi_nmid(:,m), grid.dim3.si, 'color', par.orange);
-                h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', par.orange);
+                if par.ma
+                    h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', par.orange);
+                end
             end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             make_title_type_mon(type, mon_str, par);
@@ -104,15 +122,21 @@ function plot_temp_zon_select(type, par)
             if m == 1
                 h_np = plot(tasi_np(:,m), grid.dim3.si, 'color', par.blue);
                 h_nmid = plot(tasi_nmid(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
-                h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+                if par.ma
+                    h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+                end
             elseif m==6 | m == 7
                 h_np = plot(tasi_np(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
                 h_nmid = plot(tasi_nmid(:,m), grid.dim3.si, 'color', par.orange);
-                h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', par.orange);
+                if par.ma
+                    h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', par.orange);
+                end
             end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             make_title_type_mon(type, mon_str, par);
-            legend([h_np h_nmid], sprintf('%g N', lat_pole), sprintf('%g N', lat_mid), 'location', 'northeast');
+            if par.ma
+                legend([h_np h_nmid], sprintf('%g N', lat_pole), sprintf('%g N', lat_mid), 'location', 'northeast');
+            end
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_np(:,m); tasi_nmid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
@@ -133,7 +157,9 @@ function plot_temp_zon_select(type, par)
             % SH MID ONLY
             figure(); clf; hold all; box on;
             h_smid = plot(tasi_smid(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
-            h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+            if par.ma
+                h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+            end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             make_title_type_mon(type, mon_str, par);
             axis('tight');
@@ -146,10 +172,14 @@ function plot_temp_zon_select(type, par)
             figure(); clf; hold all; box on;
             h_sp = plot(tasi_sp(:,m), grid.dim3.si, 'color', par.blue);
             h_smid = plot(tasi_smid(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
-            h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+            if par.ma
+                h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+            end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             make_title_type_mon(type, mon_str, par);
-            legend([h_sp h_smid], sprintf('%g S', lat_pole), sprintf('%g S', lat_mid), 'location', 'northeast');
+            if par.ma
+                legend([h_sp h_smid], sprintf('%g S', lat_pole), sprintf('%g S', lat_mid), 'location', 'northeast');
+            end
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_sp(:,m); tasi_smid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
@@ -161,11 +191,15 @@ function plot_temp_zon_select(type, par)
             if m == 1
                 h_np = plot(tasi_np(:,m), grid.dim3.si, 'color', par.blue);
                 h_nmid = plot(tasi_nmid(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
-                h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+                if par.ma
+                    h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+                end
             elseif m==6 | m == 7
                 h_np = plot(tasi_np(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
                 h_nmid = plot(tasi_nmid(:,m), grid.dim3.si, 'color', par.orange);
-                h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', par.orange);
+                if par.ma
+                    h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', par.orange);
+                end
             end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             make_title_type_mon(type, mon_str, par);
@@ -179,7 +213,9 @@ function plot_temp_zon_select(type, par)
             figure(); clf; hold all; box on;
             h_sp = plot(tasi_sp(:,m), grid.dim3.si, 'color', par.blue);
             h_smid = plot(tasi_smid(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
-            h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+            if par.ma
+                h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+            end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             make_title_type_mon(type, mon_str, par);
             axis('tight');
@@ -193,11 +229,13 @@ function plot_temp_zon_select(type, par)
         % ALL NH
         figure(); clf; hold all; box on;
         h_nmid_jan = plot(tasi_nmid(:,1), grid.dim3.si, 'color', 0.25*[1 1 1]);
-        h_nmid_ma_jan = plot(masi_nmid(:,1), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
         h_nmid_jun = plot(tasi_nmid(:,6), grid.dim3.si, 'color', par.orange);
-        h_nmid_ma_jun = plot(masi_nmid(:,6), grid.dim3.si, ':', 'color', par.orange);
         h_np_jan = plot(tasi_np(:,1), grid.dim3.si, 'color', par.blue);
         h_np_jun = plot(tasi_np(:,6), grid.dim3.si, 'color', 0.25*[1 1 1]);
+        if par.ma
+            h_nmid_ma_jan = plot(masi_nmid(:,1), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+            h_nmid_ma_jun = plot(masi_nmid(:,6), grid.dim3.si, ':', 'color', par.orange);
+        end
         xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
         make_title_type(type, par);
         axis('tight');
@@ -209,11 +247,13 @@ function plot_temp_zon_select(type, par)
         % ALL SH
         figure(); clf; hold all; box on;
         h_smid_jan = plot(tasi_smid(:,1), grid.dim3.si, 'color', 0.25*[1 1 1]);
-        h_smid_ma_jan = plot(masi_smid(:,1), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
         h_smid_jun = plot(tasi_smid(:,6), grid.dim3.si, 'color', 0.25*[1 1 1]);
-        h_smid_ma_jun = plot(masi_smid(:,6), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
         h_sp_jan = plot(tasi_sp(:,1), grid.dim3.si, 'color', par.blue);
         h_sp_jun = plot(tasi_sp(:,6), grid.dim3.si, 'color', par.blue);
+        if par.ma
+            h_smid_ma_jan = plot(masi_smid(:,1), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+            h_smid_ma_jun = plot(masi_smid(:,6), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+        end
         xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
         make_title_type(type, par);
         axis('tight');

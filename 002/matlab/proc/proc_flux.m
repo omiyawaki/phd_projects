@@ -93,6 +93,9 @@ function proc_flux(type, par)
     elseif strcmp(type, 'merra2')
         flux.stf.mse = flux.HFLUX + flux.EFLUX;
         flux.stf.dse = par.L*flux.PRECTOT + flux.HFLUX;
+    elseif strcmp(type, 'hahn')
+        flux.stf.mse = flux.LHFLX + flux.SHFLX;
+        flux.stf.dse = par.L*(flux.PRECC+flux.PRECL+flux.PRECSC+flux.PRECSL) + flux.SHFLX;
     elseif any(strcmp(type, {'gcm', 'jra55'}))
         flux.stf.mse = flux.hfls + flux.hfss; flux.stf.mse2 = flux.stf.mse;
         flux.stf.dse = par.L*flux.pr + flux.hfss;
@@ -122,6 +125,13 @@ function proc_flux(type, par)
             flux.lwsfc = -flux.LWGNT;
             flux.lw = -flux.LWTUP - flux.LWGNT; flux.sw = flux.SWTNT - flux.SWGNT;
             flux.ra.(fw) = flux.SWTNT - flux.LWTUP - flux.SWGNT - flux.LWGNT; % radiative cooling
+        elseif strcmp(type, 'hahn');
+            flux.rtoa = flux.FSNT - flux.FLNT; % net flux at TOA
+            flux.olr = -flux.FLNT;
+            flux.swsfc = -flux.FSNS;
+            flux.lwsfc = flux.FLNS;
+            flux.lw = -flux.FLNT + flux.FLNS; flux.sw = flux.FSNT - flux.FSNS;
+            flux.ra.(fw) = flux.FSNT - flux.FLNT - flux.FSNS + flux.FLNS; % radiative cooling
         elseif any(strcmp(type, {'gcm', 'jra55'}));
             flux.rtoa = flux.rsdt - flux.rsut - flux.rlut; % net flux at TOA
             flux.olr = -flux.rlut;
@@ -181,6 +191,9 @@ function proc_flux(type, par)
         end
         if any(strcmp(type, {'era5', 'era5c', 'erai'}));
             flux.ftoa.(fw) = flux.tsr + flux.ttr; flux.fsfc.(fw) = -flux.ssr - flux.str + flux.stf.(fw);
+        elseif strcmp(type, 'hahn')
+            flux.ftoa.(fw) = flux.FSNT - flux.FLNT;
+            flux.fsfc.(fw) = -flux.FSNS + flux.FLNS + flux.stf.(fw);
         elseif strcmp(type, 'merra2')
             flux.ftoa.(fw) = flux.SWTNT - flux.LWTUP;
             flux.fsfc.(fw) = -flux.SWGNT - flux.LWGNT + flux.stf.(fw);
@@ -204,6 +217,8 @@ function proc_flux(type, par)
         % var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend', 'divt', 'divg', 'divq', 'TETEN', 'TEDIV', 'don79div'};
         var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
         % foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
+    elseif strcmp(type, 'hahn')
+        var_vec = {'LHFLX', 'SHFLX', 'PRECC', 'PRECL', 'PRECSC', 'PRECSL', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
     elseif strcmp(type, 'merra2')
         var_vec = {'EFLUX', 'HFLUX', 'PRECCON', 'PRECTOT', 'EVAP', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
         % foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);

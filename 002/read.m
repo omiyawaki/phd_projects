@@ -35,7 +35,7 @@ par.hahn.vars.rad = {'FLNT', 'FLNS', 'FSNT', 'FSNS'}; % radiation variables to r
 par.hahn.vars.hydro = {'PRECC', 'PRECL', 'PRECSC', 'PRECSL'}; % hydrology variables
 par.hahn.vars.stf = {'SHFLX', 'LHFLX'};
 par.hahn.vars.vert = {'T'};
-par.hahn.vars.srfc = {'PS', 'TREFHT', 'zs'};
+par.hahn.vars.srfc = {'PS', 'TREFHT', 'TS', 'zs'};
 par.merra2.vars.rad = {'SWTNT', 'SWGNT', 'LWTUP', 'LWGNT'}; % radiation variables to read
 par.merra2.vars.hydro = {'PRECTOT', 'PRECCON', 'EVAP'}; % hydrology variables
 par.merra2.vars.stf = {'HFLUX', 'EFLUX'};
@@ -98,10 +98,10 @@ function run_func(type, par)
     % read_rad(type, 'ymonmean', par) % radiation fluxes
     % read_hydro(type, 'ymonmean', par) % hydrological variables, e.g. precip, evap
     % read_stf(type, 'ymonmean', par) % surface turbulent fluxes
-    % read_srfc(type, 'ymonmean', par) % other surface variables, e.g. 2-m temperature, surface pressure
-    % make_tempsi(type, par) % convert temp from plev to sigma
+    read_srfc(type, 'ymonmean', par) % other surface variables, e.g. 2-m temperature, surface pressure
+    make_tempsi(type, par) % convert temp from plev to sigma
     % make_zgsi(type, par) % convert zg from plev to sigma
-    make_psi(type, par) % compute plev in si coords
+    % make_psi(type, par) % compute plev in si coords
     % read_lfrac(type, par) % land fraction (%)
     
     % read_rad(type, 'mon', par) % radiation fluxes
