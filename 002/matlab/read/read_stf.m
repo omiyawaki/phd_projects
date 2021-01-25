@@ -57,6 +57,15 @@ function read_stf(type, ymonmean, par)
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename=sprintf('stf%s.mat', ymm_out);
         save(sprintf('%s/%s', newdir, filename), 'stf', 'stf_vars');
+    elseif strcmp(type, 'hahn')
+        stf_vars=par.hahn.vars.stf;
+        for i=1:length(par.hahn.vars.stf); var = par.hahn.vars.stf{i};
+            fprefix = make_hahn_fprefix(par);
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/hahn/lapserateclima/%s.%s.nc', fprefix, var));
+            fullpath=sprintf('%s/%s', file.folder, file.name);
+            stf.(var)=double(ncread(fullpath, 'varmo'));
+        end
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/hahn/%s/stf%s.mat', par.hahn.clim, ymm_out), 'stf', 'stf_vars');
     elseif strcmp(type, 'echam')
         stf_vars=par.echam.vars.stf;
         for i=1:length(par.echam.vars.stf); var = par.echam.vars.stf{i};

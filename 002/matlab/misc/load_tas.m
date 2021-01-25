@@ -4,12 +4,12 @@ function tas = load_tas(srfc, type, par)
         tas = srfc.t2m;
     elseif strcmp(type, 'merra2')
         tas = srfc.T2M;
-    elseif strcmp(type, 'jra55')
-        tas = srfc.tas; 
-    elseif strcmp(type, 'gcm')
+    elseif any(strcmp(type, {'gcm', 'jra55'}))
         tas = srfc.tas;
     elseif contains(type, 'echam')
         tas = srfc.temp2;
+    elseif contains(type, 'hahn')
+        tas = srfc.TREFHT;
     end
     
 end

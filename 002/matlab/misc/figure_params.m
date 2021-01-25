@@ -8,6 +8,7 @@ par.ppos_sq = [0 0 10/3 10/3];
 par.ppos_wide = [0 0 13/3 7/3];
 par.ppos_verywide = [0 0 16/3 7/3];
 par.ppos_superwide = [0 0 21/3 7/3];
+par.ppos_supertall = [0 0 7/3 21/3];
 par.fs = 10;
 set(0, 'DefaultLineLineWidth', 1.1);
 set(0, 'DefaultFigureUnits', 'inches', 'DefaultFigurePosition', par.ppos_wide);

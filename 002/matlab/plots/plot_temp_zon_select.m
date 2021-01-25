@@ -2,37 +2,6 @@ function plot_temp_zon_select(type, par)
 % temperature profiles at selected locations and month
     make_dirs(type, par)
 
-    % load data
-    % if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-    %     plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type));
-    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ta_mon_lat.mat', type, par.lat_interp));
-    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ma_mon_lat.mat', type, par.lat_interp));
-    %     plev = grid.dim3.plev/100;
-    % elseif strcmp(type, 'gcm')
-    %     plotdir = sprintf('./figures/%s/%s/%s/%s', type, par.model, par.gcm.clim, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
-    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/ta_mon_lat.mat', type, par.model, par.gcm.clim, par.lat_interp));
-    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/ma_mon_lat.mat', type, par.model, par.gcm.clim, par.lat_interp));
-    %     plev = grid.dim3.plev/100;
-    % elseif strcmp(type, 'echam')
-    %     plotdir = sprintf('./figures/%s/%s/%s', type, par.echam.clim, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
-    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/grid.mat', type, par.echam.clim));
-    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/ta_mon_lat.mat', type, par.echam.clim, par.lat_interp));
-    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/ma_mon_lat.mat', type, par.echam.clim, par.lat_interp));
-    %     plev = grid.dim3.plev/100;
-    % elseif strcmp(type, 'echam_ml')
-    %     plotdir = sprintf('./figures/%s/%s/%s', type, par.(type).yr_span, par.lat_interp);
-    %     prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/grid.mat', type));
-    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ta_mon_lat.mat', type, par.lat_interp));
-    %     load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/ma_mon_lat.mat', type, par.lat_interp));
-    %     plev = 1:47;
-    % end
-    %
     prefix = make_prefix(type, par);
     prefix_proc = make_prefix_proc(type, par);
     plotdir = make_plotdir(type, par);
@@ -90,17 +59,7 @@ function plot_temp_zon_select(type, par)
             h_smid = plot(tasi_smid(:,m), grid.dim3.si, '--', 'color', 0.25*[1 1 1]);
             h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-            if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            elseif strcmp(type, 'gcm')
-                if contains(par.model, 'mmm')
-                    title(sprintf('CMIP5 %s, %s', par.gcm.clim, mon_str));
-                else
-                    title(sprintf('%s, %s', par.model, mon_str));
-                end
-            elseif strcmp(type, 'echam')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            end
+            make_title_type_mon(type, mon_str, par);
             legend([h_np h_sp h_nmid h_smid], sprintf('%g N', lat_pole), sprintf('%g S', lat_pole), sprintf('%g N', lat_mid), sprintf('%g S', lat_mid), 'location', 'northeast');
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
@@ -116,17 +75,7 @@ function plot_temp_zon_select(type, par)
                 h_np = plot(tasi_np(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
             end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-            if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            elseif strcmp(type, 'gcm')
-                if contains(par.model, 'mmm')
-                    title(sprintf('CMIP5 %s, %s', par.gcm.clim, mon_str));
-                else
-                    title(sprintf('%s, %s', par.model, mon_str));
-                end
-            elseif strcmp(type, 'echam')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            end
+            make_title_type_mon(type, mon_str, par);
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_np(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
@@ -143,17 +92,7 @@ function plot_temp_zon_select(type, par)
                 h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', par.orange);
             end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-            if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            elseif strcmp(type, 'gcm')
-                if contains(par.model, 'mmm')
-                    title(sprintf('CMIP5 %s, %s', par.gcm.clim, mon_str));
-                else
-                    title(sprintf('%s, %s', par.model, mon_str));
-                end
-            elseif strcmp(type, 'echam')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            end
+            make_title_type_mon(type, mon_str, par);
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_nmid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
@@ -172,17 +111,7 @@ function plot_temp_zon_select(type, par)
                 h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', par.orange);
             end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-            if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            elseif strcmp(type, 'gcm')
-                if contains(par.model, 'mmm')
-                    title(sprintf('CMIP5 %s, %s', par.gcm.clim, mon_str));
-                else
-                    title(sprintf('%s, %s', par.model, mon_str));
-                end
-            elseif strcmp(type, 'echam')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            end
+            make_title_type_mon(type, mon_str, par);
             legend([h_np h_nmid], sprintf('%g N', lat_pole), sprintf('%g N', lat_mid), 'location', 'northeast');
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
@@ -194,17 +123,7 @@ function plot_temp_zon_select(type, par)
             figure(); clf; hold all; box on;
             h_sp = plot(tasi_sp(:,m), grid.dim3.si, 'color', par.blue);
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-            if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            elseif strcmp(type, 'gcm')
-                if contains(par.model, 'mmm')
-                    title(sprintf('CMIP5 %s, %s', par.gcm.clim, mon_str));
-                else
-                    title(sprintf('%s, %s', par.model, mon_str));
-                end
-            elseif strcmp(type, 'echam')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            end
+            make_title_type_mon(type, mon_str, par);
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_sp(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
@@ -216,17 +135,7 @@ function plot_temp_zon_select(type, par)
             h_smid = plot(tasi_smid(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
             h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-            if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            elseif strcmp(type, 'gcm')
-                if contains(par.model, 'mmm')
-                    title(sprintf('CMIP5 %s, %s', par.gcm.clim, mon_str));
-                else
-                    title(sprintf('%s, %s', par.model, mon_str));
-                end
-            elseif strcmp(type, 'echam')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            end
+            make_title_type_mon(type, mon_str, par);
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_smid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
@@ -239,17 +148,7 @@ function plot_temp_zon_select(type, par)
             h_smid = plot(tasi_smid(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
             h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-            if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            elseif strcmp(type, 'gcm')
-                if contains(par.model, 'mmm')
-                    title(sprintf('CMIP5 %s, %s', par.gcm.clim, mon_str));
-                else
-                    title(sprintf('%s, %s', par.model, mon_str));
-                end
-            elseif strcmp(type, 'echam')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            end
+            make_title_type_mon(type, mon_str, par);
             legend([h_sp h_smid], sprintf('%g S', lat_pole), sprintf('%g S', lat_mid), 'location', 'northeast');
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
@@ -269,17 +168,7 @@ function plot_temp_zon_select(type, par)
                 h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', par.orange);
             end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-            if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            elseif strcmp(type, 'gcm')
-                if contains(par.model, 'mmm')
-                    title(sprintf('CMIP5 %s, %s', par.gcm.clim, mon_str));
-                else
-                    title(sprintf('%s, %s', par.model, mon_str));
-                end
-            elseif strcmp(type, 'echam')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            end
+            make_title_type_mon(type, mon_str, par);
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_vert)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_np(:,m); tasi_nmid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
@@ -292,18 +181,7 @@ function plot_temp_zon_select(type, par)
             h_smid = plot(tasi_smid(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
             h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-            if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            elseif strcmp(type, 'gcm')
-                title(sprintf('%s, %s', par.model, mon_str));
-                if contains(par.model, 'mmm')
-                    title(sprintf('CMIP5 %s, %s', par.gcm.clim, mon_str));
-                else
-                    title(sprintf('%s, %s', par.model, mon_str));
-                end
-            elseif strcmp(type, 'echam')
-                title(sprintf('%s, %s', upper(type), mon_str));
-            end
+            make_title_type_mon(type, mon_str, par);
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_vert)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_sp(:,m); tasi_smid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
@@ -321,17 +199,7 @@ function plot_temp_zon_select(type, par)
         h_np_jan = plot(tasi_np(:,1), grid.dim3.si, 'color', par.blue);
         h_np_jun = plot(tasi_np(:,6), grid.dim3.si, 'color', 0.25*[1 1 1]);
         xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-        if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-            title(sprintf('%s, NH', upper(type)));
-        elseif strcmp(type, 'gcm')
-            if contains(par.model, 'mmm')
-                title(sprintf('CMIP5 %s, NH', par.gcm.clim));
-            else
-                title(sprintf('%s, NH', par.model));
-            end
-        elseif strcmp(type, 'echam')
-            title(sprintf('%s, NH', upper(type)));
-        end
+        make_title_type(type, par);
         axis('tight');
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
         set(gca, 'fontsize', par.fs, 'xlim', [200 290], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
@@ -347,17 +215,7 @@ function plot_temp_zon_select(type, par)
         h_sp_jan = plot(tasi_sp(:,1), grid.dim3.si, 'color', par.blue);
         h_sp_jun = plot(tasi_sp(:,6), grid.dim3.si, 'color', par.blue);
         xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-        if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-            title(sprintf('%s, SH', upper(type)));
-        elseif strcmp(type, 'gcm')
-            if contains(par.model, 'mmm')
-                title(sprintf('CMIP5 %s, SH', par.gcm.clim));
-            else
-                title(sprintf('%s, SH', par.model));
-            end
-        elseif strcmp(type, 'echam')
-            title(sprintf('%s, SH', upper(type)));
-        end
+        make_title_type(type, par);
         axis('tight');
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
         set(gca, 'fontsize', par.fs, 'xlim', [200 290], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')

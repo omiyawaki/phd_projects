@@ -26,6 +26,12 @@ function temp = load_temp(type, par)
         end
         fullpath=sprintf('%s/%s', file.folder, file.name);
         temp = double(ncread(fullpath, var));
+    elseif strcmp(type, 'hahn')
+        var = 'T';
+        fprefix = make_hahn_fprefix(par);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/hahn/lapserateclima/%s.%s.nc', fprefix, var));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        temp = double(ncread(fullpath, 'varmo'));
     end
 
 end

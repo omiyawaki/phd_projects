@@ -76,7 +76,7 @@ function make_dirs(type, par)
     end
     
     if strcmp(type, 'echam')
-        for vn = {'siced', 'friac', 'ahfres', 'ahfliac', 'ahfllac', 'ahflwac', 'ameltdepth'}; varname = vn{1};
+        for vn = {'siced', 'friac', 'ahfres', 'ahfliac', 'ahfllac', 'ahflwac', 'ameltdepth', 'ameltfrac'}; varname = vn{1};
             if ~exist(sprintf('%s/%s', plotdir, varname), 'dir')
                 mkdir(sprintf('%s/%s', plotdir, varname));
             end

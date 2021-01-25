@@ -19,6 +19,7 @@ par.jra55.yr_span = '1979_2005'; % spanning years for JRA-55
 par.gcm.yr_span = 30; % number of years that I am considering in the GCM climatology
 % par.echam_clims = par.echam.noice_mld; %{'echr0001'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 par.echam_clims = {'echr0001'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
+par.hahn_clims = {'Control1850'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 par.ceres.yr_span = '200003-201802'; % spanning years for CERES data
 par.era.vars.rad = {'ssr', 'str', 'tsr', 'ttr'}; % radiation variables to read
 par.era.vars.radcs = {'ssrc', 'strc', 'tsrc', 'ttrc'}; % radiation variables to read
@@ -30,6 +31,11 @@ par.era.vars.vert = {'t'}; % 3d variables to read (t = temp)
 par.era.vars.srfc = {'sp', 't2m', 'd2m', 'zs'}; % surface variables to read (sp = surface pressure, t2m = 2m temp, d2m = 2m dew point temp)
 par.era.vars.tend = {'p62.162'}; % 3d variables to read (t = temp)
 par.era.vars.tend_txt = {'tend'}; % 3d variables to read (t = temp)
+par.hahn.vars.rad = {'FLNT', 'FLNS', 'FSNT', 'FSNS'}; % radiation variables to read
+par.hahn.vars.hydro = {'PRECC', 'PRECL', 'PRECSC', 'PRECSL'}; % hydrology variables
+par.hahn.vars.stf = {'SHFLX', 'LHFLX'};
+par.hahn.vars.vert = {'T'};
+par.hahn.vars.srfc = {'PS', 'TREFHT', 'zs'};
 par.merra2.vars.rad = {'SWTNT', 'SWGNT', 'LWTUP', 'LWGNT'}; % radiation variables to read
 par.merra2.vars.hydro = {'PRECTOT', 'PRECCON', 'EVAP'}; % hydrology variables
 par.merra2.vars.stf = {'HFLUX', 'EFLUX'};
@@ -72,8 +78,13 @@ end
 % type='era5c';
 % run_func(type, par);
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-    type='echam';
-    disp(par.echam.clim)
+    % type='echam';
+    % disp(par.echam.clim)
+    % run_func(type, par);
+end
+for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
+    type='hahn';
+    disp(par.hahn.clim)
     run_func(type, par);
 end
 for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
@@ -90,7 +101,7 @@ function run_func(type, par)
     % read_srfc(type, 'ymonmean', par) % other surface variables, e.g. 2-m temperature, surface pressure
     % make_tempsi(type, par) % convert temp from plev to sigma
     % make_zgsi(type, par) % convert zg from plev to sigma
-    % make_psi(type, par) % compute plev in si coords
+    make_psi(type, par) % compute plev in si coords
     % read_lfrac(type, par) % land fraction (%)
     
     % read_rad(type, 'mon', par) % radiation fluxes
@@ -102,9 +113,9 @@ function run_func(type, par)
     % make_tempz(type, par) % convert temp from plev to z
     % make_pz(type, par) % compute plev in z coords
     % read_orog(type, par) % orography (m)
-    for varname = {'friac', 'ahfres', 'ahfliac', 'ahfllac', 'ahflwac'}; % varnames: siced, friac, ahfres, ahfliac, ahfllac, ahflwac
-        read_echam(varname{1}, type, par);
-    end
+    % for varname = {'siced', 'friac', 'ahfres', 'ahfliac', 'ahfllac', 'ahflwac'}; % varnames: siced, friac, ahfres, ahfliac, ahfllac, ahflwac
+    %     read_echam(varname{1}, type, par);
+    % end
     % read_alb(type, par) % surface albedo (1)
 
     % make_thetaeqsi(type, par) % convert temp from plev to sigma

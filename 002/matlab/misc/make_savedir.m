@@ -3,8 +3,8 @@ function savedir = make_savedir(type, par)
         savedir = sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
     elseif strcmp(type, 'gcm')
         savedir = sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s', par.model, par.gcm.clim);
-    elseif strcmp(type, 'echam')
-        savedir = sprintf('/project2/tas1/miyawaki/projects/002/data/read/echam/%s', par.echam.clim);
+    elseif any(strcmp(type, {'echam', 'hahn'}))
+        savedir = sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.hahn.clim);
     end
 
     if ~exist(savedir, 'dir'); mkdir(savedir); end

@@ -82,6 +82,23 @@ function read_grid(type, par)
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename='grid.mat';
         save(sprintf('%s/%s', newdir, filename), 'grid');
+    elseif strcmp(type, 'hahn')
+        fprefix = make_hahn_fprefix(par);
+        file.dim2=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/hahn/lapserateclima/%s.TS.nc', fprefix));
+        file.dim3=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/hahn/lapserateclima/%s.T.nc', fprefix));
+        fullpath.dim2=sprintf('%s/%s', file.dim2.folder, file.dim2.name);
+        fullpath.dim3=sprintf('%s/%s', file.dim3.folder, file.dim3.name);
+        grid.dim2.lon=double(ncread(fullpath.dim2, 'lon'));
+        grid.dim3.lon=double(ncread(fullpath.dim3, 'lon'));
+        grid.dim2.lat=double(ncread(fullpath.dim2, 'lat'));
+        grid.dim3.lat=double(ncread(fullpath.dim3, 'lat'));
+        grid.dim3.plev=1e2*double(ncread(fullpath.dim3, 'lev')); % convert hPa to Pa
+        grid.dim3.z = par.z;
+        grid.dim3.si = 1e-5*par.pa;
+        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/hahn/%s', par.hahn.clim);
+        if ~exist(newdir, 'dir'); mkdir(newdir); end
+        filename='grid.mat';
+        save(sprintf('%s/%s', newdir, filename), 'grid');
     elseif strcmp(type, 'echam_ml')
         file.dim2=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam_ml/BOT_*.ymonmean.nc'));
         file.dim3=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam_ml/ATM_*.ymonmean.nc'));

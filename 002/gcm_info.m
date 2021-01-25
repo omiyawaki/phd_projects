@@ -6,13 +6,13 @@
 % par.lat_interp = '1.00';
 % par.gcm_models = {'mmm'}; % CMIP multimodel mean
 
-% par.gcm.clim = 'historical'; % choose either piControl, historical, or abrupt4xCO2
-% par.lat_interp = '1.00';
-% par.gcm_models = {'mmm'}; % CMIP multimodel mean
-
 par.gcm.clim = 'historical'; % choose either piControl, historical, or abrupt4xCO2
 par.lat_interp = '1.00';
-par.gcm_models = {'mmm_piControl'}; % CMIP multimodel mean
+par.gcm_models = {'mmm'}; % CMIP multimodel mean
+
+% par.gcm.clim = 'historical'; % choose either piControl, historical, or abrupt4xCO2
+% par.lat_interp = '1.00';
+% par.gcm_models = {'mmm_piControl'}; % CMIP multimodel mean
 
 % par.gcm.clim = 'abrupt4xCO2'; % choose either piControl, historical, or abrupt4xCO2
 % par.lat_interp = '1.00';

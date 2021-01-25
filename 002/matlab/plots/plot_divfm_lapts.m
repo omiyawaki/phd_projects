@@ -45,6 +45,16 @@ function plot_divfm_lapts(type, par)
     close;
     
     figure(); clf; hold all; box on;
+    plot(grid.dim2.lat, nanmean(clat,2), '-k');
+    xlabel('latitude (deg)');
+    ylabel('$\cos(\phi)$ (unitless)');
+    make_title_type(type, par);
+    %set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on')
+    print(sprintf('%s/divfm_lapt/clat.png', plotdir), '-dpng', '-r300');
+    close;
+    
+    figure(); clf; hold all; box on;
     plot(grid.dim2.lat, nanmean(dtdlat,2), '-k');
     xlabel('latitude (deg)');
     ylabel('$\cos(\phi)\frac{\mathrm{d}T}{\mathrm{d}\phi}$ (K)');
@@ -63,6 +73,7 @@ function plot_divfm_lapts(type, par)
     tvec = linspace(-300,300,100);
     % divfmreg = beta(1) + beta(2)*tvec;
     divfmreg = beta*tvec;
+    Rsq = 1 - sum((divfm(:) - (beta*-lapt(:))).^2)/sum((divfm(:) - mean(divfm(:))).^2);
     
     % compute diffusivity
     int_divfm = cumtrapz(deg2rad(grid.dim2.lat), clat.*divfm, 1);
@@ -91,14 +102,15 @@ function plot_divfm_lapts(type, par)
     close;
     
     figure(); clf; hold all; box on;
-    plot(lapt(:), -divfm(:), '.k', 'markersize', 1);
+    plot(-lapt(:), divfm(:), '.k', 'markersize', 1);
     plot(tvec, divfmreg, '-r');
-    text(-100,-170,sprintf('$\\nabla\\cdot F_m=%.2f\\frac{1}{\\cos(\\phi)}\\frac{\\partial}{\\partial \\phi}\\left(\\cos(\\phi) \\frac{\\partial T}{\\partial \\phi} \\right)$', beta));
-    xlabel('$\frac{1}{\cos(\phi)}\frac{\partial}{\partial \phi}\left(\cos(\phi) \frac{\partial T}{\partial \phi} \right)$ (K)');
+    text(-350,150,sprintf('$\\nabla\\cdot F_m=%.2f\\frac{1}{\\cos(\\phi)}\\frac{\\partial}{\\partial \\phi}\\left(-\\cos(\\phi) \\frac{\\partial T}{\\partial \\phi} \\right)$', beta));
+    text(100,-170,sprintf('$R^2 = %.2f$', Rsq));
+    xlabel('$\frac{1}{\cos(\phi)}\frac{\partial}{\partial \phi}\left(-\cos(\phi) \frac{\partial T}{\partial \phi} \right)$ (K)');
     ylabel('$\mathrm{\nabla\cdot F_m}$ (W m$^{-2}$)');
     make_title_type(type, par);
     %set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
-    %set(gca, 'fontsize', par.fs, 'xlim', [200 300], 'xtick', [200:20:300], 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.2 1], 'xminortick', 'on')
+    set(gca, 'fontsize', par.fs, 'xlim', [-400 400], 'yscale', 'linear', 'ylim', [-200 200], 'xminortick', 'on')
     print(sprintf('%s/divfm_lapt/divfm_lapt.png', plotdir), '-dpng', '-r300');
     close;
     
@@ -109,17 +121,30 @@ function plot_divfm_lapts(type, par)
     beta_et = lapt_et(:)\(-divfm_et(:));
     % regression line
     divfmreg_et = beta_et*tvec;
+    Rsq_et = 1 - sum((divfm_et(:) - (beta_et*-lapt_et(:))).^2)/sum((divfm_et(:) - mean(divfm_et(:))).^2);
     
     figure(); clf; hold all; box on;
-    plot(lapt_et(:), -divfm_et(:), '.k', 'markersize', 1);
+    plot(-lapt_et(:), divfm_et(:), '.k', 'markersize', 1);
     plot(tvec, divfmreg_et, '-r');
-    text(-100,-170,sprintf('$\\nabla\\cdot F_m=%.2f\\frac{1}{\\cos(\\phi)}\\frac{\\partial}{\\partial \\phi}\\left(\\cos(\\phi) \\frac{\\partial T}{\\partial \\phi} \\right)$', beta_et));
-    xlabel('$\frac{1}{\cos(\phi)}\frac{\partial}{\partial \phi}\left(\cos(\phi) \frac{\partial T}{\partial \phi} \right)$ (K)');
+    text(-350,150,sprintf('$\\nabla\\cdot F_m=%.2f\\frac{1}{\\cos(\\phi)}\\frac{\\partial}{\\partial \\phi}\\left(-\\cos(\\phi) \\frac{\\partial T}{\\partial \\phi} \\right)$', beta_et));
+    text(100,-170,sprintf('$R^2 = %.2f$', Rsq_et));
+    xlabel('$\frac{1}{\cos(\phi)}\frac{\partial}{\partial \phi}\left(-\cos(\phi) \frac{\partial T}{\partial \phi} \right)$ (K)');
     ylabel('$\mathrm{\nabla\cdot F_m}$ (W m$^{-2}$)');
     make_title_type(type, par);
     %set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
-    %set(gca, 'fontsize', par.fs, 'xlim', [200 300], 'xtick', [200:20:300], 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.2 1], 'xminortick', 'on')
+    set(gca, 'fontsize', par.fs, 'xlim', [-400 400], 'yscale', 'linear', 'ylim', [-200 200], 'xminortick', 'on')
     print(sprintf('%s/divfm_lapt/divfm_lapt_et.png', plotdir), '-dpng', '-r300');
+    close;
+    
+    figure(); clf; hold all; box on;
+    plot(grid.dim2.lat, nanmean(-beta_et*lapt,2), '-k');
+    plot(grid.dim2.lat, nanmean(divfm,2), '-', 'color', par.maroon);
+    xlabel('latitude (deg)');
+    ylabel('Energy flux (W m$^{-2}$)');
+    make_title_type(type, par);
+    %set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on')
+    print(sprintf('%s/divfm_lapt/lapt.png', plotdir), '-dpng', '-r300');
     close;
     
 end

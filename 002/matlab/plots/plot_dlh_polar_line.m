@@ -15,6 +15,8 @@ function plot_dlh_polar_line(type, par)
         load(sprintf('%s/ahfliac.mat', prefix)); ahfliac = echamvar; % read LH over ice
         load(sprintf('%s/ahfllac.mat', prefix)); ahfllac = echamvar; % read LH over land
         load(sprintf('%s/ahflwac.mat', prefix)); ahflwac = echamvar; % read LH over water
+        load(sprintf('%s/ameltdepth.mat', prefix)); ameltdepth = echamvar; % read LH over water
+        load(sprintf('%s/ameltfrac.mat', prefix)); ameltfrac = echamvar; % read LH over water
         load(sprintf('%s/flux_z.mat', prefix_proc)); % load lat x mon RCAE data
         % landdata = load('/project2/tas1/miyawaki/matlab/landmask/land_mask.mat');
         % par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
@@ -30,6 +32,8 @@ function plot_dlh_polar_line(type, par)
         ahfliac = -squeeze(nanmean(ahfliac, 1));
         ahfllac = -squeeze(nanmean(ahfllac, 1));
         ahflwac = -squeeze(nanmean(ahflwac, 1));
+        ameltdepth = squeeze(nanmean(ameltdepth, 1));
+        ameltfrac = squeeze(nanmean(ameltfrac, 1));
 
         % lat_bound_list = [-85 -80 -70 70 80 85];
         lat_bound_list = [-80 80];
@@ -78,6 +82,10 @@ function plot_dlh_polar_line(type, par)
                     ahfllac_lat = nansum(ahfllac_lat.*clat_mon)/nansum(clat);
                     ahflwac_lat = interp1(grid.dim2.lat, ahflwac, lat);
                     ahflwac_lat = nansum(ahflwac_lat.*clat_mon)/nansum(clat);
+                    ameltdepth_lat = interp1(grid.dim2.lat, ameltdepth, lat);
+                    ameltdepth_lat = nansum(ameltdepth_lat.*clat_mon)/nansum(clat);
+                    ameltfrac_lat = interp1(grid.dim2.lat, ameltfrac, lat);
+                    ameltfrac_lat = nansum(ameltfrac_lat.*clat_mon)/nansum(clat);
 
                     % ALL lat x mon dependence of RCE and RAE
                     figure(); clf; hold all; box on;
@@ -142,6 +150,44 @@ function plot_dlh_polar_line(type, par)
                     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide)
                     set(gca, 'ylim', [-1 50], 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'yminortick', 'on', 'tickdir', 'out');
                     print(sprintf('%s/0_mon_melting_lhi', folder), '-dpng', '-r300');
+                    close;
+
+                    % ALL lat x mon dependence of RCE and RAE
+                    figure(); clf; hold all; box on;
+                    line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
+                    yyaxis right
+                    ptas=plot([1:12], circshift(ameltfrac_lat,shiftby,2), '-k', 'linewidth', 1.2);
+                    ylabel('Meltpond fraction (unitless)');
+                    yyaxis left
+                    lhfi=plot([1:12], circshift(lh_lat,shiftby,2), '-', 'color', par.blue, 'linewidth', 1.2);
+                    make_title_type_lat(type, lat_bound, lat_pole, par);
+                    % xlabel('Month');
+                    ylabel(sprintf('LH (Wm$^{-2}$)'));
+                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+                    set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'yminortick', 'on', 'tickdir', 'out');
+                    ax = gca;
+                    ax.YAxis(2).Color = 'k';
+                    ax.YAxis(1).Color = par.blue;
+                    print(sprintf('%s/0_mon_ameltfrac_lhi', folder), '-dpng', '-r300');
+                    close;
+
+                    % ALL lat x mon dependence of RCE and RAE
+                    figure(); clf; hold all; box on;
+                    line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
+                    yyaxis right
+                    ptas=plot([1:12], circshift(ameltdepth_lat,shiftby,2), '-k', 'linewidth', 1.2);
+                    ylabel('Meltpond depth (m)');
+                    yyaxis left
+                    lhfi=plot([1:12], circshift(lh_lat,shiftby,2), '-', 'color', par.blue, 'linewidth', 1.2);
+                    make_title_type_lat(type, lat_bound, lat_pole, par);
+                    % xlabel('Month');
+                    ylabel(sprintf('LH (Wm$^{-2}$)'));
+                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+                    set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'yminortick', 'on', 'tickdir', 'out');
+                    ax = gca;
+                    ax.YAxis(2).Color = 'k';
+                    ax.YAxis(1).Color = par.blue;
+                    print(sprintf('%s/0_mon_ameltdepth_lhi', folder), '-dpng', '-r300');
                     close;
 
                     % ALL lat x mon dependence of RCE and RAE

@@ -66,6 +66,15 @@ function read_rad(type, ymonmean, par)
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename=sprintf('rad%s.mat', ymm_out);
         save(sprintf('%s/%s', newdir, filename), 'rad', 'rad_vars');
+    elseif strcmp(type, 'hahn')
+        rad_vars=par.hahn.vars.rad;
+        for i=1:length(par.hahn.vars.rad); var = par.hahn.vars.rad{i};
+            fprefix = make_hahn_fprefix(par);
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/hahn/lapserateclima/%s.%s.nc', fprefix, var));
+            fullpath=sprintf('%s/%s', file.folder, file.name);
+            rad.(var)=double(ncread(fullpath, 'varmo'));
+        end
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/hahn/%s/rad%s.mat', par.hahn.clim, ymm_out), 'rad', 'rad_vars');
     elseif strcmp(type, 'echam')
         rad_vars=par.echam.vars.rad;
         for i=1:length(par.echam.vars.rad); var = par.echam.vars.rad{i};

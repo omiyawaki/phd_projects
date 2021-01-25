@@ -19,6 +19,12 @@ function zg = load_zg(type, par)
         file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, var, par.model, par.gcm.clim));
         fullpath=sprintf('%s/%s', file.folder, file.name);
         zg = double(ncread(fullpath, var));
+    elseif strcmp(type, 'hahn')
+        var = 'Z3';
+        fprefix = make_hahn_fprefix(par);
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/hahn/lapserateclima/%s.%s.nc', fprefix, var));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        zg = double(ncread(fullpath, 'varmo'));
     elseif strcmp(type, 'echam')
         var = 'geopoth';
         if contains(par.echam.clim, 'rp000')

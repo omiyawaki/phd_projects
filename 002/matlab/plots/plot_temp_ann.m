@@ -1,7 +1,7 @@
 function plot_temp_ann(type, par)
 
     % load data
-    [~, ~, ~, lat, par] = load_flux(type, par);
+    [~, ~, ~, lat, plotdir] = load_flux(type, par);
     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
         prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
@@ -91,7 +91,7 @@ function plot_temp_ann(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [210 300], 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.2 1], 'xminortick', 'on')
-            print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp/all_nh_ann', par.plotdir, par.ep, par.ga, fw, crit, land, time), '-dpng', '-r300');
+            print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp/all_nh_ann', plotdir, par.ep, par.ga, fw, crit, land, time), '-dpng', '-r300');
             close;
 
             % ALL SH compared with moist adiabat
@@ -107,7 +107,7 @@ function plot_temp_ann(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [210 300], 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.2 1], 'xminortick', 'on')
-            print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp/all_sh_ann', par.plotdir, par.ep, par.ga, fw, crit, land, time), '-dpng', '-r300');
+            print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp/all_sh_ann', plotdir, par.ep, par.ga, fw, crit, land, time), '-dpng', '-r300');
             close;
 
             % NARROW ALL NH compared with moist adiabat
@@ -122,7 +122,7 @@ function plot_temp_ann(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_vert)
             set(gca, 'fontsize', par.fs, 'xlim', [190 300], 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.2 1], 'xminortick', 'on')
-            print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp/all_nh_ann_vert', par.plotdir, par.ep, par.ga, fw, crit, land, time), '-dpng', '-r300');
+            print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp/all_nh_ann_vert', plotdir, par.ep, par.ga, fw, crit, land, time), '-dpng', '-r300');
             close;
 
             % NARROW ALL SH compared with moist adiabat
@@ -137,7 +137,7 @@ function plot_temp_ann(type, par)
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_vert)
             set(gca, 'fontsize', par.fs, 'xlim', [190 300], 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.2 1], 'xminortick', 'on')
-            print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp/all_sh_ann_vert', par.plotdir, par.ep, par.ga, fw, crit, land, time), '-dpng', '-r300');
+            print(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp/all_sh_ann_vert', plotdir, par.ep, par.ga, fw, crit, land, time), '-dpng', '-r300');
             close;
 
         end % land

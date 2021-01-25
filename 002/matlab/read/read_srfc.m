@@ -191,6 +191,32 @@ function read_srfc(type, ymonmean, par)
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename=sprintf('srfc%s.mat', ymm_out);
         save(sprintf('%s/%s', newdir, filename), 'srfc', 'srfc_vars');
+    elseif strcmp(type, 'hahn')
+        srfc_vars=par.hahn.vars.srfc;
+        for i=1:length(par.hahn.vars.srfc); var = par.hahn.vars.srfc{i};
+            if strcmp(var, 'zs'); % create surface geopotential height using surface pressure data
+                prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).clim);
+                load(sprintf('%s/grid.mat', prefix)); % read grid data
+                zg = load_zg(type, par);
+                zg = permute(zg, [3 1 2 4]);
+                pb=CmdLineProgressBar("Calculating zs..."); % track progress of this loop
+                for lo = 1:length(grid.dim2.lon)
+                    pb.print(lo, length(grid.dim2.lon));
+                    for la = 1:length(grid.dim2.lat)
+                        for mo = 1:12
+                            srfc.zs(lo,la,mo) = interp1(grid.dim3.plev, zg(:,lo,la,mo), srfc.PS(lo,la,mo), 'linear', 'extrap');
+                        end
+                    end
+                end
+            else
+                fprefix = make_hahn_fprefix(par);
+                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/hahn/lapserateclima/%s.%s.nc', fprefix, var));
+                fullpath=sprintf('%s/%s', file.folder, file.name);
+                srfc.(var)=double(ncread(fullpath, 'varmo'));
+            end
+
+        end
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/hahn/%s/srfc%s.mat', par.hahn.clim, ymm_out), 'srfc', 'srfc_vars');
     elseif strcmp(type, 'echam')
         srfc_vars=par.echam.vars.srfc;
         for i=1:length(par.echam.vars.srfc); var = par.echam.vars.srfc{i};

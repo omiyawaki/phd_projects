@@ -8,7 +8,7 @@ gcm_info
 %% set parameters
 if 1
 % par.erai.yr_span = '2000_2012'; % spanning years for ERA-Interim
-par.gcm.clim = 'hist-pi'; % choose either piControl or abrupt4xCO2
+par.gcm.clim = 'historical'; % choose either piControl or abrupt4xCO2
 par.outname = 'mmm'; % use mmm for standard multimodel mean (all models available) and mmm_subset where subset=name of climate where you are taking the mmm of the subset of models in common with the subset climate
 par.lat_interp = '1.00'; % latitudinal grid spacing to interpolate to (deg)
 par.lat = -90:str2num(par.lat_interp):90; % define standard latitude grid for 'std' interpolation
@@ -29,7 +29,7 @@ end
 
 type = 'gcm';
 make_grid(type, par);
-% choose_mmm_lat_mon_silev(type, par); % make mmm of mon x lat x lev data
+choose_mmm_lat_mon_silev(type, par); % make mmm of mon x lat x lev data
 choose_mmm_lat_mon(type, par); % make mmm of mon x lat data
 choose_mmm_lon_lat(type, par); % make mmm of lon x lat data
 choose_mmm_lat(type, par); % make mmm of lat data
@@ -55,16 +55,16 @@ function choose_mmm_lat_mon_silev(type, par)
 end
 
 function choose_mmm_lat_mon(type, par)
-    % mmm_flux_z(type, par);
+    mmm_flux_z(type, par);
     mmm_vh_mon(type, par);
 end
 
 function choose_mmm_lon_lat(type, par)
-    % mmm_flux_t(type, par);
+    mmm_flux_t(type, par);
 end
 
 function choose_mmm_lat(type, par)
-    % mmm_flux_zt(type, par);
+    mmm_flux_zt(type, par);
     mmm_vh(type, par);
 end
 
