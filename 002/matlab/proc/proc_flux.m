@@ -150,7 +150,7 @@ function proc_flux(type, par)
         flux.rsfc = flux.swsfc + flux.lwsfc;
 
         if any(strcmp(fw, {'mse', 'mse_ac', 'mse_sc', 'mse_ac_ra', 'mse_sc_ra', 'dse'}))
-            flux.res.(fw) = flux.ra.(fw) + flux.stf.(fw); % infer MSE tendency and flux divergence as residuals
+            flux.res.(fw) = flux.ra.(fw) + flux.stf.(fw) - flux.tend; % infer MSE tendency and flux divergence as residuals
         elseif any(strcmp(fw, {'mse2'}))
             flux.res.(fw) = flux.lw + flux.stf.(fw);
         elseif strcmp(fw, 'db13')
@@ -160,22 +160,22 @@ function proc_flux(type, par)
             flux.res.(fw) = flux.TEDIV; % use MSE flux divergence from DB13, ignore MSE tendency term
             flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
         elseif strcmp(fw, 'db13t')
-            flux.res.(fw) = flux.TEDIV + flux.tend; % use MSE flux divergence from DB13, use MSE tendency from ERA
+            flux.res.(fw) = flux.TEDIV - flux.tend; % use MSE flux divergence from DB13, use MSE tendency from ERA
             flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
         elseif strcmp(fw, 'div')
             flux.res.(fw) = flux.divt + flux.divg + flux.divq*par.L; % use MSE tendency and flux divergence from ERA5 output
             flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
         elseif strcmp(fw, 'divt')
-            flux.res.(fw) = flux.divt + flux.divg + flux.divq*par.L + flux.tend; % use MSE tendency and flux divergence from ERA5 output
+            flux.res.(fw) = flux.divt + flux.divg + flux.divq*par.L - flux.tend; % use MSE tendency and flux divergence from ERA5 output
             flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
         elseif strcmp(fw, 'div79')
-            flux.res.(fw) = flux.don79div + flux.tend; % use MSE tendency from ERA output and MSE flux divergence from Donohoe MSE flux transport data
+            flux.res.(fw) = flux.don79div - flux.tend; % use MSE tendency from ERA output and MSE flux divergence from Donohoe MSE flux transport data
             flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
         elseif strcmp(fw, 'div00')
-            flux.res.(fw) = flux.don79div + flux.tend; % use MSE tendency from ERA output and MSE flux divergence from Donohoe MSE flux transport data
+            flux.res.(fw) = flux.don79div - flux.tend; % use MSE tendency from ERA output and MSE flux divergence from Donohoe MSE flux transport data
             flux.stf.(fw) = flux.res.(fw) - ceres.ra; % infer the surface turbulent fluxes
         elseif strcmp(fw, 'div00erarad')
-            flux.res.(fw) = flux.don79div + flux.tend; % use MSE tendency from ERA output and MSE flux divergence from Donohoe MSE flux transport data
+            flux.res.(fw) = flux.don79div - flux.tend; % use MSE tendency from ERA output and MSE flux divergence from Donohoe MSE flux transport data
             flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
         end
 
@@ -215,7 +215,7 @@ function proc_flux(type, par)
 
     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c');
         % var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend', 'divt', 'divg', 'divq', 'TETEN', 'TEDIV', 'don79div'};
-        var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
+        var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
         % foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
     elseif strcmp(type, 'hahn')
         var_vec = {'LHFLX', 'SHFLX', 'PRECC', 'PRECL', 'PRECSC', 'PRECSL', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
