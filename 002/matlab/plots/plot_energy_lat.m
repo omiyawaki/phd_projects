@@ -64,6 +64,9 @@ function plot_energy_lat(type, par)
                     figure(); clf; hold all; box on;
                     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
                     plot(lat, flux.(land).(time).ra.(fw), 'color', par.gray); text(0, 0.75*interp1(lat,flux.(land).(time).ra.(fw),0), '\boldmath{$R_a$}', 'color', par.gray);
+                    if contains(type, 'era') || any(strcmp(type, {'gcm'}))
+                        plot(lat, flux.(land).(time).tend, 'color', 'k'); text(0, 0.75*interp1(lat,flux.(land).(time).tend,0), '\boldmath{$\partial_t h$}', 'color', 'k');
+                    end
                     if strcmp(fw, 'dse'); plot(lat,flux.(land).(time).res.dse, '--', 'color', par.maroon); text(-30, 2*interp1(lat,flux.(land).(time).res.dse,-30), '\boldmath{$\nabla\cdot F_s$}', 'color', par.maroon);
                     else; plot(lat,flux.(land).(time).res.(fw), 'color', par.maroon); text(-42, 2*interp1(lat,flux.(land).(time).res.(fw),-42), '\boldmath{$\nabla\cdot F_m$}', 'color', par.maroon); end;
                     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')

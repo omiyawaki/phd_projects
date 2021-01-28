@@ -51,17 +51,17 @@ end
 % ceres_flux(par)
 % choose_disp(par)
 
-% type = 'era5c'; % data type to run analysis on
-% choose_proc(type, par)
+type = 'era5c'; % data type to run analysis on
+choose_proc(type, par)
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
     % type='echam';
     % disp(par.echam.clim)
     % choose_proc(type, par);
 end
 for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
-    type='hahn';
-    disp(par.hahn.clim)
-    choose_proc(type, par);
+    %type='hahn';
+    %disp(par.hahn.clim)
+    %choose_proc(type, par);
 end
 for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
     % type = 'gcm';
@@ -100,8 +100,8 @@ end
 % end
 
 function choose_proc(type, par)
-    % proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
-    proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
+    proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+    %proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
     % make_masi(type, par) % calculate moist adiabats at every lon x lat x mon
     % proc_ma_mon_lat(type, par) % calculate mon x lat moist adiabats
     % make_tai(type, par) % calculate moist adiabat in lon x lat x mon
