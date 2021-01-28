@@ -144,22 +144,28 @@
 % \paragraph{First quaternary heading}
 
 \section{Introduction}
+
+    The vertical temperature profile is an important characterization of the climate system because of its fundamental role in the determining the sign of the lapse rate feedback and diagnosing the strength of tropical (via convective available potential energy) and midlatitude storms (baroclinicity). Our understanding of the vertical temperature profile and its response to external perturbations can be broadly categorized into simple models developed for the tropics, midlatitudes, and polar regions of the Earth. The vertical temperature profile in the tropics is often idealized to be one that is neutral to a moist adiabat \citep{held1982,xu1989}, in the midlatitudes as baroclinically neutral \citep{stone1978,lindzen1993}, and in the polar regions as one exhibiting a near-surface inversion \citep{cronin2016}. In order to synthesize these regional theories into a global perspective, we require an understanding of how these three regions depend as a function of space and time.
+
+    One convectional definition is based on the distribution of the annual mean insolation. In this definition, the tropics are bounded between $\pm 23^\circ$ (the tropics of cancer and capricorn) and correspond to regions where the Sun shines perpendicular to the surface at some point through the year. The polar regions are poleward of $\pm66^\circ$ and corresponds to regions that observe the polar night. The midlatitudes are then the intermediate latitudes between these two bounds: $\pm23$--$66^\circ$. The key limitations of this definition are that it does not capture potential seasonality in the regimes and it does not consider the influence of external parameters other than insolation, such as the increase of atmospheric CO$_2$ concentrations. Indeed, the tropics are projected to expand in response to an increase in CO$_2$ and as a result, several definitions of the tropical edge exist in the literature to test the robustness of the result to different metrics \citep{staten2018,waugh2018}. However, such definitions can only be used to identify the spatio-temporal structure of the tropics and the extratropics more broadly, missing the crucial distinction between the midlatitudes and the polar regions.
+
+
+
+
+
+
+
+
+
     Three types of heat transfers dominate in the atmosphere of modern Earth: radiation, convection, and advection (horizontal heat transport by large-scale eddies). On Earth, longwave cooling dominates over shortwave heating due to the strong greenhouse effect and leads to a nearly meridionally uniform net radiative cooling of approximately $-100$ W m$^{-2}$ \citep{lin2008}. In steady state, the net radiative cooling is balanced by either convective heating, advective heating, or a combination of both, corresponding to three heat transfer regimes: radiative-convective equilibrium (RCE), radiative advective equilibrium (RAE), and radiative-convective-advective equilibrium (RCAE).
     
     In the modern tropics, strong insolation yearround heats the surface, destabilizing the lower troposphere through the supply of heat and moisture from the surface to the atmosphere. Moist convection redistributes heat throughout the troposphere, which is largely balanced by longwave cooling. Thus, the tropics is commonly idealized to be in RCE \citep{wing2018}. The dual assumption of RCE and the weak temperature gradient \citep{bretherton2002} forms the foundation of many theoretical models of the tropics. However, to date only one study has investigated where and when RCE is observed on modern Earth \citep{jakob2019}.
     
     In the modern polar regions, high albedo near the surface keeps the surface cool, leading to surface heat fluxes that are negligibly small relative to advection \citep{nakamura1988}. Indeed, \cite{cronin2016} use the assumption that the high latitudes is in a state of RAE to develop a simple model for the high latitude temperature profile. Temperature profiles in RAE are characterized by a near-surface inversion because advective heating tends to have a maximum above the surface. The presence of a near-surface inversion plays an important role in the contribution of the lapse rate feedback to polar amplification \cite{pithan2014,payne2015}.
     
-    
-    
+    While RCE and RAE regimes are the standard idealized heat transfer regimes for the modern low and high latitudes, respectively, the spatial structure of heat transfer regimes is thought to have varied significantly over the history of Earth's climate. For example, \cite{pierrehumbert2005} shows that a strong near surface inversion exists in the snowball midlatitudes, suggesting the possibility of RAE expanding farther equatorward during the snowball climate. \cite{abbot2008} show that the high latitudes of the past equable climates (e.g. Eocene, PETM) may have been convective, suggesting the possibility of RCE expanding to the poles in warm climates.
     
     \cite{jakob2019} use the vertically integrated dry static energy (DSE) budget to identify the temporal and spatial scales where RCE is approximately satisfied in the tropics. They define RCE as regions where the DSE flux convergence is less than 50 W m$^{-2}$. A disadvantage of defining the criteria for RCE using a dimensional value is that it is difficult to generalize the framework to other climates.
-
-    Radiative convective equilibrium (RCE) and radiative advective equilibrium (RAE) are the standard conceptual models used to model the vertical temperature structure of the low and high latitudes of the modern climate \citep{wing2018, cronin2016}. For example in the tropics, the temperature profile associated with RCE is used to quantify the strength of tropical storms through convective available potential energy \citep{singh2013, seeley2015}. At the poles, RAE is used to predict the strength of the high latitude near-surface inversion \citep{payne2015,cronin2016}. Thus, identifying the spatio-temporal structure of heat transfer regimes is important to understand where and when the predictions provided by these conceptual models are valid.
-    
-     \cite{jakob2019} use the vertically integrated dry static energy (DSE) budget to identify the temporal and spatial scales where RCE is approximately satisfied in the tropics. They define RCE as regions where the DSE flux convergence is less than 50 W m$^{-2}$. A disadvantage of defining the criteria for RCE using a dimensional value is that it is difficult to generalize the framework to other climates.
-    
-    While RCE and RAE regimes are the standard idealized heat transfer regimes for the modern low and high latitudes, respectively, the spatial structure of heat transfer regimes is thought to have varied significantly over the history of Earth's climate. For example, \cite{pierrehumbert2005} shows that a strong near surface inversion exists in the snowball midlatitudes, suggesting the possibility of RAE expanding farther equatorward during the snowball climate. \cite{abbot2008} show that the high latitudes of the past equable climates (e.g. Eocene, PETM) may have been convective, suggesting the possibility of RCE expanding to the poles in warm climates.
     
     In order to develop a general framework for quantifying heat transfer regimes, we use a nondimensional number \(R_{1}\) that appears in the vertically integrated moist static energy (MSE) equation to quantify an approximate state of RCE and RAE. In this paper, we focus on understanding the regime transitions that occur on the annual time scale in the modern Earth climate. We show that the hemispheric asymmetry in the midlatitude regime transition is due to the asymmetry in surface heat capacity by varying the mixed layer depth in a slab ocean aquaplanet model. We show that the hemispheric asymmetry in the high latitude regime transition is due to the asymmetry in sensible heat flux.
 
@@ -196,24 +202,16 @@
     The historical run of the CMIP5 archive are atmosphere-ocean general circulation models (AOGCMs) forced with the historically observed atmospheric composition evolution. We obtain a multimodel mean of the CMIP5 historical run that is comprised of 41 models. As with ERA5, we use the output of $R_a$, $\mathrm{LH}$, and $\mathrm{SH}$ and infer $\partial_t \langle h \rangle + \nabla\cdot\langle F_m \rangle$ as the sum $R_a + \mathrm{LH} + \mathrm{SH}$.
 
 \subsection{ECHAM6 slab ocean aquaplanet experiments}
-\begin{itemize}
-  \item ECHAM6 is the atmospheric component of the MPI-ESM-LR GCM.
-  \item We configure ECHAM6 with a slab ocean to test the hypothesis that the mixed layer depth controls the seasonal amplitude of the poleward boundary of RCE.
-\end{itemize}
-
-% \subsection{ECHAM6 AGCM experiments}
-% \begin{itemize}
-%   \item ECHAM6 is the atmospheric component of the MPI-ESM-LR GCM.
-%   \item We configure ECHAM6 with a slab ocean to test the hypothesis that the mixed layer depth controls the seasonal amplitude of the poleward boundary of RCE.
-% \end{itemize}
+  ECHAM6 is the atmospheric component of the MPI-ESM-LR GCM.
+  
+  We configure ECHAM6 with a slab ocean to test the hypothesis that the mixed layer depth controls the seasonal amplitude of the poleward boundary of RCE.
 
 \section{Results} \label{sec:results}
 
-\subsection{RCE and RAE regimes}
-    \subsubsection{Annual mean $R_1$}
-    In the annual mean, RCE is satisfied in the low latitudes and RAE in the high latitudes, as expected (Fig.~\ref{fig:era5-r1-ann}(a)). The temporally and spatially averaged temperature profile over the RCE regime is close to moist adiabatic in both the NH (orange line in Fig.~\ref{fig:era5-r1-ann}(b)) and SH (orange line in Fig.~\ref{fig:era5-r1-ann}(c)). Over the RAE regime, the temporally and spatially averaged temperature profile exhibits a near surface inversion (blue lines in Figs.~\ref{fig:era5-r1-ann}(b) and (c)). The inversion is stronger in the SH, consistent with the higher values of $R_{1}$ indicating that it is in a stronger state of RAE. Over the RCAE regime, the temporally and spatially averaged temperature profile is more stable than a moist adiabat and does not exhibit a near surface inversion, distinct from both RCE and RAE regimes (gray lines in Figs.~\ref{fig:era5-r1-ann}(b) and (c)).
+\subsection{Meriodional structure of RCE and RAE in the annual mean}
+    In the annual mean, RCE is satisfied in the low latitudes and RAE in the high latitudes, as expected (Fig.~\ref{fig:era5-r1-ann}(a)). The spatial structure of $R_1$ closely follows the structure of MSE flux divergence because the zonally averaged radiative cooling is nearly uniform. The temporally and spatially averaged temperature profile over the RCE regime is close to moist adiabatic in both the NH (orange line in Fig.~\ref{fig:era5-r1-ann}(b)) and SH (orange line in Fig.~\ref{fig:era5-r1-ann}(c)). Over the RAE regime, the temporally and spatially averaged temperature profile exhibits a near surface inversion (blue lines in Figs.~\ref{fig:era5-r1-ann}(b) and (c)). The inversion is stronger in the SH, consistent with the higher values of $R_{1}$ indicating that it is in a stronger state of RAE. Over the RCAE regime, the temporally and spatially averaged temperature profile is more stable than a moist adiabat and does not exhibit a near surface inversion, distinct from both RCE and RAE regimes (gray lines in Figs.~\ref{fig:era5-r1-ann}(b) and (c)).
     
-    \subsubsection{Seasonality of $R_1$}
+\subsection{Seasonality of RCE and RAE}
     The seasonality of \(R_{1}\) in the mid and high latitudes is larger in the NH (Fig.~\ref{fig:era5-r1-dev}). The strong increase in \(R_{1}\) during NH summer drives a regime transition from RCAE to RCE in the NH midlatitudes and from RAE to RCAE in the NH high latitudes.
   
     The seasonality of vertical temperature profiles are consistent with the diagnosed heat transfer regimes in both the NH and SH. For example, the temperature profile at 45$^{\circ}$ N in January is significantly more stable than a moist adiabat (compare solid to dashed gray lines in Fig.~\ref{fig:era5-r1-dev}(b)) while the temperature profile in July is close to a moist adiabat (compare solid to dashed orange lines in Fig.~\ref{fig:era5-r1-dev}(c)). Similarly, the temperature profile at 85 $^{\circ}$ N in January exhibits a strong near surface inversion (blue line in Fig.~\ref{fig:era5-r1-dev}(b)) while no surface inversion is present in July (gray line in Fig.~\ref{fig:era5-r1-dev}(c)). In the SH, the temperature profile at 45$^{\circ}$S remains more stable than a moist adiabat yearround (gray lines in Fig.~\ref{fig:era5-r1-dev}(d,e)), consistent with $R_{1}$ indicating that the SH midlatitudes is in a state of RCAE yearround. The temperature profile at 85$^{\circ}$S exhibits a near surface inversion yearround (blue lines in Fig.~\ref{fig:era5-r1-dev}(d,e)), consistent with $R_{1}$ indicating that the SH high latitudes is in a state of RAE yearround.
@@ -225,34 +223,35 @@
     Next, in order to understand what physical mechanism is responsible for the hemispheric asymmetry in heat transfer regimes in the mid and high latitudes, we diagnose which terms in the MSE budget dominates the hemispheric asymmetry.
 
 
-\subsection{Hemispheric asymmetry} \label{subsec:asym}
-\begin{itemize}
-  \item We now focus on latitude bands in the midlatitudes (40--50$^{\circ}$ N/S) and the high latitudes (80--90$^{\circ}$ N/S) to understand what sets the difference in the seasonality of the RCE and RAE boundaries across the northern and southern hemisphere.
-  \item We find that the transition from RCAE to RCE in the NH midlatitude summer (solid black line in Fig.~\ref{fig:era5-r1-decomp-mid}(a)) arises primarily due to a weakening of MSE flux convergence (red line in Fig.~\ref{fig:era5-r1-decomp-mid}(a)). The significant weakening of MSE flux convergence (red line in Fig.~\ref{fig:era5-r1-decomp-mid}(b)) comes from a combination of weaker radiative cooling (gray line in Fig.~\ref{fig:era5-r1-decomp-mid}(b)) and stronger surface turbulent fluxes in the summer (blue line in Fig.~\ref{fig:era5-r1-decomp-mid}(b)).
-  \item In contrast, the SH midlatitudes remains in RCAE yearround (solid black line in Fig.~\ref{fig:era5-r1-decomp-mid}(c)). As in the NH, the MSE flux convergence weakens during summer (red line in Fig.~\ref{fig:era5-r1-decomp-mid}(d)) but the amplitude is smaller than in the NH. This can be attributed to the opposite phase of the seasonality of surface turbulent fluxes (blue line in Fig.~\ref{fig:era5-r1-decomp-mid}(d)).
-  \item The transition from RAE to RCAE in the NH high latitude summer (Fig.~\ref{fig:era5-r1-decomp-pole}(a)) arises due to strong weakening of the MSE flux convergence that is supported by a strengthening of the surface turbulent fluxes during NH summer (Fig.~\ref{fig:era5-r1-decomp-pole}(b)).
-  \item In contrast, the SH high latitudes remains in RAE yearround (Fig.~\ref{fig:era5-r1-decomp-pole}(c)). The amplitude of the weakening MSE flux convergence and strengthening surface turbulent fluxes in SH summer are similar to those in the NH (Fig.~\ref{fig:era5-r1-decomp-pole}(d)). However, the SH remains in RAE yearround because its annual mean state is farther away from the RAE boundary (see horizontal line in Fig.~\ref{fig:era5-r1-decomp-pole}(c)).
-  \item In summary, we find that 1) the hemispheric asymmetry in midlatitude regime transitions is due to the asymmetry in the seasonal amplitude of MSE flux divergence and 2) the asymmetry in high latitude regime transitions is due to the difference in the annual mean $R_{1}$.
-\end{itemize}
+\subsection{Midlatitude regime transitions} \label{subsec:asym}
+    We now focus on latitude bands in the midlatitudes (40--50$^{\circ}$ N/S) and the high latitudes (80--90$^{\circ}$ N/S) to understand what sets the difference in the seasonality of the RCE and RAE boundaries across the northern and southern hemisphere. We find that the transition from RCAE to RCE in the NH midlatitude summer (solid black line in Fig.~\ref{fig:era5-r1-decomp-mid}(a)) arises primarily due to a weakening of MSE flux convergence (red line in Fig.~\ref{fig:era5-r1-decomp-mid}(a)). The significant weakening of MSE flux convergence (red line in Fig.~\ref{fig:era5-r1-decomp-mid}(b)) comes from a combination of weaker radiative cooling (gray line in Fig.~\ref{fig:era5-r1-decomp-mid}(b)) and stronger surface turbulent fluxes in the summer (blue line in Fig.~\ref{fig:era5-r1-decomp-mid}(b)).
+    
+    In contrast, the SH midlatitudes remains in RCAE yearround (solid black line in Fig.~\ref{fig:era5-r1-decomp-mid}(c)). As in the NH, the MSE flux convergence weakens during summer (red line in Fig.~\ref{fig:era5-r1-decomp-mid}(d)) but the amplitude is smaller than in the NH. This can be attributed to the opposite phase of the seasonality of surface turbulent fluxes (blue line in Fig.~\ref{fig:era5-r1-decomp-mid}(d)).
+    
+    \subsubsection{Varying mixed layer depth explains hemispheric asymmetry of RCE}
+        When ECHAM AQUA is configured with a mixed layer depth of 20 m (shallower than the critical depth of 25 m derived earlier), the seasonality of \(R_{1}\) (Fig.~\ref{fig:echam-rce}(a)) closely resembles that of the NH midlatitudes (cf. Fig.~\ref{fig:era5-r1-decomp-mid}(a)).
+        
+        The decrease of \(R_{1}\) in the summer months is associated with a weakening of MSE flux divergence and a strengthening of turbulent heat fluxes (Fig.~\ref{fig:echam-rce}(b)).
+        
+        The seasonality of turbulent heat fluxes in ECHAM appears to lag behind insolation by 2 months. Thus, the months of RCE is also shifted toward late summer/early fall.
+        
+        When ECHAM is configured with a mixed layer depth of 40 m (deeper than the critical depth of 25 m), the seasonal amplitude of \(R_{1}\) (Fig.~\ref{fig:echam-rce}(c)) is comparable to that of the SH midlatitudes (cf. Fig.~\ref{fig:era5-r1-decomp-mid}(c)). Interestingly, \(R_{1}\) in the 40 m ECHAM run is nearly perfectly out of phase with \(R_{1}\) in the SH midlatitudes.
+  
+        The weaker amplitude of \(R_{1}\) is associated with a seasonality of turbulent heat fluxes that is out of phase with insolation (Fig.~\ref{fig:echam-rce}(d)).
+  
+\subsection{High latitude regime transitions}
+    The transition from RAE to RCAE in the NH high latitude summer (Fig.~\ref{fig:era5-r1-decomp-pole}(a)) arises due to strong weakening of the MSE flux convergence that is supported by a strengthening of the surface turbulent fluxes during NH summer (Fig.~\ref{fig:era5-r1-decomp-pole}(b)).
+    
+    In contrast, the SH high latitudes remains in RAE yearround (Fig.~\ref{fig:era5-r1-decomp-pole}(c)). The amplitude of the weakening MSE flux convergence and strengthening surface turbulent fluxes in SH summer are similar to those in the NH (Fig.~\ref{fig:era5-r1-decomp-pole}(d)). However, the SH remains in RAE yearround because its annual mean state is farther away from the RAE boundary (see horizontal line in Fig.~\ref{fig:era5-r1-decomp-pole}(c)).
 
-
-\subsection{Varying mixed layer depth explains hemispheric asymmetry of RCE}
-\begin{itemize}
-  \item When ECHAM AQUA is configured with a mixed layer depth of 20 m (shallower than the critical depth of 25 m derived earlier), the seasonality of \(R_{1}\) (Fig.~\ref{fig:echam-rce}(a)) closely resembles that of the NH midlatitudes (cf. Fig.~\ref{fig:era5-r1-decomp-mid}(a)).
-  \item The decrease of \(R_{1}\) in the summer months is associated with a weakening of MSE flux divergence and a strengthening of turbulent heat fluxes (Fig.~\ref{fig:echam-rce}(b)).
-  \item The seasonality of turbulent heat fluxes in ECHAM appears to lag behind insolation by 2 months. Thus, the months of RCE is also shifted toward late summer/early fall.
-  \item When ECHAM is configured with a mixed layer depth of 40 m (deeper than the critical depth of 25 m), the seasonal amplitude of \(R_{1}\) (Fig.~\ref{fig:echam-rce}(c)) is comparable to that of the SH midlatitudes (cf. Fig.~\ref{fig:era5-r1-decomp-mid}(c)). Interestingly, \(R_{1}\) in the 40 m ECHAM run is nearly perfectly out of phase with \(R_{1}\) in the SH midlatitudes.
-  \item The weaker amplitude of \(R_{1}\) is associated with a seasonality of turbulent heat fluxes that is out of phase with insolation (Fig.~\ref{fig:echam-rce}(d)).
-  \item In summary, we find that the difference in the seasonal amplitude of \(R_{1}\) between the NH and SH can be explained by varying the mixed layer depth in an aquaplanet. However, the phase of \(R_{1}\) in the SH is opposite of that found in the SH midlatitudes.
-\end{itemize}
-
-\subsection{Winter RAE requires sea ice}
-\begin{itemize}
-  \item When ECHAM is configured without sea ice, the annual mean state in the high latitudes is in RCAE (Fig.~\ref{fig:echam-rae}(a)). This can be attributed to positive turbulent fluxes that persist yearround in the absence of sea ice (Fig.~\ref{fig:echam-rae}(b)).
-  \item This holds for all mixed layer depths tested here (10--50 m).
-  \item When ECHAM is configured with thermodynamic sea ice (40 m chosen here as it fits the NH high latitudes well), the annual mean state in the high latitudes is in RAE (Fig.~\ref{fig:echam-rae}(c)). In the presence of sea ice, turbulent fluxes are negative most of the year (Fig.~\ref{fig:echam-rae}(d)). Only when the sea ice melts during the summer do positive turbulent fluxes arise, which drives the transition to RCAE.
-  \item This holds for mixed layer depths between 25--50 m. For mixed layer depths below 20 m, a runaway ice-albedo feedback leads the model to equilibrate to a snowball climate.
-\end{itemize}
+    \subsubsection{Winter RAE requires sea ice}
+        When ECHAM is configured without sea ice, the annual mean state in the high latitudes is in RCAE (Fig.~\ref{fig:echam-rae}(a)). This can be attributed to positive turbulent fluxes that persist yearround in the absence of sea ice (Fig.~\ref{fig:echam-rae}(b)).
+        
+        This holds for all mixed layer depths tested here (10--50 m).
+        
+        When ECHAM is configured with thermodynamic sea ice (40 m chosen here as it fits the NH high latitudes well), the annual mean state in the high latitudes is in RAE (Fig.~\ref{fig:echam-rae}(c)). In the presence of sea ice, turbulent fluxes are negative most of the year (Fig.~\ref{fig:echam-rae}(d)). Only when the sea ice melts during the summer do positive turbulent fluxes arise, which drives the transition to RCAE.
+        
+        This holds for mixed layer depths between 25--50 m. For mixed layer depths below 20 m, a runaway ice-albedo feedback leads the model to equilibrate to a snowball climate.
 
 \section{Summary and Discussion}
 % \begin{itemize}
@@ -386,7 +385,7 @@ If data access is restricted, authors must mention this in the statement.
           \item $\Delta F_{\mathrm{TOA}} \approx a\Delta Q - B\Delta T_{s}$, where $a$ is the co-albedo, $Q$ is insolation, and $B$ is the sensitivity of OLR to surface temperature $T_{s}$.
           \item $\Delta Q = Q^{*}\cos(\omega t)$, where $Q^{*}=as_{11}Q_{g}P_{1}(x)$ is the amplitude of net TOA shortwave, $s_{11}=-2\sin{\beta}$ where $\beta$ is the obliquity, and $Q_{g}=340$ Wm$^{-2}$. For simplicity we only consider the annual mode.
           \item $\Delta T_{s} = T_{s}^{*}\cos(\omega t - \Phi)$, where $T_{s}^{*}$ is the amplitude of surface temperature and $\Phi$ is the phase shift of $\Delta T_{s}$ relative to $\Delta Q$.
-          \item As with insolation, we only consider the annual mode, so $T_{s}^{*}=Q^{*}B^{-1}\left((1+2\delta)^{2}+\gamma^{2}\right)^{-1/2}$ and $\Phi=\arctan\left(\frac{\gamma}{1+2\delta}\right)$.
+          \item As with insolation, we only consider the annual mode, so $T_{s}^{*}=Q^{*}B^{-1}\left((1+2\delta)^{2}+\gamma^{2}\right)^{-1/2}$ and $\Phi=\arctan\left(\frac{\gamma}{1+2\delta}\right)$, where $\delta = \frac{K}{R^2 B}  = \frac{D}{B}$ is the nondimensionalized diffusivity parameter.
         \end{enumerate}
   \item Using the above assumptions, we can write Equation~(\ref{eq:r1-linear2}) as
         \begin{equation} \label{eq:r1-linear3}
@@ -423,7 +422,7 @@ If data access is restricted, authors must mention this in the statement.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Make your BibTeX bibliography by using these commands:
 \bibliographystyle{ametsoc2014}
-\bibliography{/home/omiyawaki/Sync/papers/references}
+\bibliography{references}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -529,21 +528,21 @@ If data access is restricted, authors must mention this in the statement.
     \label{fig:echam-rae}
 \end{figure}
 
-\begin{figure}[t]
-  \noindent\includegraphics[width=0.8\textwidth]{malr-mon-lat.png}\\
-  \appendcaption{A1}{The spatio-temporal structure of the free tropospheric lapse rate deviation from a moist adiabatic lapse rate is shown for a) ERA-Interim reanalysis and b) MPI-ESM-LR. We idenfity the region where \(\delta_{c}\le 10\%\) (thick orange contour) as the convective lapse rate regime.}
-  \label{fig:malr-mon-lat}
-\end{figure}
-
-\begin{figure}[t]
-  \noindent\includegraphics[width=0.8\textwidth]{dalr-mon-lat.png}\\
-  \appendcaption{A2}{The spatio-temporal structure of the near surface lapse rate deviation from a dry adiabatic lapse rate is shown for a) ERA-Interim reanalysis and b) MPI-ESM-LR. We idenfity the regions where \(\delta_{i}\ge 90\%\) (thick blue contour) as the inversion lapse rate regime.}
-  \label{fig:dalr-mon-lat}
-\end{figure}
+% \begin{figure}[t]
+%   \noindent\includegraphics[width=0.8\textwidth]{malr-mon-lat.png}\\
+%   \appendcaption{A1}{The spatio-temporal structure of the free tropospheric lapse rate deviation from a moist adiabatic lapse rate is shown for a) ERA-Interim reanalysis and b) MPI-ESM-LR. We idenfity the region where \(\delta_{c}\le 10\%\) (thick orange contour) as the convective lapse rate regime.}
+%   \label{fig:malr-mon-lat}
+% \end{figure}
+% 
+% \begin{figure}[t]
+%   \noindent\includegraphics[width=0.8\textwidth]{dalr-mon-lat.png}\\
+%   \appendcaption{A2}{The spatio-temporal structure of the near surface lapse rate deviation from a dry adiabatic lapse rate is shown for a) ERA-Interim reanalysis and b) MPI-ESM-LR. We idenfity the regions where \(\delta_{i}\ge 90\%\) (thick blue contour) as the inversion lapse rate regime.}
+%   \label{fig:dalr-mon-lat}
+% \end{figure}
 
 \begin{figure}
-  \noindent\includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/amp_echam_del0-5.pdf}\\
-  \appendcaption{B1}{(a) The seasonal amplitude of surface temperature between 30--60$^{\circ}$ latitude as diagnosed from ECHAM with varied mixed layer depths (asterisks) and that predicted from the \cite{rose2017} energy balance model (line) for $B=1.45$ Wm$^{-2}$K$^{-1}$, $\rho=1000$ kg m$^{-3}$, $c_{w}=4000$ J kg$^{-1} $K$^{-1}$, $a=0.68$, and $\delta=0.5$. (b) Minimum of the seasonal deviation of $R_{1}$ as diagnosed from ECHAM (asterisks) and the EBM (line).}
+  \noindent\includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/amp_echam.pdf}\\
+  \appendcaption{B1}{(a) The seasonal amplitude of surface temperature between 40--60$^{\circ}$ latitude as diagnosed from ECHAM with varied mixed layer depths (asterisks) and that predicted from the \cite{rose2017} energy balance model (line) for $B=2.32$ W m$^{-2}$ K$^{-1}$, $D=0.89$ W m$^{-2}$ K$^{-1}$, $\rho=1000$ kg m$^{-3}$, $c_{w}=4000$ J kg$^{-1} $K$^{-1}$, and $a=0.80$. (b) Minimum of the seasonal deviation of $R_{1}$ as diagnosed from ECHAM (asterisks) and the EBM (line).}
   \label{fig:amp-r1-echam}
 \end{figure}
 
