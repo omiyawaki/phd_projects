@@ -59,21 +59,29 @@ function plot_dmse_polar_line(type, par)
                 lh_lat = nansum(lh_lat.*clat_mon)/nansum(clat);
                 sh_lat = interp1(grid.dim3.lat, sh, lat);
                 sh_lat = nansum(sh_lat.*clat_mon)/nansum(clat);
-                tend_lat = interp1(grid.dim3.lat, flux_z.(land).tend, lat);
-                tend_lat = nansum(tend_lat.*clat_mon)/nansum(clat);
+                if ~strcmp(fw, 'mse_old')
+                    tend_lat = interp1(grid.dim3.lat, flux_z.(land).tend, lat);
+                    tend_lat = nansum(tend_lat.*clat_mon)/nansum(clat);
+                end
 
                 % ALL lat x mon dependence of RCE and RAE
                 figure(); clf; hold all; box on;
                 line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
                 ra=plot([1:12],  circshift(ra_lat ,shiftby,2), 'color', 0.5*[1 1 1]);
-                tend=plot([1:12],  circshift(tend_lat ,shiftby,2), 'color', 'k');
+                if ~strcmp(fw, 'mse_old')
+                    tend=plot([1:12],  circshift(tend_lat ,shiftby,2), 'color', 'k');
+                end
                 res=plot([1:12], circshift(res_lat,shiftby,2), 'color', par.maroon);
                 lhf=plot([1:12], circshift(lh_lat,shiftby,2), 'color', par.blue);
                 shf=plot([1:12], circshift(sh_lat,shiftby,2), 'color', par.orange);
                 make_title_type_lat(type, lat_bound, lat_pole, par);
                 % xlabel('Month');
                 ylabel(sprintf('Energy flux (Wm$^{-2}$)'));
-                legend([tend ra res lhf shf], '$\partial_t h$', '$R_a$', '$\nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', 'location', 'eastoutside', 'numcolumns', 2);
+                if ~strcmp(fw, 'mse_old')
+                    legend([tend ra res lhf shf], '$\partial_t h$', '$R_a$', '$\nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', 'location', 'eastoutside', 'orientation', 'vertical');
+                else
+                    legend([ra res lhf shf], '$R_a$', '$\partial_t h + \nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', 'location', 'eastoutside', 'orientation', 'vertical');
+                end
                 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide)
                 set(gca, 'ylim', [-170 30], 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'yminortick', 'on', 'tickdir', 'out');
                 print(sprintf('%s/0_mon_mse', folder), '-dpng', '-r300');
@@ -83,7 +91,9 @@ function plot_dmse_polar_line(type, par)
                 figure(); clf; hold all; box on;
                 line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
                 ra=plot([1:12],  circshift(ra_lat ,shiftby,2), 'color', 0.5*[1 1 1]);
-                tend=plot([1:12],  circshift(tend_lat ,shiftby,2), 'color', 'k');
+                if ~strcmp(fw, 'mse_old')
+                    tend=plot([1:12],  circshift(tend_lat ,shiftby,2), 'color', 'k');
+                end  
                 res=plot([1:12], circshift(res_lat,shiftby,2), 'color', par.maroon);
                 lhf=plot([1:12], circshift(lh_lat,shiftby,2), 'color', par.blue);
                 shf=plot([1:12], circshift(sh_lat,shiftby,2), 'color', par.orange);

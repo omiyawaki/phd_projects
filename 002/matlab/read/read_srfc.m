@@ -31,7 +31,7 @@ function read_srfc(type, ymonmean, par)
                     load(sprintf('%s/grid.mat', prefix)); % read grid data
                     file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s%s.nc', type, type, par.(type).yr_span, ymm_in));
                     fullpath=sprintf('%s/%s', file.folder, file.name);
-                    zg = double(ncread(fullpath, 'z'));
+                    zg = 1/par.g * double(ncread(fullpath, 'z'));
                     zg = permute(zg, [3 1 2 4]);
                     pb=CmdLineProgressBar("Calculating zs..."); % track progress of this loop
                     for lo = 1:length(grid.dim2.lon)

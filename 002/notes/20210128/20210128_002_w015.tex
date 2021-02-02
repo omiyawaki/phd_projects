@@ -1,0 +1,113 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+
+\title{Research notes}
+\date{\today}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+\section{Comparing the two definitions of $R_1$: $R_1=\frac{\nabla\cdot F_m}{R_a}$ instead of $R_1=\frac{\partial_t h+\nabla\cdot F_m}{R_a}$}
+Up until now, we calculated $R_1$ including the $\partial_t h$ term in the numerator as follows:
+\begin{equation}
+R_1^* = \frac{\partial_t h + \nabla\cdot F_m}{R_a} = \frac{R_a + \mathrm{LH + SH}}{R_a} \, .
+\end{equation}
+However, arguably the more conceptually proper definition should isolate the MSE flux divergence from the tendency, thus defining $R_1$ as
+\begin{equation}
+R_1 = \frac{\nabla\cdot F_m}{R_a} = \frac{R_a + \mathrm{LH + SH}-\partial_t h}{R_a} \, .
+\end{equation}
+As I compare the results of the two definitions, I will refer to our former definition as $R_1^*$ and our modified defintion as $R_1$ for brevity. One of the standard outputs in the ERA5 data archive is the vertically integrated moist static energy, so it is straightforward to calculate the MSE tendency for ERA data. I computed the MSE tendency by taking the finite difference using 6-hourly data.
+
+Immediately, we notice that the exclusion of $\partial_t h$ from the numerator of $R_1$ makes a significant difference to its spatio-temporal structure compared to $R_1^*$ (Fig.~\ref{fig:r1z-mon-lat}). The key differences that stand out are (1) the lack of a clear RCAE/RCE regime transition in the NH midlatitudes and (2) the delayed timing of the RAE/RCAE regime transition in the NH high latitudes.
+
+While hemispheric asymmetry remains in the midlatitudes, the poleward expansion of RCE in the summer is no longer clear with the threshold set at $\epsilon=0.1$ as before (Fig.~\ref{fig:r1z-mon-lat}(b)). We can see this effect more clearly when we look at the seasonality of $R_1$ averaged in the midlatitudes (Fig.~\ref{fig:dr1z-nhmid}). The reason for this is because the atmosphere is still gaining energy in the summer (Fig.~\ref{fig:mse-nhmid}), and when the seasonality of MSE flux divergence is plotted in isolation (maroon line in Fig.~\ref{fig:mse-nhmid}), we see that it is convergent yearround. However, the temperature profile in the NH midlatitudes is near moist adiabatic in summer (Fig.~\ref{fig:ta-nhmid}), suggesting that a different value of $\epsilon$ may need to be chosen.
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/tend/r1z_mon_lat_era5c.pdf}
+    \caption{The spatio-temporal structure of $R_1$ differs markedly between the case where (a) $R_1^*=\frac{\partial_t h+\nabla\cdot F_m}{R_a} = \frac{R_a+\mathrm{LH+SH}}{R_a}$ and (b) $R_1=\frac{\nabla\cdot F_m}{R_a} = \frac{R_a+\mathrm{LH+SH}-\partial_t h}{R_a}$.} 
+    \label{fig:r1z-mon-lat}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/tend/dr1z_nhmid_era5c.pdf}
+    \caption{Whereas the NH midlatitudes undergoes a regime transition for the case where (a) $R_1^*=\frac{\partial_t h+\nabla\cdot F_m}{R_a} = \frac{R_a+\mathrm{LH+SH}}{R_a}$, the NH midlatitudes remain in RCAE yearround when (b) $R_1=\frac{\nabla\cdot F_m}{R_a} = \frac{R_a+\mathrm{LH+SH}-\partial_t h}{R_a}$.} 
+    \label{fig:dr1z-nhmid}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/tend/mse_nhmid_era5c.pdf}
+    \caption{For the case where (a) $R_1^*=\frac{\partial_t h+\nabla\cdot F_m}{R_a} = \frac{R_a+\mathrm{LH+SH}}{R_a}$, the numerator of $R_1^*$ (maroon line) switches signs in the summer leading to a regime transition, whereas for (b) $R_1=\frac{\nabla\cdot F_m}{R_a} = \frac{R_a+\mathrm{LH+SH}-\partial_t h}{R_a}$, the numerator of $R_1$ (maroon line) remains negative yearround leading to no regime transition.} 
+    \label{fig:mse-nhmid}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/temp_zon_sel/lo/nh_ml.png}
+    \caption{The seasonality of temperature profiles is shown at 45$^\circ$N for select months.}
+    \label{fig:ta-nhmid}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/tend/dr1z_shmid_era5c.pdf}
+    \caption{In the SH midlatitudes, the case where (a) $R_1^*=\frac{\partial_t h+\nabla\cdot F_m}{R_a} = \frac{R_a+\mathrm{LH+SH}}{R_a}$ and (b) $R_1=\frac{\nabla\cdot F_m}{R_a} = \frac{R_a+\mathrm{LH+SH}-\partial_t h}{R_a}$ exhibit similar magnitudes of $R_1$ seasonality but their phases are shifted.} 
+    \label{fig:dr1z-shmid}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/tend/mse_shmid_era5c.pdf}
+    \caption{Same as Fig.~\ref{fig:mse-nhmid} except evaluated in the SH.}
+    \label{fig:mse-shmid}
+\end{figure}
+
+The NH high latitudes undergoes the RAE/RCAE regime transition for both $R_1^*$ and $R_1$, but the timing is delayed in $R_1$ (Fig.~\ref{fig:dr1z-nhpole}). The seasonal amplitude of $R_1$ is slightly larger than in $R_1^*$, which is most noticeable at the peak of $R_1$ in April. The seasonality of temperature profiles at 85$^\circ$ shows that the temperature profile is nearly isothermal in October, suggesting that the seasonality of $R_1$ may be better reflecting the seasonality of near-surface inversion strength compared to $R_1^*$.
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/tend/dr1z_nhpole_era5c.pdf}
+    \caption{Same as Fig.~\ref{fig:dr1z-nhmid} except evaluated in the high latitudes. The seasonality of $R_1$ is larger than $R_1^*$ and the regime transition occurs later in the season for $R_1$ compared to $R_1^*$.}
+    \label{fig:dr1z-nhpole}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/tend/mse_nhpole_era5c.pdf}
+    \caption{Same as Fig.~\ref{fig:mse-ndmid} except evaluated in the high latitudes. The importance of the seasonality of $\partial_t h$ is further evident in the high latitudes where the surface turbulent fluxes are small.}
+    \label{fig:mse-nhpole}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/temp_zon_sel/lo/nh_hl.png}
+    \caption{The seasonality of temperature profiles is shown at 85$^\circ$N for select months.}
+    \label{fig:ta-nhpole}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/tend/dr1z_shpole_era5c.pdf}
+    \caption{Same as Fig.~\ref{fig:dr1z-shpole} except evaluated in the SH. Because the seasonality of $R_1$ is larger than $R_1^*$, the SH is much closer to the RAE/RCAE threshold in $R_1$ compared to $R_1^*$.}
+    \label{fig:dr1z-shpole}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/tend/mse_shpole_era5c.pdf}
+    \caption{Same as Fig.~\ref{fig:mse-nhpole} except evaluated in the SH.}
+    \label{fig:mse-shpole}
+\end{figure}
+
+It would be useful to repeat this analysis with CMIP5 data to see if the differences between $R_1$ and $R_1^*$ are robust. Furthermore, I should update the ECHAM $R_1$ analyses with the modified definition as well.
+
+\section{Does the phase of $R_1$ vary with mixed layer depth?}
+We previously noted that the midlatitude RCE occurs earlier in the reanalyses and CMIP5 GCMs compared to the ECHAM aquaplanet simulations. A potentially simple explanation for this is that the phase of $R_1$ is associated with a shallower mixed layer depth than the optimal choice for matching the amplitude of $R_1$. As a first step, we can simply see if the phase of $R_1$ varies with the mixed layer depth in ECHAM.
+
+I have not yet calculated the MSE tendency for ECHAM models, so the following results are made using the $R_1^*$ definition. I will revisit this again once I compute the MSE tendency for ECHAM. With the $R_1^*$ definition, we find that the phase is weakly dependent on the mixed layer depth (Fig.~\ref{fig:dr1-all}), with $\min(R_1)$ observed in July for the shallowest mixed layer analyzed here (10 m, Fig.~\ref{fig:dr1-all}(a)) and in August/September for the deepest mixed layer (50 m, Fig.~\ref{fig:dr1-all}(i)). It would be interesting to check if the $\min(R_1)$ moves further earlier in the season for mixed layer depths shallower than 10 m.
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/dr1_all.pdf}
+    \caption{The phase of $R_1$ weakly depends on the mixed layer depth in the range of values explored here. For (a) the shallowest mixed layer depth $\min(R_1)$ is observed in July, whereas in the deepest mixed layer depth $\min(R_1)$ is observed around August/September.}
+    \label{fig:dr1-all}
+\end{figure}
+
+
+\bibliographystyle{apalike}
+\bibliography{../../outline/references.bib}
+
+\end{document}

@@ -10,7 +10,7 @@ function plot_temp_binned_r1(type, par)
     load(sprintf('%s/ta_mon_lat.mat', prefix_proc));
     load(sprintf('%s/ma_mon_lat.mat', prefix_proc));
 
-    for f = {'mse'}; fw = f{1};
+    for f = {'mse', 'mse_old'}; fw = f{1};
         % for l = {'lo', 'l', 'o'}; land = l{1};
         for l = {'lo'}; land = l{1};
             if strcmp(land, 'lo'); land_text = 'Land + Ocean';

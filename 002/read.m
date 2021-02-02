@@ -18,7 +18,7 @@ par.merra2.yr_span = '1980_2005'; % spanning years for MERRA2
 par.jra55.yr_span = '1979_2005'; % spanning years for JRA-55
 par.gcm.yr_span = 30; % number of years that I am considering in the GCM climatology
 % par.echam_clims = par.echam.noice_mld; %{'echr0001'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
-par.echam_clims = {'echr0001'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
+par.echam_clims = {'rp000086'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 par.hahn_clims = {'Control1850'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 par.ceres.yr_span = '200003-201802'; % spanning years for CERES data
 par.era.vars.rad = {'ssr', 'str', 'tsr', 'ttr'}; % radiation variables to read
@@ -75,12 +75,12 @@ par.cpd = 1005.7; par.Rd = 287; par.Rv = 461; par.L = 2.501e6; par.g = 9.81; par
 end
 
 % call functions
-type='era5c';
-run_func(type, par);
+%type='era5c';
+%run_func(type, par);
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-    % type='echam';
-    % disp(par.echam.clim)
-    % run_func(type, par);
+    type='echam';
+    disp(par.echam.clim)
+    run_func(type, par);
 end
 for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
     %type='hahn';
@@ -94,16 +94,16 @@ for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
 end
 
 function run_func(type, par)
-    % read_grid(type, par) % grid, i.e. lon, lat, plev
-    % read_rad(type, 'ymonmean', par) % radiation fluxes
-    % read_hydro(type, 'ymonmean', par) % hydrological variables, e.g. precip, evap
-    % read_stf(type, 'ymonmean', par) % surface turbulent fluxes
-    %read_srfc(type, 'ymonmean', par) % other surface variables, e.g. 2-m temperature, surface pressure
-    read_tend(type, par) % mse tendency
-    %make_tempsi(type, par) % convert temp from plev to sigma
-    % make_zgsi(type, par) % convert zg from plev to sigma
-    % make_psi(type, par) % compute plev in si coords
-    % read_lfrac(type, par) % land fraction (%)
+    read_grid(type, par) % grid, i.e. lon, lat, plev
+    read_rad(type, 'ymonmean', par) % radiation fluxes
+    read_hydro(type, 'ymonmean', par) % hydrological variables, e.g. precip, evap
+    read_stf(type, 'ymonmean', par) % surface turbulent fluxes
+    read_srfc(type, 'ymonmean', par) % other surface variables, e.g. 2-m temperature, surface pressure
+    %read_tend(type, par) % mse tendency
+    make_tempsi(type, par) % convert temp from plev to sigma
+    make_zgsi(type, par) % convert zg from plev to sigma
+    make_psi(type, par) % compute plev in si coords
+    %read_lfrac(type, par) % land fraction (%)
     
     % read_rad(type, 'mon', par) % radiation fluxes
     % read_hydro(type, 'mon', par) % hydrological variables, e.g. precip, evap

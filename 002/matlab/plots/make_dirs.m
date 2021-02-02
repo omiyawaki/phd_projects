@@ -11,7 +11,7 @@ function make_dirs(type, par)
                 mkdir(sprintf('%s/inv_str/si_%g/%s', plotdir, si_eval, land));
             end
         end
-        for m = [1 6 7]; month = m(1);
+        for m = [1 4 6 7 10]; month = m(1);
             if ~exist(sprintf('%s/temp_zon_sel/%s/%g', plotdir, land, month), 'dir')
                 mkdir(sprintf('%s/temp_zon_sel/%s/%g', plotdir, land, month));
             end

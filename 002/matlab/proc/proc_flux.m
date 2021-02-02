@@ -109,10 +109,12 @@ function proc_flux(type, par)
         flux.stf.mse = -(flux.ahfl + flux.ahfs); flux.stf.mse2 = flux.stf.mse;
         flux.stf.dse = par.L*(flux.aprc+flux.aprl) - flux.ahfs;
     end
+    flux.stf.mse_old = flux.stf.mse;
     flux.stf.mse_ac = flux.stf.mse;
     flux.stf.mse_sc = flux.stf.mse;
     flux.stf.mse_ac_ra = flux.stf.mse;
     flux.stf.mse_sc_ra = flux.stf.mse;
+    flux.stf.dse_old = flux.stf.dse;
 
     f_vec = assign_fw(type, par);
     for f = f_vec; fw = f{1};
@@ -155,7 +157,9 @@ function proc_flux(type, par)
         end % calculate atmospheric radiative cooling
         flux.rsfc = flux.swsfc + flux.lwsfc;
 
-        if any(strcmp(fw, {'mse', 'mse_ac', 'mse_sc', 'mse_ac_ra', 'mse_sc_ra', 'dse'}))
+        if any(strcmp(fw, {'mse_old', 'dse_old'}))
+            flux.res.(fw) = flux.ra.(fw) + flux.stf.(fw); % infer MSE tendency and flux divergence as residuals
+        elseif any(strcmp(fw, {'mse', 'mse_ac', 'mse_sc', 'mse_ac_ra', 'mse_sc_ra', 'dse'}))
             flux.res.(fw) = flux.ra.(fw) + flux.stf.(fw) - flux.tend; % infer MSE tendency and flux divergence as residuals
         elseif any(strcmp(fw, {'mse2'}))
             flux.res.(fw) = flux.lw + flux.stf.(fw);

@@ -1,0 +1,95 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+
+\title{Research notes}
+\date{\today}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+\section{Using the \cite{rose2017} EBM to predict $\min(\Delta R_1)$ as a function of mixed layer depth}
+\textbf{Background:} Previously, I used the default parameters for the \cite{rose2017} EBM to predict the relationship between $\min(R_1)$ and mixed layer depth. We found that it was possible to obtain a good fit with ECHAM when $\delta=\frac{D}{B}$ (nondimensionalized diffusivity) is set to 1.2, but it is not clear whether this is a reasonable value to represent the diffusivity in ECHAM.
+
+Instead of using the default parameters of $B$ and $D$ as used in \cite{rose2017}, I now obtain the best fit values of $B$ and $D$ specifically tuned for ECHAM. To obtain $B$, I find the least squares regression line using the monthly climatology of the zonally averaged clear sky OLR and 2 m temperature data (96 latitude grid points x 12 months). The best fit for $B$ ranges from 2.15 to 2.34 W m$^{-2}$ K$^{-1}$ depending on the mixed layer depth, with a general tendency for higher values of $B$ with deeper mixed layers. Overall, the linear approximation of OLR as a function of surface temperature works well.
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/olr_ts_all.pdf}
+    \caption{The linear relationship between OLR and near-surface temperature is evaluated by fitting a least squares regression line to ECHAM aquaplanet data for various mixed layer depths. The best fit parameters are labeled in the form $\mathrm{OLR = A + BT}$.}
+    \label{fig:olr-ts}
+\end{figure}
+
+Following the assumption in \cite{rose2017} that $D$ is a constant, I obtain the best fit for $D$ by taking the least squares regression between $\nabla \cdot F_m$ and $\frac{1}{\cos(\phi)} \frac{\partial}{\partial \phi} \left( \cos(\phi) \frac{\partial T}{\partial \phi} \right)$. As with the clear sky OLR and 2 m temperature regression, I use the monthly climatology of the zonally averaged data. With the exception of $d=10$ m ($D=0.66$ W m$^{-2}$ K$^{-1}$), there is little variation in $D$ as a function of mixed layer depth, ranging from 0.87 to 0.90 W m$^{-2}$ K$^{-1}$. 
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/divfm_lapt_all.pdf}
+    \caption{The linear relationship between MSE flux divergence and the second derivative of temperature with respect to latitude is evaluated by fitting a least squares regression line to ECHAM aquaplanet data for various mixed layer depths. The slope of the regression line corresponds to the best fit constant diffusivity.}
+    \label{fig:divfm-lapt}
+\end{figure}
+
+Next, I take the average of $B$ (2.32 W m$^{-2}$ K$^{-1}$) and $D$ W m$^{-2}$ K$^{-1}$ for all mixed layer depths excluding $d=10$ m and use this value to predict the $\min(R_1)$--mixed layer depth relationship using the EBM. The EBM overpredicts the seasonality of surface temperature by a factor of 1.6 (Fig.~\ref{fig:amp-echam}(a)) but leads to a reasonable prediction of $\min(R_1)$ as a function of mixed layer depth (Fig.~\ref{fig:amp-echam}(b)). The EBM prediction agrees well with ECHAM for $d>30$ m but underpredicts the seasonality of $R_1$ for $d<30$ m. As a result, the critical mixed layer depth predicted by the EBM (17 m) is slightly shallower than what we infer from ECHAM (20--25 m) (see intercepts of black and red line in Fig.~\ref{fig:amp-echam}(b)). 
+
+\begin{figure}
+    \includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/amp_echam.pdf}
+    \caption{(a) The seasonal amplitude of surface temperature between 40--60$^{\circ}$ latitude as diagnosed from ECHAM with varied mixed layer depths (asterisks) and that predicted from the \cite{rose2017} EBM with $B=2.32$ W m$^{-2}$ K$^{-1}$ and $D=0.89$ W m$^{-2}$ K$^{-1}$. (b) Minimum of the seasonal deviation of $R_{1}$ as diagnosed from ECHAM (asterisks) and the EBM (line). The value of $\min(R_1)=\epsilon-\overline{R_1}$ required for a RCE/RCAE regime transition is shown as a red line for $\epsilon=0.1$ and $\overline{R_1}=0.3$.}
+    \label{fig:amp-echam}
+\end{figure}
+
+\section{Meltpond diagnostics in ECHAM suggests meltponds are not the cause of increased latent heat release}
+
+\textbf{Background}: Previously, I showed that the increasing in latent heat flux in the NH high latitudes precedes the seasonal increase in the melting of sea ice. This is one line of evidence that our hypothesis that meltponds may be the cause of the increasing latent heat flux in the summer (and thus the hemispheric asymmetry in heat transfer regimes) may be wrong. However, it would be useful to have diagnostics that are directly related to meltponds as they may not be included in the diagnostic of melting sea ice that I used before (e.g. melting also occurs at the lateral and bottom edges of sea ice). This motivated the following work where I re-ran the ECHAM AGCM simulation in the control climate with meltpond diagnostics turned on. Namely, I look at meltpond fraction (named ameltfrac) and meltpond depth (ameltdepth).
+
+Similar to our results from comparing the seasonality of latent heat flux with melting sea ice, I find that the increase in latent heat flux in the summer precedes the increase in meltpond fraction by two months (Fig.~\ref{fig:meltfrac-lh-echam}). Similar results are obtained when I look at the meltpond depth instead of fraction (Fig.~\ref{fig:meltdepth-lh-echam}). This suggests that meltponds is not the cause of the hemispheric asymmetry in the seasonality of heat transfer regimes.
+
+\begin{figure}
+    \includegraphics{/project2/tas1/miyawaki/projects/002/figures/echam/echr0026/native/dmse/mse/lo/0_poleward_of_lat_80/0_mon_ameltfrac_lhi.png}
+    \caption{The seasonality of meltpond fraction compared with LH. The increase in LH over ice precedes the increase in meltpond fraction, suggesting that meltponds are not the cause of increasing LH in the NH.}
+    \label{fig:meltfrac-lh-echam}
+\end{figure}
+
+\begin{figure}
+    \includegraphics{/project2/tas1/miyawaki/projects/002/figures/echam/echr0026/native/dmse/mse/lo/0_poleward_of_lat_80/0_mon_ameltdepth_lhi.png}
+    \caption{Same as Fig.~\ref{fig:meltfrac-lh-echam} but comparing the seasonality of meltpond depth with LH.}
+    \label{fig:meltdepth-lhi-echam}
+\end{figure}
+
+\section{Midsummer minimum in net surface LW flux only present in NH}
+
+In order to understand the hemispheric asymmetry in heat transfer regimes, we need to understand why the surface turbulent fluxes in the summer are positive in the NH but negative in the SH. Looking at the seasonality of the surface energy budget is a good place to begin understanding how the surface turbulent fluxes are in balance with the other fluxes entering the leaving the surface.
+
+I find that the hemispheric asymmetry in surface turbulent fluxes are primarily balanced by an asymmetry in the net longwave flux (green line in Fig.~\ref{fig:echam-srfc}). In the NH high latitudes, net longwave flux peaks in April and a minimum exists in the summer. On the other hand, in the SH, the seasonality of net longwave flux mirrors insolation and peaks during summer.
+
+\begin{figure}
+    \includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/echam_01_23/echam_01_srfc_all.pdf}
+    \caption{The seasonality of energy fluxes in the surface energy budget are shown for (a) NH and (b) SH high latitudes. Positive fluxes are in the upward direction (surface to atmosphere). The residual is the sum of the surface internal energy tendency and ocean heat flux divergence.}
+    \label{fig:echam-srfc}
+\end{figure}
+
+Decomposing the longwave fluxes into upward and downward components further reveals the source of the asymmetry is the downward longwave flux (dotted line in Fig.~\ref{echam-lwsrfc}). The seasonality of the downward longwave flux is stronger than the upward flux in the NH whereas it is weaker in the SH. One interpretation of this diagnostic analysis is that the stronger greenhouse effect in the NH heats up the surface which leads to enhanced latent heat and sensible heat fluxes. 
+
+\begin{figure}
+    \includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/echam_01_23/echam_01_lwsrfc.pdf}
+    \caption{The seasonality of surface longwave radiative fluxes are shown for (a) NH and (b) SH high latitudes. The net longwave flux (solid) is decomposed into upward (dashed) and downward (dotted) components.}
+    \label{fig:echam-lwsrfc}
+\end{figure}
+
+The hemispheric asymmetry in surface longwave fluxes also exists in the flattened topography runs (Fig.~\ref{fig:echam-srfc23} and \ref{fig:echam-lwsrfc23}). This may be why flattening the topography alone did not lead to a heat transfer regime transition in the SH. The next steps would be to further probe the diagnostics to understand why the the seasonality of downward longwave fluxes are more muted in the SH. For example, a good place to start would be to check if this is due to clouds or a clear sky effect.
+
+\begin{figure}
+    \includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/echam_01_23/echam_23_srfc_all.pdf}
+    \caption{Same as Fig.~\ref{fig:echam-srfc} except for the flat topography run.}
+    \label{fig:echam-srfc23}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/echam_01_23/echam_01_lwsrfc.pdf}
+    \caption{Same as Fig.~\ref{fig:echam-lwsrfc} except for the flat topography run.}
+    \label{fig:echam-lwsrfc23}
+\end{figure}
+
+\bibliographystyle{apalike}
+\bibliography{../../outline/references.bib}
+
+\end{document}

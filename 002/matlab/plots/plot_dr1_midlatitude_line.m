@@ -15,7 +15,7 @@ function plot_dr1_midlatitude_line(type, par)
     % sftlf = nanmean(sftlf, 1); % zonal average
     % sftlf = repmat(sftlf', [1 12]); % expand land fraction data to time
 
-    lat_bound_list = [-10 10];
+    par.lat_bound_list = [-10 10];
     center = 50;
 
     % for l = {'lo', 'l', 'o'}; land = l{1};
@@ -30,16 +30,19 @@ function plot_dr1_midlatitude_line(type, par)
         [mesh_lat, mesh_mon] = meshgrid(1:12, lat);
 
         f_vec = assign_fw(type, par);
+        
         for f = f_vec; fw = f{1};
-            for lb = 1:length(lat_bound_list); lat_bound = lat_bound_list(lb);
+        
+            for lb = 1:length(par.lat_bound_list); par.lat_bound = par.lat_bound_list(lb);
+            
                 dlat = 0.25; % step size for standard lat grid
-                if lat_bound>0; lat_center=center; lat = [-lat_bound:dlat:lat_bound]+lat_center; shiftby=0; monlabel=par.monlabel;
-                else; lat_center=-center; lat = [-lat_bound:-dlat:lat_bound]+lat_center; shiftby=6; monlabel=par.monlabelsh; end;
+                if par.lat_bound>0; par.lat_center=center; lat = [-par.lat_bound:dlat:par.lat_bound]+par.lat_center; par.shiftby=0; par.monlabel=par.monlabel;
+                else; par.lat_center=-center; lat = [-par.lat_bound:-dlat:par.lat_bound]+par.lat_center; par.shiftby=6; par.monlabel=par.monlabelsh; end;
                 clat = cosd(lat); % cosine of latitude for cosine weighting
                 clat_mon = repmat(clat', [1 12]);
 
-                folder = sprintf('%s/dr1/%s/%s/0_midlatitude_lat_%g_to_%g', plotdir, fw, land, lat_center-lat_bound, lat_center+lat_bound);
-                if ~exist(folder, 'dir'); mkdir(folder); end;
+                par.folder = sprintf('%s/dr1/%s/%s/0_midlatitude_lat_%g_to_%g', plotdir, fw, land, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound);
+                if ~exist(par.folder, 'dir'); mkdir(par.folder); end;
 
                 % R1 computed before zonal averaging
                 r1_lat = interp1(grid.dim3.lat, flux_z.(land).r1.(fw), lat);
@@ -53,27 +56,6 @@ function plot_dr1_midlatitude_line(type, par)
                 r1z_lat = interp1(grid.dim3.lat, flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), lat);
                 r1z_lat = nansum(r1z_lat.*clat_mon)/nansum(clat);
 
-                % R1 lat x mon dependence of RCE and RAE
-                var_text = '$R_1$';
-                figure(); clf; hold all; box on;
-                ylim_lo = -0.5;
-                ylim_up = 1.5;
-                    rcemax = par.ep;
-                    vertices = [1 ylim_lo; 12 ylim_lo; 12 rcemax; 1 rcemax];
-                    patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
-                    raemin = par.ga;
-                    vertices = [1 raemin; 12 raemin; 12 ylim_up; 1 ylim_up];
-                    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
-                line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
-                line([1 12], [1 1], 'linewidth', 0.5, 'color', 'k');
-                tot=plot([1:12], circshift(r1_lat,shiftby, 2), 'k');
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
-                % xlabel('Month');
-                ylabel(sprintf('$R_1$ (unitless)'));
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/0_mon_r1', folder), '-dpng', '-r300');
-                close;
-
                 % R1 computed at each lat x lon RES and RA
                 r1_ann = repmat(nanmean(flux_z.(land).r1.(fw), 2), [1 12]);
                 r1_ann_lat = interp1(grid.dim3.lat, r1_ann, lat);
@@ -84,10 +66,12 @@ function plot_dr1_midlatitude_line(type, par)
                 r1z_ann_lat = interp1(grid.dim3.lat, r1z_ann, lat);
                 r1z_ann_lat = nansum(r1z_ann_lat.*clat_mon)/nansum(clat);
 
+                % annual mean values
                 stf_ann = repmat(nanmean(flux_z.(land).stf.(fw),2), [1 12]);
                 ra_ann = repmat(nanmean(flux_z.(land).ra.(fw),2), [1 12]);
                 fm_ann = repmat(nanmean(flux_z.(land).res.(fw), 2), [1 12]);
 
+                % compute deviation from annual mean
                 dr1 = flux_z.(land).r1.(fw) - r1_ann;
                 dr1_lat = interp1(grid.dim3.lat, dr1, lat);
                 dr1_lat = nansum(dr1_lat.*clat_mon)/nansum(clat);
@@ -96,6 +80,8 @@ function plot_dr1_midlatitude_line(type, par)
                 dr1z_lat = interp1(grid.dim3.lat, dr1z, lat);
                 dr1z_lat = nansum(dr1z_lat.*clat_mon)/nansum(clat);
 
+                % DIV FM and STF DECOMP
+                % compute mse flux divergence component
                 delta_fm = flux_z.(land).res.(fw) - fm_ann;
                 comp1a = -stf_ann./(ra_ann).^2.*delta_fm;
                 comp1a_lat = interp1(grid.dim3.lat, comp1a, lat);
@@ -107,78 +93,7 @@ function plot_dr1_midlatitude_line(type, par)
                 comp2a_lat = interp1(grid.dim3.lat, comp2a, lat);
                 comp2a_lat = nansum(comp2a_lat.*clat_mon)/nansum(clat);
 
-                % % DELTA R1 lat x mon dependence of RCE and RAE
-                % var_text = '$\Delta R_1$';
-                % figure(); clf; hold all; box on;
-                % colororder({'k', 'k'});
-                % yyaxis left
-                % ylim_lo = r1_ann_lat(1)+min([dr1_lat comp1_lat comp2_lat comp1_lat+comp2_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                % ylim_up = r1_ann_lat(1)+max([dr1_lat comp1_lat comp2_lat comp1_lat+comp2_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                % tot=plot([1:12], circshift(r1_lat, shiftby, 2), 'k');
-                % ylabel(sprintf('$R_1$ (unitless)'));
-                % set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                % yyaxis right
-                % ylim_lo = min([dr1_lat comp1_lat comp2_lat comp1_lat+comp2_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                % ylim_up = max([dr1_lat comp1_lat comp2_lat comp1_lat+comp2_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                % rcemax = par.ep-r1_ann_lat(1);
-                % if rcemax > ylim_lo
-                %     vertices = [1 ylim_lo; 12 ylim_lo; 12 rcemax; 1 rcemax];
-                %     patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
-                % end
-                % raemin = par.ga-r1_ann_lat(1);
-                % if raemin < ylim_up
-                %     vertices = [1 raemin; 12 raemin; 12 ylim_up; 1 ylim_up];
-                %     patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
-                % end
-                % line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
-                % tot=plot([1:12], circshift(dr1_lat, shiftby, 2), 'k');
-                % if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), var_text, land_text, -lat_bound+lat_center, lat_bound+lat_center));
-                % elseif any(strcmp(type, 'merra2')); title(sprintf('%s, %s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), var_text, land_text, -lat_bound+lat_center, lat_bound+lat_center));
-                % elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, %s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.model, var_text, land_text, -lat_bound+lat_center, lat_bound+lat_center)); end;
-                % xlabel('Month');
-                % ylabel(sprintf('$\\Delta R_1$ (unitless)'));
-                % set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide)
-                % set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                % print(sprintf('%s/0_mon_dr1', folder), '-dpng', '-r300');
-                % close;
-
-                % DELTA R1 lat x mon dependence of RCE and RAE
-                var_text = '$\Delta R_1$';
-                figure(); clf; hold all; box on;
-                colororder({'k', 'k'});
-                yyaxis left
-                ylim_lo = r1_ann_lat(1)+min([dr1_lat comp1a_lat comp2a_lat comp1a_lat+comp2a_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                ylim_up = r1_ann_lat(1)+max([dr1_lat comp1a_lat comp2a_lat comp1a_lat+comp2a_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                tot=plot([1:12], circshift(r1_lat, shiftby, 2), 'k');
-                ylabel(sprintf('$R_1$ (unitless)'));
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                yyaxis right
-                ylim_lo = min([dr1_lat comp1a_lat comp2a_lat comp1a_lat+comp2a_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                ylim_up = max([dr1_lat comp1a_lat comp2a_lat comp1a_lat+comp2a_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                rcemax = par.ep-r1_ann_lat(1);
-                if rcemax > ylim_lo
-                    vertices = [1 ylim_lo; 12 ylim_lo; 12 rcemax; 1 rcemax];
-                    patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
-                end
-                raemin = par.ga-r1_ann_lat(1);
-                if raemin < ylim_up
-                    vertices = [1 raemin; 12 raemin; 12 ylim_up; 1 ylim_up];
-                    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
-                end
-                line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
-                tot=plot([1:12], circshift(dr1_lat, shiftby, 2), 'k');
-                c12=plot([1:12], circshift(comp1a_lat+comp2a_lat, shiftby, 2), '-.k');
-                c1=plot([1:12],  circshift(comp1a_lat, shiftby, 2), '--k');
-                c2=plot([1:12],  circshift(comp2a_lat, shiftby, 2), ':k');
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
-                % xlabel('Month');
-                ylabel(sprintf('$\\Delta R_1$ (unitless)'));
-                legend([tot c12 c1 c2], '$\Delta R_1$', '$\Delta R_{1\mathrm{\,linear}}$', '$\Delta (\nabla\cdot F_m)$', '$\Delta (LH + SH)$', 'location', 'eastoutside');
-                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide)
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/0_mon_dr1_decomp_alt', folder), '-dpng', '-r300');
-                close;
-
+                % DIVFM and RA DECOMP
                 ra_ann = repmat(nanmean(flux_z.(land).ra.(fw),2), [1 12]);
                 comp1s = delta_fm./ra_ann;
                 comp1s_lat = interp1(grid.dim3.lat, comp1s, lat);
@@ -190,275 +105,79 @@ function plot_dr1_midlatitude_line(type, par)
                 comp2s_lat = interp1(grid.dim3.lat, comp2s, lat);
                 comp2s_lat = nansum(comp2s_lat.*clat_mon)/nansum(clat);
 
-                % DELTA R1 lat x mon dependence of RCE and RAE
-                var_text = '$\Delta R_1$';
-                figure(); clf; hold all; box on;
-                colororder({'k', 'k'});
-                yyaxis left
-                ylim_lo = r1_ann_lat(1)+min([dr1_lat comp1r_lat comp2s_lat comp1r_lat+comp2s_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                ylim_up = r1_ann_lat(1)+max([dr1_lat comp1r_lat comp2s_lat comp1r_lat+comp2s_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                tot=plot([1:12], circshift(r1_lat,shiftby,2), 'k');
-                ylabel(sprintf('$R_1$ (unitless)'));
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                yyaxis right
-                ylim_lo = min([dr1_lat comp1r_lat comp2s_lat comp1r_lat+comp2s_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                ylim_up = max([dr1_lat comp1r_lat comp2s_lat comp1r_lat+comp2s_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                rcemax = par.ep-r1_ann_lat(1);
-                if rcemax > ylim_lo
-                    vertices = [1 ylim_lo; 12 ylim_lo; 12 rcemax; 1 rcemax];
-                    patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
+                % Set y axis limits of plots
+                if strcmp(type, 'echam')
+                    ymin = -0.8;
+                    ymax = 0.8;
+                else
+                    ymin = -0.6;
+                    ymax = 0.8;
                 end
-                raemin = par.ga-r1_ann_lat(1);
-                if raemin < ylim_up
-                    vertices = [1 raemin; 12 raemin; 12 ylim_up; 1 ylim_up];
-                    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
-                end
-                line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
-                tot=plot([1:12], circshift(dr1_lat,shiftby,2), 'k');
-                c12=plot([1:12], circshift(comp1r_lat+comp2s_lat,shiftby,2), '-.k');
-                c1=plot([1:12],  circshift(comp1r_lat,shiftby,2), '--k');
-                c2=plot([1:12],  circshift(comp2s_lat,shiftby,2), ':k');
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
-                % xlabel('Month');
-                ylabel(sprintf('$\\Delta R_1$ (unitless)'));
-                legend([tot c12 c1 c2], '$\Delta R_1$', '$\Delta R_{1\mathrm{\,linear}}$', '$\Delta (\nabla\cdot F_m)$', '$\Delta R_a$', 'location', 'southoutside');
-                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide)
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/0_mon_dr1_decomp', folder), '-dpng', '-r300');
-                close;
 
-                % NOLEGEND DELTA R1 lat x mon dependence of RCE and RAE
-                var_text = '$\Delta R_1$';
-                figure(); clf; hold all; box on;
-                colororder({'k', 'k'});
-                yyaxis left
-                ylim_lo = r1_ann_lat(1)+min([dr1_lat comp1r_lat comp2s_lat comp1r_lat+comp2s_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                ylim_up = r1_ann_lat(1)+max([dr1_lat comp1r_lat comp2s_lat comp1r_lat+comp2s_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                tot=plot([1:12], circshift(r1_lat, shiftby,2), 'k');
-                ylabel(sprintf('$R_1$ (unitless)'));
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                yyaxis right
-                ylim_lo = min([dr1_lat comp1r_lat comp2s_lat comp1r_lat+comp2s_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                ylim_up = max([dr1_lat comp1r_lat comp2s_lat comp1r_lat+comp2s_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                rcemax = par.ep-r1_ann_lat(1);
-                if rcemax > ylim_lo
-                    vertices = [1 ylim_lo; 12 ylim_lo; 12 rcemax; 1 rcemax];
-                    patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
-                end
-                raemin = par.ga-r1_ann_lat(1);
-                if raemin < ylim_up
-                    vertices = [1 raemin; 12 raemin; 12 ylim_up; 1 ylim_up];
-                    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
-                end
-                line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
-                tot=plot([1:12], circshift(dr1_lat,shiftby,2), 'k');
-                c12=plot([1:12], circshift(comp1r_lat+comp2s_lat,shiftby,2), '-.k');
-                c1=plot([1:12],  circshift(comp1r_lat,shiftby,2), '--k');
-                c2=plot([1:12],  circshift(comp2s_lat,shiftby,2), ':k');
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
-                % xlabel('Month');
-                ylabel(sprintf('$\\Delta R_1$ (unitless)'));
-                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/0_mon_dr1_decomp_noleg', folder), '-dpng', '-r300');
-                close;
-
-                % DELTA R1Z lat x mon dependence of RCE and RAE
-                var_text = '$\Delta R_1$';
-                figure(); clf; hold all; box on;
-                colororder({'k', 'k'});
-                yyaxis left
-                % ylim_lo = r1z_ann_lat(1)+min([dr1z_lat comp1s_lat comp2s_lat comp1s_lat+comp2s_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                % ylim_up = r1z_ann_lat(1)+max([dr1z_lat comp1s_lat comp2s_lat comp1s_lat+comp2s_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                ylim_lo = -0.2;
-                ylim_up = 0.5;
-                tot=plot([1:12], circshift(r1z_lat,shiftby,2), 'k');
-                ylabel(sprintf('$R_1$ (unitless)'));
-                % set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                yyaxis right
-                % ylim_lo = min([dr1z_lat comp1s_lat comp2s_lat comp1s_lat+comp2s_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                % ylim_up = max([dr1z_lat comp1s_lat comp2s_lat comp1s_lat+comp2s_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                ylim_lo = -r1z_ann_lat(1)+ylim_lo;
-                ylim_up = -r1z_ann_lat(1)+ylim_up;
-                rcemax = par.ep-r1z_ann_lat(1);
-                if rcemax > ylim_lo
-                    vertices = [1 ylim_lo; 12 ylim_lo; 12 rcemax; 1 rcemax];
-                    patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
-                end
-                raemin = par.ga-r1z_ann_lat(1);
-                if raemin < ylim_up
-                    vertices = [1 raemin; 12 raemin; 12 ylim_up; 1 ylim_up];
-                    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
-                end
-                line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
-                tot=plot([1:12], circshift(dr1z_lat,shiftby,2), 'k');
-                % c12=plot([1:12], circshift(comp1s_lat+comp2s_lat,shiftby,2), '-.k');
-                res=plot([1:12], circshift(dr1z_lat,shiftby,2) - circshift(comp1s_lat+comp2s_lat,shiftby,2), '-.k');
-                c1=plot([1:12],  circshift(comp1s_lat,shiftby,2), '-', 'color', par.maroon);
-                c2=plot([1:12],  circshift(comp2s_lat,shiftby,2), '-', 'color', 0.5*[1 1 1]);
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
-                % xlabel('Month');
-                ylabel(sprintf('$\\Delta R_1$ (unitless)'));
-                % legend([tot res c1 c2], '$\Delta R_1$', 'Residual', '$\Delta (\nabla\cdot F_m)$', '$\Delta R_a$', 'location', 'eastoutside', 'NumColumns', 2);
-                legend([tot res c1 c2], '$\Delta R_1$', 'Residual', '$\frac{\Delta (\nabla\cdot F_m)}{\overline{R_a}}$', '$-\frac{\overline{\nabla\cdot F_m}}{\overline{R_a^2}}\Delta R_a$', 'location', 'southoutside', 'orientation', 'horizontal');
-                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_superwide)
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/0_mon_dr1z_decomp', folder), '-dpng', '-r300');
-                close;
-
-                % DELTA R1Z lat x mon dependence of RCE and RAE
-                var_text = '$\Delta R_1$';
-                figure(); clf; hold all; box on;
-                colororder({'k', 'k'});
-                yyaxis left
-                % ylim_lo = r1z_ann_lat(1)+min([dr1z_lat comp1s_lat comp2s_lat comp1s_lat+comp2s_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                % ylim_up = r1z_ann_lat(1)+max([dr1z_lat comp1s_lat comp2s_lat comp1s_lat+comp2s_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                ylim_lo = min([r1z_lat,-0.4]);
-                ylim_up = max([r1z_lat,0.6]);
-                tot=plot([1:12], circshift(r1z_lat,shiftby,2), 'k');
-                ylabel(sprintf('$R_1$ (unitless)'));
-                % set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                yyaxis right
-                % ylim_lo = min([dr1z_lat comp1s_lat comp2s_lat comp1s_lat+comp2s_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                % ylim_up = max([dr1z_lat comp1s_lat comp2s_lat comp1s_lat+comp2s_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                ylim_lo = -r1z_ann_lat(1)+ylim_lo;
-                ylim_up = -r1z_ann_lat(1)+ylim_up;
-                rcemax = par.ep-r1z_ann_lat(1);
-                if rcemax > ylim_lo
-                    vertices = [1 ylim_lo; 12 ylim_lo; 12 rcemax; 1 rcemax];
-                    patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
-                end
-                raemin = par.ga-r1z_ann_lat(1);
-                if raemin < ylim_up
-                    vertices = [1 raemin; 12 raemin; 12 ylim_up; 1 ylim_up];
-                    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
-                end
-                line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
-                tot=plot([1:12], circshift(dr1z_lat,shiftby,2), 'k');
-                % c12=plot([1:12], circshift(comp1s_lat+comp2s_lat,shiftby,2), '-.k');
-                res=plot([1:12], circshift(dr1z_lat,shiftby,2) - circshift(comp1s_lat+comp2s_lat,shiftby,2), '-.k');
-                c1=plot([1:12],  circshift(comp1s_lat,shiftby,2), '-', 'color', par.maroon);
-                c2=plot([1:12],  circshift(comp2s_lat,shiftby,2), '-', 'color', 0.5*[1 1 1]);
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
-                % xlabel('Month');
-                ylabel(sprintf('$\\Delta R_1$ (unitless)'));
-                % legend([tot res c1 c2], '$\Delta R_1$', 'Residual', '$\Delta (\nabla\cdot F_m)$', '$\Delta R_a$', 'location', 'eastoutside', 'NumColumns', 2);
-                legend([tot res c1 c2], '$\Delta R_1$', 'Residual', '$\frac{\Delta (\nabla\cdot F_m)}{\overline{R_a}}$', '$-\frac{\overline{\nabla\cdot F_m}}{\overline{R_a^2}}\Delta R_a$', 'location', 'southoutside', 'orientation', 'horizontal', 'numcolumns', 2);
-                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_superwide)
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/0_mon_dr1z_decomp_2x2_legend', folder), '-dpng', '-r300');
-                close;
-
-                % NO LEGEND DELTA R1Z lat x mon dependence of RCE and RAE
-                var_text = '$\Delta R_1$';
-                figure(); clf; hold all; box on;
-                colororder({'k', 'k'});
-                yyaxis left
-                % ylim_lo = r1z_ann_lat(1)+min([dr1z_lat comp1s_lat comp2s_lat comp1s_lat+comp2s_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                % ylim_up = r1z_ann_lat(1)+max([dr1z_lat comp1s_lat comp2s_lat comp1s_lat+comp2s_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                ylim_lo = min([r1z_lat,-0.4]);
-                ylim_up = max([r1z_lat,0.6]);
-                tot=plot([1:12], circshift(r1z_lat,shiftby,2), 'k');
-                ylabel(sprintf('$R_1$ (unitless)'));
-                % set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                yyaxis right
-                % ylim_lo = min([dr1z_lat comp1s_lat comp2s_lat comp1s_lat+comp2s_lat]); if isnan(ylim_lo) | ylim_lo==0; ylim_lo = -1; end;
-                % ylim_up = max([dr1z_lat comp1s_lat comp2s_lat comp1s_lat+comp2s_lat]); if isnan(ylim_up) | ylim_up==0; ylim_up = 1; end;
-                ylim_lo = -r1z_ann_lat(1)+ylim_lo;
-                ylim_up = -r1z_ann_lat(1)+ylim_up;
-                rcemax = par.ep-r1z_ann_lat(1);
-                if rcemax > ylim_lo
-                    vertices = [1 ylim_lo; 12 ylim_lo; 12 rcemax; 1 rcemax];
-                    patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
-                end
-                raemin = par.ga-r1z_ann_lat(1);
-                if raemin < ylim_up
-                    vertices = [1 raemin; 12 raemin; 12 ylim_up; 1 ylim_up];
-                    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
-                end
-                line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
-                tot=plot([1:12], circshift(dr1z_lat,shiftby,2), 'k');
-                % c12=plot([1:12], circshift(comp1s_lat+comp2s_lat,shiftby,2), '-.k');
-                res=plot([1:12], circshift(dr1z_lat,shiftby,2) - circshift(comp1s_lat+comp2s_lat,shiftby,2), '-.k');
-                c1=plot([1:12],  circshift(comp1s_lat,shiftby,2), '-', 'color', par.maroon);
-                c2=plot([1:12],  circshift(comp2s_lat,shiftby,2), '-', 'color', 0.5*[1 1 1]);
-                make_title_type_lat(type, lat_center-lat_bound, lat_center+lat_bound, par);
-                % xlabel('Month');
-                ylabel(sprintf('$\\Delta R_1$ (unitless)'));
-                % legend([tot c12 c1 c2], '$\Delta R_1$', '$\Delta R_{1\mathrm{\,linear}}$', '$\Delta (\nabla\cdot F_m)$', '$\Delta R_a$', 'location', 'eastoutside');
-                % legend([tot res c1 c2], '$\Delta R_1$', '$\Delta R_{1}-\left(\frac{\Delta\left(\nabla\cdot F_m\right)}{\overline{R_a}}-\frac{\overline{\nabla\cdot F_m}}{\overline{R_a^2}}\Delta R_a\right)$', '$\frac{\Delta (\nabla\cdot F_m)}{\overline{R_a}}$', '$-\frac{\overline{\nabla\cdot F_m}}{\overline{R_a^2}}\Delta R_a$', 'location', 'eastoutside');
-                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/0_mon_dr1z_decomp_noleg', folder), '-dpng', '-r300');
-                close;
+                % MAKE PLOTS
+                plot_dr1(r1z_lat, r1z_ann_lat, dr1z_lat, comp1s_lat, comp2s_lat, '', ymin, ymax, type, fw, par)
+                plot_dr1(r1z_lat, r1z_ann_lat, dr1z_lat, comp1s_lat, comp2s_lat, '_noleg', ymin, ymax, type, fw, par)
 
             end
 
         end % for mse dse
     end % for land
 
-    % if any(strcmp(type, {'era5', 'erai'})); f_vec = par.era.fw;
-    % elseif any(strcmp(type, 'merra2')); f_vec = par.merra2.fw;
-    % elseif any(strcmp(type, 'echam')); f_vec = par.echam.fw;
-    % elseif strcmp(type, 'gcm'); f_vec = par.gcm.fw; end
-    % for f = f_vec; fw = f{1};
-    %     for lb = 1:length(lat_bound_list); lat_bound = lat_bound_list(lb);
-    %         dlat = 0.25; % step size for standard lat grid
-    %         if lat_bound>0; lat_center=45; lat = [-lat_bound:dlat:lat_bound]+lat_center; shiftby=0; monlabel=par.monlabel;
-    %         else; lat_center=-45; lat = [-lat_bound:-dlat:lat_bound]+lat_center; shiftby=6; monlabel=par.monlabelsh; end;
-    %         clat = cosd(lat); % cosine of latitude for cosine weighting
-    %         clat_mon = repmat(clat', [1 12]);
-
-    %         folder = sprintf('%s/dr1/%s/0_midlatitude_pm_lat_%g', plotdir, fw, lat_bound);
-    %         if ~exist(folder, 'dir'); mkdir(folder); end;
-
-    %         r1_ann = repmat(nanmean(flux_z.lo.r1.(fw), 2), [1 12]);
-    %         r1_ann_lat = interp1(grid.dim3.lat, r1_ann, lat);
-    %         r1_ann_lat = nansum(r1_ann_lat.*clat_mon)/nansum(clat);
-
-    %         dr1 = flux_z.lo.r1.(fw) - r1_ann;
-    %         dr1_lat = interp1(grid.dim3.lat, dr1, lat);
-    %         dr1_lat = nansum(dr1_lat.*clat_mon)/nansum(clat);
-
-    %         r1_ann_l = repmat(nanmean(flux_z.lo.r1.(fw), 2), [1 12]);
-    %         comp1 = sftlf*1e-2.*(flux_z.l.r1.(fw) - r1_ann_l);
-    %         comp1_lat = interp1(grid.dim3.lat, comp1, lat);
-    %         comp1_lat = nansum(comp1_lat.*clat_mon)/nansum(clat);
-
-    %         r1_ann_o = repmat(nanmean(flux_z.lo.r1.(fw), 2), [1 12]);
-    %         comp2 = (1-sftlf*1e-2).*(flux_z.o.r1.(fw) - r1_ann_o);
-    %         comp2_lat = interp1(grid.dim3.lat, comp2, lat);
-    %         comp2_lat = nansum(comp2_lat.*clat_mon)/nansum(clat);
-
-    %         % DELTA R1 lat x mon dependence of RCE and RAE
-    %         var_text = '$\Delta R_1$';
-    %         ylim_lo = min([dr1_lat comp1_lat comp2_lat comp1_lat+comp2_lat]); if isnan(ylim_lo)|ylim_lo==0; ylim_lo = -1; end;
-    %         ylim_up = max([dr1_lat comp1_lat comp2_lat comp1_lat+comp2_lat]); if isnan(ylim_up)|ylim_up==0; ylim_up = 1; end
-    %         figure(); clf; hold all; box on;
-    %             rcemax = par.ep-r1_ann_lat(1);
-    %             vertices = [1 ylim_lo; 12 ylim_lo; 12 rcemax; 1 rcemax];
-    %             patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
-    %             raemin = par.ga-r1_ann_lat(1);
-    %             vertices = [1 raemin; 12 raemin; 12 ylim_up; 1 ylim_up];
-    %             patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
-    %         line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
-    %         tot=plot([1:12], circshift(dr1_lat, shiftby, 2), 'k');
-    %         c12=plot([1:12], circshift(comp1_lat+comp2_lat, shiftby, 2), '-.', 'color', 0.5*[1 1 1]);
-    %         c1=plot([1:12],  circshift(comp1_lat, shiftby, 2), '--', 'color', par.maroon);
-    %         c2=plot([1:12],  circshift(comp2_lat, shiftby, 2), ':', 'color', par.blue);
-    %         if any(strcmp(type, {'era5', 'erai'})); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), var_text, -lat_bound+lat_center, lat_bound+lat_center));
-    %         elseif any(strcmp(type, 'merra2')); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), var_text, -lat_bound+lat_center, lat_bound+lat_center));
-    %         elseif strcmp(type, 'gcm'); title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $$%g^\\circ$', par.model, var_text, -lat_bound+lat_center, lat_bound+lat_center)); end;
-    %         legend([tot c12 c1 c2], '$\Delta R_1$', '$\Delta R_{1,\mathrm{\,L+O}}$', '$\Delta R_{1,\mathrm{\,L}}$', '$\Delta R_{1,\mathrm{\,O}}$', 'location', 'eastoutside');
-    %         xlabel('Month');
-    %         ylabel(sprintf('$\\Delta R_1$ (unitless)'));
-    %         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-    %         print(sprintf('%s/0_mon_dr1_lo_decomp', folder), '-dpng', '-r300');
-    %         close;
-    %     end
-    % end
-
 end % for function
+
+% plot dr1 and its decomposition
+function plot_dr1(r1_var, r1_ann_var, dr1_var, comp1, comp2, leg, ymin, ymax, type, fw, par)
+
+        var_text = '$\Delta R_1$';
+        figure(); clf; hold all; box on;
+        
+        colororder({'k', 'k'});
+        
+        yyaxis left
+        ylim_lo = min([r1_var,ymin]);
+        ylim_up = max([r1_var,ymax]);
+        tot=plot([1:12], circshift(r1_var,par.shiftby,2), 'k');
+        ylabel(sprintf('$R_1$ (unitless)'));
+        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
+        
+        yyaxis right
+        ylim_lo = -r1_ann_var(1)+ylim_lo;
+        ylim_up = -r1_ann_var(1)+ylim_up;
+        rcemax = par.ep-r1_ann_var(1);
+        if rcemax > ylim_lo
+            vertices = [1 ylim_lo; 12 ylim_lo; 12 rcemax; 1 rcemax];
+            patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
+        end
+        raemin = par.ga-r1_ann_var(1);
+        if raemin < ylim_up
+            vertices = [1 raemin; 12 raemin; 12 ylim_up; 1 ylim_up];
+            patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
+        end
+        
+        line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
+        tot=plot([1:12], circshift(dr1_var,par.shiftby,2), 'k');
+        res=plot([1:12], circshift(dr1_var,par.shiftby,2) - circshift(comp1+comp2,par.shiftby,2), '-.k');
+        c1=plot([1:12],  circshift(comp1,par.shiftby,2), '-', 'color', par.maroon);
+        c2=plot([1:12],  circshift(comp2,par.shiftby,2), '-', 'color', 0.5*[1 1 1]);
+        
+        make_title_type_lat(type, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound, par);
+        ylabel(sprintf('$\\Delta R_1$ (unitless)'));
+        
+        if leg == ""
+            if ~strcmp(fw, 'mse_old')
+                ylabel(sprintf('$\\Delta R_1$ (unitless)'));
+                legend([tot res c1 c2], '$\Delta R_1$', 'Residual', '$\frac{\Delta (\nabla\cdot F_m)}{\overline{R_a}}$', '$-\frac{\overline{\nabla\cdot F_m}}{\overline{R_a^2}}\Delta R_a$', 'location', 'eastoutside', 'orientation', 'vertical');
+            else
+                ylabel(sprintf('$\\Delta R_1^*$ (unitless)'));
+                legend([tot res c1 c2], '$\Delta R_1^*$', 'Residual', '$\frac{\Delta (\partial_t h + \nabla\cdot F_m)}{\overline{R_a}}$', '$-\frac{\overline{\partial_t h + \nabla\cdot F_m}}{\overline{R_a^2}}\Delta R_a$', 'location', 'eastoutside', 'orientation', 'vertical');
+            end
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide)
+        elseif leg == "_noleg"
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+        end
+        
+        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
+        print(sprintf('%s/0_mon_dr1z_decomp%s', par.folder, leg), '-dpng', '-r300');
+        close;
+
+end

@@ -6,9 +6,9 @@
 % par.lat_interp = '1.00';
 % par.gcm_models = {'mmm'}; % CMIP multimodel mean
 
-par.gcm.clim = 'historical'; % choose either piControl, historical, or abrupt4xCO2
-par.lat_interp = '1.00';
-par.gcm_models = {'mmm'}; % CMIP multimodel mean
+%par.gcm.clim = 'historical'; % choose either piControl, historical, or abrupt4xCO2
+%par.lat_interp = '1.00';
+%par.gcm_models = {'mmm'}; % CMIP multimodel mean
 
 % par.gcm.clim = 'historical'; % choose either piControl, historical, or abrupt4xCO2
 % par.lat_interp = '1.00';
@@ -39,9 +39,15 @@ par.gcm_models = {'mmm'}; % CMIP multimodel mean
 % par.lat_interp = 'native'; % native: native model grid, don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
 
 
-% % HISTORICAL
-% par.gcm.clim = 'historical'; % choose either piControl, historical, or abrupt4xCO2
-% par.lat_interp = 'native'; % native: native model grid, don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
+ % HISTORICAL
+ par.gcm.clim = 'historical'; % choose either piControl, historical, or abrupt4xCO2
+ par.lat_interp = 'native'; % native: native model grid, don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
+ par.gcm_models = {'GISS-E2-H-CC', 'GISS-E2-R', 'GISS-E2-R-CC',...
+                   'HadCM3', 'HadGEM2-CC', 'HadGEM2-ES', 'inmcm4',...
+                   'IPSL-CM5A-LR', 'IPSL-CM5A-MR', 'IPSL-CM5B-LR',...
+                   'MIROC5', 'MIROC-ESM', 'MIROC-ESM-CHEM',...
+                   'MPI-ESM-LR', 'MPI-ESM-MR', 'MPI-ESM-P',...
+                   'MRI-CGCM3', 'MRI-ESM1', 'NorESM1-M', 'NorESM1-ME'};
 % par.gcm_models = {'ACCESS1-0', 'ACCESS1-3',... % GCM model names
 %                   'bcc-csm1-1', 'bcc-csm1-1-m',...
 %                   'BNU-ESM', 'CanESM2', 'CCSM4',...

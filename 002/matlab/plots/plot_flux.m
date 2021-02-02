@@ -140,7 +140,11 @@ function plot_flux(type, par)
                 close;
 
                 % R1z lat x mon dependence of RCE and RAE
-                var_text = '$R_1$';
+                if ~strcmp(fw, 'mse_old')
+                    var_text = '$R_1$';
+                else
+                    var_text = '$R_1^*$';
+                end
                 figure(); clf; hold all; box on;
                 cmp = colCog(10);
                 colormap(flipud(cmp));

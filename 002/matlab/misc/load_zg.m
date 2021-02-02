@@ -4,7 +4,7 @@ function zg = load_zg(type, par)
         file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
         fullpath=sprintf('%s/%s', file.folder, file.name);
         if any(strcmp(type, {'era5', 'era5c', 'erai'}))
-            zg = double(ncread(fullpath, 'z'));
+            zg = 1/par.g * double(ncread(fullpath, 'z')); % output is in geopotential so convert to height
         elseif strcmp(type, 'jra55')
             zg = double(ncread(fullpath, 'HGT_GDS0_ISBL_S123'));
         elseif strcmp(type, 'merra2')

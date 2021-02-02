@@ -4,7 +4,7 @@ function savedir = make_savedir(type, par)
     elseif strcmp(type, 'gcm')
         savedir = sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s', par.model, par.gcm.clim);
     elseif any(strcmp(type, {'echam', 'hahn'}))
-        savedir = sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.hahn.clim);
+        savedir = sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).clim);
     end
 
     if ~exist(savedir, 'dir'); mkdir(savedir); end

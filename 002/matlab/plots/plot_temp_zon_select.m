@@ -8,7 +8,7 @@ function plot_temp_zon_select(type, par)
     
     load(sprintf('%s/grid.mat', prefix));
     load(sprintf('%s/ta_mon_lat.mat', prefix_proc));
-    if par.ma
+    if wma
         load(sprintf('%s/ma_mon_lat.mat', prefix_proc));
     end
 
@@ -21,10 +21,12 @@ function plot_temp_zon_select(type, par)
         elseif strcmp(land, 'l'); land_text = 'Land';
         elseif strcmp(land, 'o'); land_text = 'Ocean';
         end
-        for m = [1 6]; month = m(1);
+        for m = [1 4 7 10]; month = m(1);
             if month==1; mon_str = 'January';
+            elseif month==4; mon_str = 'April';
             elseif month==6; mon_str = 'June';
-            elseif month==7; mon_str = 'July'; end;
+            elseif month==7; mon_str = 'July';
+            elseif month==10; mon_str = 'October'; end;
 
             tasi_mon.(land) = squeeze(tasi.(land)(:,month,:));
             if par.ma
@@ -72,13 +74,44 @@ function plot_temp_zon_select(type, par)
             end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             make_title_type_mon(type, mon_str, par);
-            if par.ma
-                legend([h_np h_sp h_nmid h_smid], sprintf('%g N', lat_pole), sprintf('%g S', lat_pole), sprintf('%g N', lat_mid), sprintf('%g S', lat_mid), 'location', 'northeast');
-            end
+            %if par.ma
+            %    legend([h_np h_sp h_nmid h_smid], sprintf('%g N', lat_pole), sprintf('%g S', lat_pole), sprintf('%g N', lat_mid), sprintf('%g S', lat_mid), 'location', 'northeast');
+            %end
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_np(:,m); tasi_nmid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-            print(sprintf('%s/temp_zon_sel/%s/%g/all', plotdir, land, month), '-dpng', '-r300');
+            print(sprintf('%s/temp_zon_sel/%s/%g/winter_summer', plotdir, land, month), '-dpng', '-r300');
+            close;
+            
+            % winter summer 
+            figure(); clf; hold all; box on;
+            if m == 1
+                h_np = plot(tasi_np(:,m), grid.dim3.si, 'color', par.blue);
+                h_nmid = plot(tasi_nmid(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
+                if par.ma
+                    h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+                end
+            elseif m==6 | m == 7
+                h_np = plot(tasi_np(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
+                h_nmid = plot(tasi_nmid(:,m), grid.dim3.si, 'color', par.orange);
+                if par.ma
+                    h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', par.orange);
+                end
+            end
+            h_sp = plot(tasi_sp(:,m), grid.dim3.si, '--', 'color', par.blue);
+            h_smid = plot(tasi_smid(:,m), grid.dim3.si, '--', 'color', 0.25*[1 1 1]);
+            if par.ma
+                h_smid_ma = plot(masi_smid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
+            end
+            xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
+            make_title_type_mon(type, mon_str, par);
+            %if par.ma
+            %    legend([h_np h_sp h_nmid h_smid], sprintf('%g N', lat_pole), sprintf('%g S', lat_pole), sprintf('%g N', lat_mid), sprintf('%g S', lat_mid), 'location', 'northeast');
+            %end
+            axis('tight');
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+            set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_np(:,m); tasi_nmid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
+            print(sprintf('%s/temp_zon_sel/%s/%g/winter_summer', plotdir, land, month), '-dpng', '-r300');
             close;
 
             % NH HIGH ONLY
@@ -134,9 +167,9 @@ function plot_temp_zon_select(type, par)
             end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             make_title_type_mon(type, mon_str, par);
-            if par.ma
-                legend([h_np h_nmid], sprintf('%g N', lat_pole), sprintf('%g N', lat_mid), 'location', 'northeast');
-            end
+            %if par.ma
+            %    legend([h_np h_nmid], sprintf('%g N', lat_pole), sprintf('%g N', lat_mid), 'location', 'northeast');
+            %end
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_np(:,m); tasi_nmid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
@@ -177,9 +210,9 @@ function plot_temp_zon_select(type, par)
             end
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             make_title_type_mon(type, mon_str, par);
-            if par.ma
-                legend([h_sp h_smid], sprintf('%g S', lat_pole), sprintf('%g S', lat_mid), 'location', 'northeast');
-            end
+            %if par.ma
+            %    legend([h_sp h_smid], sprintf('%g S', lat_pole), sprintf('%g S', lat_mid), 'location', 'northeast');
+            %end
             axis('tight');
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [nanmin([tasi_sp(:,m); tasi_smid(:,m)]) inf], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
@@ -226,40 +259,72 @@ function plot_temp_zon_select(type, par)
 
         end
 
-        % ALL NH
+        % NH HL
         figure(); clf; hold all; box on;
-        h_nmid_jan = plot(tasi_nmid(:,1), grid.dim3.si, 'color', 0.25*[1 1 1]);
-        h_nmid_jun = plot(tasi_nmid(:,6), grid.dim3.si, 'color', par.orange);
-        h_np_jan = plot(tasi_np(:,1), grid.dim3.si, 'color', par.blue);
-        h_np_jun = plot(tasi_np(:,6), grid.dim3.si, 'color', 0.25*[1 1 1]);
-        if par.ma
-            h_nmid_ma_jan = plot(masi_nmid(:,1), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
-            h_nmid_ma_jun = plot(masi_nmid(:,6), grid.dim3.si, ':', 'color', par.orange);
-        end
+        h_np_wi = plot(tasi_np(:,1), grid.dim3.si, 'color', par.gray);
+        h_np_sp = plot(tasi_np(:,4), grid.dim3.si, 'color', par.yellow);
+        h_np_su = plot(tasi_np(:,7), grid.dim3.si, 'color', par.green);
+        h_np_fa = plot(tasi_np(:,10), grid.dim3.si, 'color', par.orange);
         xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-        make_title_type(type, par);
+        make_title_type_lat_pt(type, lat_pole, par);
         axis('tight');
-        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
-        set(gca, 'fontsize', par.fs, 'xlim', [200 290], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-        print(sprintf('%s/temp_zon_sel/%s/nh_all', plotdir, land), '-dpng', '-r300');
+        legend([h_np_wi, h_np_sp, h_np_su, h_np_fa], 'Jan', 'Apr', 'Jul', 'Oct', 'location', 'eastoutside', 'orientation', 'vertical');
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+        set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
+        print(sprintf('%s/temp_zon_sel/%s/nh_hl', plotdir, land), '-dpng', '-r300');
+        close;
+        
+        % NH ML
+        figure(); clf; hold all; box on;
+        h_nmid_wi = plot(tasi_nmid(:,1), grid.dim3.si, 'color', par.gray);
+        h_nmid_sp = plot(tasi_nmid(:,4), grid.dim3.si, 'color', par.yellow);
+        h_nmid_su = plot(tasi_nmid(:,7), grid.dim3.si, 'color', par.green);
+        h_nmid_fa = plot(tasi_nmid(:,10), grid.dim3.si, 'color', par.orange);
+        h_nmid_wi_ma = plot(masi_nmid(:,1), grid.dim3.si, ':', 'color', par.gray);
+        h_nmid_sp_ma = plot(masi_nmid(:,4), grid.dim3.si, ':', 'color', par.yellow);
+        h_nmid_su_ma = plot(masi_nmid(:,7), grid.dim3.si, ':', 'color', par.green);
+        h_nmid_fa_ma = plot(masi_nmid(:,10), grid.dim3.si, ':', 'color', par.orange);
+        xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
+        make_title_type_lat_pt(type, lat_mid, par);
+        axis('tight');
+        legend([h_nmid_wi, h_nmid_sp, h_nmid_su, h_nmid_fa], 'Jan', 'Apr', 'Jul', 'Oct', 'location', 'eastoutside', 'orientation', 'vertical');
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+        set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
+        print(sprintf('%s/temp_zon_sel/%s/nh_ml', plotdir, land), '-dpng', '-r300');
         close;
 
-        % ALL SH
+        % SH HL
         figure(); clf; hold all; box on;
-        h_smid_jan = plot(tasi_smid(:,1), grid.dim3.si, 'color', 0.25*[1 1 1]);
-        h_smid_jun = plot(tasi_smid(:,6), grid.dim3.si, 'color', 0.25*[1 1 1]);
-        h_sp_jan = plot(tasi_sp(:,1), grid.dim3.si, 'color', par.blue);
-        h_sp_jun = plot(tasi_sp(:,6), grid.dim3.si, 'color', par.blue);
-        if par.ma
-            h_smid_ma_jan = plot(masi_smid(:,1), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
-            h_smid_ma_jun = plot(masi_smid(:,6), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
-        end
+        h_sp_wi = plot(tasi_sp(:,7), grid.dim3.si, 'color', par.gray);
+        h_sp_sp = plot(tasi_sp(:,10), grid.dim3.si, 'color', par.yellow);
+        h_sp_su = plot(tasi_sp(:,1), grid.dim3.si, 'color', par.green);
+        h_sp_fa = plot(tasi_sp(:,4), grid.dim3.si, 'color', par.orange);
         xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-        make_title_type(type, par);
+        make_title_type_lat_pt(type, -lat_pole, par);
         axis('tight');
-        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
-        set(gca, 'fontsize', par.fs, 'xlim', [200 290], 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
-        print(sprintf('%s/temp_zon_sel/%s/sh_all', plotdir, land), '-dpng', '-r300');
+        legend([h_sp_wi, h_sp_sp, h_sp_su, h_sp_fa], 'Jul', 'Oct', 'Jan', 'Apr', 'location', 'eastoutside', 'orientation', 'vertical');
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+        set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
+        print(sprintf('%s/temp_zon_sel/%s/sh_hl', plotdir, land), '-dpng', '-r300');
+        close;
+        
+        % SH ML
+        figure(); clf; hold all; box on;
+        h_smid_wi = plot(tasi_smid(:,7), grid.dim3.si, 'color', par.gray);
+        h_smid_sp = plot(tasi_smid(:,10), grid.dim3.si, 'color', par.yellow);
+        h_smid_su = plot(tasi_smid(:,1), grid.dim3.si, 'color', par.green);
+        h_smid_fa = plot(tasi_smid(:,4), grid.dim3.si, 'color', par.orange);
+        h_smid_wi_ma = plot(masi_smid(:,7), grid.dim3.si, 'color', par.gray);
+        h_smid_sp_ma = plot(masi_smid(:,10), grid.dim3.si, 'color', par.yellow);
+        h_smid_su_ma = plot(masi_smid(:,1), grid.dim3.si, 'color', par.green);
+        h_smid_fa_ma = plot(masi_smid(:,4), grid.dim3.si, 'color', par.orange);
+        xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
+        make_title_type_lat_pt(type, -lat_, par);
+        axis('tight');
+        legend([h_smid_wi, h_smid_sp, h_smid_su, h_smid_fa], 'Jul', 'Oct', 'Jan', 'Apr', 'location', 'eastoutside', 'orientation', 'vertical');
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+        set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
+        print(sprintf('%s/temp_zon_sel/%s/sh_ml', plotdir, land), '-dpng', '-r300');
         close;
 
     end
