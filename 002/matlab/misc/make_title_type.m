@@ -8,7 +8,7 @@ function make_title_type(type, par)
         if contains(par.model, 'mmm')
             title(sprintf('CMIP5 %s', par.gcm.clim));
         else
-            title(sprintf('%s', par.model));
+            title(sprintf('%s %s', par.model, par.gcm.clim));
         end
     elseif any(strcmp(type, {'echam'}));
         title(sprintf('%s, %s', upper(type), par.(type).(par.(type).clim)));

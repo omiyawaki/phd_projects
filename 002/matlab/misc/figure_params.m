@@ -1,5 +1,5 @@
 % set default figure parameters
-par.monlabel = {'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'};
+par.monlabelnh = {'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'};
 par.monlabelsh = {'J', 'A', 'S', 'O', 'N', 'D', 'J', 'F', 'M', 'A', 'M', 'J'};
 par.ppos = [0 0 10/3 7/3];
 par.ppos_larger = [0 0 16/3 13/3];

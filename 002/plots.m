@@ -12,13 +12,15 @@ figure_params
 %% set parameters
 % lat grid type
 if 1
-par.echam_clims = {'rp000086'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
-%par.echam_clims = par.echam.noice_mld; % {'echr0001'}; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+%par.echam_clims = {'rp000086'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+par.echam_clims = par.echam.noice_mld; % {'echr0001'}; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 par.hahn_clims = {'Control1850'}; % Control1850, Flat1850, Control2xCO2, Flat2xCO2
+par.erai.yr_span = '1979_2005';
 par.era5.yr_span = '1979_2005';
 par.era5c.yr_span = '1979_2005';
 par.jra55.yr_span = '1979_2005';
 par.merra2.yr_span = '1980_2005';
+par.levtype = 'pl'; % analyze model level (ml) or pressure level (pl) data?
 par.ep_swp = 0.1; %[0.25 0.3 0.35]; % threshold value for determining RCE
 par.ga_swp = 0.9; % threshold for determining RAE
 par.si_eval = [0.8 0.85 0.9]; % sigma level for calculating inversion strength
@@ -39,7 +41,7 @@ par.r1_bins = [-0.55:0.1:1.35]; % bins for sorting temperature profiles accordin
 par.r1_bins_hl = [0.8-0.025/2:0.025:1.5+0.025/2]; % bins for sorting temperature profiles according to r1 values
 % par.era.fw = {'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt', 'div79'};
 % par.era.fw = {'div79', 'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt'};
-par.era.fw = {'mse', 'mse_old'};
+par.era.fw = {'mse_old'};
 par.jra55.fw = {'mse', 'dse'};
 par.merra2.fw = {'mse', 'dse'};
 par.gcm.fw = {'mse', 'dse'};
@@ -61,7 +63,7 @@ end
 % plot_rad_lon_lat(par)
 % plot_tediv_lat(par)
 
-%type = 'era5c';
+%type = 'erai';
 %par.lat_interp = 'native';
 %choose_plots(type, par);
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
@@ -84,7 +86,7 @@ end
 
 % sweep through various boundary layer heights
 for i = 1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
-    %type = 'era5c';
+    %type = 'jra55';
     %par.lat_interp = 'native';
     %choose_plots_si_bl(type, par)
     for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
@@ -105,9 +107,9 @@ for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
     %type = 'era5c'; par.lat_interp = 'native';
     %choose_plots_ep(type, par)
     for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-        type='echam'; par.lat_interp = 'native';
-        disp(par.echam.clim)
-        choose_plots_ep(type, par);
+        %type='echam'; par.lat_interp = 'native';
+        %disp(par.echam.clim)
+        %choose_plots_ep(type, par);
     end
     for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
         % type='hahn'; par.lat_interp = 'native';
@@ -115,9 +117,9 @@ for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
         % choose_plots_ep(type, par);
     end
     for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-        % type = 'gcm';
-        % disp(par.model)
-        % choose_plots_ep(type, par)
+        type = 'gcm';
+        disp(par.model)
+        choose_plots_ep(type, par)
     end
 end
 
@@ -125,7 +127,7 @@ function choose_plots(type, par)
     %plot_temp_zon_select(type, par) % plot temperature profiles at specific latitudes
     %plot_temp_binned_r1(type, par) % plot temperature profiles at specific latitudes
     %plot_temp_binned_r1_hl(type, par) % plot temperature profiles at specific latitudes
-    plot_temp_mon_r1_hl(type, par) % plot temperature profiles at specific latitudes
+    %plot_temp_mon_r1_hl(type, par) % plot temperature profiles at specific latitudes
     %plot_dmse_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     %plot_dmse_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dlh_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
@@ -143,6 +145,7 @@ function choose_plots(type, par)
     % plot_sftlf(type, par) % land fraction
     % plot_olr_ts(type, par) % regress OLR vs Ts to obtain B
     % plot_divfm_lapts(type, par) % regress OLR vs Ts to obtain B
+    %plot_tend(type, par)
 
     % plot_dmse_toasfc_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dmse_polar_line_asym(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
@@ -169,13 +172,13 @@ function choose_plots_si_bl(type, par)
 end
 function choose_plots_ep(type, par)
     %plot_energy_lat(type, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
-    % plot_energy_lat_comp(type, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
+    plot_energy_lat_comp(type, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
     % plot_r1z_lat(type, par); % compare r1 line plot with ERA5
     %plot_flux(type, par) % plot various energy fluxes in mon x lat and lon x lat space
     % plot_flux_comp(type, par) % plot various energy fluxes in mon x lat and lon x lat space
     % plot_temp(type, par) % plot temperature profiles
     % plot_temp_ann(type, par) % plot temperature profiles
-    plot_dr1_midlatitude_line(type, par) % plot decomposition of R1 in mon at specific latitudes
+    %plot_dr1_midlatitude_line(type, par) % plot decomposition of R1 in mon at specific latitudes
     %plot_dr1_polar_line(type, par) % plot decomposition of R1 in mon at specific latitudes
 
     % plot_dr1_so_line(type, par) % plot decomposition of R1 in mon at specific latitudes

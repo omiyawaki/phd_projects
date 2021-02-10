@@ -34,7 +34,6 @@ function proc_ga_dalr_bl_diff_si_mon_lat(type, par)
     % for l = {'lo', 'l', 'o'}; land = l{1}; % over land, over ocean, or both
     for l = {'lo'}; land = l{1}; % over land, over ocean, or both
         ga_dalr_bl_diff.(land)= squeeze(nanmean(ga_dalr_bl_diff0.(land), 1)); % zonal average
-        squeeze(ga_dalr_bl_diff.(land)(90,3))'
 
         % take time averages
         for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};

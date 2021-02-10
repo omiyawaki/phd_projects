@@ -20,7 +20,7 @@ function plot_ga_malr_diff_mon_lat(type, par)
         end
 
         % DALR BL mon x lat of diff
-        figure(); clf; hold all;
+        figure(); clf; hold all; box on;
         cmp = colCog(20);
         colormap(flipud(cmp));
         contourf(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), -100:10:100, 'linecolor', 'none');
@@ -33,12 +33,12 @@ function plot_ga_malr_diff_mon_lat(type, par)
         cb = colorbar('limits', [0 100], 'ytick', [0:10:100], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
         ylabel(cb, sprintf('$\\left[(\\Gamma_d - \\Gamma)/\\Gamma_d\\right]_{1.0-%g}$ (\\%%)', par.si_bl));
-        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_dalr_bl_diff_mon_lat', plotdir, par.si_bl, land), '-dpng', '-r300');
         close;
 
         % ANOT DALR BL mon x lat of diff
-        figure(); clf; hold all;
+        figure(); clf; hold all; box on;
         cmp = colCog(20);
         colormap(flipud(cmp));
         contourf(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), -100:10:100, 'linecolor', 'none');
@@ -52,14 +52,12 @@ function plot_ga_malr_diff_mon_lat(type, par)
         cb = colorbar('limits', [0 100], 'ytick', [0:10:100], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
         ylabel(cb, sprintf('$\\left[(\\Gamma_d - \\Gamma)/\\Gamma_d\\right]_{1.0-%g}$ (\\%%)', par.si_bl));
-        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', par.monlabel, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_dalr_bl_diff_mon_lat_anot', plotdir, par.si_bl, land), '-dpng', '-r300');
         close;
-
-        return
         
         % mon x lat of diff
-        figure(); clf; hold all;
+        figure(); clf; hold all; box on;
         cmp = colCog(12);
         colormap(flipud(cmp));
         contourf(mesh_lat, mesh_mon, ga_malr_diff.(land), -100:10:100, 'linecolor', 'none');
@@ -72,12 +70,12 @@ function plot_ga_malr_diff_mon_lat(type, par)
         cb = colorbar('limits', [-40 60], 'ytick', [-40:10:60], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
         ylabel(cb, sprintf('$\\left[(\\Gamma_m - \\Gamma)/\\Gamma_m\\right]_{%g-%g}$ (\\%%)', par.si_bl, par.si_up));
-        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_malr_diff_mon_lat', plotdir, par.si_bl, land), '-dpng', '-r300');
         close;
 
         % ANOT mon x lat of diff
-        figure(); clf; hold all;
+        figure(); clf; hold all; box on;
         cmp = colCog(12);
         colormap(flipud(cmp));
         contourf(mesh_lat, mesh_mon, ga_malr_diff.(land), -100:10:100, 'linecolor', 'none');
@@ -91,7 +89,7 @@ function plot_ga_malr_diff_mon_lat(type, par)
         cb = colorbar('limits', [-40 60], 'ytick', [-40:10:60], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
         ylabel(cb, sprintf('$\\left[(\\Gamma_m - \\Gamma)/\\Gamma_m\\right]_{%g-%g}$ (\\%%)', par.si_bl, par.si_up));
-        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_malr_diff_mon_lat_anot', plotdir, par.si_bl, land), '-dpng', '-r300');
         close;
 

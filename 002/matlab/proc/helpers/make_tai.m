@@ -34,7 +34,7 @@ function make_tai(type, par)
         ts_vert = permute(ts_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
         zs_vert = repmat(srfc.zs, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
         zs_vert = permute(zs_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
-    elseif any(strcmp(type, 'gcm', 'jra55'))
+    elseif any(strcmp(type, {'gcm', 'jra55'}))
         ps_vert = repmat(srfc.ps, [1 1 1 size(temp, 3)]); % dims (lon x lat x time x plev)
         ps_vert = permute(ps_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
         pa = permute(repmat(grid.dim3.plev, [1 size(srfc.ps)]), [2 3 1 4]);

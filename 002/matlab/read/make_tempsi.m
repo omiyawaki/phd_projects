@@ -1,4 +1,4 @@
-function make_tempsi(type, par)
+function make_tempml(type, par)
     ta_orig = load_temp(type, par);
     prefix = make_prefix(type, par);
     newdir = make_savedir(type, par);

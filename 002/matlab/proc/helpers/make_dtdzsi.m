@@ -28,6 +28,10 @@ function make_dtdzsi(type, par)
     surface_mask = nan(size(pa));
     surface_mask(pa < ps_vert) = 1;
 
+    size(temp)
+    size(zg)
+    size(surface_mask)
+    
     ta_sm = temp .* surface_mask;
     zg_sm = zg .* surface_mask;
 
@@ -66,10 +70,7 @@ function make_dtdzsi(type, par)
     end
     clear ta_sm zg_sm
 
-    % % interpolate to higher resolution grid
-    % ta_si = interp1(grid.dim3.si, ta_si, )
-
-    % calculate lapse rate before taking zonal average
+    %% calculate lapse rate before taking zonal average
     %dtdzsi = -1e3*(ta_si(2:end,:,:,:)-ta_si(1:end-1,:,:,:))./(zg_si(2:end,:,:,:)-zg_si(1:end-1,:,:,:)); % lapse rate in K/km
     %dtdzsi = interp1(1/2*(grid.dim3.si(2:end)+grid.dim3.si(1:end-1)), dtdzsi, grid.dim3.si);
     %dtdzsi(1,:,:,:) = -1e3*(ta_si(2,:,:,:)-ta_si(1,:,:,:))./(zg_si(2,:,:,:)-zg_si(1,:,:,:));
@@ -83,13 +84,6 @@ function make_dtdzsi(type, par)
     dtdzsi = interp1(1/2*(grid.dim3.si(2:end)+grid.dim3.si(1:end-1)), dtdzsi, grid.dim3.si);
     dtdzsi(1,:,:,:) = -1e3*(ta_si(2,:,:,:)-ta_si(1,:,:,:))./(zg_si(2,:,:,:)-zg_si(1,:,:,:));
     dtdzsi = permute(dtdzsi, [2 3 1 4]); % (lon lat lev time)
-
-    %if any(strcmp(type, {'era5', 'era5c', 'erai'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    %elseif strcmp(type, 'merra2'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    %elseif strcmp(type, 'gcm'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s', par.model, par.gcm.clim);
-    %elseif strcmp(type, 'echam'); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/echam/%s', par.echam.clim);
-    %elseif any(strcmp(type, {'echam_ml', 'echam_pl'})); newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span); end;
-    %if ~exist(newdir, 'dir'); mkdir(newdir); end
     
     filename='dtdzsi.mat';
     save(sprintf('%s/%s', newdir, filename), 'dtdzsi', '-v7.3');

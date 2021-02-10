@@ -5,56 +5,15 @@ function proc_ga_malr_diff_si_mon_lat(type, par)
     foldername = make_savedir_si_bl(type, par);
     ta_orig = load_temp(type, par);
 
-    %if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-    %    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/si_bl_%g/', type, par.lat_interp, par.si_bl);
-    %    prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    %    prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    %    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span));
-    %    fullpath=sprintf('%s/%s', file.folder, file.name);
-    %    ta_orig = double(ncread(fullpath, 't'));
-    %elseif strcmp(type, 'merra2')
-    %    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/si_bl_%g/', type, par.lat_interp, par.si_bl);
-    %    prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    %    prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    %    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span));
-    %    fullpath=sprintf('%s/%s', file.folder, file.name);
-    %    ta_orig = double(ncread(fullpath, 'T'));
-    %elseif strcmp(type, 'gcm')
-    %    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/si_bl_%g/', type, par.model, par.gcm.clim, par.lat_interp, par.si_bl);
-    %    prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-    %    prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
-    %    var = 'ta';
-    %    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, var, par.model, par.gcm.clim));
-    %    fullpath=sprintf('%s/%s', file.folder, file.name);
-    %    ta_orig = double(ncread(fullpath, var));
-    %elseif strcmp(type, 'echam')
-    %    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/si_bl_%g/', type, par.echam.clim, par.lat_interp, par.si_bl);
-    %    prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
-    %    prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.echam.clim);
-    %    var = 't';
-    %    if contains(par.echam.clim, 'rp000')
-    %        file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/ATM_%s_0020_39.nc', par.echam.clim, par.echam.clim));
-    %    else
-    %        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/ATM*_%s_*.ymonmean.nc', par.echam.clim));
-    %    end
-    %    fullpath=sprintf('%s/%s', file.folder, file.name);
-    %    ta_orig = double(ncread(fullpath, var));
-    %elseif any(strcmp(type, {'echam_ml', 'echam_pl'}))
-    %    foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/si_bl_%g/', type, par.lat_interp, par.si_bl);
-    %    prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    %    prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s', type, par.(type).yr_span);
-    %    var = 't';
-    %    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/ATM_*.ymonmean.nc', type));
-    %    fullpath=sprintf('%s/%s', file.folder, file.name);
-    %    ta_orig = double(ncread(fullpath, var));
-    %end
-    
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     % load(sprintf('%s/dtdzzsi.mat', prefix)); % read temp in si coordinates
     load(sprintf('%s/dtdzsi.mat', prefix)); dtdzzsi = dtdzsi; clear dtdzsi; % read temp in si coordinates
     % load(sprintf('%s/malrzsi.mat', prefix)); % read temp in si coordinates
     load(sprintf('%s/malrsi.mat', prefix)); dtmdzzsi = dtmdzsi; clear dtmdzsi; % read temp in si coordinates
     % load(sprintf('%s/%s/masks.mat', prefix_proc, par.lat_interp)); % load land and ocean masks
+    
+    dtmdzzsi(1,72,:,3)
+    return
 
     if strcmp(par.lat_interp, 'std')
         lat = par.lat_std;

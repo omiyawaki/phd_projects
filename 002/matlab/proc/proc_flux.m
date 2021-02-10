@@ -66,12 +66,12 @@ function proc_flux(type, par)
         flux.(fname) = interp1(grid.dim2.lat, flux.(fname), lat, 'linear');
         flux.(fname) = permute(flux.(fname), [2 1 3]);
     end
-    if contains(type, 'era') || any(strcmp(type, {'gcm'}))
-        load(sprintf('%s/tend.mat', prefix)) % read surface turbulent flux data
-        flux.tend = permute(tend.tend, [2 1 3]);
-        flux.tend = interp1(grid.dim2.lat, flux.tend, lat, 'linear');
-        flux.tend = permute(flux.tend, [2 1 3]);
-    end
+    %    if contains(type, 'era') || any(strcmp(type, {'gcm'}))
+    %        load(sprintf('%s/tend.mat', prefix)) % read surface turbulent flux data
+    %        flux.tend = permute(tend.tend, [2 1 3]);
+    %        flux.tend = interp1(grid.dim2.lat, flux.tend, lat, 'linear');
+    %        flux.tend = permute(flux.tend, [2 1 3]);
+    %    end
     % if any(strcmp(type, {'era5', 'era5c' 'erai'}))
     %     for fn = tend_vars_txt; fname = fn{1}; % interpolate to std lat
     %         flux.(fname) = permute(tend.(fname), [2 1 3]);
@@ -225,7 +225,8 @@ function proc_flux(type, par)
 
     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c');
         % var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend', 'divt', 'divg', 'divq', 'TETEN', 'TEDIV', 'don79div'};
-        var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
+        %var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
+        var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
         % foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
     elseif strcmp(type, 'hahn')
         var_vec = {'LHFLX', 'SHFLX', 'PRECC', 'PRECL', 'PRECSC', 'PRECSL', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};

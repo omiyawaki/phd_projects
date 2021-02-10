@@ -36,7 +36,7 @@ function plot_dr1_midlatitude_line(type, par)
             for lb = 1:length(par.lat_bound_list); par.lat_bound = par.lat_bound_list(lb);
             
                 dlat = 0.25; % step size for standard lat grid
-                if par.lat_bound>0; par.lat_center=center; lat = [-par.lat_bound:dlat:par.lat_bound]+par.lat_center; par.shiftby=0; par.monlabel=par.monlabel;
+                if par.lat_bound>0; par.lat_center=center; lat = [-par.lat_bound:dlat:par.lat_bound]+par.lat_center; par.shiftby=0; par.monlabel=par.monlabelnh;
                 else; par.lat_center=-center; lat = [-par.lat_bound:-dlat:par.lat_bound]+par.lat_center; par.shiftby=6; par.monlabel=par.monlabelsh; end;
                 clat = cosd(lat); % cosine of latitude for cosine weighting
                 clat_mon = repmat(clat', [1 12]);

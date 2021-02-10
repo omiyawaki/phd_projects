@@ -1,7 +1,14 @@
 function plot_energy_lat(type, par)
-% latitude vs energy flux line plots, comparable to Hartmann (2016)
-    [flux, vh, vh_mon, lat, plotdir] = load_flux(type, par); % load data
+% latitude vs energy flux_zt line plots, comparable to Hartmann (2016)
+    
     make_dirs(type, par)
+    
+    prefix_proc = make_prefix_proc(type, par);
+    plotdir = make_plotdir(type, par);
+
+    load(sprintf('%s/flux_zt.mat', prefix_proc));
+    load(sprintf('%s/vh.mat', prefix_proc));
+    load(sprintf('%s/vh_mon.mat', prefix_proc));
 
     for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
         f_vec = assign_fw(type, par);
@@ -16,92 +23,92 @@ function plot_energy_lat(type, par)
                 if strcmp(fw, 'mse2')
                     figure(); clf; hold all; box on;
                     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-                    plot(lat, flux.(land).(time).lw, 'color', par.gray); text(0, 0.85*interp1(lat,flux.(land).(time).lw,0), '\boldmath{$\mathrm{LW}$}', 'color', par.gray);
+                    plot(lat, flux_zt.(land).(time).lw, 'color', par.gray); text(0, 0.85*interp1(lat,flux_zt.(land).(time).lw,0), '\boldmath{$\mathrm{LW}$}', 'color', par.gray);
                     if contains(fw, 'db')
-                        plot(lat,flux.(land).(time).res.(fw), 'color', par.maroon); text(-42, 1.2*interp1(lat,flux.(land).(time).res.(fw),-42), '\boldmath{$\nabla\cdot F_m - \mathrm{SW}$}', 'color', par.maroon);
+                        plot(lat,flux_zt.(land).(time).res.(fw), 'color', par.maroon); text(-42, 1.2*interp1(lat,flux_zt.(land).(time).res.(fw),-42), '\boldmath{$\nabla\cdot F_m - \mathrm{SW}$}', 'color', par.maroon);
                     else
-                        plot(lat,flux.(land).(time).res.(fw), 'color', par.maroon); text(-42, 1.2*interp1(lat,flux.(land).(time).res.(fw),-42), '\boldmath{$\nabla\cdot F_m - \mathrm{SW}$}', 'color', par.maroon);
+                        plot(lat,flux_zt.(land).(time).res.(fw), 'color', par.maroon); text(-42, 1.2*interp1(lat,flux_zt.(land).(time).res.(fw),-42), '\boldmath{$\nabla\cdot F_m - \mathrm{SW}$}', 'color', par.maroon);
                     end
                     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
                         if contains(fw, 'db')
-                            plot(lat, flux.(land).(time).stf.(fw), 'color', par.orange); text(20, 1.3*interp1(lat, flux.(land).(time).stf.(fw), 20)-25, sprintf('\\boldmath{$\\mathrm{LH+SH}$}'));
-                            plot(lat, flux.(land).(time).stf.(fw), '--', 'color', par.blue);
+                            plot(lat, flux_zt.(land).(time).stf.(fw), 'color', par.orange); text(20, 1.3*interp1(lat, flux_zt.(land).(time).stf.(fw), 20)-25, sprintf('\\boldmath{$\\mathrm{LH+SH}$}'));
+                            plot(lat, flux_zt.(land).(time).stf.(fw), '--', 'color', par.blue);
                         elseif strcmp(fw, 'div')
-                            plot(lat, flux.(land).(time).stf.(fw), 'color', par.orange); text(20, 1.3*interp1(lat, flux.(land).(time).stf.(fw), 20)-25, sprintf('\\boldmath{$\\mathrm{LH+SH}$}'));
-                            plot(lat, flux.(land).(time).stf.(fw), '--', 'color', par.blue);
+                            plot(lat, flux_zt.(land).(time).stf.(fw), 'color', par.orange); text(20, 1.3*interp1(lat, flux_zt.(land).(time).stf.(fw), 20)-25, sprintf('\\boldmath{$\\mathrm{LH+SH}$}'));
+                            plot(lat, flux_zt.(land).(time).stf.(fw), '--', 'color', par.blue);
                         else
-                            if strcmp(fw, 'mse'); plot(lat, -flux.(land).(time).slhf, 'color', par.blue); text(20, interp1(lat, -1.2*flux.(land).(time).slhf,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
-                            elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux.(land).(time).cp+flux.(land).(time).lsp), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux.(land).(time).cp+flux.(land).(time).lsp),15), '\boldmath{$LP$}', 'color', par.blue); end
-                            plot(lat, -flux.(land).(time).sshf, 'color', par.orange); text(80, interp1(lat, flux.(land).(time).sshf, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                            if strcmp(fw, 'mse'); plot(lat, -flux_zt.(land).(time).slhf, 'color', par.blue); text(20, interp1(lat, -1.2*flux_zt.(land).(time).slhf,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                            elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux_zt.(land).(time).cp+flux_zt.(land).(time).lsp), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux_zt.(land).(time).cp+flux_zt.(land).(time).lsp),15), '\boldmath{$LP$}', 'color', par.blue); end
+                            plot(lat, -flux_zt.(land).(time).sshf, 'color', par.orange); text(80, interp1(lat, flux_zt.(land).(time).sshf, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
                         end
                     elseif strcmp(type, 'hahn')
-                        if contains(fw, 'mse'); plot(lat, flux.(land).(time).LHFLX, 'color', par.blue); text(20, 1.2*interp1(lat, flux.(land).(time).LHFLX,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
-                        elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux.(land).(time).PRECC+flux.(land).(time).PRECL+flux.(land).(time).PRECSC+flux.(land).(time).PRECSL), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux.(land).(time).PRECC+flux.(land).(time).PRECL+flux.(land).(time).PRECSC+flux.(land).(time).PRECSL),15), '\boldmath{$LP$}', 'color', par.blue); end
-                        plot(lat, flux.(land).(time).SHFLX, 'color', par.orange); text(80, interp1(lat, flux.(land).(time).SHFLX, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                        if contains(fw, 'mse'); plot(lat, flux_zt.(land).(time).LHFLX, 'color', par.blue); text(20, 1.2*interp1(lat, flux_zt.(land).(time).LHFLX,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                        elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux_zt.(land).(time).PRECC+flux_zt.(land).(time).PRECL+flux_zt.(land).(time).PRECSC+flux_zt.(land).(time).PRECSL), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux_zt.(land).(time).PRECC+flux_zt.(land).(time).PRECL+flux_zt.(land).(time).PRECSC+flux_zt.(land).(time).PRECSL),15), '\boldmath{$LP$}', 'color', par.blue); end
+                        plot(lat, flux_zt.(land).(time).SHFLX, 'color', par.orange); text(80, interp1(lat, flux_zt.(land).(time).SHFLX, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
                     elseif strcmp(type, 'merra2')
-                        if contains(fw, 'mse'); plot(lat, flux.(land).(time).EFLUX, 'color', par.blue); text(20, 1.2*interp1(lat, flux.(land).(time).EFLUX,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
-                        elseif strcmp(fw, 'dse'); plot(lat, par.L*flux.(land).(time).PRECTOT, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux.(land).(time).PRECTOT,15), '\boldmath{$LP$}', 'color', par.blue); end
-                        plot(lat, flux.(land).(time).HFLUX, 'color', par.orange); text(80, interp1(lat, flux.(land).(time).HFLUX, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                        if contains(fw, 'mse'); plot(lat, flux_zt.(land).(time).EFLUX, 'color', par.blue); text(20, 1.2*interp1(lat, flux_zt.(land).(time).EFLUX,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                        elseif strcmp(fw, 'dse'); plot(lat, par.L*flux_zt.(land).(time).PRECTOT, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux_zt.(land).(time).PRECTOT,15), '\boldmath{$LP$}', 'color', par.blue); end
+                        plot(lat, flux_zt.(land).(time).HFLUX, 'color', par.orange); text(80, interp1(lat, flux_zt.(land).(time).HFLUX, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
                     elseif any(strcmp(type, {'gcm', 'jra55'}))
-                        if contains(fw, 'mse'); plot(lat, flux.(land).(time).hfls, 'color', par.blue); text(20, 1.2*interp1(lat, flux.(land).(time).hfls,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
-                        elseif strcmp(fw, 'dse'); plot(lat, par.L*flux.(land).(time).pr, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux.(land).(time).pr,15), '\boldmath{$LP$}', 'color', par.blue); end
-                        plot(lat, flux.(land).(time).hfss, 'color', par.orange); text(80, interp1(lat, flux.(land).(time).hfss, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                        if contains(fw, 'mse'); plot(lat, flux_zt.(land).(time).hfls, 'color', par.blue); text(20, 1.2*interp1(lat, flux_zt.(land).(time).hfls,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                        elseif strcmp(fw, 'dse'); plot(lat, par.L*flux_zt.(land).(time).pr, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux_zt.(land).(time).pr,15), '\boldmath{$LP$}', 'color', par.blue); end
+                        plot(lat, flux_zt.(land).(time).hfss, 'color', par.orange); text(80, interp1(lat, flux_zt.(land).(time).hfss, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
                     elseif strcmp(type, 'echam')
-                        if strcmp(fw, 'mse'); plot(lat, -flux.(land).(time).ahfl, 'color', par.blue); text(20, 1.2*interp1(lat, -flux.(land).(time).ahfl,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
-                        elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux.(land).(time).aprc+flux.(land).(time).aprl), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux.(land).(time).aprc+flux.(land).(time).aprl),15), '\boldmath{$LP$}', 'color', par.blue);
+                        if strcmp(fw, 'mse'); plot(lat, -flux_zt.(land).(time).ahfl, 'color', par.blue); text(20, 1.2*interp1(lat, -flux_zt.(land).(time).ahfl,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                        elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux_zt.(land).(time).aprc+flux_zt.(land).(time).aprl), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux_zt.(land).(time).aprc+flux_zt.(land).(time).aprl),15), '\boldmath{$LP$}', 'color', par.blue);
                         end
-                        plot(lat, -flux.(land).(time).ahfs, 'color', par.orange); text(80, interp1(lat, -flux.(land).(time).ahfs, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                        plot(lat, -flux_zt.(land).(time).ahfs, 'color', par.orange); text(80, interp1(lat, -flux_zt.(land).(time).ahfs, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
                     end
                     make_title_type_time(type, time, par);
-                    xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
+                    xlabel('latitude (deg)'); ylabel('energy flux_zt (Wm$^{-2}$)');
                     axis('tight');
                     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
                     set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on')
                     if strcmp(fw, 'mse') & strcmp(time, 'ann'); set(gca, 'ylim', [-inf inf]); end
-                    print(sprintf('%s/energy-flux/%s/%s/%s-all', plotdir, land, time, fw), '-dpng', '-r300');
+                    print(sprintf('%s/energy-flux_zt/%s/%s/%s-all', plotdir, land, time, fw), '-dpng', '-r300');
                     close;
                 else
                     figure(); clf; hold all; box on;
                     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-                    plot(lat, flux.(land).(time).ra.(fw), 'color', par.gray); text(0, 0.75*interp1(lat,flux.(land).(time).ra.(fw),0), '\boldmath{$R_a$}', 'color', par.gray);
-                    if contains(type, 'era') || any(strcmp(type, {'gcm'}))
-                        plot(lat, flux.(land).(time).tend, 'color', 'k'); text(0, 0.75*interp1(lat,flux.(land).(time).tend,0), '\boldmath{$\partial_t h$}', 'color', 'k');
+                    plot(lat, flux_zt.(land).(time).ra.(fw), 'color', par.gray); text(0, 0.75*interp1(lat,flux_zt.(land).(time).ra.(fw),0), '\boldmath{$R_a$}', 'color', par.gray);
+                    if contains(type, 'era')
+                        plot(lat, flux_zt.(land).(time).tend, 'color', 'k'); text(0, 0.75*interp1(lat,flux_zt.(land).(time).tend,0), '\boldmath{$\partial_t h$}', 'color', 'k');
                     end
-                    if strcmp(fw, 'dse'); plot(lat,flux.(land).(time).res.dse, '--', 'color', par.maroon); text(-30, 2*interp1(lat,flux.(land).(time).res.dse,-30), '\boldmath{$\nabla\cdot F_s$}', 'color', par.maroon);
-                    else; plot(lat,flux.(land).(time).res.(fw), 'color', par.maroon); text(-42, 2*interp1(lat,flux.(land).(time).res.(fw),-42), '\boldmath{$\nabla\cdot F_m$}', 'color', par.maroon); end;
+                    if strcmp(fw, 'dse'); plot(lat,flux_zt.(land).(time).res.dse, '--', 'color', par.maroon); text(-30, 2*interp1(lat,flux_zt.(land).(time).res.dse,-30), '\boldmath{$\nabla\cdot F_s$}', 'color', par.maroon);
+                    else; plot(lat,flux_zt.(land).(time).res.(fw), 'color', par.maroon); text(-42, 2*interp1(lat,flux_zt.(land).(time).res.(fw),-42), '\boldmath{$\nabla\cdot F_m$}', 'color', par.maroon); end;
                     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
                         if contains(fw, 'db')
-                            plot(lat, flux.(land).(time).stf.(fw), 'color', par.orange); text(20, 1.3*interp1(lat, flux.(land).(time).stf.(fw), 20)-25, sprintf('\\boldmath{$\\mathrm{LH+SH}$}'));
-                            plot(lat, flux.(land).(time).stf.(fw), '--', 'color', par.blue);
+                            plot(lat, flux_zt.(land).(time).stf.(fw), 'color', par.orange); text(20, 1.3*interp1(lat, flux_zt.(land).(time).stf.(fw), 20)-25, sprintf('\\boldmath{$\\mathrm{LH+SH}$}'));
+                            plot(lat, flux_zt.(land).(time).stf.(fw), '--', 'color', par.blue);
                         elseif contains(fw, 'div')
-                            plot(lat, flux.(land).(time).stf.(fw), 'color', par.orange); text(20, 1.3*interp1(lat, flux.(land).(time).stf.(fw), 20)-25, sprintf('\\boldmath{$\\mathrm{LH+SH}$}'));
-                            plot(lat, flux.(land).(time).stf.(fw), '--', 'color', par.blue);
+                            plot(lat, flux_zt.(land).(time).stf.(fw), 'color', par.orange); text(20, 1.3*interp1(lat, flux_zt.(land).(time).stf.(fw), 20)-25, sprintf('\\boldmath{$\\mathrm{LH+SH}$}'));
+                            plot(lat, flux_zt.(land).(time).stf.(fw), '--', 'color', par.blue);
                         else
-                            if strcmp(fw, 'mse'); plot(lat, -flux.(land).(time).slhf, 'color', par.blue); text(20, interp1(lat, -1.2*flux.(land).(time).slhf,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
-                            elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux.(land).(time).cp+flux.(land).(time).lsp), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux.(land).(time).cp+flux.(land).(time).lsp),15), '\boldmath{$LP$}', 'color', par.blue);
+                            if strcmp(fw, 'mse'); plot(lat, -flux_zt.(land).(time).slhf, 'color', par.blue); text(20, interp1(lat, -1.2*flux_zt.(land).(time).slhf,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                            elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux_zt.(land).(time).cp+flux_zt.(land).(time).lsp), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux_zt.(land).(time).cp+flux_zt.(land).(time).lsp),15), '\boldmath{$LP$}', 'color', par.blue);
                             end
-                            plot(lat, -flux.(land).(time).sshf, 'color', par.orange); text(80, interp1(lat, flux.(land).(time).sshf, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                            plot(lat, -flux_zt.(land).(time).sshf, 'color', par.orange); text(80, interp1(lat, flux_zt.(land).(time).sshf, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
                         end
                     elseif strcmp(type, 'hahn')
-                        if strcmp(fw, 'mse'); plot(lat, flux.(land).(time).LHFLX, 'color', par.blue); text(20, 1.2*interp1(lat, flux.(land).(time).LHFLX,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
-                        elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux.(land).(time).PRECC+flux.(land).(time).PRECL+flux.(land).(time).PRECSC+flux.(land).(time).PRECSL), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux.(land).(time).PRECC+flux.(land).(time).PRECL+flux.(land).(time).PRECSC+flux.(land).(time).PRECSL),15), '\boldmath{$LP$}', 'color', par.blue);
+                        if strcmp(fw, 'mse'); plot(lat, flux_zt.(land).(time).LHFLX, 'color', par.blue); text(20, 1.2*interp1(lat, flux_zt.(land).(time).LHFLX,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                        elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux_zt.(land).(time).PRECC+flux_zt.(land).(time).PRECL+flux_zt.(land).(time).PRECSC+flux_zt.(land).(time).PRECSL), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux_zt.(land).(time).PRECC+flux_zt.(land).(time).PRECL+flux_zt.(land).(time).PRECSC+flux_zt.(land).(time).PRECSL),15), '\boldmath{$LP$}', 'color', par.blue);
                         end
-                        plot(lat, flux.(land).(time).SHFLX, 'color', par.orange); text(80, interp1(lat, flux.(land).(time).SHFLX, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                        plot(lat, flux_zt.(land).(time).SHFLX, 'color', par.orange); text(80, interp1(lat, flux_zt.(land).(time).SHFLX, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
                     elseif strcmp(type, 'merra2')
-                        if strcmp(fw, 'mse'); plot(lat, flux.(land).(time).EFLUX, 'color', par.blue); text(20, 1.2*interp1(lat, flux.(land).(time).EFLUX,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
-                        elseif strcmp(fw, 'dse'); plot(lat, par.L*flux.(land).(time).PRECTOT, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux.(land).(time).PRECTOT,15), '\boldmath{$LP$}', 'color', par.blue);
+                        if strcmp(fw, 'mse'); plot(lat, flux_zt.(land).(time).EFLUX, 'color', par.blue); text(20, 1.2*interp1(lat, flux_zt.(land).(time).EFLUX,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                        elseif strcmp(fw, 'dse'); plot(lat, par.L*flux_zt.(land).(time).PRECTOT, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux_zt.(land).(time).PRECTOT,15), '\boldmath{$LP$}', 'color', par.blue);
                         end
-                        plot(lat, flux.(land).(time).HFLUX, 'color', par.orange); text(80, interp1(lat, flux.(land).(time).HFLUX, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                        plot(lat, flux_zt.(land).(time).HFLUX, 'color', par.orange); text(80, interp1(lat, flux_zt.(land).(time).HFLUX, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
                     elseif any(strcmp(type, {'gcm', 'jra55'}))
-                        if strcmp(fw, 'mse'); plot(lat, flux.(land).(time).hfls, 'color', par.blue); text(20, 1.2*interp1(lat, flux.(land).(time).hfls,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
-                        elseif strcmp(fw, 'dse'); plot(lat, par.L*flux.(land).(time).pr, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux.(land).(time).pr,15), '\boldmath{$LP$}', 'color', par.blue);
+                        if strcmp(fw, 'mse'); plot(lat, flux_zt.(land).(time).hfls, 'color', par.blue); text(20, 1.2*interp1(lat, flux_zt.(land).(time).hfls,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                        elseif strcmp(fw, 'dse'); plot(lat, par.L*flux_zt.(land).(time).pr, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux_zt.(land).(time).pr,15), '\boldmath{$LP$}', 'color', par.blue);
                         end
-                        plot(lat, flux.(land).(time).hfss, 'color', par.orange); text(80, interp1(lat, flux.(land).(time).hfss, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                        plot(lat, flux_zt.(land).(time).hfss, 'color', par.orange); text(80, interp1(lat, flux_zt.(land).(time).hfss, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
                     elseif strcmp(type, 'echam')
-                        if strcmp(fw, 'mse'); plot(lat, -flux.(land).(time).ahfl, 'color', par.blue); text(20, 1.2*interp1(lat, -flux.(land).(time).ahfl,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
-                        elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux.(land).(time).aprc+flux.(land).(time).aprl), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux.(land).(time).aprc+flux.(land).(time).aprl),15), '\boldmath{$LP$}', 'color', par.blue);
+                        if strcmp(fw, 'mse'); plot(lat, -flux_zt.(land).(time).ahfl, 'color', par.blue); text(20, 1.2*interp1(lat, -flux_zt.(land).(time).ahfl,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
+                        elseif strcmp(fw, 'dse'); plot(lat, par.L*(flux_zt.(land).(time).aprc+flux_zt.(land).(time).aprl), '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*(flux_zt.(land).(time).aprc+flux_zt.(land).(time).aprl),15), '\boldmath{$LP$}', 'color', par.blue);
                         end
-                        plot(lat, -flux.(land).(time).ahfs, 'color', par.orange); text(80, interp1(lat, -flux.(land).(time).ahfs, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
+                        plot(lat, -flux_zt.(land).(time).ahfs, 'color', par.orange); text(80, interp1(lat, -flux_zt.(land).(time).ahfs, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
                     end
                     make_title_type_time(type, time, par);
                     xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
@@ -116,9 +123,9 @@ function plot_energy_lat(type, par)
                 if strcmp(fw, 'mse')
                     figure(); clf; hold all; box on;
                     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-                    plot(lat, flux.(land).(time).ra.(fw), 'color', par.gray); text(0, 0.75*interp1(lat,flux.(land).(time).ra.(fw),0), '\boldmath{$R_a$}', 'color', par.gray);
-                    plot(lat, flux.(land).(time).sw, 'color', par.yellow); text(0, 0.75*interp1(lat,flux.(land).(time).sw,0), '\boldmath{$\mathrm{SWABS}$}', 'color', par.yellow);
-                    plot(lat, flux.(land).(time).lw, 'color', par.green); text(0, 0.75*interp1(lat,flux.(land).(time).lw,0), '\boldmath{$\mathrm{LWCOOL}$}', 'color', par.green);
+                    plot(lat, flux_zt.(land).(time).ra.(fw), 'color', par.gray); text(0, 0.75*interp1(lat,flux_zt.(land).(time).ra.(fw),0), '\boldmath{$R_a$}', 'color', par.gray);
+                    plot(lat, flux_zt.(land).(time).sw, 'color', par.yellow); text(0, 0.75*interp1(lat,flux_zt.(land).(time).sw,0), '\boldmath{$\mathrm{SWABS}$}', 'color', par.yellow);
+                    plot(lat, flux_zt.(land).(time).lw, 'color', par.green); text(0, 0.75*interp1(lat,flux_zt.(land).(time).lw,0), '\boldmath{$\mathrm{LWCOOL}$}', 'color', par.green);
                     make_title_type_time(type, time, par);
                     xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
                     axis('tight');
@@ -130,9 +137,9 @@ function plot_energy_lat(type, par)
 
                     figure(); clf; hold all; box on;
                     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-                    plot(lat, flux.(land).(time).lw, 'color', par.green); text(0, 0.75*interp1(lat,flux.(land).(time).lw,0), '\boldmath{$\mathrm{LWCOOL}$}', 'color', par.green);
-                    plot(lat, flux.(land).(time).olr, '--', 'color', par.green); text(0, 0.95*interp1(lat,flux.(land).(time).olr,0), '\boldmath{$\mathrm{OLR}$}', 'color', par.green);
-                    plot(lat, flux.(land).(time).lwsfc, ':', 'color', par.green); text(0, 0.75*interp1(lat,flux.(land).(time).lwsfc,0), '\boldmath{$\mathrm{LW_{SFC}}$}', 'color', par.green);
+                    plot(lat, flux_zt.(land).(time).lw, 'color', par.green); text(0, 0.75*interp1(lat,flux_zt.(land).(time).lw,0), '\boldmath{$\mathrm{LWCOOL}$}', 'color', par.green);
+                    plot(lat, flux_zt.(land).(time).olr, '--', 'color', par.green); text(0, 0.95*interp1(lat,flux_zt.(land).(time).olr,0), '\boldmath{$\mathrm{OLR}$}', 'color', par.green);
+                    plot(lat, flux_zt.(land).(time).lwsfc, ':', 'color', par.green); text(0, 0.75*interp1(lat,flux_zt.(land).(time).lwsfc,0), '\boldmath{$\mathrm{LW_{SFC}}$}', 'color', par.green);
                     make_title_type_time(type, time, par);
                     xlabel('latitude (deg)'); ylabel('energy flux (Wm$^{-2}$)');
                     axis('tight');
@@ -147,8 +154,8 @@ function plot_energy_lat(type, par)
                 if strcmp(type, 'gcm') & strcmp(par.gcm.clim, 'hist-pi')
                     figure(); clf; hold all; box on;
                     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
-                    if strcmp(fw, 'dse'); plot(lat,flux.(land).(time).r1.dse, '--k');
-                    else; plot(lat,flux.(land).(time).r1.(fw), '-k'); end
+                    if strcmp(fw, 'dse'); plot(lat,flux_zt.(land).(time).r1.dse, '--k');
+                    else; plot(lat,flux_zt.(land).(time).r1.(fw), '-k'); end
                     make_title_type_time(type, time, par);
                     xlabel('latitude (deg)');
                     ylabel('$R_1^{\mathrm{historical}}-R_1^{\mathrm{piControl}}$ (unitless)')
@@ -160,8 +167,8 @@ function plot_energy_lat(type, par)
 
                 else
                     figure(); clf; hold all; box on;
-                    ylim_lo = min(flux.(land).(time).r1.(fw)); if isnan(ylim_lo)|ylim_lo==0; ylim_lo = -1; end;
-                    ylim_up = max(flux.(land).(time).r1.(fw)); if isnan(ylim_up)|ylim_up==0; ylim_up = 1; end
+                    ylim_lo = min(flux_zt.(land).(time).r1.(fw)); if isnan(ylim_lo)|ylim_lo==0; ylim_lo = -1; end;
+                    ylim_up = max(flux_zt.(land).(time).r1.(fw)); if isnan(ylim_up)|ylim_up==0; ylim_up = 1; end
                     rcemax = par.ep;
                     vertices = [-90 ylim_lo; 90 ylim_lo; 90 rcemax; -90 rcemax];
                     patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
@@ -172,8 +179,8 @@ function plot_energy_lat(type, par)
                     % line([-90 90], [1 1]*par.ep, 'linewidth', 0.5, 'color', par.orange);
                     % if ~strcmp(fw, 'mse2'); line([-90 90], -[1 1]*par.ep, 'linewidth', 0.5, 'color', par.orange); end
                     % line([-90 90], [1 1]*par.ga, 'linewidth', 0.5, 'color', par.blue);
-                    if strcmp(fw, 'dse'); plot(lat,flux.(land).(time).r1.dse, '--k');
-                    else; plot(lat,flux.(land).(time).r1.(fw), '-k'); end
+                    if strcmp(fw, 'dse'); plot(lat,flux_zt.(land).(time).r1.dse, '--k');
+                    else; plot(lat,flux_zt.(land).(time).r1.(fw), '-k'); end
                     make_title_type_time(type, time, par);
                     xlabel('latitude (deg)');
                     if strcmp(fw, 'mse2'); ylabel('$R_1^*$ (unitless)');
@@ -186,7 +193,15 @@ function plot_energy_lat(type, par)
 
                     % R1Z
                     figure(); clf; hold all; box on;
-                    r1z=flux.(land).(time).res.(fw)./flux.(land).(time).ra.(fw);
+                    [r1z r1zu r1zl] = deal(nan(size(lat)));
+                    if strcmp(type, 'gcm') & strcmp(par.model, 'mmm')
+                        r1z=flux_zt.(land).(time).r1z.(fw);
+                        r1z_std = flux_zt_std.(land).(time).r1z.(fw);
+                        r1zu=r1z + r1z_std;
+                        r1zl=r1z - r1z_std;
+                    else
+                        r1z=flux_zt.(land).(time).res.(fw)./flux_zt.(land).(time).ra.(fw);
+                    end
                     % ylim_lo = min(r1z); if isnan(ylim_lo)|ylim_lo==0; ylim_lo = -1; end;
                     % ylim_up = max(r1z); if isnan(ylim_up)|ylim_up==0; ylim_up = 1; end
                     ylim_lo = -0.6;
@@ -201,6 +216,11 @@ function plot_energy_lat(type, par)
                     % line([-90 90], [1 1]*par.ep, 'linewidth', 0.5, 'color', par.orange);
                     % if ~strcmp(fw, 'mse2'); line([-90 90], -[1 1]*par.ep, 'linewidth', 0.5, 'color', par.orange); end
                     % line([-90 90], [1 1]*par.ga, 'linewidth', 0.5, 'color', par.blue);
+                    if strcmp(type, 'gcm') & strcmp(par.model, 'mmm')
+                        lat2 = [lat, fliplr(lat)];
+                        inbtw = [r1zu, fliplr(r1zl)];
+                        fill(lat2, inbtw, 'k', 'facealpha', 0.2, 'edgealpha', 0.2);
+                    end
                     if strcmp(fw, 'dse'); plot(lat,r1z, '--k');
                     else; plot(lat,r1z, '-k'); end
                     make_title_type_time(type, time, par);

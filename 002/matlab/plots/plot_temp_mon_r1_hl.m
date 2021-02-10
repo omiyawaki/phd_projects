@@ -7,12 +7,15 @@ function plot_temp_mon_r1_hl(type, par)
 
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/flux_z.mat', prefix_proc)); % load lat x mon RCAE_ALT data
-    load(sprintf('%s/ta_mon_lat.mat', prefix_proc));
-    load(sprintf('%s/ma_mon_lat.mat', prefix_proc));
+    if par.levtype == 'ml'
+        load(sprintf('%s/taml_mon_lat.mat', prefix_proc));
+    elseif par.levtype == 'pl'
+        load(sprintf('%s/ta_mon_lat.mat', prefix_proc));
+    end
 
     lat_bound_list = [80];
     
-    for f = {'mse', 'mse_old'}; fw = f{1};
+    for f = {'mse_old'}; fw = f{1};
         % for l = {'lo', 'l', 'o'}; land = l{1};
         for l = {'lo'}; land = l{1};
             if strcmp(land, 'lo'); land_text = 'Land + Ocean';
@@ -22,7 +25,7 @@ function plot_temp_mon_r1_hl(type, par)
 
             for lb = 1:length(lat_bound_list); lat_bound = lat_bound_list(lb);
                 dlat = 0.25; % step size for standard lat grid
-                if lat_bound>0; lat_pole = 90; lat = lat_bound:dlat:lat_pole; monlabel=par.monlabel; shiftby=0;
+                if lat_bound>0; lat_pole = 90; lat = lat_bound:dlat:lat_pole; monlabel=par.monlabelnh; shiftby=0;
                 else lat_pole = -90; lat = lat_bound:-dlat:lat_pole; monlabel=par.monlabelsh; shiftby=6; end;
                 clat = cosd(lat); % cosine of latitude for cosine weighting
                 clat_mon = repmat(clat', [1 12]); % cosine of latitude for cosine weighting
@@ -36,12 +39,10 @@ function plot_temp_mon_r1_hl(type, par)
                 ra = interp1(grid.dim2.lat, flux_z.(land).ra.(fw), lat);
                 r1 = res./ra;
                 ta = interp1(grid.dim3.lat, tasi.(land), lat);
-                ma = interp1(grid.dim3.lat, masi.(land), lat);
                 
                 % area weight
                 r1 = squeeze(nansum(r1.*clat_mon, 1)/nansum(clat));
                 ta = squeeze(nansum(ta.*clat_monvert, 1)/nansum(clat));
-                ma = squeeze(nansum(ma.*clat_monvert, 1)/nansum(clat));
                 
                 r1_max = nanmax(r1);
                 r1_min = nanmin(r1);
@@ -67,7 +68,11 @@ function plot_temp_mon_r1_hl(type, par)
                 make_title_type_lat(type, lat_bound, lat_pole, par);
                 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
                 set(gca, 'fontsize', par.fs, 'xlim', [210 275], 'xtick', [200:10:300], 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.2 1], 'xminortick', 'on')
-                print(sprintf('%s/temp_r1_all.png', folder), '-dpng', '-r300');
+                if par.levtype == 'ml'
+                    print(sprintf('%s/tempml_r1_all.png', folder), '-dpng', '-r300');
+                elseif par.levtype == 'pl'
+                    print(sprintf('%s/temp_r1_all.png', folder), '-dpng', '-r300');
+                end
                 close;
                 
                 % for bin = 1:length(par.r1_bins)-1
