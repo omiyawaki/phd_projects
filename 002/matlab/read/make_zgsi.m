@@ -23,7 +23,7 @@ function make_zgsi(type, par)
     pa = permute(pa, [3 1 2 4]);
     zg_sm = permute(zg_sm, [3 1 2 4]);
 
-    pb = CmdLineProgressBar("Sorting and interpolating temperature to new standard grid...");
+    pb = CmdLineProgressBar("Sorting and interpolating zg to new standard grid...");
     for lo=1:size(pa,2)
         pb.print(lo, size(pa,2));
         for la=1:size(pa,3)

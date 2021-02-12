@@ -1,4 +1,4 @@
-function proc_dr1_midlatitude_line(type, par)
+function proc_dr1_polar_line(type, par)
     prefix = make_prefix(type, par);
     prefix_proc = make_prefix_proc(type, par);
     plotdir = make_plotdir(type, par);
@@ -13,18 +13,17 @@ function proc_dr1_midlatitude_line(type, par)
     % sftlf = nanmean(sftlf, 1); % zonal average
     % sftlf = repmat(sftlf', [1 12]); % expand land fraction data to time
 
-    par.lat_bound_list = [-10 10];
-    center = 50;
+    par.lat_bound_list = [-80 80];
 
     for lb = 1:length(par.lat_bound_list); par.lat_bound = par.lat_bound_list(lb);
 
         dlat = 0.25; % step size for standard lat grid
-        if par.lat_bound>0; par.lat_center=center; lat = [-par.lat_bound:dlat:par.lat_bound]+par.lat_center; par.shiftby=0;
-        else; par.lat_center=-center; lat = [-par.lat_bound:-dlat:par.lat_bound]+par.lat_center; par.shiftby=6; end;
+        if par.lat_bound>0; lat_pole = 90; lat = par.lat_bound:dlat:lat_pole; 
+        else lat_pole = -90; lat = par.lat_bound:-dlat:lat_pole; end;
         clat = cosd(lat); % cosine of latitude for cosine weighting
         clat_mon = repmat(clat', [1 12]);
 
-        savename = sprintf('%s/dr1_midlatitude_lat_%g_to_%g.mat', prefix_proc, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound);
+        savename = sprintf('%s/dr1_poleward_of_lat_%g.mat', prefix_proc, par.lat_bound);
 
         % for l = {'lo', 'l', 'o'}; land = l{1};
         for l = {'lo'}; land = l{1};
@@ -39,7 +38,7 @@ function proc_dr1_midlatitude_line(type, par)
             f_vec = assign_fw(type, par);
 
             for f = f_vec; fw = f{1};
-
+            
                 % R1 computed before zonal averaging
                 %dr1.r1_lat = interp1(grid.dim3.lat, flux_z.(land).r1.(fw), lat);
                 %dr1.r1_lat = nansum(dr1.r1_lat.*clat_mon)/nansum(clat);

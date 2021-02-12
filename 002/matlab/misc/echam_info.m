@@ -8,7 +8,8 @@ par.echam.all_mld = {"rp000046", "rp000126",... % 50 m
                      "rp000133", "rp000132",... % 20 m
                      "rp000141", "rp000140",... % 15 m
                      "rp000034", "rp000124",... % 10 m
-                     "rp000086"};   % 5 m
+                     "rp000086", ...            % 5 m
+                     "rp000092"};               % 2 m
 
 par.echam.noice_mld = {"rp000046",... % 50 m
                        "rp000149",... % 45 m
@@ -19,7 +20,8 @@ par.echam.noice_mld = {"rp000046",... % 50 m
                        "rp000133",... % 20 m
                        "rp000141",... % 15 m
                        "rp000034",... % 10 m
-                       "rp000086"};   % 5 m
+                       "rp000086",... % 5 m
+                       "rp000092"};   % 2 m
 
 par.echam.ice_mld = {            "rp000126",... % 50 m
                                  "rp000148",... % 45 m
@@ -69,3 +71,5 @@ par.echam.rp000034 = "10 m, w/o ice";
 par.echam.rp000124 = "10 m, w/ ice";
 
 par.echam.rp000086 = "5 m, w/o ice";
+
+par.echam.rp000092 = "2 m, w/o ice";

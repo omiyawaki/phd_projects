@@ -69,10 +69,10 @@ function read_stf(type, ymonmean, par)
     elseif strcmp(type, 'echam')
         stf_vars=par.echam.vars.stf;
         for i=1:length(par.echam.vars.stf); var = par.echam.vars.stf{i};
-            if contains(par.echam.clim, 'rp000')
-                file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/BOT_%s_0020_39.nc', par.echam.clim, par.echam.clim));
-            else
+            if contains(par.echam.clim, 'echr000') | strcmp(par.echam.clim, 'rp000092')
                 file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/BOT*_%s_*%s.nc', par.echam.clim, ymm_in));
+            else
+                file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/BOT_%s_0020_39.nc', par.echam.clim, par.echam.clim));
             end
             fullpath=sprintf('%s/%s', file.folder, file.name);
             stf.(var)=double(ncread(fullpath, var));

@@ -58,12 +58,12 @@ function read_grid(type, par)
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         save(sprintf('%s/%s', newdir, filename), 'grid');
     elseif strcmp(type, 'echam')
-        if contains(par.echam.clim, 'rp000')
-            file.dim2=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/BOT_%s_0020_39.nc', par.echam.clim, par.echam.clim));
-            file.dim3=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/ATM_%s_0020_39.nc', par.echam.clim, par.echam.clim));
-        else
+        if contains(par.echam.clim, 'echr000') | strcmp(par.echam.clim, 'rp000092')
             file.dim2=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/BOT*_%s_*.ymonmean.nc', par.echam.clim));
             file.dim3=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/ATM*_%s_*.ymonmean.nc', par.echam.clim));
+        else
+            file.dim2=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/BOT_%s_0020_39.nc', par.echam.clim, par.echam.clim));
+            file.dim3=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/ATM_%s_0020_39.nc', par.echam.clim, par.echam.clim));
         end
         fullpath.dim2=sprintf('%s/%s', file.dim2.folder, file.dim2.name);
         fullpath.dim3=sprintf('%s/%s', file.dim3.folder, file.dim3.name);

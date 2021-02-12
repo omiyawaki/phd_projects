@@ -23,16 +23,17 @@ par.si_eval = [0.8 0.85 0.9]; % sigma level for evaluating inversion strength (T
 par.si_bl_swp = [0.85 0.9 0.95]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
 par.si_up = 0.4; % sigma level for upper boundary of vertical average for close to moist adiabatic
 par.z = [0:500:40e3]';
-par.gcm.fw = {'mse', 'dse'};
+par.gcm.fw = {'mse_old'};
 par.cpd = 1005.7; par.cpv = 1870; par.cpl = 4186; par.cpi = 2108; par.Rd = 287; par.Rv = 461; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3; par.eps = 0.622; % common constants, all in SI units for brevity
 end
 
 type = 'gcm';
-make_grid(type, par);
-%choose_mmm_lat_mon_silev(type, par); % make mmm of mon x lat x lev data
-%choose_mmm_lat_mon(type, par); % make mmm of mon x lat data
-%choose_mmm_lon_lat(type, par); % make mmm of lon x lat data
+% make_grid(type, par);
+% choose_mmm_lat_mon_silev(type, par); % make mmm of mon x lat x lev data
+% choose_mmm_lat_mon(type, par); % make mmm of mon x lat data
+% choose_mmm_lon_lat(type, par); % make mmm of lon x lat data
 choose_mmm_lat(type, par); % make mmm of lat data
+% choose_mmm_mon(type, par); % make mmm of lat data
 for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
     %choose_mmm_lat_mon_bl(type, par);
 end
@@ -58,13 +59,13 @@ function choose_mmm_lat_mon_silev(type, par)
 end
 
 function choose_mmm_lat_mon(type, par)
-    %mmm_flux_z(type, par);
-    %mmm_vh_mon(type, par);
+    mmm_flux_z(type, par);
+    mmm_vh_mon(type, par);
 end
 
 function choose_mmm_lat_mon_bl(type, par)
     mmm_ga_dalr_bl_diff_si_mon_lat(type, par);
-    %mmm_ga_malr_bl_diff_si_mon_lat(type, par);
+    mmm_ga_malr_bl_diff_si_mon_lat(type, par);
 end
 
 function choose_mmm_lon_lat(type, par)
@@ -73,6 +74,13 @@ end
 
 function choose_mmm_lat(type, par)
     mmm_flux_zt(type, par);
-    %mmm_vh(type, par);
+    mmm_vh(type, par);
+end
+
+function choose_mmm_mon(type, par)
+    mmm_dmse_midlatitude_line(type, par);
+    mmm_dmse_polar_line(type, par);
+    mmm_dr1_midlatitude_line(type, par);
+    mmm_dr1_polar_line(type, par);
 end
 

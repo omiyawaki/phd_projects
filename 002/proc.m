@@ -15,8 +15,8 @@ par.era5.yr_span = '1979_2005'; % spanning years for ERA5
 par.jra55.yr_span = '1979_2005'; % spanning years for JRA55
 par.era5c.yr_span = par.era5.yr_span;
 par.merra2.yr_span = '1980_2005'; % spanning years for MERRA2
-%par.echam_clims = {'rp000086'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
-par.echam_clims = par.echam.noice_mld; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+par.echam_clims = {'rp000092'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+% par.echam_clims = par.echam.noice_mld; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 par.hahn_clims = {'Control1850'}; % Control1850, Flat1850, Control2xCO2, Flat2xCO2
 par.lat_interp = 'native'; % which latitudinal grid to interpolate to: native (no interpolation), don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
 par.levtype = 'pl'; % analyze model level (ml) or pressure level (pl) data?
@@ -40,11 +40,11 @@ par.si_up = 0.4; % sigma level for upper boundary of vertical average for close 
 % par.era.fw = {'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt', 'div79'};
 % par.era.fw = {'div79', 'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt'};
 par.era.fw = {'mse_old'};
-par.jra55.fw = {'mse', 'dse'};
-par.merra2.fw = {'mse', 'dse'};
-par.gcm.fw = {'mse', 'dse'};
-par.echam.fw = {'mse_old', 'dse_old'};
-par.hahn.fw = {'mse', 'dse'};
+par.jra55.fw = {'mse_old'};
+par.merra2.fw = {'mse_old'};
+par.gcm.fw = {'mse_old'};
+par.echam.fw = {'mse_old'};
+par.hahn.fw = {'mse_old'};
 par.cpd = 1005.7; par.cpv = 1870; par.cpl = 4186; par.cpi = 2108; par.Rd = 287; par.Rv = 461; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3; par.eps = 0.622; % common constants, all in SI units for brevity
 end
 
@@ -53,12 +53,12 @@ end
 % ceres_flux(par)
 % choose_disp(par)
 
-type = 'erai'; % data type to run analysis on
-choose_proc(type, par)
+% type = 'merra2'; % data type to run analysis on
+% choose_proc(type, par)
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-    %type='echam';
-    %disp(par.echam.clim)
-    %choose_proc(type, par);
+    type='echam';
+    disp(par.echam.clim)
+    choose_proc(type, par);
 end
 for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
     %type='hahn';
@@ -66,9 +66,9 @@ for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
     %choose_proc(type, par);
 end
 for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-    %type = 'gcm';
-    %disp(par.model)
-    %choose_proc(type, par)
+    % type = 'gcm';
+    % disp(par.model)
+    % choose_proc(type, par)
 end
 
 for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
@@ -109,6 +109,11 @@ function choose_proc(type, par)
     %make_tai(type, par) % calculate moist adiabat in lon x lat x mon
     %make_dtdzsi(type, par) % calculate model lapse rate and interpolate to sigma coordinates
     %make_malrsi(type, par) % calculate moist adiabatic lapse rate of model temperature sigma coordinates
+    
+    proc_dmse_midlatitude_line(type, par);
+    proc_dmse_polar_line(type, par);
+    proc_dr1_midlatitude_line(type, par);
+    proc_dr1_polar_line(type, par);
 
     % proc_temp_mon_lat_interp(type, par) % calculate mon x lat temperature profiles
     % proc_temp_mon_lat_interp_mean(type, par) % calculate mon x lat temperature profiles

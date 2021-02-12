@@ -44,7 +44,7 @@ function plot_flux(type, par)
             cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
             ylabel(cb, sprintf('%s (Wm$^{-2}$)', var_text));
             xlabel('Month'); ylabel('Latitude (deg)');
-            set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
             print(sprintf('%s/flux/%s/%s/0_div_mon_lat', plotdir, fw, land), '-dpng', '-r300');
             close;
 
@@ -73,7 +73,7 @@ function plot_flux(type, par)
             cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
             ylabel(cb, sprintf('%s (Wm$^{-2}$)', var_text));
             xlabel('Month'); ylabel('Latitude (deg)');
-            set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
             print(sprintf('%s/flux/%s/%s/0_ra_mon_lat', plotdir, fw, land), '-dpng', '-r300');
             close;
 
@@ -90,7 +90,7 @@ function plot_flux(type, par)
             cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
             ylabel(cb, sprintf('%s (Wm$^{-2}$)', var_text));
             xlabel('Month'); ylabel('Latitude (deg)');
-            set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
             print(sprintf('%s/flux/%s/%s/0_stf_mon_lat',plotdir, fw, land), '-dpng', '-r300');
             close;
 
@@ -113,7 +113,7 @@ function plot_flux(type, par)
                 cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
                 ylabel(cb, sprintf('%s (unitless)', var_text));
                 ylabel('Latitude (deg)');
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
                 print(sprintf('%s/flux/%s/%s/0_r1_mon_lat', plotdir, fw, land), '-dpng', '-r300');
                 close;
 
@@ -135,7 +135,7 @@ function plot_flux(type, par)
                 cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
                 ylabel(cb, sprintf('%s (unitless)', var_text));
                 ylabel('Latitude (deg)');
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
                 print(sprintf('%s/flux/%s/%s/0_r1_mon_lat', plotdir, fw, land), '-dpng', '-r300');
                 close;
 
@@ -161,7 +161,7 @@ function plot_flux(type, par)
                 ylabel(cb, sprintf('%s (unitless)', var_text));
                 ylabel('Latitude (deg)');
                 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
                 print(sprintf('%s/flux/%s/%s/0_r1z_mon_lat', plotdir, fw, land), '-dpng', '-r300');
                 close;
 
@@ -184,7 +184,7 @@ function plot_flux(type, par)
                 ylabel(cb, sprintf('%s (unitless)', var_text));
                 ylabel('Latitude (deg)');
                 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos);
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
                 print(sprintf('%s/flux/%s/%s/0_dr1z_mon_lat', plotdir, fw, land), '-dpng', '-r300');
                 close;
 

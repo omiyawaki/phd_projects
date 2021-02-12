@@ -15,6 +15,9 @@ function make_dirs(type, par)
             if ~exist(sprintf('%s/temp_zon_sel/%s/%g', plotdir, land, month), 'dir')
                 mkdir(sprintf('%s/temp_zon_sel/%s/%g', plotdir, land, month));
             end
+            if ~exist(sprintf('%s/temp_zon_sel_comp/%s/%g', plotdir, land, month), 'dir')
+                mkdir(sprintf('%s/temp_zon_sel_comp/%s/%g', plotdir, land, month));
+            end
             if ~exist(sprintf('%s/thetaeq_zon_sel/%s/%g', plotdir, land, month), 'dir')
                 mkdir(sprintf('%s/thetaeq_zon_sel/%s/%g', plotdir, land, month));
             end
