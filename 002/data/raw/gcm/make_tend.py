@@ -48,7 +48,7 @@ if not np.array_equal(lat2d,lat3d):
     tas = f(filledlat3d)
     f = interpolate.interp1d(filledlat2d, filledorog, axis=0)
     orog = f(filledlat3d)
-    filledps = None; filledtas = None; filledorog = None; filledlat2d = None; filledlat3d = None; f = None;
+    filledps = None; filledtas = None; filledorog = None; f = None;
 
 # try to open huss (not all models have huss)
 try:
@@ -71,7 +71,7 @@ else:
         filledhuss = huss.filled(fill_value=np.nan)
         f = interpolate.interp1d(filledlat2d, filledhuss, axis=1)
         huss = f(filledlat3d)
-    filledhuss = None;
+    filledhuss = None; filledlat2d = None; filledlat3d = None; 
     
 monthlytime = file_ps.variables['time'] # (day x lev x lat x lon)
 monthlydate = num2date(monthlytime[:], units=monthlytime.units, calendar=monthlytime.calendar)

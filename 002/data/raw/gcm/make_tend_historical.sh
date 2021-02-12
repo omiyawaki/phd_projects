@@ -2,18 +2,18 @@
 set -euo pipefail
 
 #declare -a models=$(cd /project2/tas1/ockham/data9/tas/CMIP5_RAW && ls -d */) # list of GCM models to process
-#declare -a models=("MPI-ESM-LR/") # list of GCM models to process
+declare -a models=("MPI-ESM-LR/") # list of GCM models to process
 declare -a clim="historical" # climate name
 # declare -a skip_models="MPI-ESM-LR/ MPI-ESM-MR/ MPI-ESM-P/ FGOALS-g2/ CanAM4/ CanCM4/ CESM1-CAM5-1-FV2/ CMCC-CESM/ CMCC-CM/ CMCC-CMS/ FIO-ESM/ HadGEM2-A/ GFDL-HIRAM-C180/ GFDL-HIRAM-C360/ MRI-AGCM3-2H/ MRI-AGCM3-2S/ NICAM-09/"
-declare -a skip_models="ACCESS1-0/ FGOALS-s2/ FGOALS-g2/ MPI-ESM-LR/ MPI-ESM-MR/ NorESM1-ME/ CCSM4/ MPI-ESM-P/ FGOALS-g2/ CanAM4/ CanCM4/ CESM1-CAM5-1-FV2/ CMCC-CESM/ CMCC-CM/ CMCC-CMS/ FIO-ESM/ HadGEM2-A/ GFDL-HIRAM-C180/ GFDL-HIRAM-C360/ MRI-AGCM3-2H/ MRI-AGCM3-2S/ NICAM-09/"
+declare -a skip_models="ACCESS1-0/ FGOALS-s2/ FGOALS-g2/ MPI-ESM-MR/ NorESM1-ME/ CCSM4/ MPI-ESM-P/ FGOALS-g2/ CanAM4/ CanCM4/ CESM1-CAM5-1-FV2/ CMCC-CESM/ CMCC-CM/ CMCC-CMS/ FIO-ESM/ HadGEM2-A/ GFDL-HIRAM-C180/ GFDL-HIRAM-C360/ MRI-AGCM3-2H/ MRI-AGCM3-2S/ NICAM-09/"
 declare -a skip_files=("Amon_bcc-csm1-1_historical_r1i1p1_185001-200512.nc Amon_bcc-csm1-1-m_historical_r1i1p1_185001-200512.nc Amon_GFDL-CM3_historical_r1i1p1_185001-200512.nc Amon_GISS-E2-H-CC_historical_r1i1p1_185001-200512.nc Amon_GISS-E2-R-CC_historical_r1i1p1_185001-200512.nc Amon_MIROC5_historical_r1i1p1_185001-200512.nc")
 
 cwd=$(pwd) # save current working directory
 cd ../${clim}_raw # switch to directory with raw data
 rwd=$(pwd) # save raw data directory
 
-for dirs in */; do # loop through all the models
-#for dirs in ${models[@]}; do # loop through models
+#for dirs in */; do # loop through all the models
+for dirs in ${models[@]}; do # loop through models
     case $skip_models in *"$dirs"*)
         :
         ;; 
@@ -119,8 +119,6 @@ for dirs in */; do # loop through all the models
                 rm ${cwd}/${dirs}$ps_out
                 rm ${cwd}/${dirs}$tas_out
                 rm ${cwd}/${dirs}$huss_out
-                
-                exit
                 
             done
         fi

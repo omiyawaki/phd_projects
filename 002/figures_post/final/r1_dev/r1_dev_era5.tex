@@ -1,0 +1,46 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=large]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+
+\begin{document}
+
+\begin{figure}
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.95\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/flux/mse/lo/0_r1z_mon_lat.png}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/temp_zon_sel/lo/1/nh_only.png}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(c)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/temp_zon_sel/lo/6/nh_only.png}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(d)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/temp_zon_sel/lo/1/sh_only.png}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(e)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/temp_zon_sel/lo/6/sh_only.png}
+  \end{subfigure}
+
+\end{figure}
+
+\end{document}

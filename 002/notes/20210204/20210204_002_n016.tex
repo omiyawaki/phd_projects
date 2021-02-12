@@ -12,15 +12,38 @@
 
 \section{Assessing $R_1$ definitions in the high latitudes using spatio-temporal structure of the near-surface lapse rate}
 
+We are continuing to investigate the role of the MSE tendency term on identifying heat transfer regimes. I think part of the conceptual difficulty in interpreting this term is due to the fact that the presence of a tendency term is at odds with labeling it as an equilibrium regime (RCE, RAE, and RCAE). Is the column in a state of equilibrium if it is varying with time?
+
+Putting this question aside, it would still be useful to revisit our comparison of the spatio-temporal structure of $R_1$ with that of the temperature profile as a guide to test the usefulness of $R_1$ as a proxy for temperature. So far, neither definition of $R_1$ (including or excluding $\partial_t h$ in the numerator) captures the seasonality of the near-surface lapse rate in ERA5 (Fig.~\ref{fig:lr-r1-era5c}). Similar results are found for other reanalyses and the CMIP5 multimodel mean (see figures attached in the email from Feb. 2). Here, I additionally show that the seasonality of lapse rate regimes is not significantly sensitive to the upper boundary of the vertical average (Fig.~\ref{fig:dalr-mon-lat-era5c}).
+
+I am currently working to test if the choice of converting the temperature profile to sigma coordinates using the model level data or pressure level data influences the seasonality of the lapse rate regimes for reanalyses. 
+
+\begin{figure}
+    \includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/lr_mon_lat/lr_r1_comp_era5c.pdf}
+    \caption{The spatio-temporal structure of $R_1$ differs markedly between the case where (a) $R_1^*=\frac{\partial_t h+\nabla\cdot F_m}{R_a} = \frac{R_a+\mathrm{LH+SH}}{R_a}$ and (b) $R_1=\frac{\nabla\cdot F_m}{R_a} = \frac{R_a+\mathrm{LH+SH}-\partial_t h}{R_a}$. Neither definition captures the seasonality of the near-surface lapse rate in the NH high latitudes (c), where an inversion-free stratification is found from May through October.} 
+    \label{fig:lr-r1-era5c}
+\end{figure}
+
 \begin{figure}
     \includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/lr_mon_lat/lr_mon_lat_era5c.pdf}
     \caption{The spatio-temporal structure of the lapse rate deviation from a dry adiabat averaged from 1000 hPa up to (a) 850 hPa (b) 900 hPa (c) 950 hPa. The 100\% contour is highlighted in red, which separates temperature profiles that exhibit an inversion ($>100\%$) and those that do not ($<100\%$). In all cases, an inversion-free temperature profile is found in the NH high latitudes from mid-April through October.}
     \label{fig:dalr-mon-lat-era5c}
 \end{figure}
 
-\section{Hemispheric asymmetry in surface energy budget}
-
 \section{Mixed layer depth controls timing of midlatitude regime transition?}
+I updated Fig.~\ref{fig:dr1-all} with results from the 5 m slab ocean run (panel (a)). We see clearly see the pattern that the phase of $R_1$ shifts earlier toward the season with shallower mixed layer depths. At 5 m mixed layer depth, minimum of $R_1$ is found both during June and July. In comparison, the minimum $R_1$ is observed clearly during June (Fig.~\ref{fig:dr1-era5c}), suggesting that the phase of $R_1$ in the NH midlatitudes may be comparable to a yet shallower slab ocean, possibly on the order of 1 to 2 m.
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/dr1_all.pdf}
+    \caption{The phase of $R_1$ depends on the mixed layer depth in the range of values explored here. For (a) the shallowest mixed layer depth $\min(R_1)$ is observed in June/July, whereas in the deepest mixed layer depth $\min(R_1)$ is observed around August/September.}
+    \label{fig:dr1-all}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr1z_decomp.png}
+    \caption{In ERA5, minimum $R_1$ is observed in June.}
+    \label{fig:dr1-era5c}
+\end{figure}
 
 \bibliographystyle{apalike}
 \bibliography{../../outline/references.bib}

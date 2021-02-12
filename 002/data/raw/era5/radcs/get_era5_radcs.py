@@ -5,13 +5,14 @@ import cdsapi
 c = cdsapi.Client()
 
 c.retrieve(
-    'reanalysis-era5-complete',
+    'reanalysis-era5-single-levels-monthly-means',
     {
         'format': 'netcdf',
         'product_type': 'monthly_averaged_reanalysis',
-        'variable': 'temperature',
-        'levellist': '1/to/137',
-        'levtype': 'ml',
+        'variable': [
+            'surface_net_solar_radiation_clear_sky', 'surface_net_thermal_radiation_clear_sky', 'top_net_solar_radiation_clear_sky',
+            'top_net_thermal_radiation_clear_sky',
+        ],
         'year': [
             '1979', '1980', '1981',
             '1982', '1983', '1984',
@@ -36,4 +37,4 @@ c.retrieve(
         ],
         'time': '00:00',
     },
-    'era5_temp_1979_2019.nc')
+    'era5_radcs_1979_2019.nc')

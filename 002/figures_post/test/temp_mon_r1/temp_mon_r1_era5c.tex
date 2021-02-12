@@ -1,0 +1,30 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+
+\begin{document}
+
+\begin{figure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.95\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/temp_mon_r1/mse_old/lo/0_poleward_of_lat_80/temp_r1_all.png}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.95\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/temp_mon_r1/mse/lo/0_poleward_of_lat_80/temp_r1_all.png}
+  \end{subfigure}
+  
+\end{figure}
+  
+\end{document}
+
+

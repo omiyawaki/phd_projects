@@ -13,9 +13,9 @@ server.retrieve({
     "grid": "0.75/0.75",
     "levtype": "pl",
     "levelist": "1/2/3/5/7/10/20/30/50/70/100/125/150/175/200/225/250/300/350/400/450/500/550/600/650/700/750/775/800/825/850/875/900/925/950/975/1000",
-    "param": "129.128",
+    "param": "133.128",
     "stream": "moda",
     "type": "an",
     "format": "netcdf",
-    "target": ("interim_zg_{yr}.nc").format(yr = year),
+    "target": ("interim_hus_{yr}.nc").format(yr = year),
 })

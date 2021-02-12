@@ -1,0 +1,92 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+
+\title{Research notes}
+\date{\today}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+\section{Comparing heat fluxes and $R_1$ across CMIP5 and reanalyses}
+It became clear during the last meeting that while GCMs and reanalyses generally agree on the seasonality of lapse rate regimes, there is significant spread in the seasonality of $R_1$. MERRA2 in particular showed significant disagreement between the seasonality of heat transfer and the lapse rate regimes. Specifically, MERRA2 unintuitively diagnoses RAE to occur in the high latitude summer and RCAE during the rest of the year, which is opposite of we expect based on the lapse rate regimes. Thus, we agreed that we need to do a systematic comparison of the heat fluxes across the various reanalyses and determine which reanalysis is most appropriate to use for the paper.
+
+\subsection{Annual mean}
+We start with the meridional profile of heat fluxes in the annual mean first. There is generally good agreement between the GCMs and reanalyses in the radiative cooling profile (Fig.~\ref{fig:ra-comp-ann}). JRA55 stands out from the rest as it exhibits anomalously weak radiative cooling in the high latitudes and strong cooling in the low latitudes. 
+
+Latent heating also shows good agreement across all the datasets (Fig.~\ref{fig:lh-comp-ann}). Again, JRA55 stands out as the most anomalous dataset due to a stronger than average latent heat flux in the NH subtropics. ERA5 exhibits a slight negative bias in the low latitudes.
+
+The largest discrepancies are found in the sensible heat flux (Fig.~\ref{fig:sh-comp-ann}). The NH high latitudes in particular stands out as the reanalyses are not able to agree on the sign: MERRA2 diagnoses a positive sensible heat flux (from the surface to the atmosphere), ERA5 near zero, and JRA55 a negative flux. This spread is well outside of the one standard deviation spread among CMIP5 models. ERA5 and MERRA2 are in good agreement with the CMIP5 multi-model mean in other latitudes, whereas JRA55 exhibits a positive bias in the tropics and a positive bias in the SH high latitudes.
+
+The large spread in sensible heat flux is partially modulated by the small magnitude of sensible heat flux, and the effect on the spread of $R_1$ is not as significant (Fig.~\ref{fig:r1z-comp-ann}). Still, we can see the biases in the high latitude project onto $R_1$, where JRA55 exhibits a positive bias and MERRA2 a negative bias in the NH high latitudes. JRA55 also exhibits a positive bias in the SH high latitudes due to the anomalously strong negative sensible heat flux. There is generally good agreement in the rest of the globe, although ERA5 exhibits a small positive bias in the low latitudes.
+
+In summary, biases in the annual mean are minor, with the most noticeable differences arising in the NH high latitude sensible heat flux.
+
+\begin{figure}
+    \includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/1.00/energy-flux-comp/lo/ann/ra.png}
+    \caption{The annual mean radiative cooling profile is compared between the CMIP5 multi-model mean of the historical run and 3 reanalyses. One standard deviation of the CMIP5 ensemble is shaded in gray.}
+    \label{fig:ra-comp-ann}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/1.00/energy-flux-comp/lo/ann/latent.png}
+    \caption{Same as Fig.~\ref{fig:ra-comp-ann} but for latent heat flux.}
+    \label{fig:lh-comp-ann}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/1.00/energy-flux-comp/lo/ann/sensible.png}
+    \caption{Same as Fig.~\ref{fig:ra-comp-ann} but for sensible heat flux.}
+    \label{fig:sh-comp-ann}
+\end{figure}
+
+\afterpage{%
+\clearpage
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/1.00/energy-flux-comp/lo/ann/r1z.png}
+    \caption{Same as Fig.~\ref{fig:ra-comp-ann} but for $R_1$.}
+    \label{fig:r1z-comp-ann}
+\end{figure}
+}
+
+\subsection{Seasonal cycle}
+
+We will focus on the seasonality of heat fluxes in the NH high latitudes, which is where the largest discrepancies between the heat flux and lapse rate regimes are found. As in the annual mean, GCMs and reanalyses show good agreement in the seasonal cycle of radiative cooling (Fig.~\ref{fig:ra-comp-ssn}). MERRA2 shows some negative bias during winter.
+
+There is more spread in the seasonality of latent heat flux, both among reanalyses and the CMIP5 ensemble (Fig.~\ref{fig:lh-comp-ssn}). MERRA2 stands out here as the only dataset that doesn't show a peak in latent heating during summer. It remains nearly uniform around 5 Wm$^{-2}$ all yearround, which seems unphysical considering the strong seasonality in surface temperature in the high latitudes. While ERA5 and JRA55 both capture the peak in latent heating during summer, its magnitude is about 4 Wm$^{-2}$ stronger than the CMIP5 mean, putting it outside of the one standard deviation spread. ERA5 also exhibits a positive bias during winter. Overall, JRA55 agrees best with the CMIP5 seasonality.
+
+The seasonality of sensible heat flux is alarmingly different across the reanalyses (Fig.~\ref{fig:sh-comp-ssn}), much like the disagreement in the sign of the sensible heat flux found in the annual mean. MERRA2 is the most anomalous of the reanalyses with a sensible heat flux peak during winter. This is nearly opposite the seasonality found in JRA55, where a peak occurs in summer. We previously suspected that there may have been a sign issue when loading the MERRA2 sensible heat flux data, but this cannot be the case because the sensible heat flux sign anomaly is unique to the NH high latitudes. Although JRA55 agrees with the CMIP5 in the qualitative shape of the seasonality, there is a significant negative bias. The magnitude of sensible heat flux in ERA5 is most consistent with that in CMIP5, but the seasonality is muted, remaining near zero yearround.
+
+These large biases in sensible heat flux are associated with small but meaningful differences in the near-surface lapse rate among the reanalyses (Fig.~\ref{fig:np-jan}). MERRA2 exhibits an elevated thermal inversion, meaning that  temperature decreases with height immediately above the surface. This is consistent with the fact that sensible heat flux is positive in MERRA2 during winter. ERA5 has a near-isothermal temperature profile immediately above the surface, and this is consistent with the near zero sensible heat flux in ERA5 during winter. Lastly, JRA55 exhibits an inversion immediately above the surface, and thus sensible heat flux is negative. This reveals some of the limitations of the vertically-integrated framework because the surface turbulent fluxes can only tell us information about the presence of an inversion immediately adjacent to the surface. However, we can clearly see that in all three reanalyses, an inversion is present when the lower troposphere is broadly considered. 
+
+\begin{figure}
+    \includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/1.00/dmse-comp/mse_old/lo/0_poleward_of_lat_80/0_mon_ra.png}
+    \caption{The seasonal cycle of radiative cooling in the NH high latitudes is compared between the CMIP5 multi-model mean of the historical run and 3 reanalyses. One standard deviation of the CMIP5 ensemble is shaded in gray.}
+    \label{fig:ra-comp-ssn}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/1.00/dmse-comp/mse_old/lo/0_poleward_of_lat_80/0_mon_lh.png}
+    \caption{Same as Fig.~\ref{fig:ra-comp-ssn} but for latent heat flux.}
+    \label{fig:lh-comp-ssn}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/1.00/dmse-comp/mse_old/lo/0_poleward_of_lat_80/0_mon_sh.png}
+    \caption{Same as Fig.~\ref{fig:ra-comp-ssn} but for sensible heat flux.}
+    \label{fig:sh-comp-ssn}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/1.00/temp_zon_sel_comp/lo/1/np.png}
+    \caption{January temperature profiles at $85^\circ$ N for the CMIP5 multi-model mean of the historical run and 3 reanalyses. The near surface lapse rate varies among the reanalyses.}
+    \label{fig:np-jan}
+\end{figure}
+
+\bibliographystyle{apalike}
+\bibliography{../../outline/references.bib}
+
+\end{document}
