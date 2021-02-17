@@ -29,10 +29,10 @@ end
 
 type = 'gcm';
 % make_grid(type, par);
-% choose_mmm_lat_mon_silev(type, par); % make mmm of mon x lat x lev data
+choose_mmm_lat_mon_lev(type, par); % make mmm of mon x lat x lev data
 % choose_mmm_lat_mon(type, par); % make mmm of mon x lat data
 % choose_mmm_lon_lat(type, par); % make mmm of lon x lat data
-choose_mmm_lat(type, par); % make mmm of lat data
+% choose_mmm_lat(type, par); % make mmm of lat data
 % choose_mmm_mon(type, par); % make mmm of lat data
 for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
     %choose_mmm_lat_mon_bl(type, par);
@@ -53,9 +53,11 @@ function make_grid(type, par)
 end
 
 %% Choose functions to run
-function choose_mmm_lat_mon_silev(type, par)
-    mmm_ta_mon_lat(type, par);
-    mmm_ma_mon_lat(type, par);
+function choose_mmm_lat_mon_lev(type, par)
+    % mmm_ta_mon_lat(type, par);
+    mmm_tai_mon_lat(type, par);
+    % mmm_ta_pl_mon_lat(type, par);
+    % mmm_ma_mon_lat(type, par);
 end
 
 function choose_mmm_lat_mon(type, par)

@@ -51,11 +51,11 @@ function plot_dr1_midlatitude_line(type, par)
 
                 % MAKE PLOTS
                 if strcmp(type, 'gcm') & strcmp(par.model, 'mmm')
-                    plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '', ymin, ymax, type, fw, par, dr1_std.dr1z_lat.(land).(fw))
-                    plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '_noleg', ymin, ymax, type, fw, par, dr1_std.dr1z_lat.(land).(fw))
+                    plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '', ymin, ymax, type, fw, par, dr1_std.dr1z_lat.(land).(fw), dr1_std.comp1s_lat.(land).(fw), dr1_std.comp2s_lat.(land).(fw));
+                    plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '_noleg', ymin, ymax, type, fw, par, dr1_std.dr1z_lat.(land).(fw), dr1_std.comp1s_lat.(land).(fw), dr1_std.comp2s_lat.(land).(fw));
                 else
-                    plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '', ymin, ymax, type, fw, par)
-                    plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '_noleg', ymin, ymax, type, fw, par)
+                    plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '', ymin, ymax, type, fw, par);
+                    plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '_noleg', ymin, ymax, type, fw, par);
                 end
 
             end % for mse dse

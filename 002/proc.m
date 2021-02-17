@@ -53,12 +53,12 @@ end
 % ceres_flux(par)
 % choose_disp(par)
 
-% type = 'merra2'; % data type to run analysis on
-% choose_proc(type, par)
+type = 'era5c'; % data type to run analysis on
+choose_proc(type, par)
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-    type='echam';
-    disp(par.echam.clim)
-    choose_proc(type, par);
+    % type='echam';
+    % disp(par.echam.clim)
+    % choose_proc(type, par);
 end
 for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
     %type='hahn';
@@ -102,18 +102,20 @@ end
 % end
 
 function choose_proc(type, par)
-    proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+    % proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
     %proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
+    % proc_temp_pl_mon_lat(type, par) % calculate mon x lat temperature profiles
+    % proc_tai_mon_lat(type, par) % calculate mon x lat temperature profiles
     % make_masi(type, par) % calculate moist adiabats at every lon x lat x mon
     % proc_ma_mon_lat(type, par) % calculate mon x lat moist adiabats
-    %make_tai(type, par) % calculate moist adiabat in lon x lat x mon
+    make_tai(type, par) % calculate moist adiabat in lon x lat x mon
     %make_dtdzsi(type, par) % calculate model lapse rate and interpolate to sigma coordinates
     %make_malrsi(type, par) % calculate moist adiabatic lapse rate of model temperature sigma coordinates
     
-    proc_dmse_midlatitude_line(type, par);
-    proc_dmse_polar_line(type, par);
-    proc_dr1_midlatitude_line(type, par);
-    proc_dr1_polar_line(type, par);
+    % proc_dmse_midlatitude_line(type, par);
+    % proc_dmse_polar_line(type, par);
+    % proc_dr1_midlatitude_line(type, par);
+    % proc_dr1_polar_line(type, par);
 
     % proc_temp_mon_lat_interp(type, par) % calculate mon x lat temperature profiles
     % proc_temp_mon_lat_interp_mean(type, par) % calculate mon x lat temperature profiles

@@ -1,7 +1,7 @@
 % plot dr1 and its decomposition
-function plot_dr1(r1_var, r1_ann_var, dr1_var, comp1, comp2, leg, ymin, ymax, type, fw, par, dr1_std_var)
+function plot_dr1(r1_var, r1_ann_var, dr1_var, comp1, comp2, leg, ymin, ymax, type, fw, par, dr1_std_var, comp1_std, comp2_std)
 
-    if nargin == 12
+    if nargin > 11
         drawstd = 1;
     else
         drawstd = 0;
@@ -38,7 +38,11 @@ function plot_dr1(r1_var, r1_ann_var, dr1_var, comp1, comp2, leg, ymin, ymax, ty
     if drawstd
         mon2 = [1:12, fliplr(1:12)];
         dr1_std2 = [circshift(dr1_var+dr1_std_var, par.shiftby, 2), fliplr(circshift(dr1_var-dr1_std_var, par.shiftby, 2))];
+        comp1_std2 = [circshift(comp1+comp1_std, par.shiftby, 2), fliplr(circshift(comp1-comp1_std, par.shiftby, 2))];
+        comp2_std2 = [circshift(comp2+comp2_std, par.shiftby, 2), fliplr(circshift(comp2-comp2_std, par.shiftby, 2))];
         fill(mon2, dr1_std2, 'k', 'facealpha', 0.2, 'edgealpha', 0.2);
+        fill(mon2, comp1_std2, par.maroon, 'facealpha', 0.2, 'edgealpha', 0.2);
+        fill(mon2, comp2_std2, 0.5*[1 1 1], 'facealpha', 0.2, 'edgealpha', 0.2);
     end
     res=plot([1:12], circshift(dr1_var,par.shiftby,2) - circshift(comp1+comp2,par.shiftby,2), '-.k');
     c1=plot([1:12],  circshift(comp1,par.shiftby,2), '-', 'color', par.maroon);

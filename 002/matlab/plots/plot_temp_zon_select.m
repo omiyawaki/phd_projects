@@ -8,7 +8,7 @@ function plot_temp_zon_select(type, par)
     
     load(sprintf('%s/grid.mat', prefix));
     load(sprintf('%s/ta_mon_lat.mat', prefix_proc));
-    if wma
+    if par.ma
         load(sprintf('%s/ma_mon_lat.mat', prefix_proc));
     end
 
@@ -21,7 +21,7 @@ function plot_temp_zon_select(type, par)
         elseif strcmp(land, 'l'); land_text = 'Land';
         elseif strcmp(land, 'o'); land_text = 'Ocean';
         end
-        for m = [1 4 7 10]; month = m(1);
+        for m = [1 4 6 7 10]; month = m(1);
             if month==1; mon_str = 'January';
             elseif month==4; mon_str = 'April';
             elseif month==6; mon_str = 'June';
@@ -30,7 +30,7 @@ function plot_temp_zon_select(type, par)
 
             tasi_mon.(land) = squeeze(tasi.(land)(:,month,:));
             if par.ma
-                masi_mon.(land) = squeeze(masi.(land)(:,month,:));
+                masi_mon.(land) = squeeze(masi.(land).ta(:,month,:));
 
                 % remove moist adiabat data below initialization level
                 if ~strcmp(par.ma_init, 'surf')
@@ -273,7 +273,49 @@ function plot_temp_zon_select(type, par)
         set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
         print(sprintf('%s/temp_zon_sel/%s/nh_hl', plotdir, land), '-dpng', '-r300');
         close;
-        
+
+        % NH HL Jan Jun
+        if strcmp(type, 'echam') & strcmp(par.echam.clim, 'rp000135')
+            color_wi = par.gray;
+        else
+            color_wi = par.blue;
+        end
+        color_su = par.gray;
+        figure(); clf; hold all; box on;
+        h_np_wi = plot(tasi_np(:,1), grid.dim3.si, 'color', color_wi);
+        h_np_su = plot(tasi_np(:,6), grid.dim3.si, 'color', color_su);
+        text(tasi_np(30,1)-20, grid.dim3.si(30), '\textbf{January}', 'color', color_wi);
+        text(tasi_np(50,6)+5, grid.dim3.si(50), '\textbf{June}', 'color', color_su);
+        xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
+        make_title_type_lat_pt(type, lat_pole, par);
+        axis('tight');
+        % legend([h_np_wi, h_np_su], 'Jan', 'Jun', 'location', 'southwest', 'orientation', 'vertical');
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+        set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
+        print(sprintf('%s/temp_zon_sel/%s/nh_hl_1_6', plotdir, land), '-dpng', '-r300');
+        close;
+
+        % NH HL Jan Jul
+        if strcmp(type, 'echam') & strcmp(par.echam.clim, 'rp000135')
+            color_wi = par.gray;
+        else
+            color_wi = par.blue;
+        end
+        color_su = par.gray;
+        figure(); clf; hold all; box on;
+        h_np_wi = plot(tasi_np(:,1), grid.dim3.si, 'color', color_wi);
+        h_np_su = plot(tasi_np(:,7), grid.dim3.si, 'color', color_su);
+        text(tasi_np(30,1)-20, grid.dim3.si(30), '\textbf{January}', 'color', color_wi);
+        text(tasi_np(50,7)+5, grid.dim3.si(50), '\textbf{July}', 'color', color_su);
+        xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
+        make_title_type_lat_pt(type, lat_pole, par);
+        axis('tight');
+        % legend([h_np_wi, h_np_su], 'Jan', 'Jun', 'location', 'southwest', 'orientation', 'vertical');
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+        set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
+        print(sprintf('%s/temp_zon_sel/%s/nh_hl_1_7', plotdir, land), '-dpng', '-r300');
+        close;
+
         % NH ML
         figure(); clf; hold all; box on;
         h_nmid_wi = plot(tasi_nmid(:,1), grid.dim3.si, 'color', par.gray);
@@ -291,6 +333,51 @@ function plot_temp_zon_select(type, par)
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
         set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
         print(sprintf('%s/temp_zon_sel/%s/nh_ml', plotdir, land), '-dpng', '-r300');
+        close;
+
+        % NH ML Jan Jun
+        if strcmp(type, 'echam') & strcmp(par.echam.clim, 'rp000135')
+            color_su = par.gray;
+        else
+            color_su = par.orange;
+        end
+        color_wi = par.gray;
+        figure(); clf; hold all; box on;
+        h_nmid_wi = plot(tasi_nmid(:,1), grid.dim3.si, 'color', color_wi);
+        h_nmid_su = plot(tasi_nmid(:,6), grid.dim3.si, 'color', color_su);
+        h_nmid_wi_ma = plot(masi_nmid(:,1), grid.dim3.si, ':', 'color', color_wi);
+        h_nmid_su_ma = plot(masi_nmid(:,6), grid.dim3.si, ':', 'color', color_su);
+        text(tasi_nmid(30,1)-30, grid.dim3.si(30), '\textbf{January}', 'color', color_wi);
+        text(tasi_nmid(50,6)+5, grid.dim3.si(50), '\textbf{June}', 'color', color_su);
+        xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
+        make_title_type_lat_pt(type, lat_mid, par);
+        axis('tight');
+        % legend([h_nmid_wi, h_nmid_su], 'Jan', 'Jun', 'location', 'southwest', 'orientation', 'vertical');
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+        set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
+        print(sprintf('%s/temp_zon_sel/%s/nh_ml_1_6', plotdir, land), '-dpng', '-r300');
+        close;
+
+        % NH ML Jan Jul
+        if strcmp(type, 'echam') & strcmp(par.echam.clim, 'rp000135')
+            color_su = par.gray;
+        else
+            color_su = par.orange;
+        end
+        color_wi = par.gray;
+        figure(); clf; hold all; box on;
+        h_nmid_wi = plot(tasi_nmid(:,1), grid.dim3.si, 'color', color_wi);
+        h_nmid_su = plot(tasi_nmid(:,7), grid.dim3.si, 'color', color_su);
+        h_nmid_wi_ma = plot(masi_nmid(:,1), grid.dim3.si, ':', 'color', color_wi);
+        h_nmid_su_ma = plot(masi_nmid(:,7), grid.dim3.si, ':', 'color', color_su);
+        text(tasi_nmid(30,1)-30, grid.dim3.si(30), '\textbf{January}', 'color', color_wi);
+        text(tasi_nmid(50,7)+5, grid.dim3.si(50), '\textbf{July}', 'color', color_su);
+        xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
+        make_title_type_lat_pt(type, lat_mid, par);
+        axis('tight');
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
+        set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'ytick', 1e-3*[0:100:1000], 'ylim', 1e-3*[200 1000], 'xminortick', 'on')
+        print(sprintf('%s/temp_zon_sel/%s/nh_ml_1_7', plotdir, land), '-dpng', '-r300');
         close;
 
         % SH HL
@@ -319,7 +406,7 @@ function plot_temp_zon_select(type, par)
         h_smid_su_ma = plot(masi_smid(:,1), grid.dim3.si, 'color', par.green);
         h_smid_fa_ma = plot(masi_smid(:,4), grid.dim3.si, 'color', par.orange);
         xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-        make_title_type_lat_pt(type, -lat_, par);
+        make_title_type_lat_pt(type, -lat_mid, par);
         axis('tight');
         legend([h_smid_wi, h_smid_sp, h_smid_su, h_smid_fa], 'Jul', 'Oct', 'Jan', 'Apr', 'location', 'eastoutside', 'orientation', 'vertical');
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)

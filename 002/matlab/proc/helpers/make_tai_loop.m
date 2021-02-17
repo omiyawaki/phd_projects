@@ -11,9 +11,6 @@ function make_tai(type, par)
     load(sprintf('%s/srfc.mat', prefix)); % read surface variable data
 
     if strcmp(type, 'gcm') & any(contains(par.model, {'GISS-E2-H', 'GISS-E2-R'})) % zg data in GISS-E2-H has an anomalous lat grid
-        var = 'zg';
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, var, par.model, par.gcm.clim));
-        fullpath=sprintf('%s/%s', file.folder, file.name);
         zg_lat = double(ncread(fullpath, 'lat'));
         zg = permute(zg, [2 1 3 4]);
         zg = interp1(zg_lat, zg, grid.dim3.lat);
@@ -82,7 +79,6 @@ function make_tai(type, par)
     ta_plus = permute(ta_plus, [3 1 2 4]); % bring plev dimension to front
     zg_plus = permute(zg_plus, [3 1 2 4]); % bring plev dimension to front
     [pa_plus sort_index] = sort(pa_plus, 1, 'descend'); % sort added surface pressure such that pressure decreases monotonically
-    % [pa_plus_sorted sort_index] = sort(pa_plus, 1, 'descend'); % sort added surface pressure such that pressure decreases monotonically
     tai_sm.lo = nan(length(par.pa), size(pa, 1), size(pa, 2), size(pa, 4));
     zgi_sm.lo = nan(length(par.pa), size(pa, 1), size(pa, 2), size(pa, 4));
     pb = CmdLineProgressBar("Sorting and interpolating temperature to new standard grid...");
@@ -96,74 +92,45 @@ function make_tai(type, par)
                 pb2.print(ilat, size(pa_plus,3));
             end
             for time=1:size(pa_plus,4)
-                warning off; 
-                % ta_plus(:,ilon,ilat,time) = ta_plus(sort_index(:,ilon,ilat,time),ilon,ilat,time); % sort temperature (has to be in loop because sort_index works for vector calls only)
-                % zg_plus(:,ilon,ilat,time) = zg_plus(sort_index(:,ilon,ilat,time),ilon,ilat,time); % sort temperature (has to be in loop because sort_index works for vector calls only)
-                pa_plus_col = pa_plus(:,ilon,ilat,time);
-                ta_plus_col = ta_plus(sort_index(:,ilon,ilat,time),ilon,ilat,time); % sort temperature (has to be in loop because sort_index works for vector calls only)
-                zg_plus_col = zg_plus(sort_index(:,ilon,ilat,time),ilon,ilat,time); % sort temperature (has to be in loop because sort_index works for vector calls only)
-                [~,iuq] = unique(pa_plus_col);
+                ta_plus(:,ilon,ilat,time) = ta_plus(sort_index(:,ilon,ilat,time),ilon,ilat,time); % sort temperature (has to be in loop because sort_index works for vector calls only)
+                zg_plus(:,ilon,ilat,time) = zg_plus(sort_index(:,ilon,ilat,time),ilon,ilat,time); % sort temperature (has to be in loop because sort_index works for vector calls only)
 
-                if all(isnan(ta_plus_col)) | sum(isnan(ta_plus_col)) == 1
-                    tai_sm.lo(:,ilon,ilat,time) = nan(size(par.pa'));
-                else
-                    tai_sm.lo(:,ilon,ilat,time) = interp1(pa_plus_col(iuq), ta_plus_col(iuq), par.pa, 'spline', nan); % interpolate to higher resolution vertical grid
+                if all(isnan(ta_plus)) | sum(isnan(ta_plus)) == 1
+                    tai_sm.lo(:,ilon,ilat,time) = nan(size(par.pa));
                 end
 
-                if all(isnan(zg_plus_col)) | sum(isnan(zg_plus_col)) == 1
-                    zgi_sm.lo(:,ilon,ilat,time) = nan(size(par.pa'));
-                else
-                    zgi_sm.lo(:,ilon,ilat,time) = interp1(pa_plus_col(iuq), zg_plus_col(iuq), par.pa, 'spline', nan); % interpolate to higher resolution vertical grid
+                if all(isnan(zg_plus)) | sum(isnan(zg_plus)) == 1
+                    zg_sm.lo(:,ilon,ilat,time) = nan(size(par.pa));
                 end
 
-                % disp('Checkpoint 1')
+                if sum(isnan(ta_plus))>1 & sum(isnan(zg_plus))>1
 
-                % if all(isnan(ta_plus)) | sum(isnan(ta_plus)) == 1
-                %     tai_sm.lo(:,ilon,ilat,time) = nan(size(par.pa));
-                % end
+                    tapanan = squeeze(pa_plus(:,ilon,ilat,time));
+                    tananfi = isnan(squeeze(pa_plus(:,ilon,ilat,time))) | isnan(squeeze(ta_plus(:,ilon,ilat,time)));
+                    tanan = squeeze(ta_plus(:,ilon,ilat,time));
+                    zgpanan = squeeze(pa_plus(:,ilon,ilat,time));
+                    zgnanfi = isnan(squeeze(pa_plus(:,ilon,ilat,time))) | isnan(squeeze(zg_plus(:,ilon,ilat,time)));
+                    zgnan = squeeze(zg_plus(:,ilon,ilat,time));
 
-                % if all(isnan(zg_plus)) | sum(isnan(zg_plus)) == 1
-                %     zg_sm.lo(:,ilon,ilat,time) = nan(size(par.pa));
-                % end
+                    tapanan(tananfi) = [];
+                    tanan(tananfi) = [];
+                    zgpanan(zgnanfi) = [];
+                    zgnan(zgnanfi) = [];
 
-                % disp('Checkpoint 2')
-
-                % if sum(isnan(ta_plus))>1 & sum(isnan(zg_plus))>1
-
-                %     tapanan = squeeze(pa_plus(:,ilon,ilat,time));
-                %     tananfi = isnan(squeeze(pa_plus(:,ilon,ilat,time))) | isnan(squeeze(ta_plus(:,ilon,ilat,time)));
-                %     tanan = squeeze(ta_plus(:,ilon,ilat,time));
-                %     zgpanan = squeeze(pa_plus(:,ilon,ilat,time));
-                %     zgnanfi = isnan(squeeze(pa_plus(:,ilon,ilat,time))) | isnan(squeeze(zg_plus(:,ilon,ilat,time)));
-                %     zgnan = squeeze(zg_plus(:,ilon,ilat,time));
-
-                %     tapanan(tananfi) = [];
-                %     tanan(tananfi) = [];
-                %     zgpanan(zgnanfi) = [];
-                %     zgnan(zgnanfi) = [];
-
-                %     disp('Checkpoint 3')
-
-                %     % tai_sm.lo(:,ilon,ilat,time) = interp1(tapanan, tanan, par.pa, 'spline', nan); % interpolate to higher resolution vertical grid
-                %     % zgi_sm.lo(:,ilon,ilat,time) = interp1(zgpanan, zgnan, par.pa, 'spline', nan); % interpolate to higher resolution vertical grid
-                %     tai_sm.lo(:,ilon,ilat,time) = interp1(tapanan, tanan, par.pa, 'linear'); % interpolate to higher resolution vertical grid
-                %     zgi_sm.lo(:,ilon,ilat,time) = interp1(zgpanan, zgnan, par.pa, 'linear'); % interpolate to higher resolution vertical grid
-                %     disp('Checkpoint 4')
-                % end
+                    tai_sm.lo(:,ilon,ilat,time) = interp1(tapanan, tanan, par.pa, 'spline', nan); % interpolate to higher resolution vertical grid
+                    zgi_sm.lo(:,ilon,ilat,time) = interp1(zgpanan, zgnan, par.pa, 'spline', nan); % interpolate to higher resolution vertical grid
+                end
 
             end
         end
     end
-    % tai_sm.lo = interp1(pa_plus, tanan, par.pa, 'spline', nan); % interpolate to higher resolution vertical grid
-    % zgi_sm.lo = interp1(zgpanan, zgnan, par.pa, 'spline', nan); % interpolate to higher resolution vertical grid
-
     clear pa_plus ta_plus zg_plus; % clear unneeded variables
     tai_sm.lo = permute(tai_sm.lo, [2 3 1 4]); % bring plev back to third dimension
     tai = tai_sm.lo;
     zgi_sm.lo = permute(zgi_sm.lo, [2 3 1 4]); % bring plev back to third dimension
     zgi = zgi_sm.lo;
 
-    filename='tai_simp.mat';
+    filename='tai.mat';
     save(sprintf('%s/%s', foldername, filename), 'tai', 'zgi', '-v7.3');
 
 end

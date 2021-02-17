@@ -22,7 +22,7 @@ function plot_dmse_midlatitude_line(type, par)
 
         [lat, clat, clat_mon, par] = make_midlatitude_lat(lat_center, par);
 
-        tmp = load(sprintf('%s/dmse_midlatitude_lat_%g_to_%g', prefix_proc, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound)); dmse = tmp.dmse; clear tmp;
+        tmp = load(sprintf('%s/dmse_midlatitude_lat_%g_to_%g', prefix_proc, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound)); dmse = tmp.dmse; dmse_std = tmp.dmse_std; clear tmp;
 
         % for l = {'lo', 'l', 'o'}; land = l{1};
         for l = {'lo'}; land = l{1};
@@ -48,8 +48,13 @@ function plot_dmse_midlatitude_line(type, par)
                 ymin = -150;
                 ymax = 100;
 
-                plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "", ymin, ymax, type, fw, par);
-                plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par);
+                if strcmp(type, 'gcm') & strcmp(par.model, 'mmm')
+                    plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "", ymin, ymax, type, fw, par, dmse_std.ra_lat.(land).(fw), dmse_std.res_lat.(land).(fw), dmse_std.lh_lat.(land).(fw), dmse_std.sh_lat.(land).(fw));
+                    plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par, dmse_std.ra_lat.(land).(fw), dmse_std.res_lat.(land).(fw), dmse_std.lh_lat.(land).(fw), dmse_std.sh_lat.(land).(fw));
+                else
+                    plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "", ymin, ymax, type, fw, par);
+                    plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par);
+                end
 
             end % for mse dse
         end % for land
