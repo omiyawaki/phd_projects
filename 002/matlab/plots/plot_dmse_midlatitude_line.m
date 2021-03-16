@@ -22,7 +22,14 @@ function plot_dmse_midlatitude_line(type, par)
 
         [lat, clat, clat_mon, par] = make_midlatitude_lat(lat_center, par);
 
-        tmp = load(sprintf('%s/dmse_midlatitude_lat_%g_to_%g', prefix_proc, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound)); dmse = tmp.dmse; dmse_std = tmp.dmse_std; clear tmp;
+        tmp = load(sprintf('%s/dmse_midlatitude_lat_%g_to_%g', prefix_proc, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound));
+        dmse = tmp.dmse;
+        if strcmp(type, 'rea') | (strcmp(type, 'gcm') & strcmp(par.model, 'mmm'))
+              dmse_std = tmp.dmse_std;
+              dmse_min = tmp.dmse_min;
+              dmse_max = tmp.dmse_max;
+        end
+        clear tmp;
 
         % for l = {'lo', 'l', 'o'}; land = l{1};
         for l = {'lo'}; land = l{1};
@@ -46,14 +53,30 @@ function plot_dmse_midlatitude_line(type, par)
                 if ~exist(par.folder, 'dir'); mkdir(par.folder); end;
 
                 ymin = -150;
-                ymax = 100;
+                if strcmp(type, 'erai') & strcmp(fw, 'ceresrad')
+                    ymax = 120;
+                else
+                    ymax = 100;
+                end
 
-                if strcmp(type, 'gcm') & strcmp(par.model, 'mmm')
+                if strcmp(type, 'rea') | (strcmp(type, 'gcm') & strcmp(par.model, 'mmm'))
+                    % shade range
+                    plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "", ymin, ymax, type, fw, par, dmse_min.ra_lat.(land).(fw), dmse_min.res_lat.(land).(fw), dmse_min.lh_lat.(land).(fw), dmse_min.sh_lat.(land).(fw), dmse_max.ra_lat.(land).(fw), dmse_max.res_lat.(land).(fw), dmse_max.lh_lat.(land).(fw), dmse_max.sh_lat.(land).(fw));
+                    plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par, dmse_min.ra_lat.(land).(fw), dmse_min.res_lat.(land).(fw), dmse_min.lh_lat.(land).(fw), dmse_min.sh_lat.(land).(fw), dmse_max.ra_lat.(land).(fw), dmse_max.res_lat.(land).(fw), dmse_max.lh_lat.(land).(fw), dmse_max.sh_lat.(land).(fw));
+
+                    % shade std
                     plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "", ymin, ymax, type, fw, par, dmse_std.ra_lat.(land).(fw), dmse_std.res_lat.(land).(fw), dmse_std.lh_lat.(land).(fw), dmse_std.sh_lat.(land).(fw));
                     plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par, dmse_std.ra_lat.(land).(fw), dmse_std.res_lat.(land).(fw), dmse_std.lh_lat.(land).(fw), dmse_std.sh_lat.(land).(fw));
+
                 else
-                    plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "", ymin, ymax, type, fw, par);
-                    plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par);
+                    if strcmp(fw, 'ceresrad')
+                        plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.stf_lat.(land).(fw), dmse.stf_lat.(land).(fw), "", ymin, ymax, type, fw, par);
+                        plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.stf_lat.(land).(fw), dmse.stf_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par);
+                    else
+                        plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "", ymin, ymax, type, fw, par);
+                        plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par);
+                        % plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "_legonly", ymin, ymax, type, fw, par);
+                    end
                 end
 
             end % for mse dse

@@ -21,6 +21,7 @@ par.echam.noice_mld = {"rp000046",... % 50 m
                        "rp000141",... % 15 m
                        "rp000034",... % 10 m
                        "rp000086",... % 5 m
+                       "rp000172",... % 3 m
                        "rp000092"};   % 2 m
 
 par.echam.ice_mld = {            "rp000126",... % 50 m
@@ -71,5 +72,7 @@ par.echam.rp000034 = "10 m, w/o ice";
 par.echam.rp000124 = "10 m, w/ ice";
 
 par.echam.rp000086 = "5 m, w/o ice";
+
+par.echam.rp000172 = "3 m, w/o ice";
 
 par.echam.rp000092 = "2 m, w/o ice";

@@ -1,0 +1,28 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=large]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\graphicspath{{/project2/tas1/miyawaki/projects/002/figures/rea/1979_2005/1.00/}}
+
+\begin{document}
+
+\begin{figure}
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.95\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{flux/mse_old/lo/0_r1z_mon_lat.png}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.95\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{ga_malr_diff/si_bl_1/lo/ga_malr_diff_mon_lat.png}
+  \end{subfigure}
+
+\end{figure}
+
+\end{document}

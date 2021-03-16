@@ -163,9 +163,10 @@ function proc_flux(type, par)
             flux.res.(fw) = flux.ra.(fw) + flux.stf.(fw) - flux.tend; % infer MSE tendency and flux divergence as residuals
         elseif any(strcmp(fw, {'mse2'}))
             flux.res.(fw) = flux.lw + flux.stf.(fw);
-        elseif strcmp(fw, 'db13')
+        elseif strcmp(fw, 'db13') | strcmp(fw, 'ceresrad')
             flux.res.(fw) = flux.TEDIV + flux.TETEN; % use MSE tendency and flux divergence from DB13
             flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
+            flux.tend = flux.TETEN;
         elseif strcmp(fw, 'db13s')
             flux.res.(fw) = flux.TEDIV; % use MSE flux divergence from DB13, ignore MSE tendency term
             flux.stf.(fw) = flux.res.(fw) - flux.ra.(fw); % infer the surface turbulent fluxes
@@ -219,37 +220,13 @@ function proc_flux(type, par)
         flux.comp1.(fw) = (flux.res.(fw)-nanmean(flux.res.(fw),3))./nanmean(flux.ra.(fw),3);
         flux.comp2.(fw) = - nanmean(flux.res.(fw),3)./nanmean(flux.ra.(fw),3).^2 .* (flux.ra.(fw)-nanmean(flux.ra.(fw),3));
         % flux.comp2.(fw) = - nanmean(flux.res.(fw)./flux.ra.(fw).^2, 3) .* (flux.ra.(fw)-nanmean(flux.ra.(fw),3));
+        % linear decomposition of R2 seasonality
+        flux.comp1r2.(fw) = (flux.stf.(fw)-nanmean(flux.stf.(fw),3))./nanmean(flux.ra.(fw),3);
+        flux.comp2r2.(fw) = - nanmean(flux.stf.(fw),3)./nanmean(flux.ra.(fw),3).^2 .* (flux.ra.(fw)-nanmean(flux.ra.(fw),3));
 
     end
 
-
-    if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c');
-        if strcmp(fw, 'mse_old')
-            var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
-        else
-            var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
-        end
-        % var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend', 'divt', 'divg', 'divq', 'TETEN', 'TEDIV', 'don79div'};
-        % foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
-    elseif strcmp(type, 'hahn')
-        var_vec = {'LHFLX', 'SHFLX', 'PRECC', 'PRECL', 'PRECSC', 'PRECSL', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
-    elseif strcmp(type, 'merra2')
-        var_vec = {'EFLUX', 'HFLUX', 'PRECCON', 'PRECTOT', 'EVAP', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
-        % foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
-    elseif any(strcmp(type, {'jra55'}))
-        var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
-        % foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
-    elseif any(strcmp(type, {'gcm'}))
-        if strcmp(fw, 'mse_old')
-            var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
-        else
-            var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
-        end
-        % foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/', type, par.model, par.gcm.clim, par.lat_interp);
-    elseif strcmp(type, 'echam')
-        var_vec = {'ahfl', 'ahfs', 'aprc', 'aprl', 'evap', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
-        % foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.echam.clim, par.lat_interp);
-    end
+    var_vec = make_varvec(type, fw);
 
     for fn = var_vec; fname = fn{1};
         % for l = {'lo', 'l', 'o'}; land = l{1};
@@ -281,7 +258,7 @@ function proc_flux(type, par)
         end
     end
 
-    for fn = {'ra', 'stf', 'res', 'r1', 'r2', 'ftoa', 'fsfc', 'sfc', 'shf', 'comp1', 'comp2'}; fname = fn{1};
+    for fn = {'ra', 'stf', 'res', 'r1', 'r2', 'ftoa', 'fsfc', 'sfc', 'shf', 'comp1', 'comp2', 'comp1r2', 'comp2r2'}; fname = fn{1};
         f_vec = assign_fw(type, par);
         for f = f_vec; fw = f{1};
             % for l = {'lo', 'l', 'o'}; land = l{1};

@@ -1,20 +1,33 @@
 function mmm_ta_mon_lat(type, par)
 
+    % output info
+    foldername = make_savedir_proc(type, par);
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.outname, par.clim));
+
+    par.lat_interp = 'native';
+
     lat = par.lat;
     for l = {'lo'}; land=l{1};
-        ta_list.(land) = nan(length(par.gcm_models), length(par.lat), 12, length(par.pa));
+        ta_list.(land) = nan(length(par.model_list), length(par.lat), 12, length(par.pa));
+        ta_mmm.(land) = nan(length(par.lat), 12, length(par.pa));
+        ta_std.(land) = nan(length(par.lat), 12, length(par.pa));
     end
 
     pb = CmdLineProgressBar("Creating the multi-model mean...");
-    for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-        pb.print(k, length(par.gcm_models)); % output progress of moist adiabat calculonion
+    for k=1:length(par.model_list); par.model = par.model_list{k};
+        pb.print(k, length(par.model_list)); % output progress of moist adiabat calculonion
 
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-        grid0=load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
-        ta0=load(sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/ta_pl_mon_lat.mat', type, par.model, par.gcm.clim, 'native'));
+        if strcmp(type, 'gcm')
+            type_in = type;
+        else
+            type_in = par.model;
+        end
 
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/', type, par.outname, par.gcm.clim, par.lat_interp);
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.outname, par.gcm.clim));
+        % input info
+        prefix = make_prefix(type_in, par);
+        prefix_proc = make_prefix_proc(type_in, par);
+        grid0 = load(sprintf('%s/grid.mat', prefix));
+        ta0 = load(sprintf('%s/ta_pl_mon_lat.mat', prefix_proc));
 
         for l = {'lo'}; land=l{1};
             % interpolate native grid data to standard grid
@@ -40,13 +53,20 @@ function mmm_ta_mon_lat(type, par)
     end % models
 
     for l = {'lo'}; land=l{1};
-        ta.(land) = squeeze(nanmean(ta_list.(land),1));
+        ta_mmm.(land) = squeeze(nanmean(ta_list.(land),1));
+        if strcmp(type, 'rea')
+            ta_std.(land) = squeeze(range(ta_list.(land),1));
+        else
+            ta_std.(land) = squeeze(nanstd(ta_list.(land),1));
+        end
     end
+
+    ta = ta_mmm;
 
     printname = [foldername 'ta_pl_mon_lat'];
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    save(printname, 'ta', 'lat', '-v7.3');
+    save(printname, 'ta', 'ta_std', 'lat', '-v7.3');
 
 end

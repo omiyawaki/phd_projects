@@ -1,0 +1,27 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=large]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\graphicspath{{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/ga_malr_diff/si_bl_0.9/lo/}}
+
+\begin{document}
+
+\begin{figure}
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.95\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{ga_malr_diff_mon_lat_anot.png}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.95\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{ga_dalr_bl_diff_mon_lat_anot.png}
+  \end{subfigure}
+\end{figure}
+
+\end{document}

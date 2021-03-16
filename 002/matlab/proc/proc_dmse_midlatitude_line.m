@@ -48,11 +48,19 @@ function proc_dmse_midlatitude_line(type, par)
                 dmse.res = flux_z.(land).res.(fw);
                 dmse.res_lat.(land).(fw) = interp1(grid.dim3.lat, dmse.res, lat);
                 dmse.res_lat.(land).(fw) = nansum(dmse.res_lat.(land).(fw).*clat_mon)/nansum(clat);
-                [lh, sh] = rename_stf(type, flux_z, land);
-                dmse.lh_lat.(land).(fw) = interp1(grid.dim3.lat, lh, lat);
-                dmse.lh_lat.(land).(fw) = nansum(dmse.lh_lat.(land).(fw).*clat_mon)/nansum(clat);
-                dmse.sh_lat.(land).(fw) = interp1(grid.dim3.lat, sh, lat);
-                dmse.sh_lat.(land).(fw) = nansum(dmse.sh_lat.(land).(fw).*clat_mon)/nansum(clat);
+
+                if strcmp(fw, 'ceresrad')
+                    dmse.stf = flux_z.(land).stf.(fw);
+                    dmse.stf_lat.(land).(fw) = interp1(grid.dim3.lat, dmse.stf, lat);
+                    dmse.stf_lat.(land).(fw) = nansum(dmse.stf_lat.(land).(fw).*clat_mon)/nansum(clat);
+                else
+                    [lh, sh] = rename_stf(type, flux_z, land);
+                    dmse.lh_lat.(land).(fw) = interp1(grid.dim3.lat, lh, lat);
+                    dmse.lh_lat.(land).(fw) = nansum(dmse.lh_lat.(land).(fw).*clat_mon)/nansum(clat);
+                    dmse.sh_lat.(land).(fw) = interp1(grid.dim3.lat, sh, lat);
+                    dmse.sh_lat.(land).(fw) = nansum(dmse.sh_lat.(land).(fw).*clat_mon)/nansum(clat);
+                end
+
                 if strcmp(type, 'era') & ~strcmp(fw, 'mse_old')
                     dmse.tend_lat.(land).(fw) = interp1(grid.dim3.lat, flux_z.(land).(fw).tend, lat);
                     dmse.tend_lat.(land).(fw) = nansum(dmse.tend_lat.(land).(fw).*clat_mon)/nansum(clat);

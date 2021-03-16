@@ -11,9 +11,6 @@ function proc_ga_malr_diff_si_mon_lat(type, par)
     % load(sprintf('%s/malrzsi.mat', prefix)); % read temp in si coordinates
     load(sprintf('%s/malrsi.mat', prefix)); dtmdzzsi = dtmdzsi; clear dtmdzsi; % read temp in si coordinates
     % load(sprintf('%s/%s/masks.mat', prefix_proc, par.lat_interp)); % load land and ocean masks
-    
-    dtmdzzsi(1,72,:,3)
-    return
 
     if strcmp(par.lat_interp, 'std')
         lat = par.lat_std;

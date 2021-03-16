@@ -4,6 +4,8 @@ function make_title_type_mon(type, mon_str, par)
         title(sprintf('%s, %s', upper(type), mon_str));
     elseif strcmp(type, 'era5c')
         title(sprintf('%s, %s', upper('era5'), mon_str));
+    elseif strcmp(type, 'rea');
+        title(sprintf('Reanalysis mean, %s', mon_str));
     elseif strcmp(type, 'gcm');
         if contains(par.model, 'mmm')
             title(sprintf('CMIP5 %s, %s', par.gcm.clim, mon_str));

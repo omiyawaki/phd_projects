@@ -5,8 +5,12 @@ function proc_ma_mon_lat(type, par)
 
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     if strcmp(par.ma_init, 'surf')
+        printname = [foldername 'ma_mon_lat_' par.ma_init '.mat'];
+        printname2 = [foldername 'ma_lon_lat_' par.ma_init '.mat'];
         load(sprintf('%s/ma_si_%s.mat', prefix, par.ma_init)); masi_orig = ma_si; clear ma_si; % read temp in si coordinates
     else
+        printname = [foldername 'ma_mon_lat_' num2str(par.ma_init) '.mat'];
+        printname2 = [foldername 'ma_lon_lat_' num2str(par.ma_init) '.mat'];
         load(sprintf('%s/ma_si_%g.mat', prefix, par.ma_init)); masi_orig = ma_si; clear ma_si; % read temp in si coordinates
     end
     load(sprintf('%s/pa_si.mat', prefix)); pasi_orig = pa_si; clear pa_si; % read temp in si coordinates
@@ -68,11 +72,10 @@ function proc_ma_mon_lat(type, par)
     end
 
     % save filtered data
-    printname = [foldername 'ma_mon_lat'];
+
     if par.do_surf; save(printname, 'masi', 'lat');
     else save(printname, 'masi', 'pasi', 'lat', '-v7.3'); end
 
-    printname = [foldername 'ma_lon_lat'];
-    if par.do_surf; save(printname, 'masi_t', 'lat');
-    else save(printname, 'masi_t', 'pasi_t', 'lat', '-v7.3'); end
+    if par.do_surf; save(printname2, 'masi_t', 'lat');
+    else save(printname2, 'masi_t', 'pasi_t', 'lat', '-v7.3'); end
 end % compute mon x lat temperature field

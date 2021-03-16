@@ -1,4 +1,4 @@
-function make_tempsi(type, par)
+function read_tempml(type, par)
     ml_info
     
     [ta, lon, lat] = load_tempml(type, par);
@@ -7,7 +7,7 @@ function make_tempsi(type, par)
 
     tmp = load(sprintf('%s/grid.mat', prefix)); grid=tmp.grid; clear tmp; % read grid data
     load(sprintf('%s/srfc.mat', prefix)); % load surface data
-    
+
     % make sure model level ta has same lon x lev grid as pl data
     ta = interp1(lon, ta, grid.dim3.lon);
     ta = permute(ta, [2 1 3 4]);
@@ -25,14 +25,33 @@ function make_tempsi(type, par)
         for la=1:size(ta,3)
             for mo=1:size(ta,4)
                 % add surface data
-                tmp = squeeze(ta(:,lo, la, mo));
+                tmp = squeeze(ta(:,lo, la, mo))';
                 %tmp = [nan; tmp];
                 %tmp(1) = tas(lo,la,mo);
-                
+
                 % only keep nonnan data and do interpolation
                 notnan = find(~isnan(squeeze(tmp)));
 
-                ta_si.spl(:,lo,la,mo) = interp1(ml.(type).a(notnan)/squeeze(ps(lo,la,mo))+ml.(type).b(notnan), tmp(notnan), grid.dim3.si, 'spline', nan); 
+                if isempty(notnan) | length(notnan) == 1
+                    ta_si.spl(:,lo,la,mo) = nan([length(grid.dim3.si),1]);
+                else
+                    % sihalf to simid
+                    sihalf = ml.(type).a/squeeze(ps(lo,la,mo))+ml.(type).b;
+                    simid = 1/2 * ( sihalf(1:end-1) + sihalf(2:end) );
+
+                    % % add surface data
+                    % if strcmp(type, 'jra55')
+                    %     simid = [1, simid];
+                    %     tmp = [tas(lo,la,mo), tmp];
+                    % elseif strcmp(type, 'era5c')
+                    %     simid = [simid, 1];
+                    %     tmp = [tmp, tas(lo,la,mo)];
+                    % else
+                    %     error('Check where sigma=1 level belongs for this dataset and add it here.');
+                    % end
+
+                    ta_si.spl(:,lo,la,mo) = interp1(simid(notnan), tmp(notnan), grid.dim3.si, 'spline', nan); 
+                end
                 
                 clear tmp
 

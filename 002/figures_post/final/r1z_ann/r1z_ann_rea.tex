@@ -1,0 +1,34 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=large]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\graphicspath{{/project2/tas1/miyawaki/projects/002/figures/rea/1979_2005/1.00/}}
+\usepackage[export]{adjustbox}
+
+\begin{document}
+
+\begin{figure}
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.95\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{energy-flux/lo/ann/mse_old-r1z.png}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{eps_0.1_ga_0.9/mse_old/def/lo/ann/temp_0.95/all_sh_ann.png}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(c)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{eps_0.1_ga_0.9/mse_old/def/lo/ann/temp_0.95/all_nh_ann.png}
+  \end{subfigure}
+
+\end{figure}
+
+\end{document}

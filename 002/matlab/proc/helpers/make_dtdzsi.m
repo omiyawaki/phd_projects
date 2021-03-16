@@ -28,10 +28,6 @@ function make_dtdzsi(type, par)
     surface_mask = nan(size(pa));
     surface_mask(pa < ps_vert) = 1;
 
-    size(temp)
-    size(zg)
-    size(surface_mask)
-    
     ta_sm = temp .* surface_mask;
     zg_sm = zg .* surface_mask;
 

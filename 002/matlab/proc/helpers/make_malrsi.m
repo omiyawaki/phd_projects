@@ -8,7 +8,7 @@ function make_malrsi(type, par)
     
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/srfc.mat', prefix)); % read surface variable data
-    load(sprintf('%s/tai.mat', prefix)); clear zgi; % read interpolated temperature
+    load(sprintf('%s/tai_simp.mat', prefix)); clear zgi; % read interpolated temperature
 
     pa = repmat(par.pa', [1 length(grid.dim3.lon) length(grid.dim3.lat) 12]);
     pa = permute(pa, [2 3 1 4]);

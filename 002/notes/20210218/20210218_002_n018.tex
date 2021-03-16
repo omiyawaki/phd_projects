@@ -3,6 +3,7 @@
 \usepackage{graphicx}
 \usepackage[margin=1in]{geometry}
 \usepackage{afterpage}
+\usepackage{natbib}
 
 \title{Research notes}
 \date{\today}
@@ -11,10 +12,60 @@
 \begin{document}
 \maketitle
 
+\section{ECHAM6 temperature profiles are consistent with diagnosed heat transfer regimes}
+
+We agreed that it would be important to see if the spatio-temporal structure of the vertical temperature profiles in ECHAM6 are consistent with the diagnosed heat transfer regimes. In particular, we expect that ECHAM6 with a shallower mixed layer have a near-moist adiabatic temperature profile during summer and a more stable than moist adiabatic temperature profile in the winter. Indeed, this is what we find for ECHAM6 configured with a 15 m mixed layer (Fig.~\ref{fig:temp-echam}(a)), which closely resembles the observed NH midlatitudes. For ECHAM6 with a 40 m mixed layer, temperature profiles are more stable than a moist adiabat yearround (Fig.~\ref{fig:temp-echam}(b)), consistent with the observed SH midlatitudes.
+
+In addition, we expect the temperature profile to exhibit a wintertime near-surface inversion only when sea ice is enabled. Indeed, this is what we find (Fig.~\ref{fig:temp-echam}(c)). For ECHAM6 configured without sea ice, there is no inversion yearround (Fig.~\ref{fig:temp-echam}(d)). This figure is now included in the draft.
+
 \begin{figure}
     \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/temp_echam/temp_echam.pdf}
     \caption{Zonally averaged temperature profiles from the ECHAM6 slab ocean aquaplanets are shown in the midlatitudes and high latitudes for January and June. The temperature profile at 45$^\circ$ in ECHAM6 configured with (a) 15 m mixed layer depth is more stable than a moist adiabat in January and neutrally stable in June and (b) 40 m mixed layer depth is more stable than a moist adiabat yearround. The temperature profile at 85$^\circ$ in ECHAM6 with a 40 m mixed layer depth configured (c) with thermodynamic sea ice exhibits a near surface inversion in January whereas (d) without sea ice remains inversion-free yearround.}
     \label{fig:temp-echam}
+\end{figure}
+
+\section{Evaluating heat transfer regimes using Aaron's MSE tendency and flux divergence data and CERES radiation}
+
+When energy budgets are analyzed using reanalysis data, it is common to directly compute the MSE tendency and flux divergence terms using high frequency output and infer the surface turbulent fluxes as the residual \citep[e.g.,][]{donohoe2013}. To the contrary, we use the output of surface turbulent fluxes and infer the MSE tendency and flux divergence as the residual. It is important to test how robust our results are to these different methods. I originally made an analysis of the heat transfer regimes using Aaron's MSE tendency and flux divergence data and CERES for radiative cooling (see Fig. 19 from 20200813 notes). However, at that time we used a different threshold for RCE and RAE ($\varepsilon=0.3$) and the visualization of the regimes was crude since they did not convey detailed information about $R_1$ values. Thus, I redid the analysis here using the updated threshold ($\varepsilon=0.1$) and updated figure formats.
+
+The seasonality of $R_1$ using Aaron's data is similar to ERA5 and CMIP5 in the low and midlatitudes but significantly different in the high latitudes (Fig.~\ref{fig:erai-r1-dev}). The NH high latitudes is in a state of RCAE yearround when averaged from 80--90$^\circ$ (Fig.~\ref{fig:erai-r1-decomp-mid}). The discrepancy is twofold: Aaron's MSE tendency plus flux convergence during wintertime is weaker (100 W m$^{-2}$) compared to that inferred in ERA5 (120 W m$^{-2}$) and CERES radiative cooling during wintertime is stronger (150 W m$^{-2}$) compared to ERA5 (120 W m$^{-2}$). A similar issue is found during wintertime in the SH high latitudes, where Aaron's MSE tendency plus flux convergence is weaker (110 W m$^{-2}$) compared to that inferred in ERA5 (130 W m$^{-2}$) and CERES radiative cooling is stronger (110 W m$^{-2}$) compared to ERA5 (90 W m$^{-2}$). As a result, $R_1$ computed using Aaron's and CERES data is consistently smaller during wintertime compared to our method using ERA5 data. The lack of consistency in our results to the choice of which term to infer as the residual may be due to the fact that reanalyses do not conserve energy, and that the nudging term associated with the data assimilation process is not negligible. 
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/erai/1979_2005/native/flux/ceresrad/lo/0_r1z_mon_lat.png}\\
+  \caption{The seasonality of $R_{1}$ for the ERA-Interim reanalysis using Aaron's data.}
+  \label{fig:erai-r1-dev}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_mid/r1_decomp_mid_erai.pdf}\\
+  \caption{The seasonality of $R_{1}$ in midlatitudes ($40$--$60^{\circ}$) and its deviation from the annual-mean for the (a) NH and (b) SH. The seasonality of the terms in the MSE budget in midlatitudes for the (c) NH and (d) SH.}
+  \label{fig:erai-r1-decomp-mid}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_pole/r1_decomp_pole_erai.pdf}\\
+  \caption{Same as Fig.~\ref{fig:erai-r1-decomp-mid} but averaged over the polar region ($80$--$90^{\circ}$).}
+  \label{fig:erai-r1-decomp-pole}
+\end{figure}
+
+\section{Comparing reanalysis temperature profiles to HARA rawinsonde profiles}
+
+Previously, we found that the reanalyses exhibit the greatest spread in the high latitude sensible heat flux, and that this was also reflected in the variety of lapse rates we found very close to the surface. As a way to identify which reanalysis best captures the observations, we agreed that it would be useful to compare the reanalysis temperature profiles with the HARA rawinsonde data as shown in Fig. 1 of \cite{cronin2016}.
+
+The processed HARA data that Tim shared with me is in pressure coordinates, so note that the following comparison is all plotted in pressure coordinates. The temperature profiles are calculated such that data below surface pressure are ignored. Tim recalls that there are no stations located poleward of 83$^\circ$, so the comparison will be averaged between 80--83$^\circ$.
+
+In January, we find that JRA55 agrees most closely with the HARA profile (Fig.~\ref{hara-comp-1}). Note that in pressure coordinates, the difference between the reanalyses are not as pronounced as they were when evaluated in sigma coordinates, suggesting that 2 m surface temperature contributes significantly to the spread. In June, the reanalyses are in better agreement with each other but exhibits a slight cold bias compared to the HARA profile. Importantly, we find that there is no near-surface inversion in the HARA temperature profile, which verifies our finding that the NH high latitudes undergoes a lapse rate regime transition. It is not yet clear to me why the CMIP5 multimodel mean profile exhibits an inversion in pressure coordinates but not in sigma coordintes. One possibility is that surface pressure in a subset of models are above 1000 hPa at all latitudinal bands between 80--83$^\circ$, and thus the 1000 hPa temperature only reflects a multi-model mean of a subset of models.
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/1.00/temp_zon_sel_comp/lo/1/area_pl_80.png}\\
+  \caption{January temperature profiles averaged between 80--83$^\circ$ for CMIP5, reanalyses, and HARA data.}
+  \label{fig:hara-comp-1}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/1.00/temp_zon_sel_comp/lo/6/area_pl_80.png}\\
+  \caption{Same as Fig.~\ref{fig:hara-comp-1} but for June.}
+  \label{fig:hara-comp-6}
 \end{figure}
 
 \bibliographystyle{apalike}

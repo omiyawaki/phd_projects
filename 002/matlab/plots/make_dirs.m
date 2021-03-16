@@ -12,8 +12,8 @@ function make_dirs(type, par)
             end
         end
         for m = [1 4 6 7 10]; month = m(1);
-            if ~exist(sprintf('%s/temp_zon_sel/%s/%g', plotdir, land, month), 'dir')
-                mkdir(sprintf('%s/temp_zon_sel/%s/%g', plotdir, land, month));
+            if ~exist(sprintf('%s/temp_zon_sel/%s/%s/%g', plotdir, num2str(par.ma_init), land, month), 'dir')
+                mkdir(sprintf('%s/temp_zon_sel/%s/%s/%g', plotdir, num2str(par.ma_init), land, month));
             end
             if ~exist(sprintf('%s/temp_zon_sel_comp/%s/%g', plotdir, land, month), 'dir')
                 mkdir(sprintf('%s/temp_zon_sel_comp/%s/%g', plotdir, land, month));

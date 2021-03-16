@@ -10,6 +10,9 @@ function make_masi(type, par)
     load(sprintf('%s/srfc.mat', prefix)); % load surface data
 
     if strcmp(type, 'gcm') & any(contains(par.model, {'GISS-E2-H', 'GISS-E2-R'})) % zg data in GISS-E2-H has an anomalous lat grid
+        var = 'zg';
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, var, par.model, par.gcm.clim));
+        fullpath=sprintf('%s/%s', file.folder, file.name);
         zg_lat = double(ncread(fullpath, 'lat'));
         zg = permute(zg, [2 1 3 4]);
         zg = interp1(zg_lat, zg, grid.dim3.lat);
@@ -53,7 +56,11 @@ function make_masi(type, par)
                 end
 
                 if any(strcmp(type, {'era5', 'era5c', 'erai', 'echam', 'merra2'}));
-                    ma_si(ilon,ilat,:,imon) = calc_ma_dew_si(ma_in, grid.dim3.plev, par, type, grid);
+                    if strcmp(type, 'merra2') & strcmp(par.ma_init, 'surf')
+                        ma_si(ilon,ilat,:,imon) = calc_ma_q_si(ma_in, grid.dim3.plev, par, type, grid);
+                    else
+                        ma_si(ilon,ilat,:,imon) = calc_ma_dew_si(ma_in, grid.dim3.plev, par, type, grid);
+                    end
                 elseif any(strcmp(type, {'gcm', 'jra55'}))
                     ma_si(ilon,ilat,:,imon) = calc_ma_hurs_si(ma_in, grid.dim3.plev, par, grid);
                 end

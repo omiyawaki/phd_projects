@@ -1,33 +1,57 @@
 function mmm_vh_mon(type, par)
     lat = par.lat;
 
+    % output info
+    foldername = make_savedir_proc(type, par);
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.outname, par.clim));
+
+    par.lat_interp = 'native'; % input files will be in native grid
+
     for l = {'lo'}; land=l{1};
         f_vec = par.gcm.fw;
         for f = f_vec; fw = f{1};
+            vh_mon_list.(land).(fw) = nan(length(par.model_list), length(par.lat), 12);
             vh_mon_mmm.(land).(fw) = nan(length(par.lat), 12);
+            vh_mon_std.(land).(fw) = nan(length(par.lat), 12);
         end
     end
 
     pb = CmdLineProgressBar("Creating the multi-model mean...");
-    for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-        pb.print(k, length(par.gcm_models)); % output progress of moist adiabat calculonion
+    for k=1:length(par.model_list); par.model = par.model_list{k};
+        pb.print(k, length(par.model_list)); % output progress of moist adiabat calculonion
 
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
-        grid0 = load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
-        vh_mon0 = load(sprintf('%s/%s/vh_mon.mat', prefix_proc, 'native')); % load lat x mon RCAE data
+        if strcmp(type, 'gcm')
+            type_in = type;
+        else
+            type_in = par.model;
+        end
 
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/', type, par.outname, par.gcm.clim, par.lat_interp);
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.outname, par.gcm.clim));
+        % input info
+        prefix = make_prefix(type_in, par);
+        prefix_proc = make_prefix_proc(type_in, par);
+        grid0 = load(sprintf('%s/grid.mat', prefix));
+        vh_mon0 = load(sprintf('%s/vh_mon.mat', prefix_proc));
 
         for l = {'lo'}; land=l{1};
-            f_vec = par.gcm.fw;
+            f_vec = par.(type).fw;
             for f = f_vec; fw = f{1};
                 vh_mon0i.vh_mon.(land).(fw) = interp1(grid0.grid.dim3.lat, vh_mon0.vh_mon.(land).(fw), grid.dim3.lat);
-                vh_mon_mmm.(land).(fw) = nanmean(cat(3, vh_mon0i.vh_mon.(land).(fw), vh_mon_mmm.(land).(fw)), 3);
+                vh_mon_list.(land).(fw)(k,:,:) = vh_mon0i.vh_mon.(land).(fw);
             end
         end % land
     end % models
+
+    for l = {'lo'}; land=l{1};
+        f_vec = par.(type).fw;
+        for f = f_vec; fw = f{1};
+            vh_mon_mmm.(land).(fw) = squeeze(nanmean(vh_mon_list.(land).(fw), 1));
+            if strcmp(type, 'rea')
+                vh_mon_std.(land).(fw) = squeeze(range(vh_mon_list.(land).(fw), 1));
+            else
+                vh_mon_std.(land).(fw) = squeeze(nanstd(vh_mon_list.(land).(fw), 1));
+            end
+        end
+    end
 
     vh_mon = vh_mon_mmm;
 

@@ -49,7 +49,7 @@ function plot_energy_lat(type, par)
                         if contains(fw, 'mse'); plot(lat, flux_zt.(land).(time).EFLUX, 'color', par.blue); text(20, 1.2*interp1(lat, flux_zt.(land).(time).EFLUX,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
                         elseif strcmp(fw, 'dse'); plot(lat, par.L*flux_zt.(land).(time).PRECTOT, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux_zt.(land).(time).PRECTOT,15), '\boldmath{$LP$}', 'color', par.blue); end
                         plot(lat, flux_zt.(land).(time).HFLUX, 'color', par.orange); text(80, interp1(lat, flux_zt.(land).(time).HFLUX, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
-                    elseif any(strcmp(type, {'gcm', 'jra55'}))
+                    elseif any(strcmp(type, {'gcm', 'jra55', 'rea'}))
                         if contains(fw, 'mse'); plot(lat, flux_zt.(land).(time).hfls, 'color', par.blue); text(20, 1.2*interp1(lat, flux_zt.(land).(time).hfls,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
                         elseif strcmp(fw, 'dse'); plot(lat, par.L*flux_zt.(land).(time).pr, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux_zt.(land).(time).pr,15), '\boldmath{$LP$}', 'color', par.blue); end
                         plot(lat, flux_zt.(land).(time).hfss, 'color', par.orange); text(80, interp1(lat, flux_zt.(land).(time).hfss, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
@@ -71,9 +71,9 @@ function plot_energy_lat(type, par)
                     figure(); clf; hold all; box on;
                     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
                     plot(lat, flux_zt.(land).(time).ra.(fw), 'color', par.gray); text(0, 0.75*interp1(lat,flux_zt.(land).(time).ra.(fw),0), '\boldmath{$R_a$}', 'color', par.gray);
-                    if contains(type, 'era')
-                        plot(lat, flux_zt.(land).(time).tend, 'color', 'k'); text(0, 0.75*interp1(lat,flux_zt.(land).(time).tend,0), '\boldmath{$\partial_t h$}', 'color', 'k');
-                    end
+                    % if contains(type, 'era')
+                    %     plot(lat, flux_zt.(land).(time).tend, 'color', 'k'); text(0, 0.75*interp1(lat,flux_zt.(land).(time).tend,0), '\boldmath{$\partial_t h$}', 'color', 'k');
+                    % end
                     if strcmp(fw, 'dse'); plot(lat,flux_zt.(land).(time).res.dse, '--', 'color', par.maroon); text(-30, 2*interp1(lat,flux_zt.(land).(time).res.dse,-30), '\boldmath{$\nabla\cdot F_s$}', 'color', par.maroon);
                     else; plot(lat,flux_zt.(land).(time).res.(fw), 'color', par.maroon); text(-42, 2*interp1(lat,flux_zt.(land).(time).res.(fw),-42), '\boldmath{$\nabla\cdot F_m$}', 'color', par.maroon); end;
                     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
@@ -99,7 +99,7 @@ function plot_energy_lat(type, par)
                         elseif strcmp(fw, 'dse'); plot(lat, par.L*flux_zt.(land).(time).PRECTOT, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux_zt.(land).(time).PRECTOT,15), '\boldmath{$LP$}', 'color', par.blue);
                         end
                         plot(lat, flux_zt.(land).(time).HFLUX, 'color', par.orange); text(80, interp1(lat, flux_zt.(land).(time).HFLUX, 80)-25, '\boldmath{$\mathrm{SH}$}', 'color', par.orange);
-                    elseif any(strcmp(type, {'gcm', 'jra55'}))
+                    elseif any(strcmp(type, {'gcm', 'jra55', 'rea'}))
                         if strcmp(fw, 'mse'); plot(lat, flux_zt.(land).(time).hfls, 'color', par.blue); text(20, 1.2*interp1(lat, flux_zt.(land).(time).hfls,20), '\boldmath{$\mathrm{LH}$}', 'color', par.blue);
                         elseif strcmp(fw, 'dse'); plot(lat, par.L*flux_zt.(land).(time).pr, '--', 'color', par.blue); text(15, 1.5*interp1(lat, par.L*flux_zt.(land).(time).pr,15), '\boldmath{$LP$}', 'color', par.blue);
                         end
@@ -194,7 +194,7 @@ function plot_energy_lat(type, par)
                     % R1Z
                     figure(); clf; hold all; box on;
                     [r1z r1zu r1zl] = deal(nan(size(lat)));
-                    if strcmp(type, 'gcm') & strcmp(par.model, 'mmm')
+                    if strcmp(type, 'rea') | (any(strcmp(type, {'gcm'})) & strcmp(par.model, 'mmm'))
                         r1z=flux_zt.(land).(time).r1z.(fw);
                         r1z_std = flux_zt_std.(land).(time).r1z.(fw);
                         r1zu=r1z + r1z_std;
@@ -216,7 +216,7 @@ function plot_energy_lat(type, par)
                     % line([-90 90], [1 1]*par.ep, 'linewidth', 0.5, 'color', par.orange);
                     % if ~strcmp(fw, 'mse2'); line([-90 90], -[1 1]*par.ep, 'linewidth', 0.5, 'color', par.orange); end
                     % line([-90 90], [1 1]*par.ga, 'linewidth', 0.5, 'color', par.blue);
-                    if strcmp(type, 'gcm') & strcmp(par.model, 'mmm')
+                    if strcmp(type, 'rea') | (any(strcmp(type, {'gcm'})) & strcmp(par.model, 'mmm'))
                         lat2 = [lat, fliplr(lat)];
                         inbtw = [r1zu, fliplr(r1zl)];
                         fill(lat2, inbtw, 'k', 'facealpha', 0.2, 'edgealpha', 0.2);
@@ -231,6 +231,48 @@ function plot_energy_lat(type, par)
                     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
                     set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on', 'ylim', [-0.6 1.5])
                     print(sprintf('%s/energy-flux/%s/%s/%s-r1z', plotdir, land, time, fw), '-dpng', '-r300');
+                    close;
+
+                    % R2Z
+                    figure(); clf; hold all; box on;
+                    [r2z r2zu r2zl] = deal(nan(size(lat)));
+                    if strcmp(type, 'rea') | (any(strcmp(type, {'gcm'})) & strcmp(par.model, 'mmm'))
+                        r2z=flux_zt.(land).(time).r2z.(fw);
+                        r2z_std = flux_zt_std.(land).(time).r2z.(fw);
+                        r2zu=r2z + r2z_std;
+                        r2zl=r2z - r2z_std;
+                    else
+                        r2z=flux_zt.(land).(time).stf.(fw)./flux_zt.(land).(time).ra.(fw);
+                    end
+                    % ylim_lo = min(r2z); if isnan(ylim_lo)|ylim_lo==0; ylim_lo = -1; end;
+                    % ylim_up = max(r2z); if isnan(ylim_up)|ylim_up==0; ylim_up = 1; end
+                    ylim_lo = -0.6-1;
+                    ylim_up = 1.5-1;
+                    rcemax = par.ep-1;
+                    vertices = [-90 ylim_lo; 90 ylim_lo; 90 rcemax; -90 rcemax];
+                    patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
+                    raemin = par.ga-1;
+                    vertices = [-90 raemin; 90 raemin; 90 ylim_up; -90 ylim_up];
+                    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
+                    % line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+                    % line([-90 90], [1 1]*par.ep, 'linewidth', 0.5, 'color', par.orange);
+                    % if ~strcmp(fw, 'mse2'); line([-90 90], -[1 1]*par.ep, 'linewidth', 0.5, 'color', par.orange); end
+                    % line([-90 90], [1 1]*par.ga, 'linewidth', 0.5, 'color', par.blue);
+                    if strcmp(type, 'rea') | (any(strcmp(type, {'gcm'})) & strcmp(par.model, 'mmm'))
+                        lat2 = [lat, fliplr(lat)];
+                        inbtw = [r2zu, fliplr(r2zl)];
+                        fill(lat2, inbtw, 'k', 'facealpha', 0.2, 'edgealpha', 0.2);
+                    end
+                    if strcmp(fw, 'dse'); plot(lat,r2z, '--k');
+                    else; plot(lat,r2z, '-k'); end
+                    make_title_type_time(type, time, par);
+                    xlabel('latitude (deg)');
+                    if strcmp(fw, 'mse2'); ylabel('$R_2^*$ (unitless)');
+                    else ylabel('$R_2$ (unitless)'); end
+                    axis('tight');
+                    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+                    set(gca, 'fontsize', par.fs, 'xtick', [-90:30:90], 'xminortick', 'on', 'yminortick', 'on', 'ylim', [-0.6-1 1.5-1])
+                    print(sprintf('%s/energy-flux/%s/%s/%s-r2z', plotdir, land, time, fw), '-dpng', '-r300');
                     close;
 
                 end

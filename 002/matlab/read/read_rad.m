@@ -78,7 +78,7 @@ function read_rad(type, ymonmean, par)
     elseif strcmp(type, 'echam')
         rad_vars=par.echam.vars.rad;
         for i=1:length(par.echam.vars.rad); var = par.echam.vars.rad{i};
-            if contains(par.echam.clim, 'echr000') | strcmp(par.echam.clim, 'rp000092')
+            if contains(par.echam.clim, 'echr000') | any(strcmp(par.echam.clim, par.echam.exceptions))
                 file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/BOT*_%s_*%s.nc', par.echam.clim, ymm_in));
             else 
                 file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/BOT_%s_0020_39.nc', par.echam.clim, par.echam.clim));

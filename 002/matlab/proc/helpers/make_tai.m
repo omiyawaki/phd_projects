@@ -77,7 +77,7 @@ function make_tai(type, par)
     zg_plus(:,:,1:end-1,:) = zg_sm.lo; % populate with szgndard atmospheric temperature
     pa_plus(:,:,end,:) = ps_vert(:,:,1,:); % add surface pressure data into standard pressure grid
     ta_plus(:,:,end,:) = ts_vert(:,:,1,:); % add surface temperature data
-    zg_plus(:,:,end,:) = zs_vert(:,:,1,:); % add surface temperature data
+    zg_plus(:,:,end,:) = zs_vert(:,:,1,:); % add surface zg data
     pa_plus = permute(pa_plus, [3 1 2 4]); % bring plev dimension to front
     ta_plus = permute(ta_plus, [3 1 2 4]); % bring plev dimension to front
     zg_plus = permute(zg_plus, [3 1 2 4]); % bring plev dimension to front
@@ -101,19 +101,23 @@ function make_tai(type, par)
                 % zg_plus(:,ilon,ilat,time) = zg_plus(sort_index(:,ilon,ilat,time),ilon,ilat,time); % sort temperature (has to be in loop because sort_index works for vector calls only)
                 pa_plus_col = pa_plus(:,ilon,ilat,time);
                 ta_plus_col = ta_plus(sort_index(:,ilon,ilat,time),ilon,ilat,time); % sort temperature (has to be in loop because sort_index works for vector calls only)
-                zg_plus_col = zg_plus(sort_index(:,ilon,ilat,time),ilon,ilat,time); % sort temperature (has to be in loop because sort_index works for vector calls only)
+                zg_plus_col = zg_plus(sort_index(:,ilon,ilat,time),ilon,ilat,time); % sort zg (has to be in loop because sort_index works for vector calls only)
                 [~,iuq] = unique(pa_plus_col);
 
-                if all(isnan(ta_plus_col)) | sum(isnan(ta_plus_col)) == 1
+                if all(isnan(ta_plus_col)) | sum(isnan(ta_plus_col)) == length(ta_plus_col)-1
                     tai_sm.lo(:,ilon,ilat,time) = nan(size(par.pa'));
                 else
-                    tai_sm.lo(:,ilon,ilat,time) = interp1(pa_plus_col(iuq), ta_plus_col(iuq), par.pa, 'spline', nan); % interpolate to higher resolution vertical grid
+                    % tai_sm.lo(:,ilon,ilat,time) = interp1(pa_plus_col(iuq), ta_plus_col(iuq), par.pa, 'spline', nan); % interpolate to higher resolution vertical grid
+                    tai_sm.lo(:,ilon,ilat,time) = interp1(pa_plus_col(iuq), ta_plus_col(iuq), par.pa, 'pchip'); % interpolate to higher resolution vertical grid
+                    tai_sm.lo(par.pa>ps_vert(ilon,ilat,1,time),ilon,ilat,time) = nan; % mask out data below surface pressure
                 end
 
-                if all(isnan(zg_plus_col)) | sum(isnan(zg_plus_col)) == 1
+                if all(isnan(zg_plus_col)) | sum(isnan(zg_plus_col)) == length(ta_plus_col)-1
                     zgi_sm.lo(:,ilon,ilat,time) = nan(size(par.pa'));
                 else
-                    zgi_sm.lo(:,ilon,ilat,time) = interp1(pa_plus_col(iuq), zg_plus_col(iuq), par.pa, 'spline', nan); % interpolate to higher resolution vertical grid
+                    % zgi_sm.lo(:,ilon,ilat,time) = interp1(pa_plus_col(iuq), zg_plus_col(iuq), par.pa, 'spline', nan); % interpolate to higher resolution vertical grid
+                    zgi_sm.lo(:,ilon,ilat,time) = interp1(pa_plus_col(iuq), zg_plus_col(iuq), par.pa, 'pchip'); % interpolate to higher resolution vertical grid
+                    zgi_sm.lo(par.pa>ps_vert(ilon,ilat,1,time),ilon,ilat,time) = nan; % mask out data below surface pressure
                 end
 
                 % disp('Checkpoint 1')

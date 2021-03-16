@@ -28,11 +28,12 @@ function plot_ga_malr_diff_mon_lat(type, par)
         contour(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), [0 0], 'color', 0.75*[1 1 1]);
         clabel(C, h, -100:20:100, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
         caxis([-100 100]);
-        xlabel('Month'); ylabel('Latitude (deg)');
+        ylabel('Latitude (deg)');
         make_title_type(type, par);
         cb = colorbar('limits', [0 100], 'ytick', [0:10:100], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
         ylabel(cb, sprintf('$\\left[(\\Gamma_d - \\Gamma)/\\Gamma_d\\right]_{1.0-%g}$ (\\%%)', par.si_bl));
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_dalr_bl_diff_mon_lat', plotdir, par.si_bl, land), '-dpng', '-r300');
         close;
@@ -47,15 +48,16 @@ function plot_ga_malr_diff_mon_lat(type, par)
         contour(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), [0 0], 'color', 0.75*[1 1 1]);
         clabel(C, h, -100:20:100, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
         caxis([-100 100]);
-        xlabel('Month'); ylabel('Latitude (deg)');
+        ylabel('Latitude (deg)');
         make_title_type(type, par);
         cb = colorbar('limits', [0 100], 'ytick', [0:10:100], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
         ylabel(cb, sprintf('$\\left[(\\Gamma_d - \\Gamma)/\\Gamma_d\\right]_{1.0-%g}$ (\\%%)', par.si_bl));
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_dalr_bl_diff_mon_lat_anot', plotdir, par.si_bl, land), '-dpng', '-r300');
         close;
-        
+
         % mon x lat of diff
         figure(); clf; hold all; box on;
         cmp = colCog(12);
@@ -65,11 +67,12 @@ function plot_ga_malr_diff_mon_lat(type, par)
         contour(mesh_lat, mesh_mon, ga_malr_diff.(land), [0 0], 'color', 0.75*[1 1 1]);
         clabel(C, h, -100:10:100, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
         caxis([-60 60]);
-        xlabel('Month'); ylabel('Latitude (deg)');
+        ylabel('Latitude (deg)');
         make_title_type(type, par);
         cb = colorbar('limits', [-40 60], 'ytick', [-40:10:60], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
         ylabel(cb, sprintf('$\\left[(\\Gamma_m - \\Gamma)/\\Gamma_m\\right]_{%g-%g}$ (\\%%)', par.si_bl, par.si_up));
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_malr_diff_mon_lat', plotdir, par.si_bl, land), '-dpng', '-r300');
         close;
@@ -84,11 +87,12 @@ function plot_ga_malr_diff_mon_lat(type, par)
         contour(mesh_lat, mesh_mon, ga_malr_diff.(land), [0 0], 'color', 0.75*[1 1 1]);
         clabel(C, h, -100:10:100, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
         caxis([-60 60]);
-        xlabel('Month'); ylabel('Latitude (deg)');
+        ylabel('Latitude (deg)');
         make_title_type(type, par);
         cb = colorbar('limits', [-40 60], 'ytick', [-40:10:60], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
         ylabel(cb, sprintf('$\\left[(\\Gamma_m - \\Gamma)/\\Gamma_m\\right]_{%g-%g}$ (\\%%)', par.si_bl, par.si_up));
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_malr_diff_mon_lat_anot', plotdir, par.si_bl, land), '-dpng', '-r300');
         close;

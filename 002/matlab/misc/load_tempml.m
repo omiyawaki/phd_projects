@@ -8,14 +8,19 @@ function [temp_ml, lon, lat] = load_tempml(type, par)
         elseif strcmp(type, 'merra2')
             temp_ml = double(ncread(fullpath, 'T'));
         end
-        lon = double(ncread(fullpath, 'longitude'));
-        lat = double(ncread(fullpath, 'latitude'));
+        if strcmp(type, 'erai')
+            lon = double(ncread(fullpath, 'longitude'));
+            lat = double(ncread(fullpath, 'latitude'));
+        else
+            lon = double(ncread(fullpath, 'lon'));
+            lat = double(ncread(fullpath, 'lat'));
+        end
     elseif any(strcmp(type, {'jra55'}))
         file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp_ml/%s_tmp_%s.ymonmean.nc', type, type, par.(type).yr_span));
         fullpath=sprintf('%s/%s', file.folder, file.name);
-        temp_ml = double(ncread(fullpath, 'TMP_GDS4_HYBL_S113'));
-        lon = double(ncread(fullpath, 'lon'));
-        lat = double(ncread(fullpath, 'lat'));
+        temp_ml = double(ncread(fullpath, 'TMP_GDS4_HYBL_S123'));
+        lon = double(ncread(fullpath, 'g4_lon_3'));
+        lat = double(ncread(fullpath, 'g4_lat_2'));
     elseif strcmp(type, 'gcm')
         var = 'ta';
         file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, var, par.model, par.gcm.clim));

@@ -1,6 +1,7 @@
 #!/bin/sh
 
-declare -a vtypes=("rad" "hydro" "stf" "temp" "srfc" "zg" "w500" "tend" "div" "albedo" "lfrac" "orog") # variable type
+#declare -a vtypes=("rad" "hydro" "stf" "temp" "srfc" "zg" "w500" "tend" "div" "albedo" "lfrac" "orog") # variable type
+declare -a vtypes=("temp_ml") # variable type
 yr_start="1979"
 mon_start="1"
 day_start="1"

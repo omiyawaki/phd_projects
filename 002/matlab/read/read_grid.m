@@ -58,7 +58,7 @@ function read_grid(type, par)
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         save(sprintf('%s/%s', newdir, filename), 'grid');
     elseif strcmp(type, 'echam')
-        if contains(par.echam.clim, 'echr000') | strcmp(par.echam.clim, 'rp000092')
+        if contains(par.echam.clim, 'echr000') | any(strcmp(par.echam.clim, par.echam.exceptions))
             file.dim2=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/BOT*_%s_*.ymonmean.nc', par.echam.clim));
             file.dim3=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/ATM*_%s_*.ymonmean.nc', par.echam.clim));
         else

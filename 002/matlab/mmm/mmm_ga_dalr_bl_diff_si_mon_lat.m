@@ -1,27 +1,46 @@
 function mmm_ga_dalr_bl_diff_si_mon_lat(type, par)
     lat = par.lat;
 
+    % output info
+    par.model = 'mmm';
+    foldername = make_savedir_si_bl(type, par);
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.outname, par.clim));
+
+    par.lat_interp = 'native';
+
     for l = {'lo'}; land=l{1};
+        ga_dalr_bl_diff_list.(land) = nan(length(par.model_list), length(par.lat), 12);
         ga_dalr_bl_diff_mmm.(land) = nan(length(par.lat), 12);
+        ga_dalr_bl_diff_std.(land) = nan(length(par.lat), 12);
     end
 
     pb = CmdLineProgressBar("Creating the multi-model mean...");
-    for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-        pb.print(k, length(par.gcm_models)); % output progress of moist adiabat calculonion
+    for k=1:length(par.model_list); par.model = par.model_list{k};
+        pb.print(k, length(par.model_list)); % output progress of moist adiabat calculonion
 
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
-        prefix_proc=sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s', type, par.model, par.gcm.clim);
-        grid0 = load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.model, par.gcm.clim));
-        ga_dalr_bl_diff0 = load(sprintf('%s/%s/si_bl_%g/ga_dalr_bl_diff_si_mon_lat.mat', prefix_proc, 'native', par.si_bl)); % load lat x mon RCAE data
+        if strcmp(type, 'gcm')
+            type_in = type;
+        else
+            type_in = par.model;
+        end
 
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/%s/si_bl_%g/', type, par.outname, par.gcm.clim, par.lat_interp, par.si_bl);
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.outname, par.gcm.clim));
+        % input info
+        prefix = make_prefix(type_in, par);
+        prefix_proc = make_prefix_proc(type_in, par);
+        grid0 = load(sprintf('%s/grid.mat', prefix));
+        ga_dalr_bl_diff0 = load(sprintf('%s/si_bl_%g/ga_dalr_bl_diff_si_mon_lat.mat', prefix_proc, par.si_bl));
+
 
         for l = {'lo'}; land=l{1};
             ga_dalr_bl_diff0i.ga_dalr_bl_diff.(land) = interp1(grid0.grid.dim3.lat, ga_dalr_bl_diff0.ga_dalr_bl_diff.(land), grid.dim3.lat);
-            ga_dalr_bl_diff_mmm.(land) = nanmean(cat(3, ga_dalr_bl_diff0i.ga_dalr_bl_diff.(land), ga_dalr_bl_diff_mmm.(land)), 3);
+            ga_dalr_bl_diff_list.(land)(k,:,:) = ga_dalr_bl_diff0i.ga_dalr_bl_diff.(land);
         end % land
     end % models
+
+    for l = {'lo'}; land=l{1};
+        ga_dalr_bl_diff_mmm.(land) = squeeze(nanmean(ga_dalr_bl_diff_list.(land),1));
+        ga_dalr_bl_diff_std.(land) = squeeze(nanstd(ga_dalr_bl_diff_list.(land),1));
+    end
 
     ga_dalr_bl_diff = ga_dalr_bl_diff_mmm;
 

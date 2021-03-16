@@ -220,7 +220,7 @@ function read_srfc(type, ymonmean, par)
     elseif strcmp(type, 'echam')
         srfc_vars=par.echam.vars.srfc;
         for i=1:length(par.echam.vars.srfc); var = par.echam.vars.srfc{i};
-            if contains(par.echam.clim, 'echr000') | strcmp(par.echam.clim, 'rp000092')
+            if contains(par.echam.clim, 'echr000') | any(strcmp(par.echam.clim, par.echam.exceptions))
                 file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/BOT*_%s_*%s.nc', par.echam.clim, ymm_in));
             else
                 file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/BOT_%s_0020_39.nc', par.echam.clim, par.echam.clim));
@@ -231,7 +231,7 @@ function read_srfc(type, ymonmean, par)
             if strcmp(var, 'aps'); % create surface geopotential height using surface pressure data
                 prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.echam.clim);
                 load(sprintf('%s/grid.mat', prefix)); % read grid data
-                if contains(par.echam.clim, 'echr000') | strcmp(par.echam.clim, 'rp000092')
+                if contains(par.echam.clim, 'echr000') | any(strcmp(par.echam.clim, par.echam.exceptions))
                     file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/ATM*_%s_*%s.nc', par.echam.clim, ymm_in));
                 else
                     file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/ATM_%s_0020_39.nc', par.echam.clim, par.echam.clim));

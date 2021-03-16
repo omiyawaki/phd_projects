@@ -1,0 +1,54 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\graphicspath{{/project2/tas1/miyawaki/projects/002/figures/rea/1979_2005/1.00/}}
+\usepackage[export]{adjustbox}
+
+\begin{document}
+
+\begin{figure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\normalsize{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{dr1/mse_old/lo/0_poleward_of_lat_80/0_mon_dr1z_decomp_noleg_range.png}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\normalsize{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{dr1/mse_old/lo/0_poleward_of_lat_80/0_mon_dr2z_decomp_noleg_range.png}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\normalsize{(c)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{dr1/mse_old/lo/0_poleward_of_lat_-80/0_mon_dr1z_decomp_noleg_range.png}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\normalsize{(d)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{dr1/mse_old/lo/0_poleward_of_lat_-80/0_mon_dr2z_decomp_noleg_range.png}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \phantom{\textbf{\normalsize{(d)}}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr2z_decomp_legonly.png}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.1\textwidth}
+    \phantom{\textbf{\normalsize{(ddd)}}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.4\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr1z_decomp_legonly.png}
+  \end{subfigure}
+
+\end{figure}
+
+\end{document}

@@ -90,10 +90,33 @@ function proc_dr1_polar_line(type, par)
                 dr1.comp2s_lat.(land).(fw) = interp1(grid.dim3.lat, dr1.comp2s.(land).(fw), lat);
                 dr1.comp2s_lat.(land).(fw) = nansum(dr1.comp2s_lat.(land).(fw).*clat_mon)/nansum(clat);
 
+                %%%%%%%%%% R2 %%%%%%%%%%%
+                dr2.r2z_lat.(land).(fw) = interp1(grid.dim3.lat, flux_z.(land).stf.(fw)./flux_z.(land).ra.(fw), lat);
+                dr2.r2z_lat.(land).(fw) = nansum(dr2.r2z_lat.(land).(fw).*clat_mon)/nansum(clat);
+
+                dr2.r2z_ann.(land).(fw) = repmat(nanmean(flux_z.(land).stf.(fw)./flux_z.(land).ra.(fw), 2), [1 12]);
+                dr2.r2z_ann_lat.(land).(fw) = interp1(grid.dim3.lat, dr2.r2z_ann.(land).(fw), lat);
+                dr2.r2z_ann_lat.(land).(fw) = nansum(dr2.r2z_ann_lat.(land).(fw).*clat_mon)/nansum(clat);
+
+                dr2.dr2z.(land).(fw) = flux_z.(land).stf.(fw)./flux_z.(land).ra.(fw) - dr2.r2z_ann.(land).(fw);
+                dr2.dr2z_lat.(land).(fw) = interp1(grid.dim3.lat, dr2.dr2z.(land).(fw), lat);
+                dr2.dr2z_lat.(land).(fw) = nansum(dr2.dr2z_lat.(land).(fw).*clat_mon)/nansum(clat);
+
+                dr2.stf_ann.(land).(fw) = repmat(nanmean(flux_z.(land).stf.(fw),2),[1 12]);
+
+                dr2.delta_stf.(land).(fw) = flux_z.(land).stf.(fw) - dr2.stf_ann.(land).(fw);
+                dr2.comp1.(land).(fw) = dr2.delta_stf.(land).(fw)./dr1.ra_ann.(land).(fw);
+                dr2.comp1_lat.(land).(fw) = interp1(grid.dim3.lat, dr2.comp1.(land).(fw), lat);
+                dr2.comp1_lat.(land).(fw) = nansum(dr2.comp1_lat.(land).(fw).*clat_mon)/nansum(clat);
+
+                dr2.comp2.(land).(fw) = -dr2.stf_ann.(land).(fw)./(dr1.ra_ann.(land).(fw)).^2.*dr1.delta_ra.(land).(fw);
+                dr2.comp2_lat.(land).(fw) = interp1(grid.dim3.lat, dr2.comp2.(land).(fw), lat);
+                dr2.comp2_lat.(land).(fw) = nansum(dr2.comp2_lat.(land).(fw).*clat_mon)/nansum(clat);
+
             end % for mse dse
         end % for land
         
-        save(savename, 'dr1', '-v7.3');
+        save(savename, 'dr1', 'dr2', '-v7.3');
         
     end % lat bounds
 

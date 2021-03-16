@@ -112,7 +112,7 @@ function plot_tai_zon_select_comp(type, par)
     end % lat bound
     
     % latitudinal band profiles
-    lat_pole = 88;
+    lat_pole = 82;
     lat_mid = 45;
 
     % for l = {'lo', 'l', 'o'}; land = l{1};
@@ -163,10 +163,6 @@ function plot_tai_zon_select_comp(type, par)
                 masi_nmid(:,m) = interp1(lat, masi_mon.(land), lat_mid); % sounding at lat_mid N
                 masi_eq(:,m) = interp1(lat, masi_mon.(land), 0); % sounding at equator
             end
-
-
-            tai_np_era5c(:,m)
-            return
 
             % NH HIGH ONLY
             figure(); clf; hold all; box on;

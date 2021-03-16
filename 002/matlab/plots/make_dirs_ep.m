@@ -7,8 +7,8 @@ function make_dirs_ep(type, par)
             for j = {'def', 'jak', 'jak30', 'jak10', 'pe', 'cp', 'w500', 'vh2', 'vh3', 'vh4'}; crit = j{1};
                 for l = {'lo', 'l', 'o'}; land = l{1};
                     for k = {'ann', 'djf', 'jja', 'mam', 'son'}; time = k{1};
-                        if ~exist(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp', plotdir, par.ep, par.ga, fw, crit, land, time), 'dir')
-                            mkdir(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp', plotdir, par.ep, par.ga, fw, crit, land, time));
+                        if ~exist(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp_%s', plotdir, par.ep, par.ga, fw, crit, land, time, num2str(par.ma_init)), 'dir')
+                            mkdir(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp_%s', plotdir, par.ep, par.ga, fw, crit, land, time, num2str(par.ma_init)));
                         end
                     end
                 end

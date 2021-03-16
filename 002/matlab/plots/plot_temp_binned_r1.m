@@ -10,7 +10,7 @@ function plot_temp_binned_r1(type, par)
     load(sprintf('%s/ta_mon_lat.mat', prefix_proc));
     load(sprintf('%s/ma_mon_lat.mat', prefix_proc));
 
-    for f = {'mse', 'mse_old'}; fw = f{1};
+    for f = {'mse_old'}; fw = f{1};
         % for l = {'lo', 'l', 'o'}; land = l{1};
         for l = {'lo'}; land = l{1};
             if strcmp(land, 'lo'); land_text = 'Land + Ocean';
@@ -60,7 +60,7 @@ function plot_temp_binned_r1(type, par)
             c = colorbar('ticks', linspace(0,1,ceil(length(par.r1_bins)/2)+1), 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
             ylabel(c, '$R_1$ (unitless)', 'interpreter', 'latex');
             make_title_type(type, par);
-            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [200 300], 'xtick', [200:20:300], 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.2 1], 'xminortick', 'on')
             print(sprintf('%s/temp_binned_r1/%s/%s/temp_r1_all.png', plotdir, fw, land), '-dpng', '-r300');
             close;
@@ -81,7 +81,7 @@ function plot_temp_binned_r1(type, par)
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             axis('tight');
             make_title_type(type, par);
-            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xlim', [200 300], 'xtick', [200:20:300], 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.2 1], 'xminortick', 'on')
             print(sprintf('%s/temp_binned_r1/%s/%s/temp_r1_all_nocb.png', plotdir, fw, land), '-dpng', '-r300');
             close;
@@ -117,20 +117,23 @@ function plot_temp_binned_r1(type, par)
 
             figure(); clf; hold all; box on;
             cmp = flip(parula(length(par.r1_bins)-1));
-            for bin = idx01-1:idx01+1
-                plot(ta_area(bin,:), grid.dim3.si, 'color', cmp(bin,:));
-                plot(ma_area(bin,:), grid.dim3.si, ':', 'color', cmp(bin,:));
-            end
+            plot(ta_area(idx01,:), grid.dim3.si, 'color', cmp(idx01,:));
+            plot(ma_area(idx01,:), grid.dim3.si, ':', 'color', cmp(idx01,:));
+            % for bin = idx01-1:idx01+1
+            %     plot(ta_area(bin,:), grid.dim3.si, 'color', cmp(bin,:));
+            %     plot(ma_area(bin,:), grid.dim3.si, ':', 'color', cmp(bin,:));
+            % end
             % plot(ta_area(idx09,:), grid.dim3.si, 'k', 'color', cmp(idx09,:));
             % text(5+ta_area(1,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(1),par.r1_bins(2)), 'fontsize',6, 'rotation', -55);
             % text(-5+ta_area(end,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(end-1),par.r1_bins(end)), 'fontsize',6, 'rotation', -55);
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
-            legend(sprintf('$%g \\le R_1 < %g$',par.r1_bins(idx01-1),par.r1_bins(idx01)),...
-                   sprintf('$%g \\le R_1 < %g$',par.r1_bins(idx01),par.r1_bins(idx01+1)),...
-                   sprintf('$%g \\le R_1 < %g$',par.r1_bins(idx01+1),par.r1_bins(idx01+2)),...
-                   'location', 'southoutside');
+            % legend(sprintf('$%g \\le R_1 < %g$',par.r1_bins(idx01-1),par.r1_bins(idx01)),...
+            %        sprintf('$%g \\le R_1 < %g$',par.r1_bins(idx01),par.r1_bins(idx01+1)),...
+            %        sprintf('$%g \\le R_1 < %g$',par.r1_bins(idx01+1),par.r1_bins(idx01+2)),...
+            %        'location', 'southoutside');
             axis('tight');
             make_title_type(type, par);
+            % set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_sq)
             set(gca, 'fontsize', par.fs, 'xtick', [200:20:300], 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.2 1], 'xminortick', 'on')
             print(sprintf('%s/temp_binned_r1/%s/%s/temp_r1_0-1.png', plotdir, fw, land), '-dpng', '-r300');

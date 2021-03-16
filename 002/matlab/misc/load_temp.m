@@ -19,7 +19,7 @@ function temp = load_temp(type, par)
         temp = double(ncread(fullpath, var));
     elseif strcmp(type, 'echam')
         var = 't';
-        if contains(par.echam.clim, 'echr000') | strcmp(par.echam.clim, 'rp000092')
+        if contains(par.echam.clim, 'echr000') | any(strcmp(par.echam.clim, par.echam.exceptions))
             file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/ATM*_%s_*.ymonmean.nc', par.echam.clim));
         else
             file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/ATM_%s_0020_39.nc', par.echam.clim, par.echam.clim));
