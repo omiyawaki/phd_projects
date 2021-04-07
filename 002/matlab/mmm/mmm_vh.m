@@ -7,13 +7,17 @@ function mmm_vh(type, par)
 
     par.lat_interp = 'native';
 
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         for t = {'ann', 'djf', 'mam', 'jja', 'son'}; time = t{1};
             f_vec = par.(type).fw;
             for f = f_vec; fw = f{1};
                 vh_list.(land).(time).(fw) = nan(length(par.model_list),length(par.lat));
                 vh_mmm.(land).(time).(fw) = nan(1,length(par.lat));
                 vh_std.(land).(time).(fw) = nan(1,length(par.lat));
+                vh_min.(land).(time).(fw) = nan(1,length(par.lat));
+                vh_max.(land).(time).(fw) = nan(1,length(par.lat));
+                vh_25.(land).(time).(fw) = nan(1,length(par.lat));
+                vh_75.(land).(time).(fw) = nan(1,length(par.lat));
             end
         end
     end
@@ -34,7 +38,7 @@ function mmm_vh(type, par)
         grid0 = load(sprintf('%s/grid.mat', prefix));
         vh0 = load(sprintf('%s/vh.mat', prefix_proc));
 
-        for l = {'lo'}; land=l{1};
+        for l = par.land_list; land=l{1};
             for t = {'ann', 'djf', 'mam', 'jja', 'son'}; time = t{1};
                 f_vec = par.(type).fw;
                 for f = f_vec; fw = f{1};
@@ -45,16 +49,16 @@ function mmm_vh(type, par)
         end % land
     end % models
 
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         for t = {'ann', 'djf', 'mam', 'jja', 'son'}; time = t{1};
             f_vec = par.(type).fw;
             for f = f_vec; fw = f{1};
                 vh_mmm.(land).(time).(fw) = squeeze(nanmean(vh_list.(land).(time).(fw), 1));
-                if strcmp(type, 'rea')
-                    vh_std.(land).(time).(fw) = squeeze(range(vh_list.(land).(time).(fw), 1));
-                else
-                    vh_std.(land).(time).(fw) = squeeze(nanstd(vh_list.(land).(time).(fw), 1));
-                end
+                vh_std.(land).(time).(fw) = squeeze(nanstd(vh_list.(land).(time).(fw), 1));
+                vh_min.(land).(time).(fw) = squeeze(min(vh_list.(land).(time).(fw), [], 1));
+                vh_max.(land).(time).(fw) = squeeze(max(vh_list.(land).(time).(fw), [], 1));
+                vh_25.(land).(time).(fw) = squeeze(prctile(vh_list.(land).(time).(fw), [25], 1));
+                vh_75.(land).(time).(fw) = squeeze(prctile(vh_list.(land).(time).(fw), [75], 1));
             end
         end
     end
@@ -65,7 +69,7 @@ function mmm_vh(type, par)
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    save(sprintf('%s%s', foldername, 'vh'), 'vh', 'lat', '-v7.3');
+    save(sprintf('%s%s', foldername, 'vh'), 'vh', 'vh_std', 'vh_min', 'vh_max', 'vh_25', 'vh_75', 'lat', '-v7.3');
 
 end
  

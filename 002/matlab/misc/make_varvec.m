@@ -2,7 +2,8 @@ function var_vec = make_varvec(type, fw)
 
     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c');
         if any(strcmp(fw, {'mse_old', 'dse_old'}))
-            var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
+            % var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
+            var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend', 'divfm'};
         else
             var_vec = {'sshf', 'slhf', 'cp', 'lsp', 'e', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
         end

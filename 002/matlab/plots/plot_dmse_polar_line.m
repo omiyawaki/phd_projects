@@ -26,6 +26,8 @@ function plot_dmse_polar_line(type, par)
               dmse_std = tmp.dmse_std;
               dmse_min = tmp.dmse_min;
               dmse_max = tmp.dmse_max;
+              dmse_25 = tmp.dmse_25;
+              dmse_75 = tmp.dmse_75;
         end
         clear tmp;
         
@@ -57,14 +59,22 @@ function plot_dmse_polar_line(type, par)
                     ymax = 30;
                 end
 
-                if strcmp(type, 'rea') | (strcmp(type, 'gcm') & strcmp(par.model, 'mmm'))
+                if strcmp(type, 'rea') 
+
                     % shade range
                     plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "", ymin, ymax, type, fw, par, dmse_min.ra_lat.(land).(fw), dmse_min.res_lat.(land).(fw), dmse_min.lh_lat.(land).(fw), dmse_min.sh_lat.(land).(fw), dmse_max.ra_lat.(land).(fw), dmse_max.res_lat.(land).(fw), dmse_max.lh_lat.(land).(fw), dmse_max.sh_lat.(land).(fw));
                     plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par, dmse_min.ra_lat.(land).(fw), dmse_min.res_lat.(land).(fw), dmse_min.lh_lat.(land).(fw), dmse_min.sh_lat.(land).(fw), dmse_max.ra_lat.(land).(fw), dmse_max.res_lat.(land).(fw), dmse_max.lh_lat.(land).(fw), dmse_max.sh_lat.(land).(fw));
 
-                    % shade std
-                    plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "", ymin, ymax, type, fw, par, dmse_std.ra_lat.(land).(fw), dmse_std.res_lat.(land).(fw), dmse_std.lh_lat.(land).(fw), dmse_std.sh_lat.(land).(fw));
-                    plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par, dmse_std.ra_lat.(land).(fw), dmse_std.res_lat.(land).(fw), dmse_std.lh_lat.(land).(fw), dmse_std.sh_lat.(land).(fw));
+                elseif (strcmp(type, 'gcm') & strcmp(par.model, 'mmm'))
+
+                    % shade IQR
+                    plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "", ymin, ymax, type, fw, par, dmse_25.ra_lat.(land).(fw), dmse_25.res_lat.(land).(fw), dmse_25.lh_lat.(land).(fw), dmse_25.sh_lat.(land).(fw), dmse_75.ra_lat.(land).(fw), dmse_75.res_lat.(land).(fw), dmse_75.lh_lat.(land).(fw), dmse_75.sh_lat.(land).(fw));
+                    plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par, dmse_25.ra_lat.(land).(fw), dmse_25.res_lat.(land).(fw), dmse_25.lh_lat.(land).(fw), dmse_25.sh_lat.(land).(fw), dmse_75.ra_lat.(land).(fw), dmse_75.res_lat.(land).(fw), dmse_75.lh_lat.(land).(fw), dmse_75.sh_lat.(land).(fw));
+
+                    % % shade std
+                    % plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "", ymin, ymax, type, fw, par, dmse_std.ra_lat.(land).(fw), dmse_std.res_lat.(land).(fw), dmse_std.lh_lat.(land).(fw), dmse_std.sh_lat.(land).(fw));
+                    % plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par, dmse_std.ra_lat.(land).(fw), dmse_std.res_lat.(land).(fw), dmse_std.lh_lat.(land).(fw), dmse_std.sh_lat.(land).(fw));
+
                 else
                     if strcmp(fw, 'ceresrad')
                         plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.stf_lat.(land).(fw), dmse.stf_lat.(land).(fw), "", ymin, ymax, type, fw, par);

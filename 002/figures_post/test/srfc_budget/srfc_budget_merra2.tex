@@ -1,0 +1,29 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\graphicspath{{/project2/tas1/miyawaki/projects/002/figures/merra2/1980_2005/native/dmse/mse_old/lo/}}
+\usepackage[export]{adjustbox}
+
+\begin{document}
+
+\begin{figure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.95\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{0_poleward_of_lat_80/0_mon_srfc.png}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\large{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.95\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{0_poleward_of_lat_-80/0_mon_srfc.png}
+  \end{subfigure}
+
+\end{figure}
+
+\end{document}

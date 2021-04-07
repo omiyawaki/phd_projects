@@ -20,7 +20,7 @@ function mmm_dr2_polar_line(type, par)
         filename = sprintf('dr1_poleward_of_lat_%g.mat', par.lat_bound);
         savename = sprintf('dr2_poleward_of_lat_%g.mat', par.lat_bound);
 
-        for l = {'lo'}; land=l{1};
+        for l = par.land_list; land=l{1};
             for fn = {'r2z_lat', 'r2z_ann_lat', 'dr2z_lat', 'comp1_lat', 'comp2_lat'}; fname = fn{1};
                 f_vec = par.gcm.fw;
                 for f = f_vec; fw = f{1};
@@ -50,7 +50,7 @@ function mmm_dr2_polar_line(type, par)
             grid0 = load(sprintf('%s/grid.mat', prefix));
             dr2_0 = load(sprintf('%s/%s', prefix_proc, filename));
 
-            for l = {'lo'}; land=l{1};
+            for l = par.land_list; land=l{1};
                 for fn = {'r2z_lat', 'r2z_ann_lat', 'dr2z_lat', 'comp1_lat', 'comp2_lat'}; fname = fn{1};
                     f_vec = par.gcm.fw;
                     for f = f_vec; fw = f{1};
@@ -60,7 +60,7 @@ function mmm_dr2_polar_line(type, par)
             end % land
         end % models
 
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         for fn = {'r2z_lat', 'r2z_ann_lat', 'dr2z_lat', 'comp1_lat', 'comp2_lat'}; fname = fn{1};
             f_vec = par.gcm.fw;
             for f = f_vec; fw = f{1};

@@ -70,9 +70,9 @@ function make_masi(type, par)
     end
 
     if strcmp(par.ma_init, 'surf')
-        filename=sprintf('ma_si_%s.mat', par.ma_init);
+        filename=sprintf('ma_si_%s_%s.mat', par.ma_init, par.ma_type);
     else
-        filename=sprintf('ma_si_%g.mat', par.ma_init);
+        filename=sprintf('ma_si_%g_%s.mat', par.ma_init, par.ma_type);
     end
     save(sprintf('%s/%s', foldername, filename), 'ma_si', '-v7.3');
 end

@@ -32,9 +32,9 @@ function plot_temp_ann(type, par)
     load(sprintf('%s/ta_mon_lat.mat', prefix_proc));
     load(sprintf('%s/ma_mon_lat_%s.mat', prefix_proc, num2str(par.ma_init)));
 
-    if strcmp(type, 'gcm') & contains(par.model, 'mmm')
-        grid.dim3.lat = grid.dim3.lat';
-    end
+    % if strcmp(type, 'gcm') & contains(par.model, 'mmm')
+    %     grid.dim3.lat = grid.dim3.lat';
+    % end
 
     make_dirs_ep(type, par)
 
@@ -53,6 +53,10 @@ function plot_temp_ann(type, par)
             r1_ann = nanmean(flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), 2);
             ta_ann = squeeze(nanmean(tasi.(land), 2));
             ta_std_ann = squeeze(nanmean(tasi_std.(land), 2));
+            ta_min_ann = squeeze(nanmean(tasi_min.(land), 2));
+            ta_max_ann = squeeze(nanmean(tasi_max.(land), 2));
+            ta_25_ann = squeeze(nanmean(tasi_25.(land), 2));
+            ta_75_ann = squeeze(nanmean(tasi_75.(land), 2));
             ma_ann = squeeze(nanmean(masi.(land), 2));
 
             % locate rce, rcae, and rae for NH and SH
@@ -75,6 +79,22 @@ function plot_temp_ann(type, par)
             ta_std_rcae_nh = nansum( ta_std_ann(idx_rcae_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rcae_nh)), [1 size(ta_std_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rcae_nh)));
             ta_std_rae_nh = nansum( ta_std_ann(idx_rae_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rae_nh)), [1 size(ta_std_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rae_nh)));
 
+            ta_min_rce_nh = nansum( ta_min_ann(idx_rce_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rce_nh)), [1 size(ta_min_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rce_nh)));
+            ta_min_rcae_nh = nansum( ta_min_ann(idx_rcae_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rcae_nh)), [1 size(ta_min_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rcae_nh)));
+            ta_min_rae_nh = nansum( ta_min_ann(idx_rae_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rae_nh)), [1 size(ta_min_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rae_nh)));
+
+            ta_max_rce_nh = nansum( ta_max_ann(idx_rce_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rce_nh)), [1 size(ta_max_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rce_nh)));
+            ta_max_rcae_nh = nansum( ta_max_ann(idx_rcae_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rcae_nh)), [1 size(ta_max_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rcae_nh)));
+            ta_max_rae_nh = nansum( ta_max_ann(idx_rae_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rae_nh)), [1 size(ta_max_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rae_nh)));
+
+            ta_25_rce_nh = nansum( ta_25_ann(idx_rce_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rce_nh)), [1 size(ta_25_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rce_nh)));
+            ta_25_rcae_nh = nansum( ta_25_ann(idx_rcae_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rcae_nh)), [1 size(ta_25_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rcae_nh)));
+            ta_25_rae_nh = nansum( ta_25_ann(idx_rae_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rae_nh)), [1 size(ta_25_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rae_nh)));
+
+            ta_75_rce_nh = nansum( ta_75_ann(idx_rce_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rce_nh)), [1 size(ta_75_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rce_nh)));
+            ta_75_rcae_nh = nansum( ta_75_ann(idx_rcae_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rcae_nh)), [1 size(ta_75_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rcae_nh)));
+            ta_75_rae_nh = nansum( ta_75_ann(idx_rae_nh, :) .* repmat(cosd(grid.dim3.lat(idx_rae_nh)), [1 size(ta_75_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rae_nh)));
+
             ta_rce_sh = nansum( ta_ann(idx_rce_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rce_sh)), [1 size(ta_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rce_sh)));
             ma_rce_sh = nansum( ma_ann(idx_rce_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rce_sh)), [1 size(ma_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rce_sh)));
             ta_rcae_sh = nansum( ta_ann(idx_rcae_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rcae_sh)), [1 size(ta_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rcae_sh)));
@@ -84,6 +104,22 @@ function plot_temp_ann(type, par)
             ta_std_rce_sh = nansum( ta_std_ann(idx_rce_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rce_sh)), [1 size(ta_std_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rce_sh)));
             ta_std_rcae_sh = nansum( ta_std_ann(idx_rcae_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rcae_sh)), [1 size(ta_std_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rcae_sh)));
             ta_std_rae_sh = nansum( ta_std_ann(idx_rae_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rae_sh)), [1 size(ta_std_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rae_sh)));
+
+            ta_min_rce_sh = nansum( ta_min_ann(idx_rce_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rce_sh)), [1 size(ta_min_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rce_sh)));
+            ta_min_rcae_sh = nansum( ta_min_ann(idx_rcae_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rcae_sh)), [1 size(ta_min_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rcae_sh)));
+            ta_min_rae_sh = nansum( ta_min_ann(idx_rae_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rae_sh)), [1 size(ta_min_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rae_sh)));
+
+            ta_max_rce_sh = nansum( ta_max_ann(idx_rce_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rce_sh)), [1 size(ta_max_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rce_sh)));
+            ta_max_rcae_sh = nansum( ta_max_ann(idx_rcae_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rcae_sh)), [1 size(ta_max_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rcae_sh)));
+            ta_max_rae_sh = nansum( ta_max_ann(idx_rae_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rae_sh)), [1 size(ta_max_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rae_sh)));
+
+            ta_25_rce_sh = nansum( ta_25_ann(idx_rce_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rce_sh)), [1 size(ta_25_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rce_sh)));
+            ta_25_rcae_sh = nansum( ta_25_ann(idx_rcae_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rcae_sh)), [1 size(ta_25_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rcae_sh)));
+            ta_25_rae_sh = nansum( ta_25_ann(idx_rae_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rae_sh)), [1 size(ta_25_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rae_sh)));
+
+            ta_75_rce_sh = nansum( ta_75_ann(idx_rce_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rce_sh)), [1 size(ta_75_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rce_sh)));
+            ta_75_rcae_sh = nansum( ta_75_ann(idx_rcae_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rcae_sh)), [1 size(ta_75_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rcae_sh)));
+            ta_75_rae_sh = nansum( ta_75_ann(idx_rae_sh, :) .* repmat(cosd(grid.dim3.lat(idx_rae_sh)), [1 size(ta_75_ann,2)]) )/nansum(cosd(grid.dim3.lat(idx_rae_sh)));
 
             % moist adiabats have nans below the initialization level so the nansums are 0 there. Make these spurious zeros nans.
             if ~strcmp(par.ma_init, 'surf')
@@ -95,14 +131,23 @@ function plot_temp_ann(type, par)
 
             % ALL NH compared with moist adiabat
             figure(); clf; hold all; box on;
-            if strcmp(type, 'rea') | (strcmp(type, 'gcm') & strcmp(par.model, 'mmm'))
-                ta_rce_nh_u = ta_rce_nh + ta_std_rce_nh;
-                ta_rce_nh_l = ta_rce_nh - ta_std_rce_nh;
-                ta_rcae_nh_u = ta_rcae_nh + ta_std_rcae_nh;
-                ta_rcae_nh_l = ta_rcae_nh - ta_std_rcae_nh;
-                ta_rae_nh_u = ta_rae_nh + ta_std_rae_nh;
-                ta_rae_nh_l = ta_rae_nh - ta_std_rae_nh;
+            if strcmp(type, 'rea')
+                ta_rce_nh_u = ta_max_rce_nh;
+                ta_rce_nh_l = ta_min_rce_nh;
+                ta_rcae_nh_u = ta_max_rcae_nh;
+                ta_rcae_nh_l = ta_min_rcae_nh;
+                ta_rae_nh_u = ta_max_rae_nh;
+                ta_rae_nh_l = ta_min_rae_nh;
+            elseif (strcmp(type, 'gcm') & strcmp(par.model, 'mmm'))
+                ta_rce_nh_u = ta_75_rce_nh;
+                ta_rce_nh_l = ta_25_rce_nh;
+                ta_rcae_nh_u = ta_75_rcae_nh;
+                ta_rcae_nh_l = ta_25_rcae_nh;
+                ta_rae_nh_u = ta_75_rae_nh;
+                ta_rae_nh_l = ta_25_rae_nh;
+            end
 
+            if strcmp(type, 'rea') | (strcmp(type, 'gcm') & strcmp(par.model, 'mmm'))
                 ta_rce_nh_2 = [ta_rce_nh_l'; flipud(ta_rce_nh_u')];
                 ta_rcae_nh_2 = [ta_rcae_nh_l'; flipud(ta_rcae_nh_u')];
                 ta_rae_nh_2 = [ta_rae_nh_l'; flipud(ta_rae_nh_u')];
@@ -117,9 +162,9 @@ function plot_temp_ann(type, par)
             h_rcae = plot(ta_rcae_nh, grid.dim3.si, 'color', 0.25*[1 1 1]);
             h_rcae_ma_si = plot(ma_rcae_nh, grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
             h_rae = plot(ta_rae_nh, grid.dim3.si, 'color', par.blue);
-            text(ta_rce_nh(60)+5, grid.dim3.si(60), '{RCE}', 'color', par.orange);
-            text(ta_rcae_nh(45), grid.dim3.si(45), '{RCAE}', 'color', 0.25*[1 1 1]);
-            text(ta_rae_nh(30)-15, grid.dim3.si(30), '{RAE}', 'color', par.blue);
+            text(ta_rce_nh(60)+5, grid.dim3.si(60), '\textbf{RCE}', 'color', par.orange, 'fontsize', 6);
+            text(ta_rcae_nh(45), grid.dim3.si(45), '\textbf{RCAE}', 'color', 0.25*[1 1 1], 'fontsize', 6);
+            text(ta_rae_nh(30)-10, grid.dim3.si(30), '\textbf{RAE}', 'color', par.blue, 'fontsize', 6);
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             title(sprintf('NH, %s', upper(time)));
             % legend([h_rce, h_rcae, h_rae], 'RCE', 'RCAE', 'RAE', 'location', 'southwest');
@@ -131,14 +176,23 @@ function plot_temp_ann(type, par)
 
             % ALL SH compared with moist adiabat
             figure(); clf; hold all; box on;
-            if strcmp(type, 'rea') | (strcmp(type, 'gcm') & strcmp(par.model, 'mmm'))
-                ta_rce_sh_u = ta_rce_sh + ta_std_rce_sh;
-                ta_rce_sh_l = ta_rce_sh - ta_std_rce_sh;
-                ta_rcae_sh_u = ta_rcae_sh + ta_std_rcae_sh;
-                ta_rcae_sh_l = ta_rcae_sh - ta_std_rcae_sh;
-                ta_rae_sh_u = ta_rae_sh + ta_std_rae_sh;
-                ta_rae_sh_l = ta_rae_sh - ta_std_rae_sh;
+            if strcmp(type, 'rea')
+                ta_rce_sh_u = ta_max_rce_sh;
+                ta_rce_sh_l = ta_min_rce_sh;
+                ta_rcae_sh_u = ta_max_rcae_sh;
+                ta_rcae_sh_l = ta_min_rcae_sh;
+                ta_rae_sh_u = ta_max_rae_sh;
+                ta_rae_sh_l = ta_min_rae_sh;
+            elseif (strcmp(type, 'gcm') & strcmp(par.model, 'mmm'))
+                ta_rce_sh_u = ta_75_rce_sh;
+                ta_rce_sh_l = ta_25_rce_sh;
+                ta_rcae_sh_u = ta_75_rcae_sh;
+                ta_rcae_sh_l = ta_25_rcae_sh;
+                ta_rae_sh_u = ta_75_rae_sh;
+                ta_rae_sh_l = ta_25_rae_sh;
+            end
 
+            if strcmp(type, 'rea') | (strcmp(type, 'gcm') & strcmp(par.model, 'mmm'))
                 ta_rce_sh_2 = [ta_rce_sh_l'; flipud(ta_rce_sh_u')];
                 ta_rcae_sh_2 = [ta_rcae_sh_l'; flipud(ta_rcae_sh_u')];
                 ta_rae_sh_2 = [ta_rae_sh_l'; flipud(ta_rae_sh_u')];
@@ -153,9 +207,9 @@ function plot_temp_ann(type, par)
             h_rcae = plot(ta_rcae_sh, grid.dim3.si, 'color', 0.25*[1 1 1]);
             h_rcae_ma_si = plot(ma_rcae_sh, grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
             h_rae = plot(ta_rae_sh, grid.dim3.si, 'color', par.blue);
-            text(ta_rce_sh(60)+5, grid.dim3.si(60), '{RCE}', 'color', par.orange);
-            text(ta_rcae_sh(45), grid.dim3.si(45), '{RCAE}', 'color', 0.25*[1 1 1]);
-            text(ta_rae_sh(30)-15, grid.dim3.si(30), '{RAE}', 'color', par.blue);
+            text(ta_rce_sh(60)+5, grid.dim3.si(60), '\textbf{RCE}', 'color', par.orange, 'fontsize', 6);
+            text(ta_rcae_sh(45), grid.dim3.si(45), '\textbf{RCAE}', 'color', 0.25*[1 1 1], 'fontsize', 6);
+            text(ta_rae_sh(30)-15, grid.dim3.si(30), '\textbf{RAE}', 'color', par.blue, 'fontsize', 6);
             xlabel('T (K)'); ylabel('$\sigma$ (unitless)');
             title(sprintf('SH, %s', upper(time)));
             % legend([h_rce, h_rcae, h_rae], 'RCE', 'RCAE', 'RAE', 'location', 'southwest');

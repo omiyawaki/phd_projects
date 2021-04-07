@@ -21,6 +21,7 @@ function plot_dr1(r1_var, r1_ann_var, dr1_var, comp1, comp2, leg, ymin, ymax, ty
     ylim_lo = min([r1_var,ymin]);
     ylim_up = max([r1_var,ymax]);
     tot=plot([1:12], circshift(r1_var,par.shiftby,2), 'k');
+    disp(sprintf('Annual mean R_1 is %g', nanmean(r1_var)))
     ylabel(sprintf('$R_1$ (unitless)'));
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
     

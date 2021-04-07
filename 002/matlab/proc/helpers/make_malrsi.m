@@ -48,11 +48,28 @@ function make_malrsi(type, par)
         pb.print(lo, size(pa,2));
         for la=1:size(pa,3)
             for mo=1:size(pa,4)
-                dtmdzsi(:,lo,la,mo) = interp1(pa(:,lo,la,mo)/ps_vert(lo,la,1,mo), dtmdz(:,lo,la,mo), grid.dim3.si);
+
+                local_si = squeeze(pa(:,lo,la,mo)/ps_vert(lo,la,1,mo));
+                local_lr = squeeze(dtmdz(:,lo,la,mo));
+
+                % remove missing data
+                idx_nan = isnan(local_si) | isnan(local_lr);
+                local_si(idx_nan) = [];
+                local_lr(idx_nan) = [];
+
+                % insert surface lapse rate
+                local_si = [1; local_si];
+                local_lr = [squeeze(dtasmdz(lo,la,mo)); local_lr];
+
+                % interpolate to standard sigma grid
+                dtmdzsi(:,lo,la,mo) = interp1(local_si, local_lr, grid.dim3.si);
+
+                clear local_si local_lr idx_nan
+
             end
         end
     end
-    dtmdzsi(1,:,:,:) = dtasmdz;
+
     dtmdzsi = permute(dtmdzsi, [2 3 1 4]); % bring height to 3rd
 
     filename='malrsi.mat';

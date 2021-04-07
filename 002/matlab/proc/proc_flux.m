@@ -1,9 +1,13 @@
 function proc_flux(type, par)
+
+    prefix = make_prefix(type, par);
+    prefix_proc = make_prefix_proc(type, par);
+
     if any(strcmp(type, {'era5', 'era5c' 'erai'}))
         don = load(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/don/radiation_dynamics_climatology')); % read donohoe data
         prefix_ceres=sprintf('/project2/tas1/miyawaki/projects/002/data/read/ceres'); % prefix for CERES data
         % load(sprintf('%s/div.mat', prefix)) % read divergence data
-        % load(sprintf('%s/tend.mat', prefix)) % read tendency data
+        load(sprintf('%s/tend.mat', prefix)) % read tendency data
         prefix_don=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s', 'erai');
         if any(strcmp(type, {'erai', 'era5', 'era5c'})) & strcmp(par.(type).yr_span, '1979_2018')
             don79 = load(sprintf('%s/dondiv79.mat', prefix_don)); % read Donohoe data 1979--2018
@@ -11,9 +15,6 @@ function proc_flux(type, par)
             don79 = load(sprintf('%s/dondiv00.mat', prefix_don)); % read Donohoe data 1979--2018
         end
     end
-
-    prefix = make_prefix(type, par);
-    prefix_proc = make_prefix_proc(type, par);
 
     load(sprintf('%s/grid.mat', prefix)) % read grid data
     load(sprintf('%s/rad.mat', prefix)) % read radiation data
@@ -66,12 +67,12 @@ function proc_flux(type, par)
         flux.(fname) = interp1(grid.dim2.lat, flux.(fname), lat, 'linear');
         flux.(fname) = permute(flux.(fname), [2 1 3]);
     end
-    %    if contains(type, 'era') || any(strcmp(type, {'gcm'}))
-    %        load(sprintf('%s/tend.mat', prefix)) % read surface turbulent flux data
-    %        flux.tend = permute(tend.tend, [2 1 3]);
-    %        flux.tend = interp1(grid.dim2.lat, flux.tend, lat, 'linear');
-    %        flux.tend = permute(flux.tend, [2 1 3]);
-    %    end
+    if contains(type, 'era') %|| any(strcmp(type, {'gcm'}))
+        load(sprintf('%s/tend.mat', prefix)) % read surface turbulent flux data
+        flux.tend = permute(tend.tend, [2 1 3]);
+        flux.tend = interp1(grid.dim2.lat, flux.tend, lat, 'linear');
+        flux.tend = permute(flux.tend, [2 1 3]);
+    end
     % if any(strcmp(type, {'era5', 'era5c' 'erai'}))
     %     for fn = tend_vars_txt; fname = fn{1}; % interpolate to std lat
     %         flux.(fname) = permute(tend.(fname), [2 1 3]);
@@ -159,6 +160,9 @@ function proc_flux(type, par)
 
         if any(strcmp(fw, {'mse_old', 'dse_old'}))
             flux.res.(fw) = flux.ra.(fw) + flux.stf.(fw); % infer MSE tendency and flux divergence as residuals
+            if any(strcmp(type, {'era5', 'era5c', 'erai'}))
+                flux.divfm = flux.ra.mse_old + flux.stf.mse_old - flux.tend; % infer MSE tendency and flux divergence as residuals
+            end
         elseif any(strcmp(fw, {'mse', 'mse_ac', 'mse_sc', 'mse_ac_ra', 'mse_sc_ra', 'dse'}))
             flux.res.(fw) = flux.ra.(fw) + flux.stf.(fw) - flux.tend; % infer MSE tendency and flux divergence as residuals
         elseif any(strcmp(fw, {'mse2'}))
@@ -229,8 +233,7 @@ function proc_flux(type, par)
     var_vec = make_varvec(type, fw);
 
     for fn = var_vec; fname = fn{1};
-        % for l = {'lo', 'l', 'o'}; land = l{1};
-        for l = {'lo'}; land = l{1};
+        for l = par.land_list; land = l{1};
             if strcmp(land, 'lo'); flux_n.(land).(fname) = flux.(fname);
             elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
             elseif strcmp(land, 'o'); flux_n.(land).(fname) = flux.(fname) .*mask.land;
@@ -261,8 +264,7 @@ function proc_flux(type, par)
     for fn = {'ra', 'stf', 'res', 'r1', 'r2', 'ftoa', 'fsfc', 'sfc', 'shf', 'comp1', 'comp2', 'comp1r2', 'comp2r2'}; fname = fn{1};
         f_vec = assign_fw(type, par);
         for f = f_vec; fw = f{1};
-            % for l = {'lo', 'l', 'o'}; land = l{1};
-            for l = {'lo'}; land = l{1};
+            for l = par.land_list; land = l{1};
                 if strcmp(land, 'lo'); flux_n.(land).(fname).(fw) = flux.(fname).(fw);
                 elseif strcmp(land, 'l'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.ocean;
                 elseif strcmp(land, 'o'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.land;

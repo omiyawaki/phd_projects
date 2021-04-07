@@ -40,18 +40,25 @@ function make_title_type_lat(type, lat1, lat2, par)
         end
     elseif any(strcmp(type, {'echam'}))
         % title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), par.(type).(par.(type).clim), lat1, lat2));
-        if lat1>0
-            if lat2==90
-                title(sprintf('%s, %s, NH High Latitudes', upper(type), par.(type).(par.(type).clim)));
+        if any(strcmp(par.echam.clim, {'rp000133', 'rp000141', 'rp000034', 'rp000086', 'rp000172', 'rp000092'}))
+            if lat2==90 | lat2==-90
+                title(sprintf('AQUA, %s, No RAE', par.(type).(par.(type).clim)));
+                % title(sprintf('%s, %s, No RAE', upper(type), par.(type).(par.(type).clim)));
             else
-                title(sprintf('%s, %s, NH Midlatitudes', upper(type), par.(type).(par.(type).clim)));
+                title(sprintf('AQUA, %s, NH-like', par.(type).(par.(type).clim)));
+                % title(sprintf('%s, %s, NH-like', upper(type), par.(type).(par.(type).clim)));
             end
-        else
-            if lat2==-90
-                title(sprintf('%s, %s, SH High Latitudes', upper(type), par.(type).(par.(type).clim)));
+        elseif any(strcmp(par.echam.clim, {'rp000145', 'rp000131', 'rp000147', 'rp000135', 'rp000149', 'rp000046'}))
+            if lat2==90 | lat2==-90
+                title(sprintf('AQUA, %s, No RAE', par.(type).(par.(type).clim)));
+                % title(sprintf('%s, %s, No RAE', upper(type), par.(type).(par.(type).clim)));
             else
-                title(sprintf('%s, %s, SH Midlatitudes', upper(type), par.(type).(par.(type).clim)));
+                title(sprintf('AQUA, %s, SH-like', par.(type).(par.(type).clim)));
+                % title(sprintf('%s, %s, SH-like', upper(type), par.(type).(par.(type).clim)));
             end
+        elseif any(strcmp(par.echam.clim, {'rp000126', 'rp000148', 'rp000134', 'rp000146', 'rp000130', 'rp000144'}))
+            title(sprintf('AQUA, %s, NH-like', par.(type).(par.(type).clim)));
+            % title(sprintf('%s, %s, NH-like', upper(type), par.(type).(par.(type).clim)));
         end
     elseif any(strcmp(type, {'hahn'}))
         title(sprintf('%s, %s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper('CESM'), par.(type).(par.(type).clim), lat1, lat2));

@@ -7,13 +7,17 @@ function mmm_flux_zt(type, par)
 
     par.lat_interp = 'native'; % input files will be in native grid
 
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         for t = {'ann', 'djf', 'mam', 'jja', 'son'}; time = t{1};
             var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
             for fn = var_vec; fname = fn{1};
                 flux_zt_list.(land).(time).(fname) = nan(length(par.model_list), length(par.lat));
                 flux_zt_mmm.(land).(time).(fname) = nan(1, length(par.lat));
                 flux_zt_std.(land).(time).(fname) = nan(1, length(par.lat));
+                flux_zt_min.(land).(time).(fname) = nan(1, length(par.lat));
+                flux_zt_max.(land).(time).(fname) = nan(1, length(par.lat));
+                flux_zt_25.(land).(time).(fname) = nan(1, length(par.lat));
+                flux_zt_75.(land).(time).(fname) = nan(1, length(par.lat));
             end
             for fn = {'ra', 'stf', 'res', 'r1', 'r1z', 'r2', 'ftoa', 'fsfc', 'sfc', 'shf', 'comp1', 'comp2'}; fname = fn{1};
                 f_vec = par.gcm.fw;
@@ -21,6 +25,10 @@ function mmm_flux_zt(type, par)
                     flux_zt_list.(land).(time).(fname).(fw) = nan(length(par.model_list), length(par.lat));
                     flux_zt_mmm.(land).(time).(fname).(fw) = nan(1, length(par.lat));
                     flux_zt_std.(land).(time).(fname).(fw) = nan(1, length(par.lat));
+                    flux_zt_min.(land).(time).(fname).(fw) = nan(1, length(par.lat));
+                    flux_zt_max.(land).(time).(fname).(fw) = nan(1, length(par.lat));
+                    flux_zt_25.(land).(time).(fname).(fw) = nan(1, length(par.lat));
+                    flux_zt_75.(land).(time).(fname).(fw) = nan(1, length(par.lat));
                 end
             end
         end
@@ -43,7 +51,7 @@ function mmm_flux_zt(type, par)
         flux_zt0 = load(sprintf('%s/flux_zt.mat', prefix_proc)); % load lat x mon RCAE data
 
 
-        for l = {'lo'}; land=l{1};
+        for l = par.land_list; land=l{1};
             for t = {'ann', 'djf', 'mam', 'jja', 'son'}; time = t{1};
                 f_vec = par.(type).fw;
                 for f = f_vec; fw = f{1};
@@ -71,26 +79,26 @@ function mmm_flux_zt(type, par)
         end % land
     end % models
     
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         for t = {'ann', 'djf', 'mam', 'jja', 'son'}; time = t{1};
             var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
             for fn = 1:length(var_vec); fname = var_vec{fn};
                 flux_zt_mmm.(land).(time).(fname) = squeeze(nanmean(flux_zt_list.(land).(time).(fname), 1));
-                if strcmp(type, 'rea')
-                    flux_zt_std.(land).(time).(fname) = squeeze(range(flux_zt_list.(land).(time).(fname), 1));
-                else
-                    flux_zt_std.(land).(time).(fname) = squeeze(nanstd(flux_zt_list.(land).(time).(fname), 1));
-                end
+                flux_zt_std.(land).(time).(fname) = squeeze(nanstd(flux_zt_list.(land).(time).(fname), 1));
+                flux_zt_min.(land).(time).(fname) = squeeze(min(flux_zt_list.(land).(time).(fname), [], 1));
+                flux_zt_max.(land).(time).(fname) = squeeze(max(flux_zt_list.(land).(time).(fname), [], 1));
+                flux_zt_25.(land).(time).(fname) = squeeze(prctile(flux_zt_list.(land).(time).(fname), [25], 1));
+                flux_zt_75.(land).(time).(fname) = squeeze(prctile(flux_zt_list.(land).(time).(fname), [75], 1));
             end
             for fn = {'ra', 'stf', 'res', 'r1', 'r1z', 'r2', 'ftoa', 'fsfc', 'sfc', 'shf', 'comp1', 'comp2'}; fname = fn{1};
                 f_vec = par.(type).fw;
                 for f = f_vec; fw = f{1};
                     flux_zt_mmm.(land).(time).(fname).(fw) = squeeze(nanmean(flux_zt_list.(land).(time).(fname).(fw), 1));
-                    if strcmp(type, 'rea')
-                        flux_zt_std.(land).(time).(fname).(fw) = squeeze(range(flux_zt_list.(land).(time).(fname).(fw), 1));
-                    else
-                        flux_zt_std.(land).(time).(fname).(fw) = squeeze(nanstd(flux_zt_list.(land).(time).(fname).(fw), 1));
-                    end
+                    flux_zt_std.(land).(time).(fname).(fw) = squeeze(nanstd(flux_zt_list.(land).(time).(fname).(fw), 1));
+                    flux_zt_min.(land).(time).(fname).(fw) = squeeze(min(flux_zt_list.(land).(time).(fname).(fw), [], 1));
+                    flux_zt_max.(land).(time).(fname).(fw) = squeeze(max(flux_zt_list.(land).(time).(fname).(fw), [], 1));
+                    flux_zt_25.(land).(time).(fname).(fw) = squeeze(prctile(flux_zt_list.(land).(time).(fname).(fw), [25], 1));
+                    flux_zt_75.(land).(time).(fname).(fw) = squeeze(prctile(flux_zt_list.(land).(time).(fname).(fw), [75], 1));
                 end
             end
         end % time
@@ -102,7 +110,7 @@ function mmm_flux_zt(type, par)
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    save(sprintf('%s%s', foldername, 'flux_zt'), 'flux_zt', 'flux_zt_std', 'lat', '-v7.3');
+    save(sprintf('%s%s', foldername, 'flux_zt'), 'flux_zt', 'flux_zt_std', 'flux_zt_min', 'flux_zt_max', 'flux_zt_25' ,'flux_zt_75', 'lat', '-v7.3');
 
 end
 

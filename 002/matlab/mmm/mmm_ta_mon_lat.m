@@ -7,10 +7,14 @@ function mmm_ta_mon_lat(type, par)
     par.lat_interp = 'native';
 
     lat = par.lat;
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         tasi_list.(land) = nan(length(par.model_list), length(par.lat), 12, length(par.si));
         tasi_mmm.(land) = nan(length(par.lat), 12, length(par.si));
         tasi_std.(land) = nan(length(par.lat), 12, length(par.si));
+        tasi_min.(land) = nan(length(par.lat), 12, length(par.si));
+        tasi_max.(land) = nan(length(par.lat), 12, length(par.si));
+        tasi_25.(land) = nan(length(par.lat), 12, length(par.si));
+        tasi_75.(land) = nan(length(par.lat), 12, length(par.si));
     end
 
     pb = CmdLineProgressBar("Creating the multi-model mean...");
@@ -29,7 +33,7 @@ function mmm_ta_mon_lat(type, par)
         grid0 = load(sprintf('%s/grid.mat', prefix));
         tasi0 = load(sprintf('%s/ta_mon_lat.mat', prefix_proc));
 
-        for l = {'lo'}; land=l{1};
+        for l = par.land_list; land=l{1};
             % interpolate native grid data to standard grid
             tasi0i = interp1(grid0.grid.dim3.lat, tasi0.tasi.(land), grid.dim3.lat);
             tasi_list.(land)(k,:,:,:) = tasi0i;
@@ -37,13 +41,13 @@ function mmm_ta_mon_lat(type, par)
 
     end % models
 
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         tasi_mmm.(land) = squeeze(nanmean(tasi_list.(land),1));
-        if strcmp(type, 'rea')
-            tasi_std.(land) = squeeze(range(tasi_list.(land),1));
-        else
-            tasi_std.(land) = squeeze(nanstd(tasi_list.(land),1));
-        end
+        tasi_std.(land) = squeeze(nanstd(tasi_list.(land),1));
+        tasi_min.(land) = squeeze(min(tasi_list.(land), [], 1));
+        tasi_max.(land) = squeeze(max(tasi_list.(land), [], 1));
+        tasi_25.(land) = squeeze(prctile(tasi_list.(land), [25], 1));
+        tasi_75.(land) = squeeze(prctile(tasi_list.(land), [75], 1));
     end
 
     tasi = tasi_mmm;
@@ -52,6 +56,6 @@ function mmm_ta_mon_lat(type, par)
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    save(printname, 'tasi', 'tasi_std', 'lat', '-v7.3');
+    save(printname, 'tasi', 'tasi_std', 'tasi_min', 'tasi_max', 'tasi_25', 'tasi_75', 'lat', '-v7.3');
 
 end

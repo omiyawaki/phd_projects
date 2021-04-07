@@ -27,11 +27,13 @@ function plot_temp_zon_select(type, par)
         elseif strcmp(land, 'l'); land_text = 'Land';
         elseif strcmp(land, 'o'); land_text = 'Ocean';
         end
-        for m = [1 4 6 7 10]; month = m(1);
+        for m = [1 4 6 7 8 9 10]; month = m(1);
             if month==1; mon_str = 'January';
             elseif month==4; mon_str = 'April';
             elseif month==6; mon_str = 'June';
             elseif month==7; mon_str = 'July';
+            elseif month==8; mon_str = 'August';
+            elseif month==9; mon_str = 'September';
             elseif month==10; mon_str = 'October'; end;
 
             tasi_mon.(land) = squeeze(tasi.(land)(:,month,:));
@@ -57,6 +59,35 @@ function plot_temp_zon_select(type, par)
                 tasi_std_smid(:,m) = interp1(lat, tasi_std_mon.(land), -lat_mid); % sounding at -lat_mid S
                 tasi_std_nmid(:,m) = interp1(lat, tasi_std_mon.(land), lat_mid); % sounding at lat_mid N
                 tasi_std_eq(:,m) = interp1(lat, tasi_std_mon.(land), 0); % sounding at equator
+
+                tasi_min_mon.(land) = squeeze(tasi_min.(land)(:,month,:));
+                tasi_min_sp(:,m) = interp1(lat, tasi_min_mon.(land), -lat_pole); % sounding at -lat_pole S
+                tasi_min_np(:,m) = interp1(lat, tasi_min_mon.(land), lat_pole); % sounding at lat_pole N
+                tasi_min_smid(:,m) = interp1(lat, tasi_min_mon.(land), -lat_mid); % sounding at -lat_mid S
+                tasi_min_nmid(:,m) = interp1(lat, tasi_min_mon.(land), lat_mid); % sounding at lat_mid N
+                tasi_min_eq(:,m) = interp1(lat, tasi_min_mon.(land), 0); % sounding at equator
+
+                tasi_max_mon.(land) = squeeze(tasi_max.(land)(:,month,:));
+                tasi_max_sp(:,m) = interp1(lat, tasi_max_mon.(land), -lat_pole); % sounding at -lat_pole S
+                tasi_max_np(:,m) = interp1(lat, tasi_max_mon.(land), lat_pole); % sounding at lat_pole N
+                tasi_max_smid(:,m) = interp1(lat, tasi_max_mon.(land), -lat_mid); % sounding at -lat_mid S
+                tasi_max_nmid(:,m) = interp1(lat, tasi_max_mon.(land), lat_mid); % sounding at lat_mid N
+                tasi_max_eq(:,m) = interp1(lat, tasi_max_mon.(land), 0); % sounding at equator
+
+                tasi_25_mon.(land) = squeeze(tasi_25.(land)(:,month,:));
+                tasi_25_sp(:,m) = interp1(lat, tasi_25_mon.(land), -lat_pole); % sounding at -lat_pole S
+                tasi_25_np(:,m) = interp1(lat, tasi_25_mon.(land), lat_pole); % sounding at lat_pole N
+                tasi_25_smid(:,m) = interp1(lat, tasi_25_mon.(land), -lat_mid); % sounding at -lat_mid S
+                tasi_25_nmid(:,m) = interp1(lat, tasi_25_mon.(land), lat_mid); % sounding at lat_mid N
+                tasi_25_eq(:,m) = interp1(lat, tasi_25_mon.(land), 0); % sounding at equator
+
+                tasi_75_mon.(land) = squeeze(tasi_75.(land)(:,month,:));
+                tasi_75_sp(:,m) = interp1(lat, tasi_75_mon.(land), -lat_pole); % sounding at -lat_pole S
+                tasi_75_np(:,m) = interp1(lat, tasi_75_mon.(land), lat_pole); % sounding at lat_pole N
+                tasi_75_smid(:,m) = interp1(lat, tasi_75_mon.(land), -lat_mid); % sounding at -lat_mid S
+                tasi_75_nmid(:,m) = interp1(lat, tasi_75_mon.(land), lat_mid); % sounding at lat_mid N
+                tasi_75_eq(:,m) = interp1(lat, tasi_75_mon.(land), 0); % sounding at equator
+
             end
 
             if par.ma
@@ -131,7 +162,7 @@ function plot_temp_zon_select(type, par)
 
             % NH HIGH ONLY
             figure(); clf; hold all; box on;
-            if m == 1
+            if m == 1 | m == 8 | m== 9
                 h_np = plot(tasi_np(:,m), grid.dim3.si, 'color', par.blue);
             elseif m==6 | m == 7
                 h_np = plot(tasi_np(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
@@ -146,7 +177,7 @@ function plot_temp_zon_select(type, par)
 
             % NH MID ONLY
             figure(); clf; hold all; box on;
-            if m == 1
+            if m == 1 | m==8 | m==9
                 h_nmid = plot(tasi_nmid(:,m), grid.dim3.si, 'color', 0.25*[1 1 1]);
                 if par.ma
                     h_nmid_ma = plot(masi_nmid(:,m), grid.dim3.si, ':', 'color', 0.25*[1 1 1]);
@@ -168,16 +199,23 @@ function plot_temp_zon_select(type, par)
             % NH MID and HIGH ONLY
             figure(); clf; hold all; box on;
             if strcmp(type, 'rea') | (strcmp(type, 'gcm') & strcmp(par.model, 'mmm'))
-                tasi_np_u = tasi_np(:,m) + tasi_std_np(:,m);
-                tasi_np_l = tasi_np(:,m) - tasi_std_np(:,m);
-                tasi_nmid_u = tasi_nmid(:,m) + tasi_std_nmid(:,m);
-                tasi_nmid_l = tasi_nmid(:,m) - tasi_std_nmid(:,m);
+                if strcmp(type, 'rea')
+                    tasi_np_u = tasi_max_np(:,m);
+                    tasi_np_l = tasi_min_np(:,m);
+                    tasi_nmid_u = tasi_max_nmid(:,m);
+                    tasi_nmid_l = tasi_min_nmid(:,m);
+                else
+                    tasi_np_u = tasi_75_np(:,m);
+                    tasi_np_l = tasi_25_np(:,m);
+                    tasi_nmid_u = tasi_75_nmid(:,m);
+                    tasi_nmid_l = tasi_25_nmid(:,m);
+                end
                 
                 tasi_np_2 = [tasi_np_l; flipud(tasi_np_u)];
                 tasi_nmid_2 = [tasi_nmid_l; flipud(tasi_nmid_u)];
                 si2 = [grid.dim3.si'; flipud(grid.dim3.si')];
 
-                if m == 1
+                if m == 1 | m==8 | m==9
                     fill(tasi_np_2, si2, par.blue, 'facealpha', 0.2, 'edgealpha', 0.2);
                     fill(tasi_nmid_2, si2, 0.25*[1 1 1], 'facealpha', 0.2, 'edgealpha', 0.2);
                 elseif m==6 | m == 7
@@ -256,10 +294,17 @@ function plot_temp_zon_select(type, par)
             % SH MID and HIGH ONLY
             figure(); clf; hold all; box on;
             if strcmp(type, 'rea') | (strcmp(type, 'gcm') & strcmp(par.model, 'mmm'))
-                tasi_sp_u = tasi_sp(:,m) + tasi_std_sp(:,m);
-                tasi_sp_l = tasi_sp(:,m) - tasi_std_sp(:,m);
-                tasi_smid_u = tasi_smid(:,m) + tasi_std_smid(:,m);
-                tasi_smid_l = tasi_smid(:,m) - tasi_std_smid(:,m);
+                if strcmp(type, 'rea')
+                    tasi_sp_u = tasi_max_sp(:,m);
+                    tasi_sp_l = tasi_min_sp(:,m);
+                    tasi_smid_u = tasi_max_smid(:,m);
+                    tasi_smid_l = tasi_min_smid(:,m);
+                else
+                    tasi_sp_u = tasi_75_sp(:,m);
+                    tasi_sp_l = tasi_25_sp(:,m);
+                    tasi_smid_u = tasi_75_smid(:,m);
+                    tasi_smid_l = tasi_25_smid(:,m);
+                end
                 
                 tasi_sp_2 = [tasi_sp_l; flipud(tasi_sp_u)];
                 tasi_smid_2 = [tasi_smid_l; flipud(tasi_smid_u)];

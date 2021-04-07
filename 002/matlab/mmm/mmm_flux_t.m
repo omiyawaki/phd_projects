@@ -7,20 +7,20 @@ function mmm_flux_t(type, par)
 
     par.lat_interp = 'native'; % input files will be in native grid
 
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         for t = {'ann', 'djf', 'mam', 'jja', 'son'}; time = t{1};
             var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
             for fn = var_vec; fname = fn{1};
-                flux_t_list.(land).(time).(fname) = nan(length(par.model_list), length(par.lat), length(par.lon));
-                flux_t_mmm.(land).(time).(fname) = nan(length(par.lat), length(par.lon));
-                flux_t_std.(land).(time).(fname) = nan(length(par.lat), length(par.lon));
+                flux_t_list.(land).(time).(fname) = nan(length(par.model_list), length(par.lon), length(par.lat));
+                flux_t_mmm.(land).(time).(fname) = nan(length(par.lon), length(par.lat));
+                flux_t_std.(land).(time).(fname) = nan(length(par.lon), length(par.lat));
             end
             for fn = {'ra', 'stf', 'res', 'r1', 'r2', 'ftoa', 'fsfc', 'sfc', 'shf', 'comp1', 'comp2'}; fname = fn{1};
                 f_vec = par.gcm.fw;
                 for f = f_vec; fw = f{1};
-                    flux_t_list.(land).(time).(fname).(fw) = nan(length(par.model_list), length(par.lat), length(par.lon));
-                    flux_t_mmm.(land).(time).(fname).(fw) = nan(length(par.lat), length(par.lon));
-                    flux_t_std.(land).(time).(fname).(fw) = nan(length(par.lat), length(par.lon));
+                    flux_t_list.(land).(time).(fname).(fw) = nan(length(par.model_list), length(par.lon), length(par.lat));
+                    flux_t_mmm.(land).(time).(fname).(fw) = nan(length(par.lon), length(par.lat));
+                    flux_t_std.(land).(time).(fname).(fw) = nan(length(par.lon), length(par.lat));
                 end
             end
         end
@@ -42,7 +42,7 @@ function mmm_flux_t(type, par)
         grid0 = load(sprintf('%s/grid.mat', prefix));
         flux_t0 = load(sprintf('%s/flux_t.mat', prefix_proc));
 
-        for l = {'lo'}; land=l{1};
+        for l = par.land_list; land=l{1};
             for t = {'ann', 'djf', 'mam', 'jja', 'son'}; time = t{1};
                 f_vec = par.(type).fw;
                 for f = f_vec; fw = f{1};
@@ -72,7 +72,7 @@ function mmm_flux_t(type, par)
         end % land
     end % models
 
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         for t = {'ann', 'djf', 'mam', 'jja', 'son'}; time = t{1};
             var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
             for fn = 1:length(var_vec); fname = var_vec{fn};

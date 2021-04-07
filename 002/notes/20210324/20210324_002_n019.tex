@@ -1,0 +1,108 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{Research notes}
+\date{\today}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+\section{Revisiting the polar surface energy budget}
+
+The seasonality of heat transfer regimes is hemispherically in the polar regions. The Antarctic remains in RAE yearround, while the Arctic undergoes a regime transition from RAE to RCAE in the summer. We suspect that the seasonality of latent heat flux plays an important role in the existence of a regime transition because LH over Antarctica remains negligibly small yearround, whereas it increases to $\approx 10$ W m$^{-2}$ during summertime over the Arctic. We found from ECHAM6 aquaplanet experiments that thermodynamic sea ice is necessary for suppressing latent heat flux in winter and thus the existence of wintertime RAE. However, we still do not understand why latent heat flux remains positive in the summer because sea ice persists yearround in ECHAM6.
+
+The surface energy budget might offer some additional information about what other terms are hemispherically asymmetric in the high latitudes. As was found in the January 21 notes, nearly all terms except for the net shortwave flux exhibit different seasonality in the high latitudes in ERA5 (Fig.~\ref{fig:srfc-era5}). However, I wanted to focus specifically on the asymmetry in the net surface longwave flux because the seasonality is nearly the opposite between the hemispheres: whereas surface longwave cooling is most efficient during summer over the Antarctic, it is least efficient during late summer/early autumn over the Arctic.
+
+The strength of downwelling longwave radiation during spring, which is primarily controlled by how cloudy and humid the Arctic is, is known to play an important role on the amount of sea ice melt by the end of summer \citep{kapsch2016}. In addition, cloud properties are also known to be different between the hemispheres, where Arctic clouds exhibit strong seasonality in the cloud liquid water path that peaks during late summer/early autumn compared to the negligible seasonality of Antarctic clouds \citep[Fig.~2 in][]{lenaerts2017}.
+
+When net surface longwave flux in ERA5 is decomposed into clear and cloudy sky components, we find that a large part of the asymmetry arises from the clouds (dotted lines in Fig.~\ref{fig:lwsfc-era5}). The greenhouse effect of clouds becomes increasingly stronger around May and peaks around late summer/early autumn when sea ice concentration is as its seasonal minimum. Thus, the onset of positive latent heat flux (from surface to the atmosphere) aligns fairly closely with the increase in the strength of the cloud greenhouse effect. In contrast, the cloud longwave flux over the Antarctic remains nearly constant yearround, consistent with the lack of seasonality in Antarctic latent heat flux.
+
+A similar correspondence between the seasonality of latent heat flux and cloud greenhouse effect is found in JRA55 (Figs.~\ref{fig:srfc-jra55} and \ref{fig:lwsfc-jra55}). Interestingly, for MERRA2, where latent heat flux exhibits weak seasonality in both hemispheres, the cloud greenhouse effect seasonality is weak in both hemispheres as well (Fig.~\ref{fig:srfc-merra2} and \ref{fig:lwsfc-merra2}).
+
+However, we still lack a causal understanding of what exactly initiates the increase in latent heat flux in late spring/early summer. Does the heating induced by the increase in cloud greenhouse effect in late spring lead to enhanced sublimation/evaporation and latent heat flux, or does the increase in latent heat flux and the associated supply of locally sourced moisture lead to the increase in cloud greenhouse effect? If is it the former, then what is the source of the increase in moisture (e.g., is it advected from the lower latitudes)?
+
+% ERA
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/srfc_budget/srfc_budget_era5.pdf}
+    \caption{The seasonality of surface energy budget are shown for (a) NH and (b) SH high latitudes. The sign of the terms are oriented such that positive fluxes heat the surface. The residual corresponds to the sum of the surface energy storage and ocean heat flux divergence terms.}
+    \label{fig:srfc-era5}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/srfc_budget/srfc_lwsfc_era5.pdf}
+    \caption{The seasonality of surface longwave radiative fluxes are shown for (a) NH and (b) SH high latitudes. The all-sky longwave flux (solid) is decomposed into  clear-sky (dashed) and cloudy-sky (dotted) components.}
+    \label{fig:lwsfc-era5}
+\end{figure}
+
+% JRA
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/srfc_budget/srfc_budget_jra55.pdf}
+    \caption{The seasonality of surface energy budget are shown for (a) NH and (b) SH high latitudes. The sign of the terms are oriented such that positive fluxes heat the surface. The residual corresponds to the sum of the surface energy storage and ocean heat flux divergence terms.}
+    \label{fig:srfc-jra55}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/srfc_budget/srfc_lwsfc_jra55.pdf}
+    \caption{The seasonality of surface longwave radiative fluxes are shown for (a) NH and (b) SH high latitudes. The all-sky longwave flux (solid) is decomposed into  clear-sky (dashed) and cloudy-sky (dotted) components.}
+    \label{fig:lwsfc-jra55}
+\end{figure}
+
+% MERRA
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/srfc_budget/srfc_budget_merra2.pdf}
+    \caption{The seasonality of surface energy budget are shown for (a) NH and (b) SH high latitudes. The sign of the terms are oriented such that positive fluxes heat the surface. The residual corresponds to the sum of the surface energy storage and ocean heat flux divergence terms.}
+    \label{fig:srfc-merra2}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/srfc_budget/srfc_lwsfc_merra2.pdf}
+    \caption{The seasonality of surface longwave radiative fluxes are shown for (a) NH and (b) SH high latitudes. The all-sky longwave flux (solid) is decomposed into  clear-sky (dashed) and cloudy-sky (dotted) components.}
+    \label{fig:lwsfc-merra2}
+\end{figure}
+
+
+\section{$R_1$ local minima in the subtropics}
+
+An interesting feature that is observed in the seasonality of $R_1$ is the local minima in the NH subtropics found in April and May (Fig.~\ref{fig:r1-era5}). Note that there are two local minima: 1) a smaller feature between 20--30$^\circ$N and 2) a more prominent feature between 30--40$^\circ$N. We received a couple of comments that they may be a monsoon feature, so here I investigate this idea in a little more detail.
+
+If this is related to the monsoon, this feature most likely arises in the spatio-temporal structure of MSE flux divergence. Currently, I can only isolate MSE flux divergence from the $R_a+\mathrm{LH+SH}$ residual in ERA5 data for which I have the MSE tendency data. There are two local maxima of MSE flux divergence (Fig.~\ref{fig:divfm-era5}) that correspond to the two aforementioned minima in $R_1$: 1) between 20--30$^\circ$N peaking around April and 2) between 30--40$^\circ$N that is nearly equally strong yearround except during summer. The latter signal is likely associated with the Pacific and Atlantic storm tracks (Fig.~\ref{fig:divfm-zon-era5}) rather than a monsoon. This signal is more prominent during spring when viewing the $R_1$ seasonality because MSE tendency peaks in spring (Fig.~\ref{fig:tend-era5}). The former signal is not as obvious to detect in the zonal structure of MSE flux divergence, but the most prominent feature appears to be the enhanced divergence over the North Pacific gyre (compare springtime structure in Fig.~\ref{fig:divfm-zon-mam-era5} to the annual mean structure in Fig.~\ref{fig:divfm-zon-era5}), which is seemingly unrelated to a monsoon. While there are two regions that exhibit sharp gradients in MSE flux divergence consistent with monsoonal circulations\footnote{1) Divergence over the Indochinese Peninsula and convergence over the Bay of Bengal and South China Sea, and 2) divergence over Mexico and Central America and convergence over the Eastern Pacific Ocean and Western Gulf of Mexico}, the divergence over these land areas is not particularly stronger in MAM compared to the annual mean, and thus it is unclear why these regions would be the source of the local maximum when zonally averaged.
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/flux/mse_old/lo/0_r1z_mon_lat.png}
+    \caption{The seasonality of $R_1$ in ERA5. Note the two local minima in $R_1$ in the NH subtropics around April and May.}
+    \label{fig:r1-era5}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/flux/mse_old/lo/0_divfm_mon_lat.png}
+    \caption{The seasonality of MSE flux divergence in ERA5.}
+    \label{fig:divfm-era5}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/flux/mse_old/lo/ann/divfm_lat_lon.png}
+    \caption{The spatial structure of $\nabla\cdot F_m$ in the annual mean ERA5. Note the peaks in MSE flux divergence along the Pacific and Atlantic storm tracks that follow the Kuroshio and Gulf Stream currents.}
+    \label{fig:divfm-zon-era5}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/flux/mse_old/lo/0_tend_mon_lat.png}
+    \caption{The seasonality of MSE tendency in ERA5.}
+    \label{fig:tend-era5}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/flux/mse_old/lo/mam/divfm_lat_lon.png}
+    \caption{The spatial structure of MSE flux divergence averaged through March, April, and May in ERA5.}
+    \label{fig:divfm-zon-mam-era5}
+\end{figure}
+
+\bibliographystyle{apalike}
+\bibliography{../../draft/references.bib}
+
+\end{document}

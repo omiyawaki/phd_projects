@@ -13,7 +13,8 @@ function make_title_type_lat(type, lat, par)
             title(sprintf('%s, $\\phi=%g^\\circ$', par.model, lat));
         end
     elseif any(strcmp(type, {'echam'}))
-        title(sprintf('%s, %s, $\\phi=%g^\\circ$', upper(type), par.(type).(par.(type).clim), lat));
+        title(sprintf('AQUA, %s, $\\phi=%g^\\circ$', par.(type).(par.(type).clim), lat));
+        % title(sprintf('%s, %s, $\\phi=%g^\\circ$', upper(type), par.(type).(par.(type).clim), lat));
     elseif any(strcmp(type, {'hahn'}))
         title(sprintf('%s, %s, $\\phi=%g^\\circ$', upper('CESM'), par.(type).(par.(type).clim), lat));
     end;

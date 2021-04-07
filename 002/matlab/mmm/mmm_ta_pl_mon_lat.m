@@ -7,7 +7,7 @@ function mmm_ta_mon_lat(type, par)
     par.lat_interp = 'native';
 
     lat = par.lat;
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         ta_list.(land) = nan(length(par.model_list), length(par.lat), 12, length(par.pa));
         ta_mmm.(land) = nan(length(par.lat), 12, length(par.pa));
         ta_std.(land) = nan(length(par.lat), 12, length(par.pa));
@@ -29,7 +29,7 @@ function mmm_ta_mon_lat(type, par)
         grid0 = load(sprintf('%s/grid.mat', prefix));
         ta0 = load(sprintf('%s/ta_pl_mon_lat.mat', prefix_proc));
 
-        for l = {'lo'}; land=l{1};
+        for l = par.land_list; land=l{1};
             % interpolate native grid data to standard grid
             ta0i = interp1(grid0.grid.dim3.lat, ta0.ta.(land), par.lat, 'linear', 'extrap'); % interpolate to standard lat grid
             ta0i = permute(ta0i, [3 1 2]); % (lev x lat x mon)
@@ -52,7 +52,7 @@ function mmm_ta_mon_lat(type, par)
 
     end % models
 
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         ta_mmm.(land) = squeeze(nanmean(ta_list.(land),1));
         if strcmp(type, 'rea')
             ta_std.(land) = squeeze(range(ta_list.(land),1));

@@ -7,7 +7,7 @@ function mmm_tai_mon_lat(type, par)
     par.lat_interp = 'native';
 
     lat = par.lat;
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         tai_list.(land) = nan(length(par.model_list), length(par.lat), 12, length(par.si));
         tai_mmm.(land) = nan(length(par.lat), 12, length(par.si));
         tai_std.(land) = nan(length(par.lat), 12, length(par.si));
@@ -29,7 +29,7 @@ function mmm_tai_mon_lat(type, par)
         grid0 = load(sprintf('%s/grid.mat', prefix));
         tai0 = load(sprintf('%s/tai_mon_lat.mat', prefix_proc));
 
-        for l = {'lo'}; land=l{1};
+        for l = par.land_list; land=l{1};
             % interpolate native grid data to standard grid
             tai0i = interp1(grid0.grid.dim3.lat, tai0.tai.(land), grid.dim3.lat);
             tai_list.(land)(k,:,:,:) = tai0i;
@@ -37,7 +37,7 @@ function mmm_tai_mon_lat(type, par)
 
     end % models
 
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         tai_mmm.(land) = squeeze(nanmean(tai_list.(land),1));
         if strcmp(type, 'rea')
             tai_std.(land) = squeeze(range(tai_list.(land),1));

@@ -15,16 +15,16 @@ par.era5.yr_span = '1979_2005'; % spanning years for ERA5
 par.jra55.yr_span = '1979_2005'; % spanning years for JRA55
 par.era5c.yr_span = par.era5.yr_span;
 par.merra2.yr_span = '1980_2005'; % spanning years for MERRA2
-% par.echam_clims = {'rp000172'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
-par.echam_clims = par.echam.all_mld; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
-par.hahn_clims = {'Control1850'}; % Control1850, Flat1850, Control2xCO2, Flat2xCO2
+par.echam_clims = {'echr0001', 'echr0023'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+% par.echam_clims = par.echam.all_mld; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+par.hahn_clims = {'Flat1850', 'Control1850'}; % Control1850, Flat1850, Control2xCO2, Flat2xCO2
 par.lat_interp = 'native'; % which latitudinal grid to interpolate to: native (no interpolation), don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
-par.levtype = 'ml'; % analyze model level (ml) or pressure level (pl) data?
+par.levtype = 'pl'; % analyze model level (ml) or pressure level (pl) data?
 par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' interpolation
 par.ep_swp = 0.1; %[0.25 0.3 0.35]; % threshold for RCE definition. RCE is defined as where abs(R1) < ep
 par.ga_swp = 0.9; % optional threshold for RAE. If undefined, the default value is 1-par.ep
 par.ep_cp = 0.5; % additional flag for RCE definition using convective precipitation. RCE is defined as where lsp/cp < ep_cp
-par.ma_type = 'reversible'; % choose the type of moist adiabat: reversible, pseudo, or std
+par.ma_type = 'std'; % choose the type of moist adiabat: reversible, pseudo, or std
 par.ma_init = 0.95; % initial starting level for moist adiabat ('surf' = start with dry adiabat until LCL or enter sigma level for starting saturated adiabat)
 par.frz = 0; % consider latent heat of fusion in moist adiabat?
 par.pa_span = [1000 10]*100; % pressure range for calculating moist adiabat
@@ -35,10 +35,12 @@ par.z_span = [0 25]*10^3; % height range for calculating moist adiabat
 par.dz = 10; % pressure increment for integrating dry adiabat section of moist adiabat (matters for how accurately the LCL is computed)
 par.do_surf = 0; % whether or not to calculate temperature profile in pressure grids including ts and ps data
 par.si_eval = [0.8 0.85 0.9]; % sigma level for evaluating inversion strength (T(si_eval) - T(surface))
-par.si_bl_swp = [1]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
-par.si_up = 0.4; % sigma level for upper boundary of vertical average for close to moist adiabatic
+par.si_bl_swp = [0.9]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
+par.si_up_list = [0.3]; % sigma level for upper boundary of vertical average for close to moist adiabatic
+% par.si_up_list = [0.1 0.2 0.3 0.4]; % sigma level for upper boundary of vertical average for close to moist adiabatic
 % par.era.fw = {'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt', 'div79'};
 % par.era.fw = {'div79', 'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt'};
+par.land_list = {'lo'};
 par.era.fw = {'mse_old'};
 % par.era.fw = {'mse_old'};
 par.jra55.fw = {'mse_old'};
@@ -54,17 +56,17 @@ end
 % ceres_flux(par)
 % choose_disp(par)
 
-% type = 'era5c'; % data type to run analysis on
-% choose_proc(type, par)
+type = 'merra2'; % data type to run analysis on
+choose_proc(type, par)
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
     % type='echam';
     % disp(par.echam.clim)
     % choose_proc(type, par);
 end
 for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
-    %type='hahn';
-    %disp(par.hahn.clim)
-    %choose_proc(type, par);
+    % type='hahn';
+    % disp(par.hahn.clim)
+    % choose_proc(type, par);
 end
 for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
     % type = 'gcm';
@@ -73,34 +75,36 @@ for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
 end
 
 for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
-    % type = 'era5c'; % data type to run analysis on
-    % choose_proc_si_bl(type, par)
-    for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-        %type='echam';
-        %disp(par.echam.clim)
-        %choose_proc_si_bl(type, par);
-    end
-    for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-        type = 'gcm';
-        disp(par.model)
-        choose_proc_si_bl(type, par)
+    for i=1:length(par.si_up_list); par.si_up = par.si_up_list(i);
+        % type = 'era5c'; % data type to run analysis on
+        % choose_proc_si_bl(type, par)
+        for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
+            %type='echam';
+            %disp(par.echam.clim)
+            %choose_proc_si_bl(type, par);
+        end
+        for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
+            % type = 'gcm';
+            % disp(par.model)
+            % choose_proc_si_bl(type, par)
+        end
     end
 end
 
-% for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
-%     type = 'jra55';
-%     choose_proc_ep(type, par)
-%     for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-%         % type='echam';
-%         % disp(par.echam.clim)
-%         % choose_proc_ep(type, par);
-%     end
-%     for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
-%         % type = 'gcm';
-%         % disp(par.model)
-%         % choose_proc_ep(type, par)
-%     end
-% end
+for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
+    % type = 'jra55';
+    % choose_proc_ep(type, par)
+    for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
+        % type='echam';
+        % disp(par.echam.clim)
+        % choose_proc_ep(type, par);
+    end
+    for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
+        % type = 'gcm';
+        % disp(par.model)
+        % choose_proc_ep(type, par)
+    end
+end
 
 function choose_proc(type, par)
     % proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
@@ -111,12 +115,16 @@ function choose_proc(type, par)
     % make_masi(type, par) % calculate moist adiabats at every lon x lat x mon
     % proc_ma_mon_lat(type, par) % calculate mon x lat moist adiabats
     % make_dtdzsi(type, par) % calculate model lapse rate and interpolate to sigma coordinates
-    % make_malrsi(type, par) % calculate moist adiabatic lapse rate of model temperature sigma coordinates
+    make_malrsi(type, par) % calculate moist adiabatic lapse rate of model temperature sigma coordinates
+
+    % proc_ga_malr_mon_lat(type, par) % calculate mon x lat temperature profiles
+    % proc_ga_frac_mon_lat(type, par) % calculate mon x lat temperature profiles
+    % proc_gad_frac_mon_lat(type, par) % calculate mon x lat temperature profiles
     
-    proc_dmse_midlatitude_line(type, par);
-    proc_dmse_polar_line(type, par);
-    proc_dr1_midlatitude_line(type, par);
-    proc_dr1_polar_line(type, par);
+    % proc_dmse_midlatitude_line(type, par);
+    % proc_dmse_polar_line(type, par);
+    % proc_dr1_midlatitude_line(type, par);
+    % proc_dr1_polar_line(type, par);
 
     % proc_temp_mon_lat_interp(type, par) % calculate mon x lat temperature profiles
     % proc_temp_mon_lat_interp_mean(type, par) % calculate mon x lat temperature profiles
@@ -129,14 +137,14 @@ function choose_proc(type, par)
 end % select which functions to run at a time
 function choose_proc_si_bl(type, par)
     proc_ga_malr_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
-    proc_ga_dalr_bl_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
+    % proc_ga_dalr_bl_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
     % proc_ga_trop_malr_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
 end
 function choose_proc_ep(type, par)
     % proc_rcae(type, par) % calculate RCE and RAE regimes
     % proc_rcae_alt(type, par) % calculate RCE and RAE regimes (all divergence allowed for RCE)
-    % proc_ta_si(type, par) % calculate RCE and RAE temperature profiles
-    proc_ma_si(type, par) % calculate moist adiabats corresponding to RCE profiles
+    proc_ta_si(type, par) % calculate RCE and RAE temperature profiles
+    % proc_ma_si(type, par) % calculate moist adiabats corresponding to RCE profiles
 end % select which ep-functions to run at a time
 function choose_disp(par)
     % disp_global_rad(par)

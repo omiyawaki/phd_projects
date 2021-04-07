@@ -20,7 +20,7 @@ function mmm_dr1_midlatitude_line(type, par)
 
         filename = sprintf('dr1_midlatitude_lat_%g_to_%g.mat', par.lat_center-par.lat_bound, par.lat_center+par.lat_bound);
 
-        for l = {'lo'}; land=l{1};
+        for l = par.land_list; land=l{1};
             for fn = {'r1z_lat', 'r1z_ann_lat', 'dr1z_lat', 'comp1s_lat', 'comp2s_lat'}; fname = fn{1};
                 f_vec = par.gcm.fw;
                 for f = f_vec; fw = f{1};
@@ -29,6 +29,8 @@ function mmm_dr1_midlatitude_line(type, par)
                     dr1_std.(fname).(land).(fw) = nan(1, 12);
                     dr1_min.(fname).(land).(fw) = nan(1, 12);
                     dr1_max.(fname).(land).(fw) = nan(1, 12);
+                    dr1_25.(fname).(land).(fw) = nan(1, 12);
+                    dr1_75.(fname).(land).(fw) = nan(1, 12);
                 end
             end % fnames
         end % land
@@ -50,7 +52,7 @@ function mmm_dr1_midlatitude_line(type, par)
             grid0 = load(sprintf('%s/grid.mat', prefix));
             dr1_0 = load(sprintf('%s/%s', prefix_proc, filename));
 
-            for l = {'lo'}; land=l{1};
+            for l = par.land_list; land=l{1};
                 for fn = {'r1z_lat', 'r1z_ann_lat', 'dr1z_lat', 'comp1s_lat', 'comp2s_lat'}; fname = fn{1};
                     f_vec = par.gcm.fw;
                     for f = f_vec; fw = f{1};
@@ -60,7 +62,7 @@ function mmm_dr1_midlatitude_line(type, par)
             end % land
         end % models
 
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         for fn = {'r1z_lat', 'r1z_ann_lat', 'dr1z_lat', 'comp1s_lat', 'comp2s_lat'}; fname = fn{1};
             f_vec = par.gcm.fw;
             for f = f_vec; fw = f{1};
@@ -68,6 +70,8 @@ function mmm_dr1_midlatitude_line(type, par)
                 dr1_std.(fname).(land).(fw) = squeeze(nanstd(dr1_list.(fname).(land).(fw), 1));
                 dr1_min.(fname).(land).(fw) = squeeze(min(dr1_list.(fname).(land).(fw), [], 1));
                 dr1_max.(fname).(land).(fw) = squeeze(max(dr1_list.(fname).(land).(fw), [], 1));
+                dr1_25.(fname).(land).(fw) = squeeze(prctile(dr1_list.(fname).(land).(fw), [25], 1));
+                dr1_75.(fname).(land).(fw) = squeeze(prctile(dr1_list.(fname).(land).(fw), [75], 1));
             end
         end % fnames
     end % land
@@ -78,7 +82,7 @@ function mmm_dr1_midlatitude_line(type, par)
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    save(sprintf('%s%s', foldername, filename), 'dr1', 'dr1_std', 'dr1_min', 'dr1_max', 'lat', '-v7.3');
+    save(sprintf('%s%s', foldername, filename), 'dr1', 'dr1_std', 'dr1_min', 'dr1_max', 'dr1_25', 'dr1_75', 'lat', '-v7.3');
 
     end % lat bound
 

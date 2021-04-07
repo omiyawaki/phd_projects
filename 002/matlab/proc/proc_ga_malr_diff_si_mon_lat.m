@@ -10,7 +10,7 @@ function proc_ga_malr_diff_si_mon_lat(type, par)
     load(sprintf('%s/dtdzsi.mat', prefix)); dtdzzsi = dtdzsi; clear dtdzsi; % read temp in si coordinates
     % load(sprintf('%s/malrzsi.mat', prefix)); % read temp in si coordinates
     load(sprintf('%s/malrsi.mat', prefix)); dtmdzzsi = dtmdzsi; clear dtmdzsi; % read temp in si coordinates
-    % load(sprintf('%s/%s/masks.mat', prefix_proc, par.lat_interp)); % load land and ocean masks
+    % load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
 
     if strcmp(par.lat_interp, 'std')
         lat = par.lat_std;
@@ -30,8 +30,7 @@ function proc_ga_malr_diff_si_mon_lat(type, par)
     % ga_malr_diff0.l = ga_malr_diff0.lo.*mask.ocean; % filter ga_malr_diff0 with surface mask
     % ga_malr_diff0.o = ga_malr_diff0.lo.*mask.land; % filter ga_malr_diff0 with surface mask
 
-    % for l = {'lo', 'l', 'o'}; land = l{1}; % over land, over ocean, or both
-    for l = {'lo'}; land = l{1}; % over land, over ocean, or both
+    for l = par.land_list; land = l{1}; % over land, over ocean, or both
         ga_malr_diff.(land)= squeeze(nanmean(ga_malr_diff0.(land), 1)); % zonal average
         % take time averages
         for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
@@ -51,13 +50,13 @@ function proc_ga_malr_diff_si_mon_lat(type, par)
     end
 
     % save filtered data
-    printname = [foldername 'ga_malr_diff_si_mon_lat'];
+    printname = sprintf('%sga_malr_diff_si_mon_lat_%g.mat', foldername, par.si_up);
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
     save(printname, 'ga_malr_diff', 'lat');
 
-    printname = [foldername 'ga_malr_diff_si_lon_lat'];
+    printname = sprintf('%sga_malr_diff_si_lon_lat_%g.mat', foldername, par.si_up);
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end

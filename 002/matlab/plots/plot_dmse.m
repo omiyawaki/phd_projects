@@ -19,6 +19,15 @@ function plot_dmse(ra_lat, res_lat, lh_lat, sh_lat, leg, ymin, ymax, type, fw, p
         plotname = sprintf('%s/0_mon_mse%s', par.folder, leg);
     end
 
+    % display annual mean values
+    if isfield(par, 'lat_center')
+        disp(sprintf('Annual mean Ra from %g to %g is %g Wm^-2', par.lat_center-par.lat_bound, par.lat_center+par.lat_bound, nanmean(ra_lat)))
+        disp(sprintf('Annual mean dhdt+divFm from %g to %g is %g Wm^-2', par.lat_center-par.lat_bound, par.lat_center+par.lat_bound, nanmean(res_lat)))
+    else
+        disp(sprintf('Annual mean Ra from %g to %g is %g Wm^-2', par.lat_bound, par.lat_pole, nanmean(ra_lat)))
+        disp(sprintf('Annual mean dhdt+divFm from %g to %g is %g Wm^-2', par.lat_bound, par.lat_pole, nanmean(res_lat)))
+    end
+
     figure(); clf; hold all; box on;
 
     line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');

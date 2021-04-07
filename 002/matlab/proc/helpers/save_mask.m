@@ -1,8 +1,5 @@
 function save_mask(type, par)
-    if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
-        foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
-    elseif strcmp(type, 'merra2')
+    if any(strcmp(type, {'era5', 'erai', 'era5c', 'jra55', 'merra2'}))
         foldername = sprintf('/project2/tas1/miyawaki/projects/002/data/proc/%s/%s/%s/', type, par.(type).yr_span, par.lat_interp);
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
     elseif strcmp(type, 'gcm')
@@ -23,12 +20,12 @@ function save_mask(type, par)
         lat = grid.dim3.lat;
     end
 
-    if any(strcmp(type, {'era5c'}))
-        load(sprintf('%s/sftlf.mat', prefix)); % load land fraction data
+    load(sprintf('%s/sftlf.mat', prefix)); % load land fraction data
+
+    if any(strcmp(type, {'era5c', 'erai', 'era5'}))
         mask.ocean = nan(size(sftlf)); mask.ocean(sftlf>0.5) = 1;
         mask.land = nan(size(mask.ocean)); mask.land(isnan(mask.ocean))=1;
-    elseif any(strcmp(type, {'gcm', 'echam'}))
-        load(sprintf('%s/sftlf.mat', prefix)); % load land fraction data
+    elseif any(strcmp(type, {'gcm', 'merra2', 'jra55', 'echam'})) % repeat to monthly dimension
 
         mask.ocean = nan(size(sftlf)); mask.ocean(sftlf>0.5) = 1; mask.ocean=repmat(mask.ocean,[1 1 12]);
         mask.land = nan(size(mask.ocean)); mask.land(isnan(mask.ocean))=1;

@@ -15,10 +15,16 @@ function read_lfrac(type, par)
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename='sftlf.mat';
         save(sprintf('%s/%s', newdir, filename), 'sftlf');
+    elseif strcmp(type, 'merra2')
+        sftlf = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/lfrac/MERRA2_101.const_2d_asm_Nx.00000000.nc4.nc4', type), 'FRLAND'));
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/sftlf.mat', type, par.(type).yr_span), 'sftlf');
+    elseif strcmp(type, 'jra55')
+        sftlf = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/lfrac/%s_land_%s.ymonmean.nc', type, type, par.(type).yr_span), 'LAND_GDS0_SFC'));
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/sftlf.mat', type, par.(type).yr_span), 'sftlf');
     elseif strcmp(type, 'echam')
-        file=dir(sprintf('/project2/tas1/CMIP5_piControl/%s/sftlf_*.nc', 'MPI-ESM-LR'));
+        file=dir(sprintf('/project2/tas1/miyawaki/models/echam/inputdata/ECHAM6/jsbach/T63/jsbach_T63GR15_11tiles_1976.nc'));
         fullpath=sprintf('%s/%s', file.folder, file.name);
-        sftlf=double(ncread(fullpath, 'sftlf'));
+        sftlf=double(ncread(fullpath, 'slm'));
         newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/echam/%s', par.echam.clim);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename='sftlf.mat';

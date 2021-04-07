@@ -17,7 +17,8 @@ function plot_flux(type, par)
         par.land = landdata.land_mask; par.landlat = landdata.landlat; par.landlon = landdata.landlon;
     end
 
-    for l = {'lo'}; land = l{1};
+    for l = {'lo', 'l', 'o'}; land = l{1};
+    % for l = {'lo'}; land = l{1};
         if strcmp(land, 'lo'); land_text = 'Land + Ocean';
         elseif strcmp(land, 'l'); land_text = 'Land';
         elseif strcmp(land, 'o'); land_text = 'Ocean';
@@ -31,22 +32,59 @@ function plot_flux(type, par)
         for f = f_vec; fw = f{1};
 
             % lat x mon dependence of RCE and RAE
-            if strcmp(fw, 'dse'); var_text = '$\nabla \cdot F_s$';
-            else var_text = '$\nabla \cdot F_m$'; end
+            if strcmp(fw, 'dse'); var_text = '$\partial_t s + \nabla \cdot F_s$';
+            else var_text = '$\partial_t h + \nabla \cdot F_m$'; end
             figure(); clf; hold all; box on;
-            cmp = colCog(12);
+            cmp = colCog(30);
             colormap(cmp);
-            contourf(mesh_lat, mesh_mon, flux_z.(land).res.(fw), [-300 -150:25:150 300], 'linecolor', 'w');
+            contourf(mesh_lat, mesh_mon, flux_z.(land).res.(fw), [-300 -150:10:150 300], 'linecolor', 'w', 'linewidth', 0.1);
             contour(mesh_lat, mesh_mon, flux_z.(land).res.(fw), [0 0], 'color', 0.75*[1 1 1]);
             make_title_type(type, par);
             caxis([-150 150]);
-            cb = colorbar('limits', [-150 150], 'ytick', [-150:25:150], 'location', 'eastoutside');
+            cb = colorbar('limits', [-150 150], 'ytick', [-140:20:140], 'location', 'eastoutside');
             cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
             ylabel(cb, sprintf('%s (Wm$^{-2}$)', var_text));
-            xlabel('Month'); ylabel('Latitude (deg)');
+            ylabel('Latitude (deg)');
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
             set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
             print(sprintf('%s/flux/%s/%s/0_div_mon_lat', plotdir, fw, land), '-dpng', '-r300');
             close;
+
+            if any(strcmp(type, {'era5', 'era5c', 'erai'}))
+                var_text = '$\partial_t h$';
+                figure(); clf; hold all; box on;
+                cmp = colCog(100);
+                colormap(cmp);
+                contourf(mesh_lat, mesh_mon, flux_z.(land).tend, [-300 -50:1:50 300], 'linecolor', 'w', 'linewidth', 0.1);
+                contour(mesh_lat, mesh_mon, flux_z.(land).tend, [0 0], 'color', 0.75*[1 1 1]);
+                make_title_type(type, par);
+                caxis([-50 50]);
+                cb = colorbar('limits', [-50 50], 'ytick', [-50:10:50], 'location', 'eastoutside');
+                cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+                ylabel(cb, sprintf('%s (Wm$^{-2}$)', var_text));
+                ylabel('Latitude (deg)');
+                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
+                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                print(sprintf('%s/flux/%s/%s/0_tend_mon_lat', plotdir, fw, land), '-dpng', '-r300');
+                close;
+
+                var_text = '$\nabla \cdot F_m$';
+                figure(); clf; hold all; box on;
+                cmp = colCog(60);
+                colormap(cmp);
+                contourf(mesh_lat, mesh_mon, flux_z.(land).divfm, [-300 -150:5:150 300], 'linecolor', 'w', 'linewidth', 0.1);
+                contour(mesh_lat, mesh_mon, flux_z.(land).divfm, [0 0], 'color', 0.75*[1 1 1]);
+                make_title_type(type, par);
+                caxis([-150 150]);
+                cb = colorbar('limits', [-150 150], 'ytick', [-140:20:140], 'location', 'eastoutside');
+                cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+                ylabel(cb, sprintf('%s (Wm$^{-2}$)', var_text));
+                ylabel('Latitude (deg)');
+                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
+                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                print(sprintf('%s/flux/%s/%s/0_divfm_mon_lat', plotdir, fw, land), '-dpng', '-r300');
+                close;
+            end
 
             % lat x mon dependence of RCE and RAE
             var_text = '$R_a$';
@@ -54,13 +92,13 @@ function plot_flux(type, par)
             if strcmp(type, 'echam')
                 cmp = colCog(60);
             else
-                cmp = colCog(12);
+                cmp = colCog(30);
             end
             colormap(cmp);
             if strcmp(type, 'echam')
                 contourf(mesh_lat, mesh_mon, flux_z.(land).ra.(fw), [-300 -150:5:150 300], 'linecolor', 'none');
             else
-                contourf(mesh_lat, mesh_mon, flux_z.(land).ra.(fw), [-300 -150:25:150 300], 'linecolor', 'w');
+                contourf(mesh_lat, mesh_mon, flux_z.(land).ra.(fw), [-300 -150:10:150 300], 'linecolor', 'w', 'linewidth', 0.1);
             end
             contour(mesh_lat, mesh_mon, flux_z.(land).ra.(fw), [0 0], 'color', 0.75*[1 1 1]);
             make_title_type(type, par);
@@ -72,26 +110,47 @@ function plot_flux(type, par)
             end
             cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
             ylabel(cb, sprintf('%s (Wm$^{-2}$)', var_text));
-            xlabel('Month'); ylabel('Latitude (deg)');
+            ylabel('Latitude (deg)');
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
             set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
             print(sprintf('%s/flux/%s/%s/0_ra_mon_lat', plotdir, fw, land), '-dpng', '-r300');
             close;
 
             % lat x mon dependence of RCE and RAE
-            var_text = '$\mathrm{LH+SH}$';
+            [lh, sh] = rename_stf(type, flux_z, land);
+            var_text = '$\mathrm{LH}$';
             figure(); clf; hold all; box on;
-            cmp = colCog(12);
+            cmp = colCog(60);
             colormap(cmp);
-            contourf(mesh_lat, mesh_mon, flux_z.(land).stf.(fw), [-300 -150:25:150 300], 'linecolor', 'w');
-            contour(mesh_lat, mesh_mon, flux_z.(land).stf.(fw), [0 0], 'color', 0.75*[1 1 1]);
+            contourf(mesh_lat, mesh_mon, lh, [-300 -150:5:150 300], 'linecolor', 'w', 'linewidth', 0.1);
+            % contour(mesh_lat, mesh_mon, lh, [0 0], 'color', 0.75*[1 1 1]);
             make_title_type(type, par);
             caxis([-150 150]);
-            cb = colorbar('limits', [-150 150], 'ytick', [-150:25:150], 'location', 'eastoutside');
+            cb = colorbar('limits', [-150 150], 'ytick', [-140:20:140], 'location', 'eastoutside');
             cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
             ylabel(cb, sprintf('%s (Wm$^{-2}$)', var_text));
-            xlabel('Month'); ylabel('Latitude (deg)');
+            ylabel('Latitude (deg)');
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
             set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-            print(sprintf('%s/flux/%s/%s/0_stf_mon_lat',plotdir, fw, land), '-dpng', '-r300');
+            print(sprintf('%s/flux/%s/%s/0_lh_mon_lat',plotdir, fw, land), '-dpng', '-r300');
+            close;
+
+            % lat x mon dependence of RCE and RAE
+            var_text = '$\mathrm{SH}$';
+            figure(); clf; hold all; box on;
+            cmp = colCog(40);
+            colormap(cmp);
+            contourf(mesh_lat, mesh_mon, sh, [-300 -50:2.5:50 300], 'linecolor', 'w', 'linewidth', 0.1);
+            contour(mesh_lat, mesh_mon, sh, [0 0], 'color', 0.75*[1 1 1]);
+            make_title_type(type, par);
+            caxis([-50 50]);
+            cb = colorbar('limits', [-50 50], 'ytick', [-50:10:50], 'location', 'eastoutside');
+            cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+            ylabel(cb, sprintf('%s (Wm$^{-2}$)', var_text));
+            ylabel('Latitude (deg)');
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
+            set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+            print(sprintf('%s/flux/%s/%s/0_sh_mon_lat',plotdir, fw, land), '-dpng', '-r300');
             close;
 
             if strcmp(type, 'gcm') & strcmp(par.gcm.clim, 'hist-pi')
@@ -148,12 +207,14 @@ function plot_flux(type, par)
                 figure(); clf; hold all; box on;
                 cmp = colCog(20);
                 colormap(flipud(cmp));
-                contourf(mesh_lat, mesh_mon, flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [-16 -8 -4 -2:0.1:2 4 8 16], 'linecolor', 'w');
+                contourf(mesh_lat, mesh_mon, flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [-16 -8 -4 -2:0.1:2 4 8 16], 'linecolor', 'w', 'linewidth', 0.1);
                 contour(mesh_lat, mesh_mon,  flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [0 0], 'color', 0.75*[1 1 1]);
-                contour(mesh_lat, mesh_mon,  flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), par.ep*[1 1], 'linecolor', par.orange, 'linewidth', 1.5);
-                contour(mesh_lat, mesh_mon,  flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), par.ga*[1 1], 'linecolor', par.cyan, 'linewidth', 1.5);
-                [C, h] = contour(mesh_lat, mesh_mon, flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [par.ep par.ga], 'linecolor', 'w', 'linewidth', 0.25);
-                clabel(C, h, 'fontsize', 6, 'interpreter', 'latex', 'color', 'k');
+                [C, h] = contour(mesh_lat, mesh_mon, flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [-16 -8 -4 -2:0.2:2 4 8 16], 'linecolor', 'w', 'linewidth', 0.1);
+                contour(mesh_lat, mesh_mon,  flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [-16 -8 -4 -2:0.1:2 4 8 16], 'color', 'w', 'linewidth', 0.1);
+                % [C, h] = contour(mesh_lat, mesh_mon, flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [par.ep par.ga], 'linecolor', 'w', 'linewidth', 0.25);
+                contour(mesh_lat, mesh_mon,  flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), par.ep*[1 1], 'linecolor', par.orange, 'linewidth', 2);
+                contour(mesh_lat, mesh_mon,  flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), par.ga*[1 1], 'linecolor', par.cyan, 'linewidth', 2);
+                clabel(C, h, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
                 make_title_type(type, par);
                 caxis([-1 1]);
                 cb = colorbar('limits', [-1 1], 'ytick', [-1:0.2:1], 'location', 'eastoutside');
@@ -270,8 +331,8 @@ function plot_flux(type, par)
                 for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
                 % for t = {'ann'}; time = t{1};
                     % lat x lon of RCE and RAE
-                    if strcmp(fw, 'dse'); var_text = '$\nabla \cdot F_s$ (Wm$^{-2}$)';
-                    else var_text = '$\nabla \cdot F_m$ (Wm$^{-2}$)'; end
+                    if strcmp(fw, 'dse'); var_text = '$\partial_t s + \nabla \cdot F_s$ (Wm$^{-2}$)';
+                    else var_text = '$\partial_t h + \nabla \cdot F_m$ (Wm$^{-2}$)'; end
                     figure(); clf; hold all;
                     cmp = colCog(40);
                     colormap(cmp);
@@ -291,6 +352,52 @@ function plot_flux(type, par)
                     set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
                     print(sprintf('%s/flux/%s/%s/%s/div_lat_lon', plotdir, fw, land, time), '-dpng', '-r300');
                     close;
+
+                    if any(strcmp(type, {'era5c', 'era5', 'erai'}))
+
+                        var_text = '$\nabla \cdot F_m$ (Wm$^{-2}$)';
+                        figure(); clf; hold all;
+                        cmp = colCog(40);
+                        colormap(cmp);
+                        contourf(mesh_ll_lat, mesh_ll_lon, flux_t.(land).(time).divfm', [-200:10:200], 'linecolor', 'none');
+                        caxis([-200 200]);
+                        cb = colorbar('limits', [-200 60], 'ytick', [-200:20:60], 'location', 'eastoutside');
+                        cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+                        ylabel(cb, var_text);
+                        if strcmp(type, 'gcm') & ~any(strcmp(par.gcm.clim, {'hist-pi'})) & ~contains(par.model, 'mmm')
+                            contour(mesh_ll_lat, mesh_ll_lon, sftlf', 0.5*[1 1], 'w', 'linewidth', 1);
+                            contour(mesh_ll_lat, mesh_ll_lon, sftlf', 0.5*[1 1], 'k');
+                        else
+                            contour(par.landlon+180, par.landlat, par.land, [1 1], 'k');
+                        end
+                        make_title_type_time(type, time, par);
+                        xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+                        set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                        print(sprintf('%s/flux/%s/%s/%s/divfm_lat_lon', plotdir, fw, land, time), '-dpng', '-r300');
+                        close;
+
+                        var_text = '$\partial_t h$ (Wm$^{-2}$)';
+                        figure(); clf; hold all;
+                        cmp = colCog(20);
+                        colormap(cmp);
+                        contourf(mesh_ll_lat, mesh_ll_lon, flux_t.(land).(time).divfm', [-50:5:50], 'linecolor', 'none');
+                        caxis([-50 50]);
+                        cb = colorbar('limits', [-50 50], 'ytick', [-50:10:50], 'location', 'eastoutside');
+                        cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+                        ylabel(cb, var_text);
+                        if strcmp(type, 'gcm') & ~any(strcmp(par.gcm.clim, {'hist-pi'})) & ~contains(par.model, 'mmm')
+                            contour(mesh_ll_lat, mesh_ll_lon, sftlf', 0.5*[1 1], 'w', 'linewidth', 1);
+                            contour(mesh_ll_lat, mesh_ll_lon, sftlf', 0.5*[1 1], 'k');
+                        else
+                            contour(par.landlon+180, par.landlat, par.land, [1 1], 'k');
+                        end
+                        make_title_type_time(type, time, par);
+                        xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+                        set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                        print(sprintf('%s/flux/%s/%s/%s/tend_lat_lon', plotdir, fw, land, time), '-dpng', '-r300');
+                        close;
+
+                    end
 
                     var_text = '$R_1$ (unitless)';
                     figure(); clf; hold all;
@@ -337,9 +444,9 @@ function plot_flux(type, par)
                     [lh, sh] = rename_stf(type, flux_t, land, time);
                     var_text = 'LH (Wm$^{-2}$)';
                     figure(); clf; hold all;
-                    cmp = colCog(40);
+                    cmp = colCog(80);
                     colormap(cmp);
-                    contourf(mesh_ll_lat, mesh_ll_lon, lh', [-200:10:200], 'linecolor', 'none');
+                    contourf(mesh_ll_lat, mesh_ll_lon, lh', [-200:5:200], 'linecolor', 'none');
                     if strcmp(type, 'gcm') & ~any(strcmp(par.gcm.clim, {'hist-pi'})) & ~contains(par.model, 'mmm')
                         contour(mesh_ll_lat, mesh_ll_lon, sftlf', 0.5*[1 1], 'w', 'linewidth', 1);
                         contour(mesh_ll_lat, mesh_ll_lon, sftlf', 0.5*[1 1], 'k');

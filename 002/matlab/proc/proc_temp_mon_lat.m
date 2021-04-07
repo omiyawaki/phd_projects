@@ -1,6 +1,7 @@
 function proc_temp_mon_lat(type, par)
 
     prefix = make_prefix(type, par);
+    prefix_proc = make_prefix_proc(type, par);
     foldername = make_savedir_proc(type, par);
 
     load(sprintf('%s/grid.mat', prefix)); % read grid data
@@ -12,7 +13,7 @@ function proc_temp_mon_lat(type, par)
     
     %load(sprintf('%s/pa_si.mat', prefix)); pasi_orig = pa_si; clear pa_si; % read temp in si coordinates
     load(sprintf('%s/srfc.mat', prefix)); % load surface data
-    % load(sprintf('%s/%s/masks.mat', prefix_proc, par.lat_interp)); % load land and ocean masks
+    load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
 
     if strcmp(par.lat_interp, 'std')
         lat = par.lat_std;
@@ -36,15 +37,20 @@ function proc_temp_mon_lat(type, par)
 
     %pasi_sm.lo = permute(pasi_sm.lo, [1 2 4 3]); % bring plev to last dimension
 
-    % mask_t.land = nanmean(mask.land, 3);
-    % mask_t.ocean = nanmean(mask.ocean, 3);
+    mask_vert.land = repmat(mask.land, [1 1 1 size(tasi_sm.lo, 4)]);
+    mask_vert.ocean = repmat(mask.ocean, [1 1 1 size(tasi_sm.lo, 4)]);
 
-    for l = {'lo'}; land = l{1}; % over land, over ocean, or both
+    tasi_sm.l = tasi_sm.lo .* mask_vert.ocean;
+    tasi_sm.o = tasi_sm.lo .* mask_vert.land;
+
+    for l = {'lo', 'l', 'o'}; land = l{1}; % over land, over ocean, or both
+    % for l = {'lo'}; land = l{1}; % over land, over ocean, or both
         tasi.(land)= squeeze(nanmean(tasi_sm.(land), 1)); % zonal average
         %pasi.(land)= squeeze(nanmean(pasi_sm.(land), 1)); % zonal average
     end
 
-    for l = {'lo'}; land = l{1}; % over land, over ocean, or both
+    for l = {'lo', 'l', 'o'}; land = l{1}; % over land, over ocean, or both
+    % for l = {'lo'}; land = l{1}; % over land, over ocean, or both
         % take time averages
         for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
             if strcmp(time, 'ann')

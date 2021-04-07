@@ -16,7 +16,7 @@ function mmm_dmse_midlatitude_line(type, par)
 
         filename = sprintf('dmse_midlatitude_lat_%g_to_%g.mat', par.lat_center-par.lat_bound, par.lat_center+par.lat_bound);
 
-        for l = {'lo'}; land=l{1};
+        for l = par.land_list; land=l{1};
             for fn = {'ra_lat', 'res_lat', 'lh_lat', 'sh_lat'}; fname = fn{1};
                 f_vec = par.gcm.fw;
                 for f = f_vec; fw = f{1};
@@ -25,6 +25,8 @@ function mmm_dmse_midlatitude_line(type, par)
                     dmse_std.(fname).(land).(fw) = nan(1, 12);
                     dmse_min.(fname).(land).(fw) = nan(1, 12);
                     dmse_max.(fname).(land).(fw) = nan(1, 12);
+                    dmse_25.(fname).(land).(fw) = nan(1, 12);
+                    dmse_75.(fname).(land).(fw) = nan(1, 12);
                 end
             end % fnames
         end % land
@@ -46,7 +48,7 @@ function mmm_dmse_midlatitude_line(type, par)
             grid0 = load(sprintf('%s/grid.mat', prefix));
             dmse_0 = load(sprintf('%s/%s', prefix_proc, filename));
 
-            for l = {'lo'}; land=l{1};
+            for l = par.land_list; land=l{1};
                 for fn = {'ra_lat', 'res_lat', 'lh_lat', 'sh_lat'}; fname = fn{1};
                     f_vec = par.gcm.fw;
                     for f = f_vec; fw = f{1};
@@ -56,7 +58,7 @@ function mmm_dmse_midlatitude_line(type, par)
             end % land
         end % models
 
-    for l = {'lo'}; land=l{1};
+    for l = par.land_list; land=l{1};
         for fn = {'ra_lat', 'res_lat', 'lh_lat', 'sh_lat'}; fname = fn{1};
             f_vec = par.gcm.fw;
             for f = f_vec; fw = f{1};
@@ -64,6 +66,8 @@ function mmm_dmse_midlatitude_line(type, par)
                 dmse_std.(fname).(land).(fw) = squeeze(nanstd(dmse_list.(fname).(land).(fw), 1));
                 dmse_min.(fname).(land).(fw) = squeeze(min(dmse_list.(fname).(land).(fw), [], 1));
                 dmse_max.(fname).(land).(fw) = squeeze(max(dmse_list.(fname).(land).(fw), [], 1));
+                dmse_25.(fname).(land).(fw) = squeeze(prctile(dmse_list.(fname).(land).(fw), [25], 1));
+                dmse_75.(fname).(land).(fw) = squeeze(prctile(dmse_list.(fname).(land).(fw), [75], 1));
             end
         end % fnames
     end % land
@@ -74,7 +78,7 @@ function mmm_dmse_midlatitude_line(type, par)
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    save(sprintf('%s%s', foldername, filename), 'dmse', 'dmse_std', 'dmse_min', 'dmse_max', 'lat', '-v7.3');
+    save(sprintf('%s%s', foldername, filename), 'dmse', 'dmse_std', 'dmse_min', 'dmse_max', 'dmse_25', 'dmse_75', 'lat', '-v7.3');
 
     end % lat bound
 

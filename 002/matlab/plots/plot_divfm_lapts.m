@@ -16,7 +16,7 @@ function plot_divfm_lapts(type, par)
     clear srfc;
     
     % load mse flux divergence
-    divfm = flux.res.mse;
+    divfm = flux.res.mse_old;
     divfm = squeeze(nanmean(divfm));
     clear flux;
     
@@ -122,7 +122,7 @@ function plot_divfm_lapts(type, par)
     % regression line
     divfmreg_et = beta_et*tvec;
     Rsq_et = 1 - sum((divfm_et(:) - (beta_et*-lapt_et(:))).^2)/sum((divfm_et(:) - mean(divfm_et(:))).^2);
-    
+
     figure(); clf; hold all; box on;
     plot(-lapt_et(:), divfm_et(:), '.k', 'markersize', 1);
     plot(tvec, divfmreg_et, '-r');
@@ -135,7 +135,7 @@ function plot_divfm_lapts(type, par)
     set(gca, 'fontsize', par.fs, 'xlim', [-400 400], 'yscale', 'linear', 'ylim', [-200 200], 'xminortick', 'on')
     print(sprintf('%s/divfm_lapt/divfm_lapt_et.png', plotdir), '-dpng', '-r300');
     close;
-    
+
     figure(); clf; hold all; box on;
     plot(grid.dim2.lat, nanmean(-beta_et*lapt,2), '-k');
     plot(grid.dim2.lat, nanmean(divfm,2), '-', 'color', par.maroon);
@@ -146,5 +146,27 @@ function plot_divfm_lapts(type, par)
     set(gca, 'fontsize', par.fs, 'xlim', [-90 90], 'xtick', [-90:30:90], 'xminortick', 'on')
     print(sprintf('%s/divfm_lapt/lapt.png', plotdir), '-dpng', '-r300');
     close;
-    
+
+    % analyze with midlatitudes only
+    lapt_mid = lapt( (grid.dim2.lat<=-40 & grid.dim2.lat >=-60) | (grid.dim2.lat>=40 & grid.dim2.lat <= 60),:);
+    divfm_mid = divfm( (grid.dim2.lat<=-40 & grid.dim2.lat >=-60) | (grid.dim2.lat>=40 & grid.dim2.lat <= 60),:);
+
+    beta_mid = lapt_mid(:)\(-divfm_mid(:));
+    % regression line
+    divfmreg_mid = beta_mid*tvec;
+    Rsq_mid = 1 - sum((divfm_mid(:) - (beta_mid*-lapt_mid(:))).^2)/sum((divfm_mid(:) - mean(divfm_mid(:))).^2);
+
+    figure(); clf; hold all; box on;
+    plot(-lapt_mid(:), divfm_mid(:), '.k', 'markersize', 1);
+    plot(tvec, divfmreg_mid, '-r');
+    text(-350,150,sprintf('$\\nabla\\cdot F_m=%.2f\\frac{1}{\\cos(\\phi)}\\frac{\\partial}{\\partial \\phi}\\left(-\\cos(\\phi) \\frac{\\partial T}{\\partial \\phi} \\right)$', beta_mid));
+    text(100,-170,sprintf('$R^2 = %.2f$', Rsq_mid));
+    xlabel('$\frac{1}{\cos(\phi)}\frac{\partial}{\partial \phi}\left(-\cos(\phi) \frac{\partial T}{\partial \phi} \right)$ (K)');
+    ylabel('$\mathrm{\nabla\cdot F_m}$ (W m$^{-2}$)');
+    make_title_type(type, par);
+    %set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    set(gca, 'fontsize', par.fs, 'xlim', [-400 400], 'yscale', 'linear', 'ylim', [-200 200], 'xminortick', 'on')
+    print(sprintf('%s/divfm_lapt/divfm_lapt_mid.png', plotdir), '-dpng', '-r300');
+    close;
+
 end

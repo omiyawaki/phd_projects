@@ -37,20 +37,20 @@ function read_radcs(type, ymonmean, par)
     elseif strcmp(type, 'jra55')
         radcs_vars=par.jra55.vars.radcs;
         for i=1:length(radcs_vars)
-            if strcmp(radcs_vars{i}, 'rsdt')
-                radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'dswrf', par.(type).yr_span, ymm_in), 'DSWRF_GDS0_NTAT_S130'));
-            elseif strcmp(radcs_vars{i}, 'rsds')
-                radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'dswrf', par.(type).yr_span, ymm_in), 'DSWRF_GDS0_SFC_S130'));
-            elseif strcmp(radcs_vars{i}, 'rsut')
-                radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'uswrf', par.(type).yr_span, ymm_in), 'USWRF_GDS0_NTAT_S130'));
-            elseif strcmp(radcs_vars{i}, 'rsus')
-                radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'uswrf', par.(type).yr_span, ymm_in), 'USWRF_GDS0_SFC_S130'));
-            elseif strcmp(radcs_vars{i}, 'rlds')
-                radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'dlwrf', par.(type).yr_span, ymm_in), 'DLWRF_GDS0_SFC_S130'));
-            elseif strcmp(radcs_vars{i}, 'rlut')
-                radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'ulwrf', par.(type).yr_span, ymm_in), 'ULWRF_GDS0_NTAT_S130'));
-            elseif strcmp(radcs_vars{i}, 'rlus')
-                radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'ulwrf', par.(type).yr_span, ymm_in), 'ULWRF_GDS0_SFC_S130'));
+            % if strcmp(radcs_vars{i}, 'rsdt')
+            %     radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'dswrf', par.(type).yr_span, ymm_in), 'DSWRF_GDS0_NTAT_S130'));
+            if strcmp(radcs_vars{i}, 'rsdscs')
+                radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'csdsf', par.(type).yr_span, ymm_in), 'CSDSF_GDS0_SFC_S130'));
+            elseif strcmp(radcs_vars{i}, 'rsutcs')
+                radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'csusf', par.(type).yr_span, ymm_in), 'CSUSF_GDS0_NTAT_S130'));
+            elseif strcmp(radcs_vars{i}, 'rsuscs')
+                radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'csusf', par.(type).yr_span, ymm_in), 'CSUSF_GDS0_SFC_S130'));
+            elseif strcmp(radcs_vars{i}, 'rldscs')
+                radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'csdlf', par.(type).yr_span, ymm_in), 'CSDLF_GDS0_SFC_S130'));
+            elseif strcmp(radcs_vars{i}, 'rlutcs')
+                radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'csulf', par.(type).yr_span, ymm_in), 'CSULF_GDS0_NTAT_S130'));
+            % elseif strcmp(radcs_vars{i}, 'rlus')
+                % radcs.(radcs_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/radcs/%s_%s_%s%s.nc', type, type, 'ulwrf', par.(type).yr_span, ymm_in), 'ULWRF_GDS0_SFC_S130'));
             end
         end
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/radcs%s.mat', type, par.(type).yr_span, ymm_out), 'radcs', 'radcs_vars');
@@ -69,10 +69,10 @@ function read_radcs(type, ymonmean, par)
     elseif strcmp(type, 'echam')
         radcs_vars=par.echam.vars.radcs;
         for i=1:length(par.echam.vars.radcs); var = par.echam.vars.radcs{i};
-            if contains(par.echam.clim, 'rp000')
+            if contains(par.echam.clim, 'echr0') | any(strcmp(par.echam.clim, par.echam.exceptions))
+                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/BOT*_%s_*.ymonmean.nc', par.echam.clim));
+            else 
                 file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/BOT_%s_0020_39.nc', par.echam.clim, par.echam.clim));
-            else
-                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/BOT*_%s_*%s.nc', par.echam.clim));
             end
             fullpath=sprintf('%s/%s', file.folder, file.name);
             radcs.(var)=double(ncread(fullpath, var));

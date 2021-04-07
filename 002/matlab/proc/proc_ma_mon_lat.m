@@ -1,21 +1,26 @@
 function proc_ma_mon_lat(type, par)
 
     prefix = make_prefix(type, par);
+    prefix_proc = make_prefix_proc(type, par);
     foldername = make_savedir_proc(type, par);
 
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     if strcmp(par.ma_init, 'surf')
-        printname = [foldername 'ma_mon_lat_' par.ma_init '.mat'];
-        printname2 = [foldername 'ma_lon_lat_' par.ma_init '.mat'];
-        load(sprintf('%s/ma_si_%s.mat', prefix, par.ma_init)); masi_orig = ma_si; clear ma_si; % read temp in si coordinates
+        % printname = [foldername 'ma_mon_lat_' par.ma_init '.mat'];
+        % printname2 = [foldername 'ma_lon_lat_' par.ma_init '.mat'];
+        printname = sprintf('%sma_mon_lat_%s_%s.mat', foldername, par.ma_init, par.ma_type);
+        printname2 = sprintf('%sma_lon_lat_%s_%s.mat', foldername, par.ma_init, par.ma_type);
+        load(sprintf('%s/ma_si_%s_%s.mat', prefix, par.ma_init, par.ma_type)); masi_orig = ma_si; clear ma_si; % read temp in si coordinates
     else
-        printname = [foldername 'ma_mon_lat_' num2str(par.ma_init) '.mat'];
-        printname2 = [foldername 'ma_lon_lat_' num2str(par.ma_init) '.mat'];
-        load(sprintf('%s/ma_si_%g.mat', prefix, par.ma_init)); masi_orig = ma_si; clear ma_si; % read temp in si coordinates
+        % printname = [foldername 'ma_mon_lat_' num2str(par.ma_init) '.mat'];
+        % printname2 = [foldername 'ma_lon_lat_' num2str(par.ma_init) '.mat'];
+        printname = sprintf('%sma_mon_lat_%s_%s.mat', foldername, num2str(par.ma_init), par.ma_type);
+        printname2 = sprintf('%sma_lon_lat_%s_%s.mat', foldername, num2str(par.ma_init), par.ma_type);
+        load(sprintf('%s/ma_si_%g_%s.mat', prefix, par.ma_init, par.ma_type)); masi_orig = ma_si; clear ma_si; % read temp in si coordinates
     end
     load(sprintf('%s/pa_si.mat', prefix)); pasi_orig = pa_si; clear pa_si; % read temp in si coordinates
     load(sprintf('%s/srfc.mat', prefix)); % load surface data
-    % load(sprintf('%s/%s/masks.mat', prefix_proc, par.lat_interp)); % load land and ocean masks
+    load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
 
     if strcmp(par.lat_interp, 'std')
         lat = par.lat_std;
@@ -36,18 +41,24 @@ function proc_ma_mon_lat(type, par)
     pasi_sm.lo = pasi_orig; % surface is already masked in spndard sigma coordinates
 
     masi_sm.lo = permute(masi_sm.lo, [1 2 4 3]); % bring plev to last dimension
-
     pasi_sm.lo = permute(pasi_sm.lo, [1 2 4 3]); % bring plev to last dimension
 
-    % mask_t.land = nanmean(mask.land, 3);
-    % mask_t.ocean = nanmean(mask.ocean, 3);
+    mask_vert.land = repmat(mask.land, [1 1 1 size(masi_sm.lo, 4)]);
+    mask_vert.ocean = repmat(mask.ocean, [1 1 1 size(masi_sm.lo, 4)]);
 
-    for l = {'lo'}; land = l{1}; % over land, over ocean, or both
+    masi_sm.l = masi_sm.lo .* mask_vert.ocean;
+    masi_sm.o = masi_sm.lo .* mask_vert.land;
+    pasi_sm.l = pasi_sm.lo .* mask_vert.ocean;
+    pasi_sm.o = pasi_sm.lo .* mask_vert.land;
+
+    for l = {'lo', 'l', 'o'}; land = l{1}; % over land, over ocean, or both
+    % for l = {'lo'}; land = l{1}; % over land, over ocean, or both
         masi.(land)= squeeze(nanmean(masi_sm.(land), 1)); % zonal average
         pasi.(land)= squeeze(nanmean(pasi_sm.(land), 1)); % zonal average
     end
 
-    for l = {'lo'}; land = l{1}; % over land, over ocean, or both
+    for l = {'lo', 'l', 'o'}; land = l{1}; % over land, over ocean, or both
+    % for l = {'lo'}; land = l{1}; % over land, over ocean, or both
         % take time averages
         for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
             if strcmp(time, 'ann')
