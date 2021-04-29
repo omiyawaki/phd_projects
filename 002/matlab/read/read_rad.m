@@ -27,8 +27,8 @@ function read_rad(type, ymonmean, par)
         %     end
         %     save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/rad_2000_2012.mat', type, par.(type).yr_span), 'rad', 'rad_vars');
         % end
-    elseif strcmp(type, 'merra2')
-        rad_vars=par.merra2.vars.rad;
+    elseif any(strcmp(type, {'merra2', 'merra2c'}))
+        rad_vars=par.(type).vars.rad;
         for i=1:length(rad_vars)
             % dimensions are (lon x lat x time)
             rad.(rad_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s%s.nc', type, type, par.(type).yr_span, ymm_in), rad_vars{i}));
@@ -58,11 +58,11 @@ function read_rad(type, ymonmean, par)
     elseif strcmp(type, 'gcm')
         rad_vars=par.gcm.vars.rad;
         for i=1:length(par.gcm.vars.rad); var = par.gcm.vars.rad{i};
-            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*%s.nc', par.model, var, par.model, par.gcm.clim, ymm_in));
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, var, par.model, par.(type).clim, par.(type).yr_span, ymm_in));
             fullpath=sprintf('%s/%s', file.folder, file.name);
             rad.(var)=double(ncread(fullpath, var));
         end
-        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s', par.model, par.gcm.clim);
+        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s/%s', par.model, par.(type).clim, par.(type).yr_span);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename=sprintf('rad%s.mat', ymm_out);
         save(sprintf('%s/%s', newdir, filename), 'rad', 'rad_vars');

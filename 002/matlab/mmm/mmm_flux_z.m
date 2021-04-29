@@ -8,7 +8,7 @@ function mmm_flux_z(type, par)
     par.lat_interp = 'native'; % input files will be in native grid
 
     for l = par.land_list; land=l{1};
-        var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
+        var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
         for fn = var_vec; fname = fn{1};
             flux_z_list.(land).(fname) = nan(length(par.model_list), length(par.lat), 12);
             flux_z_mmm.(land).(fname) = nan(length(par.lat), 12);
@@ -52,7 +52,7 @@ function mmm_flux_z(type, par)
             f_vec = par.(type).fw;
             for f = f_vec; fw = f{1};
 
-                var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
+                var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
                 var_vec_in = make_varvec(type_in, fw);
                 for fn = 1:length(var_vec); fname = var_vec{fn}; fname_in = var_vec_in{fn};
                     if any(strcmp(fname_in, {'sshf', 'slhf'}))
@@ -73,7 +73,7 @@ function mmm_flux_z(type, par)
     end
 
     for l = par.land_list; land=l{1};
-        var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
+        var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
         for fn = 1:length(var_vec); fname = var_vec{fn};
             flux_z_mmm.(land).(fname) = squeeze(nanmean(flux_z_list.(land).(fname), 1));
             flux_z_std.(land).(fname) = squeeze(nanstd(flux_z_list.(land).(fname), 1));

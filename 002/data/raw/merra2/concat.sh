@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # declare -a vtypes=("rad" "hydro" "stf" "temp" "srfc" "zg") # variable type
-declare -a vtypes=("sice")
+declare -a vtypes=("temp")
 yr_start="1980"
 mon_start="1"
 day_start="1"

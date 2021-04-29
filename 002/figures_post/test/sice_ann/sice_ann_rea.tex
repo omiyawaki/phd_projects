@@ -1,0 +1,28 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\graphicspath{{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/sice/nh_hl/}}
+
+\begin{document}
+
+\begin{figure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\normalsize{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{stereo_sice_ll_ann.png}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.05\textwidth}
+    \textbf{\normalsize{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{stereo_lh_ll_ann.png}
+  \end{subfigure}
+\end{figure}
+
+\end{document}
+

@@ -1,0 +1,49 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{GEOS 13300: Problem Set 3}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+
+    \item
+    We begin with the hydrostatic balance equation:
+    \begin{equation}\label{eq:hydro1}
+        \frac{\mathrm{d}p}{\mathrm{d}r} = -\rho g
+    \end{equation}
+    While gravity can be approximated to be a constant without significant error for most problems in the atmosphere, this would not be a good assumption for this problem because gravity varies from $\approx 10$ to 0 m s$^{-2}$ from the surface to the center of Earth. Thus, we use Newton's equation for gravititational acceleration:
+    \begin{equation}\label{eq:gravity}
+        g(r) = \frac{GM(r)}{r^2}
+    \end{equation}
+    It follows from Newton's Shell Theorem that the mass $M$ above corresponds to the mass of the sphere within the radius $r$ away from the center of the Earth \citep{borghi2014}. That is,
+    \begin{equation}\label{eq:mass}
+        M(r) = \rho \frac{4}{3}\pi r^3
+    \end{equation}
+    Combining equations (\ref{eq:hydro1}), (\ref{eq:gravity}), and (\ref{eq:mass}), and solving the differential equation for the pressure at the center of Earth ($p_c$):
+    \begin{align}\label{eq:hydro2}
+        \frac{\mathrm{d}p}{\mathrm{d}r} &= -\frac{4}{3}\rho^2 G \pi r \\
+        \int_{0}^{p_c} \mathrm{d}p &= -\frac{4}{3}\rho^2 G \pi \int_{a}^{0} r \mathrm{d}r \\
+        p_c &= \frac{2 \rho^2 G \pi a^2}{3}
+    \end{align}
+    For $\rho = 5700$ kg m$^{-3}$ (estimated by dividing Earth's total mass by volume), $G = 6.7\times 10^{-11}$ m$^{3}$ kg$^{-1}$ s$^{-2}$, $a = 6.4\times 10^6$ m, $p_c = 1.9\times 10^{11}$ Pa.
+
+    \item
+    Since the lapse rate is the change in temperature with height but the vertical coordinate of the provided plot is pressure, we rewrite lapse rate as follows:
+    \begin{align}
+        \frac{\mathrm{d}T}{\mathrm{d}p} &= \frac{\mathrm{d}T}{\mathrm{d}} \frac{\mathrm{d}p}{\mathrm{d}z}
+    \end{align}
+    
+\end{enumerate}
+
+\bibliographystyle{apalike}
+\bibliography{../draft/references.bib}
+
+\end{document}

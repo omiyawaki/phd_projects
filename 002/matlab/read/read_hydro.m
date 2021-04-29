@@ -20,8 +20,8 @@ function read_hydro(type, ymonmean, par)
         end
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/hydro%s.mat', type, par.(type).yr_span, ymm_out), 'hydro', 'hydro_vars');
 
-    elseif strcmp(type, 'merra2')
-        hydro_vars=par.merra2.vars.hydro;
+    elseif any(strcmp(type, {'merra2', 'merra2c'}))
+        hydro_vars=par.(type).vars.hydro;
         for i=1:length(hydro_vars)
             % dimensions are (lon x lat x time)
             hydro.(hydro_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/hydro/%s_hydro_%s%s.nc', type, type, par.(type).yr_span, ymm_in), hydro_vars{i}));
@@ -51,11 +51,11 @@ function read_hydro(type, ymonmean, par)
     elseif strcmp(type, 'gcm')
         hydro_vars=par.gcm.vars.hydro;
         for i=1:length(par.gcm.vars.hydro); var = par.gcm.vars.hydro{i};
-            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*%s.nc', par.model, var, par.model, par.gcm.clim, ymm_in));
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, var, par.model, par.(type).clim, par.(type).yr_span, ymm_in));
             fullpath=sprintf('%s/%s', file.folder, file.name);
             hydro.(var)=double(ncread(fullpath, var));
         end
-        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s', par.model, par.gcm.clim);
+        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s/%s', par.model, par.(type).clim, par.(type).yr_span);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename=sprintf('hydro%s.mat', ymm_out);
         save(sprintf('%s/%s', newdir, filename), 'hydro', 'hydro_vars');

@@ -58,8 +58,10 @@ function make_malrsi(type, par)
                 local_lr(idx_nan) = [];
 
                 % insert surface lapse rate
-                local_si = [1; local_si];
-                local_lr = [squeeze(dtasmdz(lo,la,mo)); local_lr];
+                if ~any(ismember(local_si, 1))
+                    local_si = [1; local_si];
+                    local_lr = [squeeze(dtasmdz(lo,la,mo)); local_lr];
+                end
 
                 % interpolate to standard sigma grid
                 dtmdzsi(:,lo,la,mo) = interp1(local_si, local_lr, grid.dim3.si);

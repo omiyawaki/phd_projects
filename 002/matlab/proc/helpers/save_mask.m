@@ -20,13 +20,23 @@ function save_mask(type, par)
         lat = grid.dim3.lat;
     end
 
-    load(sprintf('%s/sftlf.mat', prefix)); % load land fraction data
+    if strcmp(type, 'echam')
+        if any(contains(par.echam.clim, {'rp000'}))
+            ;
+        else
+            load(sprintf('%s/sftlf.mat', prefix)); % load land fraction data
+        end
+    else
+        load(sprintf('%s/sftlf.mat', prefix)); % load land fraction data
+    end
 
     if any(strcmp(type, {'era5c', 'erai', 'era5'}))
         mask.ocean = nan(size(sftlf)); mask.ocean(sftlf>0.5) = 1;
         mask.land = nan(size(mask.ocean)); mask.land(isnan(mask.ocean))=1;
+    elseif strcmp(type, 'echam') & any(contains(par.echam.clim, {'rp000'}))
+        mask.ocean = zeros([length(grid.dim2.lon) length(grid.dim2.lat)]);
+        mask.land = ones([length(grid.dim2.lon) length(grid.dim2.lat)]);
     elseif any(strcmp(type, {'gcm', 'merra2', 'jra55', 'echam'})) % repeat to monthly dimension
-
         mask.ocean = nan(size(sftlf)); mask.ocean(sftlf>0.5) = 1; mask.ocean=repmat(mask.ocean,[1 1 12]);
         mask.land = nan(size(mask.ocean)); mask.land(isnan(mask.ocean))=1;
     else

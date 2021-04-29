@@ -70,6 +70,7 @@ function plot_energy_lat(type, par)
                 else
                     figure(); clf; hold all; box on;
                     line([-90 90], [0 0], 'linewidth', 0.5, 'color', 'k');
+                    plot(lat, flux_zt.(land).(time).tend, 'k'); text(0, 0.75*interp1(lat,flux_zt.(land).(time).tend,0), '\boldmath{$\partial_t h$}', 'color', 'k');
                     plot(lat, flux_zt.(land).(time).ra.(fw), 'color', par.gray); text(0, 0.75*interp1(lat,flux_zt.(land).(time).ra.(fw),0), '\boldmath{$R_a$}', 'color', par.gray);
                     % if contains(type, 'era')
                     %     plot(lat, flux_zt.(land).(time).tend, 'color', 'k'); text(0, 0.75*interp1(lat,flux_zt.(land).(time).tend,0), '\boldmath{$\partial_t h$}', 'color', 'k');
@@ -308,9 +309,17 @@ function plot_energy_lat(type, par)
                         end
                     elseif strcmp(type, 'gcm')
                         if contains(par.model, 'mmm')
-                            title(sprintf('CMIP5 %s, Northward %s Transport, %s', par.gcm.clim, upper(fw), upper(time)));
+                            if contains(fw, 'mse')
+                                title(sprintf('CMIP5 %s, Northward MSE Transport, %s', par.gcm.clim, upper(time)));
+                            elseif contains(fw, 'dse')
+                                title(sprintf('CMIP5 %s, Northward DSE Transport, %s', par.gcm.clim, upper(time)));
+                            end
                         else
-                            title(sprintf('%s, Northward %s Transport, %s', par.model, upper(fw), upper(time)));
+                            if contains(fw, 'mse')
+                                title(sprintf('%s, Northward MSE Transport, %s', par.model, upper(time)));
+                            elseif contains(fw, 'dse')
+                                title(sprintf('%s, Northward DSE Transport, %s', par.model, upper(time)));
+                            end
                         end
                     end
                 end;

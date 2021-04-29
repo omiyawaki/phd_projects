@@ -8,11 +8,16 @@ function proc_ga_dalr_bl_diff_si_mon_lat(type, par)
     load(sprintf('%s/grid.mat', prefix)); % read grid data
     load(sprintf('%s/dtdzsi.mat', prefix)); dtdzzsi = dtdzsi; clear dtdzsi; % read temp in si coordinates
     % load(sprintf('%s/dtdzzsi.mat', prefix)); % read temp in si coordinates
-    load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
-    
-    
+    % load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
+
+    if contains(par.model, 'GISS-E2')
+        dtdzzsi = permute(dtdzzsi, [2 1 3 4]);
+        dtdzzsi = interp1(grid.dim3.lat_zg, dtdzzsi, grid.dim3.lat);
+        dtdzzsi = permute(dtdzzsi, [2 1 3 4]);
+    end
+
     dtmdzzsi = 1e3*par.g/par.cpd*ones(size(dtdzzsi));
-    
+
     if strcmp(par.lat_interp, 'std')
         lat = par.lat_std;
     else
@@ -28,10 +33,10 @@ function proc_ga_dalr_bl_diff_si_mon_lat(type, par)
     ga_dalr_bl_diff_orig = squeeze(nanmean(ga_dalr_bl_diff_orig,1)); % take vertical average
     
     ga_dalr_bl_diff0.lo = ga_dalr_bl_diff_orig;
-    ga_dalr_bl_diff0.l = ga_dalr_bl_diff0.lo.*mask.ocean; % filter ga_dalr_bl_diff0 with surface mask
-    ga_dalr_bl_diff0.o = ga_dalr_bl_diff0.lo.*mask.land; % filter ga_dalr_bl_diff0 with surface mask
+    % ga_dalr_bl_diff0.l = ga_dalr_bl_diff0.lo.*mask.ocean; % filter ga_dalr_bl_diff0 with surface mask
+    % ga_dalr_bl_diff0.o = ga_dalr_bl_diff0.lo.*mask.land; % filter ga_dalr_bl_diff0 with surface mask
 
-    for l = {'lo', 'l', 'o'}; land = l{1}; % over land, over ocean, or both
+    for l = par.land_list; land = l{1}; % over land, over ocean, or both
     % for l = {'lo'}; land = l{1}; % over land, over ocean, or both
         ga_dalr_bl_diff.(land)= squeeze(nanmean(ga_dalr_bl_diff0.(land), 1)); % zonal average
 

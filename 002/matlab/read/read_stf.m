@@ -27,8 +27,8 @@ function read_stf(type, ymonmean, par)
             end
             save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/stf_2000_2012.mat', type, par.(type).yr_span), 'stf', 'stf_vars');
         end
-    elseif strcmp(type, 'merra2')
-        stf_vars=par.merra2.vars.stf;
+    elseif any(strcmp(type, {'merra2', 'merra2c'}))
+        stf_vars=par.(type).vars.stf;
         for i=1:length(stf_vars)
             % dimensions are (lon x lat x time)
             stf.(stf_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/stf/%s_stf_%s%s.nc', type, type, par.(type).yr_span, ymm_in), stf_vars{i}));
@@ -36,7 +36,7 @@ function read_stf(type, ymonmean, par)
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/stf%s.mat', type, par.(type).yr_span, ymm_out), 'stf', 'stf_vars');
 
     elseif strcmp(type, 'jra55')
-        stf_vars=par.jra55.vars.stf;
+        stf_vars=par.(type).vars.stf;
         for i=1:length(par.jra55.vars.stf); var = par.jra55.vars.stf{i};
             if strcmp(var, 'hfls')
                 stf.(stf_vars{i}) = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/stf/%s_lhtfl_%s%s.nc', type, type, par.(type).yr_span, ymm_in), 'LHTFL_GDS0_SFC_S130'));
@@ -49,11 +49,11 @@ function read_stf(type, ymonmean, par)
     elseif strcmp(type, 'gcm')
         stf_vars=par.gcm.vars.stf;
         for i=1:length(par.gcm.vars.stf); var = par.gcm.vars.stf{i};
-            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*%s.nc', par.model, var, par.model, par.gcm.clim, ymm_in));
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, var, par.model, par.(type).clim, par.(type).yr_span, ymm_in));
             fullpath=sprintf('%s/%s', file.folder, file.name);
             stf.(var)=double(ncread(fullpath, var));
         end
-        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s', par.model, par.gcm.clim);
+        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s/%s', par.model, par.(type).clim, par.(type).yr_span);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename=sprintf('stf%s.mat', ymm_out);
         save(sprintf('%s/%s', newdir, filename), 'stf', 'stf_vars');

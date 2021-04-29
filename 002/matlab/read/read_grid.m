@@ -1,5 +1,15 @@
-function read_grid(type, par)
-    filename = 'grid.mat';
+function read_grid(type, ymonmean, par)
+
+    if strcmp(ymonmean, 'ymonmean')
+        ymm_in = '.ymonmean';
+        ymm_out = '';
+    elseif strcmp(ymonmean, 'mon')
+        ymm_in = '';
+        ymm_out = '_mon';
+    end
+
+    filename = sprintf('grid%s.mat', ymm_out);
+
     % read data net SW and LW radiation data downloaded from Era5
     % first read lon and lat vectors since this is different from the Donohoe grid
     if any(strcmp(type, {'era5', 'erai'}))
@@ -22,7 +32,7 @@ function read_grid(type, par)
         newdir = sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         save(sprintf('%s/%s', newdir, filename), 'grid')
-    elseif strcmp(type, 'merra2')
+    elseif any(strcmp(type, {'merra2', 'merra2c'}))
         grid.dim2.lon = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s.ymonmean.nc', type, type, par.(type).yr_span), 'lon'));
         grid.dim2.lat = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_rad_%s.ymonmean.nc', type, type, par.(type).yr_span), 'lat'));
         grid.dim3 = grid.dim2;
@@ -36,25 +46,34 @@ function read_grid(type, par)
         grid.dim2.lon = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_dswrf_%s.ymonmean.nc', type, type, par.(type).yr_span), 'g0_lon_2'));
         grid.dim2.lat = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/rad/%s_dswrf_%s.ymonmean.nc', type, type, par.(type).yr_span), 'g0_lat_1'));
         grid.dim3 = grid.dim2;
-        grid.dim3.plev = 1e2*double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_tmp_%s.ymonmean.nc', type, type, par.(type).yr_span), 'lv_ISBL1')); % multiply by 100 to convert hPa to Pa
+        grid.dim3.plev = 1e2*double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp_trop/%s_tmp_%s.ymonmean.nc', type, type, par.(type).yr_span), 'lv_ISBL1')); % multiply by 100 to convert hPa to Pa
         grid.dim3.z = par.z;
         grid.dim3.si = 1e-5*par.pa;
         newdir = sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         save(sprintf('%s/%s', newdir, filename), 'grid')
     elseif strcmp(type, 'gcm')
-        file.dim2=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.nc', par.model, 'tas', par.model, par.gcm.clim));
-        file.dim3=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.nc', par.model, 'ta', par.model, par.gcm.clim));
+        file.dim2=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, 'tas', par.model, par.gcm.clim, par.gcm.yr_span, ymm_in));
+        file.dim3=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, 'ta', par.model, par.gcm.clim, par.gcm.yr_span, ymm_in));
         fullpath.dim2=sprintf('%s/%s', file.dim2.folder, file.dim2.name);
         fullpath.dim3=sprintf('%s/%s', file.dim3.folder, file.dim3.name);
         grid.dim2.lon=double(ncread(fullpath.dim2, 'lon'));
         grid.dim3.lon=double(ncread(fullpath.dim3, 'lon'));
         grid.dim2.lat=double(ncread(fullpath.dim2, 'lat'));
         grid.dim3.lat=double(ncread(fullpath.dim3, 'lat'));
+        if contains(par.model, 'GISS')
+            file.dim3=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, 'zg', par.model, par.gcm.clim, par.gcm.yr_span, ymm_in));
+            fullpath.dim2=sprintf('%s/%s', file.dim2.folder, file.dim2.name);
+            fullpath.dim3=sprintf('%s/%s', file.dim3.folder, file.dim3.name);
+            grid.dim2.lon_zg=double(ncread(fullpath.dim2, 'lon'));
+            grid.dim3.lon_zg=double(ncread(fullpath.dim3, 'lon'));
+            grid.dim2.lat_zg=double(ncread(fullpath.dim2, 'lat'));
+            grid.dim3.lat_zg=double(ncread(fullpath.dim3, 'lat'));
+        end
         grid.dim3.plev=double(ncread(fullpath.dim3, 'plev'));
         grid.dim3.z = par.z;
         grid.dim3.si = 1e-5*par.pa;
-        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s', par.model, par.gcm.clim);
+        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s/%s', par.model, par.(type).clim, par.(type).yr_span);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         save(sprintf('%s/%s', newdir, filename), 'grid');
     elseif strcmp(type, 'echam')

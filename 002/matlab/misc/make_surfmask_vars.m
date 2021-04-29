@@ -10,7 +10,7 @@ function [ps_vert, pa] = make_surfmask_vars(grid, type, srfc, par)
         ps_vert = repmat(srfc.sp, [1 1 1 length(plev)]); % dims (lon x lat x time x plev)
         ps_vert = permute(ps_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
         pa = double(permute(repmat(plev, [1 size(srfc.sp)]), [2 3 1 4]));
-    elseif strcmp(type, 'merra2')
+    elseif any(strcmp(type, {'merra2', 'merra2c'}))
         ps_vert = repmat(srfc.PS, [1 1 1 length(plev)]); % dims (lon x lat x time x plev)
         ps_vert = permute(ps_vert, [1 2 4 3]); % dims (lon x lat x plev x time)
         pa = double(permute(repmat(plev, [1 size(srfc.PS)]), [2 3 1 4]));

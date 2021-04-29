@@ -2,7 +2,7 @@ function tas = load_tas(srfc, type, par)
  
     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
         tas = srfc.t2m;
-    elseif strcmp(type, 'merra2')
+    elseif any(strcmp(type, {'merra2', 'merra2c'}))
         tas = srfc.T2M;
     elseif any(strcmp(type, {'gcm', 'jra55'}))
         tas = srfc.tas;

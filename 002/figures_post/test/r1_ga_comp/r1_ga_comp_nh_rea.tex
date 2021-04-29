@@ -1,0 +1,47 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\graphicspath{{/project2/tas1/miyawaki/projects/002/figures/rea/1979_2005/1.00/ga_malr_diff/}}
+\usepackage[export]{adjustbox}
+\usepackage{booktabs}
+\usepackage{array}
+
+\begin{document}
+\newcolumntype{C}{>{\centering\arraybackslash}m{0.25\textwidth}}
+\begin{table}
+    \centering
+    \begin{tabular}{lCCC}
+        \toprule
+
+            & $\sigma_u=0.2$ & $\sigma_u=0.3$ & $\sigma_u=0.4$ \\
+
+        $\sigma_l=0.7$ &
+        \includegraphics[width=0.25\textwidth]{{si_bl_0.7/lo/r1_gablft_mon_0.2_nh_mid}.png}
+        &
+        \includegraphics[width=0.25\textwidth]{{si_bl_0.7/lo/r1_gablft_mon_0.3_nh_mid}.png}
+        &
+        \includegraphics[width=0.25\textwidth]{{si_bl_0.7/lo/r1_gablft_mon_0.4_nh_mid}.png}
+        \\
+        $\sigma_l=0.8$ &
+        \includegraphics[width=0.25\textwidth]{{si_bl_0.8/lo/r1_gablft_mon_0.2_nh_mid}.png}
+        &
+        \includegraphics[width=0.25\textwidth]{{si_bl_0.8/lo/r1_gablft_mon_0.3_nh_mid}.png}
+        &
+        \includegraphics[width=0.25\textwidth]{{si_bl_0.8/lo/r1_gablft_mon_0.4_nh_mid}.png}
+        \\
+        $\sigma_l=0.9$ &
+        \includegraphics[width=0.25\textwidth]{{si_bl_0.9/lo/r1_gablft_mon_0.2_nh_mid}.png}
+        &
+        \includegraphics[width=0.25\textwidth]{{si_bl_0.9/lo/r1_gablft_mon_0.3_nh_mid}.png}
+        &
+        \includegraphics[width=0.25\textwidth]{{si_bl_0.9/lo/r1_gablft_mon_0.4_nh_mid}.png}
+        \\
+
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\end{document}

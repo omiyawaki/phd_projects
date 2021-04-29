@@ -4,7 +4,7 @@ function lh = rename_lh(type, stf)
         lh = -stf.slhf;
     elseif any(strcmp(type,{'hahn'}))
         lh = stf.LHFLX;
-    elseif any(strcmp(type,{'merra2'}))
+    elseif any(strcmp(type,{'merra2', 'merra2c'}))
         lh = stf.EFLUX;
     elseif any(strcmp(type, {'gcm', 'jra55', 'rea'}))
         lh = stf.hfls;

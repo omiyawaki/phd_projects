@@ -1,8 +1,8 @@
 #!/bin/sh
 
-#declare -a vtypes=("rad" "hydro" "stf" "temp" "srfc" "zg" "w500" "tend" "div" "albedo" "lfrac" "orog") # variable type
-declare -a vtypes=("temp_ml") # variable type
-yr_start="1979"
+declare -a vtypes=("rad" "hydro" "stf" "temp" "srfc" "zg" "lfrac" "orog") # variable type
+#declare -a vtypes=("temp_ml") # variable type
+yr_start="1980"
 mon_start="1"
 day_start="1"
 yr_end="2005"
@@ -19,7 +19,7 @@ for vtype in ${vtypes[@]}; do
     if test -f "$filename.ymonmean.nc"; then
         echo "$filename.ymonmean.nc exists. Skipping..."
     else
-        cdo seldate,$yr_start-$mon_start-$day_start,$yr_end-$mon_end-$day_end era5_${vtype}_1979_2019.nc $filename.nc
+        cdo seldate,$yr_start-$mon_start-$day_start,$yr_end-$mon_end-$day_end era5_${vtype}_1979_2005.nc $filename.nc
 
         if [[ $vtype != "tend" ]]; then
             cdo ymonmean $filename.nc $filename.ymonmean.nc

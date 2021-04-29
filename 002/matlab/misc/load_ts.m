@@ -2,7 +2,7 @@ function ts = load_ts(srfc, type, par)
  
     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
         ts = srfc.t2m;
-    elseif strcmp(type, 'merra2')
+    elseif any(strcmp(type, {'merra2', 'merra2c'}))
         ts = srfc.T2M;
     elseif any(strcmp(type, {'gcm', 'jra55'}))
         ts = srfc.ts;

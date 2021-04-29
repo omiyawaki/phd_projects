@@ -8,7 +8,7 @@ function [lh, sh] = rename_stf(type, flux, land, time)
         elseif any(strcmp(type,{'hahn'}))
             lh = flux.(land).LHFLX;
             sh = flux.(land).SHFLX;
-        elseif any(strcmp(type,{'merra2'}))
+        elseif any(strcmp(type,{'merra2', 'merra2c'}))
             lh = flux.(land).EFLUX;
             sh = flux.(land).HFLUX;
         elseif any(strcmp(type, {'gcm', 'jra55', 'rea'}))
@@ -27,7 +27,7 @@ function [lh, sh] = rename_stf(type, flux, land, time)
         elseif any(strcmp(type,{'hahn'}))
             lh = flux.(land).(time).LHFLX;
             sh = flux.(land).(time).SHFLX;
-        elseif any(strcmp(type,{'merra2'}))
+        elseif any(strcmp(type,{'merra2', 'merra2c'}))
             lh = flux.(land).(time).EFLUX;
             sh = flux.(land).(time).HFLUX;
         elseif any(strcmp(type, {'gcm', 'jra55', 'rea'}))

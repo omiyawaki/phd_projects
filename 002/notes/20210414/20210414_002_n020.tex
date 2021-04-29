@@ -1,0 +1,56 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{Research notes}
+\date{\today}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+\section{Sensitivity of lapse rate deviation to vertical bounds}
+
+In the previous meeting we questioned whether the choice of bounds used to take the vertical average of the lapse rate deviation from a moist adiabat would lead to better agreement between it and the seasonality of $R_1$ in the NH midlatitudes. Here, I test the sensitivity of the seasonality of the lapse rate deviation to 3 values of the lower bound ($\sigma_l = 0.9$, 0.8, and 0.7) and upper bound ($\sigma_u=0.2$, 0.3, and 0.4).
+
+In the NH ($45^\circ$N), the choice of the lower bound controls the amplitude and the upper bound controls the annual mean magnitude of the seasonality of the lapse rate deviation (Fig.~\ref{fig:r1-ga-comp-grid}a,c,e). Importantly, the phase of the lapse rate deviation does not significantly vary with the choice of the bounds. This means that varying the bounds of the vertical average cannot reconcile the discrepancy between the timing of the RCE regime and the moist adiabatic lapse rate regime (note how the red line lags behind the black line for all bounds in Fig.~\ref{fig:r1-ga-comp-grid-nh}).
+
+In the SH ($-45^\circ$S), the seasonality in lapse rate deviation is smaller (Fig.~\ref{fig:r1-ga-comp-grid}b,d,f). The lapse rate deviation in the SH summer is particularly influenced by the choice of the lower bound. For $\sigma_l=0.9$, the summer lapse rate deviation is large for $\sigma_u=0.3$ and 0.4 and as a result a two-peak structure arises (blue line in Fig.~\ref{fig:r1-ga-comp-grid}d,f). To the contrary, the seasonality is sinusoidal for $\sigma_l=0.8$ (orange line) and 0.7 (yellow line) regardless of the choice of the upper bound explored here. Since the seasonality of the lapse rate deviation obtained from $\sigma_l=0.9$ appears to be an outlier, I decided to change the lower bound of the vertical average to $\sigma_l=0.8$ for my analyses in the latest version of the draft. However, note that the seasonality of $R_1$ reaches a minimum in spring and a maximum in autumn (Fig.~\ref{fig:r1-ga-comp-grid-sh}), which is not consistent with the lapse rate deviation seasonality regardless of the choice of the bounds. 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/r1_ga_comp/r1_ga_comp_alt_rea.pdf}
+    \caption{The seasonality of the vertically averaged lapse rate deviation from a moist adiabat are shown for various lower ($\sigma_l$) and upper ($\sigma_u$) bounds at (a,c,e) $45^\circ$N and (b,d,f) $45^\circ$S.}
+    \label{fig:r1-ga-comp-grid}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/r1_ga_comp/r1_ga_comp_nh_rea.pdf}
+    \caption{The seasonality of the lapse rate deviation from a moist adiabat (red line) is compared to the seasonality of $R_1$ in the NH midlatitudes ($40-60^\circ$N). The seasonality of the lapse rate deviation lags behind the seasonality of $R_1$ regardless of the choice of the bounds.}
+    \label{fig:r1-ga-comp-grid-nh}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/r1_ga_comp/r1_ga_comp_sh_rea.pdf}
+    \caption{Same as Fig.~\ref{fig:r1-ga-comp-grid-nh} but for the SH.}
+    \label{fig:r1-ga-comp-grid-sh}
+\end{figure}
+
+\section{Seasonality of $R_1$ and the lapse rate deviation in aquaplanet simulations}
+
+The above results suggest that the discrepancy between heat transfer and lapse rate seasonality is a robust feature, and it would be useful if we could understand the reason for this mismatch. One idea that was brought up during the last meeting is that the zonal structure may play a role. An easy way to test this is to compare the seasonality of $R_1$ and the lapse rate deviation in the aquaplanet simulations, where there is negligible zonal asymmetry. As previously noted, the seasonality of $R_1$ in the 15 m aquaplanet simulation exhibits a phase delay compared to the observed NH midlatitudes (compare black lines in Fig.~\ref{fig:r1-ga-comp-aqua}a and c). However, because there is also a phase delay in the aquaplanet lapse rate deviation, it is not completely in phase with $R_1$ (compare red and black lines in Fig.~\ref{fig:r1-ga-comp-aqua}c). Interestingly, the seasonality of $R_1$ and the lapse rate deviation are in good agreement for the 40 m mixed layer depth (Fig.~\ref{fig:r1-ga-comp-aqua}d). In both the 15 and 40 m mixed layer aquaplanet simulations, the lapse rate deviation is smaller compared to the observed midlatitudes. 
+
+\begin{figure}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/r1_ga_comp/r1_ga_comp_rea_aqua.pdf}
+    \caption{The seasonality of the lapse rate deviation from a moist adiabat (red) compared to the seasonality of $R_1$ (black) in the (a) NH midlatitudes and (b) SH midlatitudes for the reanalysis mean. (c--d) Similar, but for aquaplanet simulations configured with 15, 40, and 3 m mixed layer depths.}
+    \label{fig:r1-ga-comp-aqua}
+\end{figure}
+
+
+\bibliographystyle{apalike}
+\bibliography{../../draft/references.bib}
+
+\end{document}

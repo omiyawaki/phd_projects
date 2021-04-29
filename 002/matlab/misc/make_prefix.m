@@ -5,10 +5,10 @@ function prefix = make_prefix(type, par, clim)
         end
     end
 
-    if any(strcmp(type, {'rea', 'era5', 'era5c', 'erai', 'merra2', 'jra55', 'echam_ml', 'echam_pl'}))
+    if any(strcmp(type, {'rea', 'era5', 'era5c', 'erai', 'merra2', 'merra2c', 'jra55', 'echam_ml', 'echam_pl'}))
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).yr_span);
     elseif strcmp(type, 'gcm')
-        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, clim);
+        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/%s', type, par.model, clim, par.(type).yr_span);
     elseif any(strcmp(type, {'echam', 'hahn'}))
         prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, clim);
     end

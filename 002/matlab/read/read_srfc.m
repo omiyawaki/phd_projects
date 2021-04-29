@@ -50,8 +50,8 @@ function read_srfc(type, ymonmean, par)
         end
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/srfc%s.mat', type, par.(type).yr_span, ymm_out), 'srfc', 'srfc_vars');
 
-    elseif strcmp(type, 'merra2')
-        srfc_vars=par.merra2.vars.srfc;
+    elseif any(strcmp(type, {'merra2', 'merra2c'}))
+        srfc_vars=par.(type).vars.srfc;
         for i=1:length(srfc_vars); var = srfc_vars{i};
             file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_srfc_%s%s.nc', type, type, par.(type).yr_span, ymm_in));
             fullpath=sprintf('%s/%s', file.folder, file.name);
@@ -112,15 +112,15 @@ function read_srfc(type, ymonmean, par)
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/srfc%s.mat', type, par.(type).yr_span, ymm_out), 'srfc', 'srfc_vars');
 
     elseif strcmp(type, 'gcm')
-        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s/grid.mat', par.model, par.gcm.clim));
+        load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s/%s/grid.mat', par.model, par.(type).clim, par.(type).yr_span));
 
         srfc_vars=par.gcm.vars.srfc;
         for i=1:length(par.gcm.vars.srfc); var = par.gcm.vars.srfc{i};
-            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*%s.nc', par.model, var, par.model, par.gcm.clim, ymm_in));
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, var, par.model, par.(type).clim, par.(type).yr_span, ymm_in));
             fullpath=sprintf('%s/%s', file.folder, file.name);
             if ~exist(fullpath)
                 if strcmp(var, 'hurs')
-                    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.nc', par.model, 'hur', par.model, par.gcm.clim));
+                    file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*.nc', par.model, 'hur', par.model, par.(type).clim, par.(type).yr_span));
                     fullpath=sprintf('%s/%s', file.folder, file.name);
                     hur=double(ncread(fullpath, 'hur'));
                     % if ~isequal(grid.dim2.lon, grid.dim3.lon); hur=interp1(grid.dim3.lon, hur, grid.dim2.lon); end; % interpolate to 2D lon if different from 3D
@@ -148,9 +148,9 @@ function read_srfc(type, ymonmean, par)
                         srfc.(var)=repmat(srfc.(var), [1 1 12]);
                     else
                         % create surface geopotential height using surface pressure data
-                        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s', type, par.model, par.gcm.clim);
+                        prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/%s', type, par.model, par.(type).clim, par.(type).yr_span);
                         load(sprintf('%s/grid.mat', prefix)); % read grid data
-                        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*%s.nc', par.model, 'zg', par.model, par.gcm.clim, ymm_in));
+                        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, 'zg', par.model, par.(type).clim, par.(type).yr_span, ymm_in));
                         fullpath=sprintf('%s/%s', file.folder, file.name);
                         zg = double(ncread(fullpath, 'zg'));
                         if any(contains(par.model, {'GISS-E2-H', 'GISS-E2-R'})) % zg data in GISS-E2-H has an anomalous lat grid
@@ -187,7 +187,7 @@ function read_srfc(type, ymonmean, par)
 
             end
         end
-        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s', par.model, par.gcm.clim);
+        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s/%s', par.model, par.(type).clim, par.(type).yr_span);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename=sprintf('srfc%s.mat', ymm_out);
         save(sprintf('%s/%s', newdir, filename), 'srfc', 'srfc_vars');

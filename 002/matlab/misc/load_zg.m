@@ -1,22 +1,22 @@
 function zg = load_zg(type, par)
 
-    if any(strcmp(type, {'era5', 'erai', 'era5c', 'merra2'}))
+    if any(strcmp(type, {'era5', 'erai', 'era5c', 'merra2', 'merra2c'}))
         file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_zg_%s.ymonmean.nc', type, type, par.(type).yr_span));
         fullpath=sprintf('%s/%s', file.folder, file.name);
         if any(strcmp(type, {'era5', 'era5c', 'erai'}))
             zg = 1/par.g * double(ncread(fullpath, 'z')); % output is in geopotential so convert to height
         elseif strcmp(type, 'jra55')
             zg = double(ncread(fullpath, 'HGT_GDS0_ISBL_S123'));
-        elseif strcmp(type, 'merra2')
+        elseif any(strcmp(type, {'merra2', 'merra2c'}))
             zg = double(ncread(fullpath, 'H'));
         end
     elseif any(strcmp(type, {'jra55'}))
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg/%s_hgt_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/zg_trop/%s_hgt_%s.ymonmean.nc', type, type, par.(type).yr_span));
         fullpath=sprintf('%s/%s', file.folder, file.name);
         zg = double(ncread(fullpath, 'HGT_GDS0_ISBL_S123'));
     elseif strcmp(type, 'gcm')
         var = 'zg';
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, var, par.model, par.gcm.clim));
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*.ymonmean.nc', par.model, var, par.model, par.(type).clim, par.(type).yr_span));
         fullpath=sprintf('%s/%s', file.folder, file.name);
         zg = double(ncread(fullpath, var));
     elseif strcmp(type, 'hahn')

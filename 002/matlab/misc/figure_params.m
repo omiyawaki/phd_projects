@@ -2,11 +2,13 @@
 par.monlabelnh = {'J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'};
 par.monlabelsh = {'J', 'A', 'S', 'O', 'N', 'D', 'J', 'F', 'M', 'A', 'M', 'J'};
 par.ppos = [0 0 10/3 7/3];
+par.ppos_short = [0 0 10/3 5/3];
 par.ppos_larger = [0 0 16/3 13/3];
 par.ppos_vert = [0 0 7/3 10/3];
 par.ppos_sq = [0 0 8/3 8/3];
 par.ppos_sq_large = [0 0 10/3 10/3];
 par.ppos_gold = [0 0 10/3 8/3];
+par.ppos_shorterwide = [0 0 13/3 5/3];
 par.ppos_wide = [0 0 13/3 7/3];
 par.ppos_verywide = [0 0 16/3 7/3];
 par.ppos_superwide = [0 0 21/3 7/3];

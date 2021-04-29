@@ -7,16 +7,19 @@ function read_lfrac(type, par)
         if any(strcmp(par.gcm.clim, {'piControl', 'abrupt4xCO2'}))
             file=dir(sprintf('/project2/tas1/CMIP5_piControl/%s/sftlf_*.nc', par.model));
         else
-            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s_raw/%s/sftlf_*.nc', par.gcm.clim, par.model));
+            file=dir(sprintf('/project2/tas1/ockham/data9/tas/CMIP5_RAW/%s/%s/atmos/fx/sftlf/r0i0p0/sftlf_*.nc', par.model, par.(type).clim));
         end
         fullpath=sprintf('%s/%s', file.folder, file.name);
         sftlf=double(ncread(fullpath, 'sftlf'));
-        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s', par.model, par.gcm.clim);
+        newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s/%s', par.model, par.(type).clim, par.(type).yr_span);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename='sftlf.mat';
         save(sprintf('%s/%s', newdir, filename), 'sftlf');
     elseif strcmp(type, 'merra2')
         sftlf = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/lfrac/MERRA2_101.const_2d_asm_Nx.00000000.nc4.nc4', type), 'FRLAND'));
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/sftlf.mat', type, par.(type).yr_span), 'sftlf');
+    elseif strcmp(type, 'merra2c')
+        sftlf = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/lfrac/merra2c_lfrac.nc', type), 'FRLAND'));
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/sftlf.mat', type, par.(type).yr_span), 'sftlf');
     elseif strcmp(type, 'jra55')
         sftlf = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/lfrac/%s_land_%s.ymonmean.nc', type, type, par.(type).yr_span), 'LAND_GDS0_SFC'));

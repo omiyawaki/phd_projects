@@ -28,11 +28,11 @@ function proc_tai_mon_lat(type, par)
     % mask_t.land = nanmean(mask.land, 3);
     % mask_t.ocean = nanmean(mask.ocean, 3);
 
-    for l = {'lo'}; land = l{1}; % over land, over ocean, or both
+    for l = par.land_list; land = l{1}; % over land, over ocean, or both
         tai.(land)= squeeze(nanmean(tai_sm.(land), 1)); % zonal average
     end
 
-    for l = {'lo'}; land = l{1}; % over land, over ocean, or both
+    for l = par.land_list; land = l{1}; % over land, over ocean, or both
         % taike time averages
         for t = {'ann', 'djf', 'jja', 'mam', 'son'}; time = t{1};
             if strcmp(time, 'ann')

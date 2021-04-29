@@ -2,6 +2,7 @@ import sys
 import numpy as np
 from scipy import interpolate
 import datetime
+import time
 from netCDF4 import Dataset,num2date
 
 cpd = 1005.7; Rd = 287; Rv = 461; L = 2.501e6; g = 9.81; a = 6357e3; eps = Rd/Rv;
@@ -134,12 +135,13 @@ for itime in range(0,mse.shape[0]):
             plevmsk = np.delete(plev, idx_below)
             msemsk = np.delete(msecol, idx_below)
             
-            plevmsk = np.insert(plevmsk, 0, psdcol)
-            msemsk = np.insert(msemsk, 0, mse0)
-            
             if plev[1]-plev[0]>0: # if pressure increases with index
+                plevmsk = np.insert(plevmsk, 0, psdcol)
+                msemsk = np.insert(msemsk, 0, mse0)
                 vmse[itime,ilat,ilon] = 1/g*np.trapz(msemsk,plevmsk)
             else:
+                plevmsk = np.append(plevmsk, psdcol)
+                msemsk = np.append(msemsk, mse0)
                 vmse[itime,ilat,ilon] = -1/g*np.trapz(msemsk,plevmsk)
                 
     # update the bar

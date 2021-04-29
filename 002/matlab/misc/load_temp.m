@@ -1,20 +1,20 @@
 function temp = load_temp(type, par)
 
-    if any(strcmp(type, {'era5', 'erai', 'era5c', 'merra2'}))
+    if any(strcmp(type, {'era5', 'erai', 'era5c', 'merra2', 'merra2c'}))
         file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_temp_%s.ymonmean.nc', type, type, par.(type).yr_span));
         fullpath=sprintf('%s/%s', file.folder, file.name);
         if any(strcmp(type, {'era5', 'era5c', 'erai'}))
             temp = double(ncread(fullpath, 't'));
-        elseif strcmp(type, 'merra2')
+        elseif any(strcmp(type, {'merra2', 'merra2c'}))
             temp = double(ncread(fullpath, 'T'));
         end
     elseif any(strcmp(type, {'jra55'}))
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp/%s_tmp_%s.ymonmean.nc', type, type, par.(type).yr_span));
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/temp_trop/%s_tmp_%s.ymonmean.nc', type, type, par.(type).yr_span));
         fullpath=sprintf('%s/%s', file.folder, file.name);
         temp = double(ncread(fullpath, 'TMP_GDS0_ISBL_S123'));
     elseif strcmp(type, 'gcm')
         var = 'ta';
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, var, par.model, par.gcm.clim));
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*.ymonmean.nc', par.model, var, par.model, par.(type).clim, par.(type).yr_span));
         fullpath=sprintf('%s/%s', file.folder, file.name);
         temp = double(ncread(fullpath, var));
     elseif strcmp(type, 'echam')

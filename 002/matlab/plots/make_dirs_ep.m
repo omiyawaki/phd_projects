@@ -9,6 +9,8 @@ function make_dirs_ep(type, par)
                     for k = {'ann', 'djf', 'jja', 'mam', 'son'}; time = k{1};
                         if ~exist(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp_%s', plotdir, par.ep, par.ga, fw, crit, land, time, num2str(par.ma_init)), 'dir')
                             mkdir(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/temp_%s', plotdir, par.ep, par.ga, fw, crit, land, time, num2str(par.ma_init)));
+                        elseif ~exist(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/ga_fr', plotdir, par.ep, par.ga, fw, crit, land, time), 'dir')
+                            mkdir(sprintf('%s/eps_%g_ga_%g/%s/%s/%s/%s/ga_fr', plotdir, par.ep, par.ga, fw, crit, land, time));
                         end
                     end
                 end

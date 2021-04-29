@@ -4,6 +4,8 @@ function make_title_type_lat(type, lat, par)
         title(sprintf('%s, $\\phi=%g^\\circ$', upper(type), lat));
     elseif any(strcmp(type, {'era5c'}));
         title(sprintf('%s, $\\phi=%g^\\circ$', upper('era5'), lat));
+    elseif any(strcmp(type, {'merra2c'}));
+        title(sprintf('%s, $\\phi=%g^\\circ$', upper('merra2'), lat));
     elseif strcmp(type, 'rea');
         title(sprintf('Reanalysis mean, $\\phi=%g^\\circ$', lat));
     elseif strcmp(type, 'gcm');

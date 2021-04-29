@@ -5,18 +5,18 @@ function read_sice(type, par)
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/sice.mat', type, par.(type).yr_span), 'sice');
     elseif strcmp(type, 'gcm')
         if any(strcmp(par.gcm.clim, {'piControl', 'abrupt4xCO2'}))
-            file=dir(sprintf('/project2/tas1/CMIP5_piControl/%s/sice_*.nc', par.model));
+            file=dir(sprintf('/project2/tas1/CMIP5_piControl/%s/sic_*.nc', par.model));
         else
-            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s_raw/%s/sice_*.nc', par.gcm.clim, par.model));
+            file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/sic_*%s*.nc', par.model, par.gcm.clim));
         end
         fullpath=sprintf('%s/%s', file.folder, file.name);
-        sice=double(ncread(fullpath, 'sice'));
+        sice=double(ncread(fullpath, 'sic'));
         newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s', par.model, par.gcm.clim);
         if ~exist(newdir, 'dir'); mkdir(newdir); end
         filename='sice.mat';
         save(sprintf('%s/%s', newdir, filename), 'sice');
-    elseif strcmp(type, 'merra2')
-        sice = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/sice/merra2_sice_1980_2005.ymonmean.nc', type), 'FRSEAICE'));
+    elseif any(strcmp(type, {'merra2', 'merra2c'}))
+        sice = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/sice/%s_sice_1980_2005.ymonmean.nc', type, type), 'FRSEAICE'));
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/sice.mat', type, par.(type).yr_span), 'sice');
     elseif strcmp(type, 'jra55')
         sice = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/sice/jra55_icec_1979_2005.ymonmean.nc', type), 'ICEC_GDS0_SFC_S113'));

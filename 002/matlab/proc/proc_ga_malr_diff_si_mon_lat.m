@@ -12,6 +12,12 @@ function proc_ga_malr_diff_si_mon_lat(type, par)
     load(sprintf('%s/malrsi.mat', prefix)); dtmdzzsi = dtmdzsi; clear dtmdzsi; % read temp in si coordinates
     % load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
 
+    if contains(par.model, 'GISS-E2')
+        dtdzzsi = permute(dtdzzsi, [2 1 3 4]);
+        dtdzzsi = interp1(grid.dim3.lat_zg, dtdzzsi, grid.dim3.lat);
+        dtdzzsi = permute(dtdzzsi, [2 1 3 4]);
+    end
+
     if strcmp(par.lat_interp, 'std')
         lat = par.lat_std;
     else

@@ -16,7 +16,7 @@ function mmm_dmse_polar_line(type, par)
         filename = sprintf('dmse_poleward_of_lat_%g.mat', par.lat_bound);
 
         for l = par.land_list; land=l{1};
-            for fn = {'ra_lat', 'res_lat', 'lh_lat', 'sh_lat'}; fname = fn{1};
+            for fn = {'ra_lat', 'tend_lat', 'res_lat', 'lh_lat', 'sh_lat'}; fname = fn{1};
                 f_vec = par.gcm.fw;
                 for f = f_vec; fw = f{1};
                     dmse_list.(fname).(land).(fw) = nan(length(par.model_list), 12);
@@ -48,7 +48,7 @@ function mmm_dmse_polar_line(type, par)
             dmse_0 = load(sprintf('%s/%s', prefix_proc, filename));
 
             for l = par.land_list; land=l{1};
-                for fn = {'ra_lat', 'res_lat', 'lh_lat', 'sh_lat'}; fname = fn{1};
+                for fn = {'ra_lat', 'tend_lat', 'res_lat', 'lh_lat', 'sh_lat'}; fname = fn{1};
                     f_vec = par.gcm.fw;
                     for f = f_vec; fw = f{1};
                         dmse_list.(fname).(land).(fw)(k,:) = dmse_0.dmse.(fname).(land).(fw);
@@ -58,7 +58,7 @@ function mmm_dmse_polar_line(type, par)
         end % models
 
     for l = par.land_list; land=l{1};
-        for fn = {'ra_lat', 'res_lat', 'lh_lat', 'sh_lat'}; fname = fn{1};
+        for fn = {'ra_lat', 'tend_lat', 'res_lat', 'lh_lat', 'sh_lat'}; fname = fn{1};
             f_vec = par.gcm.fw;
             for f = f_vec; fw = f{1};
                 dmse_mmm.(fname).(land).(fw) = squeeze(nanmean(dmse_list.(fname).(land).(fw), 1));

@@ -1,6 +1,6 @@
 function make_dirs(type, par)
     plotdir = make_plotdir(type, par);
-    for l = {'lo', 'l', 'o'}; land = l{1};
+    for l = par.land_list; land = l{1};
         for plev_eval = [300:100:500]
             if ~exist(sprintf('%s/ma_diff/plev_%g/%s', plotdir, plev_eval, land), 'dir')
                 mkdir(sprintf('%s/ma_diff/plev_%g/%s', plotdir, plev_eval, land));
@@ -21,6 +21,9 @@ function make_dirs(type, par)
             if ~exist(sprintf('%s/thetaeq_zon_sel/%s/%g', plotdir, land, month), 'dir')
                 mkdir(sprintf('%s/thetaeq_zon_sel/%s/%g', plotdir, land, month));
             end
+            if ~exist(sprintf('%s/mse_zon_sel/%s/%g', plotdir, land, month), 'dir')
+                mkdir(sprintf('%s/mse_zon_sel/%s/%g', plotdir, land, month));
+            end
             if ~exist(sprintf('%s/dtdz_zon_sel/%s/%g', plotdir, land, month), 'dir')
                 mkdir(sprintf('%s/dtdz_zon_sel/%s/%g', plotdir, land, month));
             end
@@ -29,6 +32,15 @@ function make_dirs(type, par)
         for f = fw_vec; fw = f{1};
             if ~exist(sprintf('%s/temp_binned_r1/%s/%s', plotdir, fw, land), 'dir')
                 mkdir(sprintf('%s/temp_binned_r1/%s/%s', plotdir, fw, land));
+            end
+            if ~exist(sprintf('%s/ga_frac_binned_r1/%s/%s', plotdir, fw, land), 'dir')
+                mkdir(sprintf('%s/ga_frac_binned_r1/%s/%s', plotdir, fw, land));
+            end
+            if ~exist(sprintf('%s/eptlr_binned_r1/%s/%s', plotdir, fw, land), 'dir')
+                mkdir(sprintf('%s/eptlr_binned_r1/%s/%s', plotdir, fw, land));
+            end
+            if ~exist(sprintf('%s/mselr_binned_r1/%s/%s', plotdir, fw, land), 'dir')
+                mkdir(sprintf('%s/mselr_binned_r1/%s/%s', plotdir, fw, land));
             end
         end
         for t = {'ann', 'djf', 'jja', 'mam', 'son', 'all'}; time = t{1};
@@ -72,7 +84,7 @@ function make_dirs(type, par)
         end
     end
 
-    for vn = {'sice', 'olr_ts', 'divfm_lapt', 'va', 'trop', 'alb', 'sol', 'ps','tas', 'ts', 'sn', 'sftlf', 'legends'}; varname = vn{1};
+    for vn = {'sice', 'olr_ts', 'divfm_lapt', 'va', 'trop', 'alb', 'sol', 'ps','tas', 'ts', 'sn', 'sftlf', 'legends', 'tend'}; varname = vn{1};
         if ~exist(sprintf('%s/%s', plotdir, varname), 'dir')
             mkdir(sprintf('%s/%s', plotdir, varname));
         end

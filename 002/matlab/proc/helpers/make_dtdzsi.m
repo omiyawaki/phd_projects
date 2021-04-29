@@ -13,7 +13,7 @@ function make_dtdzsi(type, par)
     
     if strcmp(type, 'gcm') & any(contains(par.model, {'GISS-E2-H', 'GISS-E2-R'})) % zg data in GISS-E2-H has an anomalous lat grid
         var = 'zg';
-        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_*.ymonmean.nc', par.model, var, par.model, par.gcm.clim));
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*.ymonmean.nc', par.model, var, par.model, par.(type).clim, par.(type).yr_span));
         fullpath=sprintf('%s/%s', file.folder, file.name);
         zg_lat = double(ncread(fullpath, 'lat'));
         zg = permute(zg, [2 1 3 4]);
@@ -53,7 +53,7 @@ function make_dtdzsi(type, par)
                 % add surface data
                 ta_tmp = add_tas(ta_tmp, lo, la, mo, type, srfc);
                 zg_tmp(si0) = srfc.zs(lo,la,mo);
-                
+
                 % only keep nonnan data and redo interpolation
                 notnan = find(~isnan(squeeze(ta_tmp)) & ~isnan(squeeze(zg_tmp)));
                 ta_si(:,lo,la,mo) = interp1(coarse_si(notnan), ta_tmp(notnan), grid.dim3.si, 'spline', nan);

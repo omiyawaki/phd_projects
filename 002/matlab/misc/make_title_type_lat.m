@@ -4,6 +4,8 @@ function make_title_type_lat(type, lat1, lat2, par)
         title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper(type), lat1, lat2));
     elseif any(strcmp(type, {'era5c'}));
         title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper('era5'), lat1, lat2));
+    elseif any(strcmp(type, {'merra2c'}));
+        title(sprintf('%s, $\\phi=%g^\\circ$ to $%g^\\circ$', upper('merra2'), lat1, lat2));
     elseif strcmp(type, 'rea');
         % title(sprintf('Reanalysis mean, $\\phi=%g^\\circ$ to $%g^\\circ$', lat1, lat2));
         if lat1>0
@@ -24,15 +26,15 @@ function make_title_type_lat(type, lat1, lat2, par)
             % title(sprintf('CMIP5 %s, $\\phi=%g^\\circ$ to $%g^\\circ$', par.gcm.clim, lat1, lat2));
             if lat1>0
                 if lat2==90
-                    title(sprintf('CMIP5 %s, NH High Latitudes'));
+                    title(sprintf('CMIP5 %s, NH High Latitudes', par.(type).clim));
                 else
-                    title(sprintf('CMIP5 %s, NH Midlatitudes'));
+                    title(sprintf('CMIP5 %s, NH Midlatitudes', par.(type).clim));
                 end
             else
                 if lat2==-90
-                    title(sprintf('CMIP5 %s, SH High Latitudes'));
+                    title(sprintf('CMIP5 %s, SH High Latitudes', par.(type).clim));
                 else
-                    title(sprintf('CMIP5 %s, SH Midlatitudes'));
+                    title(sprintf('CMIP5 %s, SH Midlatitudes', par.(type).clim));
                 end
             end
         else

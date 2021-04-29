@@ -13,6 +13,8 @@ function mmm_ga_frac_mon_lat(type, par)
         ga_frac_std.(land) = nan(length(par.lat), 12, length(par.si));
         ga_frac_min.(land) = nan(length(par.lat), 12, length(par.si));
         ga_frac_max.(land) = nan(length(par.lat), 12, length(par.si));
+        ga_frac_25.(land) = nan(length(par.lat), 12, length(par.si));
+        ga_frac_75.(land) = nan(length(par.lat), 12, length(par.si));
     end
 
     pb = CmdLineProgressBar("Creating the multi-model mean...");
@@ -46,6 +48,8 @@ function mmm_ga_frac_mon_lat(type, par)
         ga_frac_std.(land) = squeeze(nanstd(ga_frac_list.(land),1));
         ga_frac_min.(land) = squeeze(min(ga_frac_list.(land), [], 1));
         ga_frac_max.(land) = squeeze(max(ga_frac_list.(land), [], 1));
+        ga_frac_25.(land) = squeeze(prctile(ga_frac_list.(land), [25], 1));
+        ga_frac_75.(land) = squeeze(prctile(ga_frac_list.(land), [75], 1));
     end
 
     ga_frac = ga_frac_mmm;
@@ -54,6 +58,6 @@ function mmm_ga_frac_mon_lat(type, par)
     if ~exist(foldername, 'dir')
         mkdir(foldername)
     end
-    save(printname, 'ga_frac', 'ga_frac_std', 'ga_frac_min', 'ga_frac_max', 'lat', '-v7.3');
+    save(printname, 'ga_frac', 'ga_frac_std', 'ga_frac_min', 'ga_frac_max', 'ga_frac_25', 'ga_frac_75', 'lat', '-v7.3');
 
 end

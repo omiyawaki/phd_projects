@@ -1,4 +1,4 @@
-function plot_siced(type, par)
+function plot_sice(type, par)
 % plot sicedow depth
     make_dirs(type, par)
 

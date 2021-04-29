@@ -67,12 +67,22 @@ function proc_flux(type, par)
         flux.(fname) = interp1(grid.dim2.lat, flux.(fname), lat, 'linear');
         flux.(fname) = permute(flux.(fname), [2 1 3]);
     end
-    if contains(type, 'era') %|| any(strcmp(type, {'gcm'}))
-        load(sprintf('%s/tend.mat', prefix)) % read surface turbulent flux data
-        flux.tend = permute(tend.tend, [2 1 3]);
-        flux.tend = interp1(grid.dim2.lat, flux.tend, lat, 'linear');
-        flux.tend = permute(flux.tend, [2 1 3]);
+
+    load(sprintf('%s/tend.mat', prefix)) % read surface turbulent flux data
+    flux.tend = permute(tend.tendmon, [2 1 3]);
+    if contains(par.model, 'GISS')
+        flux.tend = interp1(grid.dim3.lat_zg, flux.tend, lat, 'linear');
+    else
+        flux.tend = interp1(grid.dim3.lat, flux.tend, lat, 'linear');
     end
+    flux.tend = permute(flux.tend, [2 1 3]);
+    % flux.qL = permute(tend.lat, [2 1 3]);
+    % flux.qL = interp1(grid.dim2.lat, flux.qL, lat, 'linear');
+    % flux.qL = permute(flux.qL, [2 1 3]);
+    % flux.gz = permute(tend.pot, [2 1 3]);
+    % flux.gz = interp1(grid.dim2.lat, flux.gz, lat, 'linear');
+    % flux.gz = permute(flux.gz, [2 1 3]);
+
     % if any(strcmp(type, {'era5', 'era5c' 'erai'}))
     %     for fn = tend_vars_txt; fname = fn{1}; % interpolate to std lat
     %         flux.(fname) = permute(tend.(fname), [2 1 3]);
@@ -97,7 +107,7 @@ function proc_flux(type, par)
         % multiply by negative to define flux from surface to atmosphere as positive
         flux.stf.mse = -( flux.sshf + flux.slhf ); flux.stf.mse2 = flux.stf.mse;
         flux.stf.dse = par.L*(flux.cp+flux.lsp) - flux.sshf;
-    elseif strcmp(type, 'merra2')
+    elseif any(strcmp(type, {'merra2', 'merra2c'}))
         flux.stf.mse = flux.HFLUX + flux.EFLUX;
         flux.stf.dse = par.L*flux.PRECTOT + flux.HFLUX;
     elseif strcmp(type, 'hahn')
@@ -111,6 +121,7 @@ function proc_flux(type, par)
         flux.stf.dse = par.L*(flux.aprc+flux.aprl) - flux.ahfs;
     end
     flux.stf.mse_old = flux.stf.mse;
+    flux.stf.mse_lat = flux.stf.mse;
     flux.stf.mse_ac = flux.stf.mse;
     flux.stf.mse_sc = flux.stf.mse;
     flux.stf.mse_ac_ra = flux.stf.mse;
@@ -127,7 +138,7 @@ function proc_flux(type, par)
             flux.lw = flux.ttr - flux.str; flux.sw = flux.tsr-flux.ssr; % compute net shortwave and longwave flux through atmosphere
             if contains(fw, 'ceresrad'); flux.ra.(fw) = ceres.ra;  % compute net radiative cooling from radiative fluxes
             else; flux.ra.(fw) = flux.tsr - flux.ssr + flux.ttr - flux.str; end % use radiative cooling from CERES data
-        elseif strcmp(type, 'merra2');
+        elseif any(strcmp(type, {'merra2', 'merra2c'}));
             flux.rtoa = flux.SWTNT - flux.LWTUP; % net flux at TOA
             flux.olr = -flux.LWTUP;
             flux.swsfc = -flux.SWGNT;
@@ -165,6 +176,8 @@ function proc_flux(type, par)
             end
         elseif any(strcmp(fw, {'mse', 'mse_ac', 'mse_sc', 'mse_ac_ra', 'mse_sc_ra', 'dse'}))
             flux.res.(fw) = flux.ra.(fw) + flux.stf.(fw) - flux.tend; % infer MSE tendency and flux divergence as residuals
+        elseif any(strcmp(fw, {'mse_lat'}))
+            flux.res.(fw) = flux.ra.(fw) + flux.stf.(fw) - (flux.qL + flux.gz); % infer MSE tendency and flux divergence as residuals
         elseif any(strcmp(fw, {'mse2'}))
             flux.res.(fw) = flux.lw + flux.stf.(fw);
         elseif strcmp(fw, 'db13') | strcmp(fw, 'ceresrad')
@@ -209,7 +222,7 @@ function proc_flux(type, par)
         elseif strcmp(type, 'hahn')
             flux.ftoa.(fw) = flux.FSNT - flux.FLNT;
             flux.fsfc.(fw) = -flux.FSNS + flux.FLNS + flux.stf.(fw);
-        elseif strcmp(type, 'merra2')
+        elseif any(strcmp(type, {'merra2', 'merra2c'}))
             flux.ftoa.(fw) = flux.SWTNT - flux.LWTUP;
             flux.fsfc.(fw) = -flux.SWGNT - flux.LWGNT + flux.stf.(fw);
         elseif any(strcmp(type, {'gcm', 'jra55'}));

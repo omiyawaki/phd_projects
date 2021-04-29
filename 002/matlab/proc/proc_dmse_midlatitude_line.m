@@ -45,6 +45,9 @@ function proc_dmse_midlatitude_line(type, par)
                 dmse.ra = flux_z.(land).ra.(fw);
                 dmse.ra_lat.(land).(fw) = interp1(grid.dim3.lat, dmse.ra, lat);
                 dmse.ra_lat.(land).(fw) = nansum(dmse.ra_lat.(land).(fw).*clat_mon)/nansum(clat);
+                dmse.tend = flux_z.(land).tend;
+                dmse.tend_lat.(land).(fw) = interp1(grid.dim3.lat, dmse.tend, lat);
+                dmse.tend_lat.(land).(fw) = nansum(dmse.tend_lat.(land).(fw).*clat_mon)/nansum(clat);
                 dmse.res = flux_z.(land).res.(fw);
                 dmse.res_lat.(land).(fw) = interp1(grid.dim3.lat, dmse.res, lat);
                 dmse.res_lat.(land).(fw) = nansum(dmse.res_lat.(land).(fw).*clat_mon)/nansum(clat);
@@ -59,11 +62,6 @@ function proc_dmse_midlatitude_line(type, par)
                     dmse.lh_lat.(land).(fw) = nansum(dmse.lh_lat.(land).(fw).*clat_mon)/nansum(clat);
                     dmse.sh_lat.(land).(fw) = interp1(grid.dim3.lat, sh, lat);
                     dmse.sh_lat.(land).(fw) = nansum(dmse.sh_lat.(land).(fw).*clat_mon)/nansum(clat);
-                end
-
-                if strcmp(type, 'era') & ~strcmp(fw, 'mse_old')
-                    dmse.tend_lat.(land).(fw) = interp1(grid.dim3.lat, flux_z.(land).(fw).tend, lat);
-                    dmse.tend_lat.(land).(fw) = nansum(dmse.tend_lat.(land).(fw).*clat_mon)/nansum(clat);
                 end
 
             end % for mse dse
