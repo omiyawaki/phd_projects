@@ -63,6 +63,9 @@ function make_dtdzsi(type, par)
                     midpoints = 1/2*(si_in(2:end) + si_in(1:end-1));
 
                     dtdzsi(:,lo,la,mo) = interp1(midpoints, dtdzsi_tmp, grid.dim3.si, 'spline');
+                    % if abs(dtdzsi(1,lo,la,mo)) > 50
+                    %     disp(dtdzsi(1,lo,la,mo))
+                    % end
 
                     clear notnan ta_tmp zg_tmp dtdzsi_tmp si_in midpoints
     

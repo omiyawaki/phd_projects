@@ -8,10 +8,12 @@ function proc_ga_frac_mon_lat(type, par)
     load(sprintf('%s/dtdzsi.mat', prefix));
     load(sprintf('%s/malrsi.mat', prefix));
 
-    if contains(par.model, 'GISS-E2')
-        dtdzsi = permute(dtdzsi, [2 1 3 4]);
-        dtdzsi = interp1(grid.dim3.lat_zg, dtdzsi, grid.dim3.lat);
-        dtdzsi = permute(dtdzsi, [2 1 3 4]);
+    if strcmp(type, 'gcm')
+        if contains(par.model, 'GISS-E2')
+            dtdzsi = permute(dtdzsi, [2 1 3 4]);
+            dtdzsi = interp1(grid.dim3.lat_zg, dtdzsi, grid.dim3.lat);
+            dtdzsi = permute(dtdzsi, [2 1 3 4]);
+        end
     end
 
     ga_frac_orig = (dtmdzsi-dtdzsi)./dtmdzsi; % moist adiabatic lapse rate minus actual lapse rate

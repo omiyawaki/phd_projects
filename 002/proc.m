@@ -18,7 +18,8 @@ par.era5c.yr_span = par.era5.yr_span;
 par.merra2c.yr_span = '1980_2005'; % spanning years for MERRA2
 par.echam_clims = {'rp000134', 'rp000135', 'rp000141'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 % par.echam_clims = par.echam.noice_mld; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
-par.hahn_clims = {'Flat1850', 'Control1850'}; % Control1850, Flat1850, Control2xCO2, Flat2xCO2
+par.hahn_clims = {'Control1850'}; % Control1850, Flat1850, Control2xCO2, Flat2xCO2
+% par.hahn_clims = {'Flat1850', 'Control1850'}; % Control1850, Flat1850, Control2xCO2, Flat2xCO2
 par.lat_interp = 'native'; % which latitudinal grid to interpolate to: native (no interpolation), don (donohoe, coarse), era (native ERA-Interim, fine), or std (custom, very fine)
 par.levtype = 'pl'; % analyze model level (ml) or pressure level (pl) data?
 par.lat_std = transpose(-90:0.25:90); % define standard latitude grid for 'std' interpolation
@@ -36,7 +37,7 @@ par.z_span = [0 25]*10^3; % height range for calculating moist adiabat
 par.dz = 10; % pressure increment for integrating dry adiabat section of moist adiabat (matters for how accurately the LCL is computed)
 par.do_surf = 0; % whether or not to calculate temperature profile in pressure grids including ts and ps data
 par.si_eval = [0.8 0.9]; % sigma level for evaluating inversion strength (T(si_eval) - T(surface))
-par.si_bl_swp = [0.8 0.9]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
+par.si_bl_swp = [0.7 0.8 0.9]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
 par.si_up_list = [0.3]; % sigma level for upper boundary of vertical average for close to moist adiabatic
 % par.si_up_list = [0.1 0.2 0.3 0.4]; % sigma level for upper boundary of vertical average for close to moist adiabatic
 % par.era.fw = {'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt', 'div79'};
@@ -90,6 +91,11 @@ for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
             % disp(par.echam.clim)
             % choose_proc_si_bl(type, par);
         end
+        for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
+            % type='hahn';
+            % disp(par.hahn.clim)
+            % choose_proc_si_bl(type, par);
+        end
         for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
             type = 'gcm';
             disp(par.model)
@@ -117,18 +123,18 @@ function choose_proc(type, par)
     % proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
     % proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
     % proc_temp_pl_mon_lat(type, par) % calculate mon x lat temperature profiles
-    make_tai(type, par) % calculate interpolated temperature profile in p coordinates with 2 m temp insert in lon x lat x mon
+    % make_tai(type, par) % calculate interpolated temperature profile in p coordinates with 2 m temp insert in lon x lat x mon
     % proc_tai_mon_lat(type, par) % calculate mon x lat temperature profiles
     % make_masi(type, par) % calculate moist adiabats at every lon x lat x mon
     % proc_ma_mon_lat(type, par) % calculate mon x lat moist adiabats
     % make_dtdzsi(type, par) % calculate model lapse rate and interpolate to sigma coordinates
-    make_dtdzsi_alt(type, par) % calculate model lapse rate and interpolate to sigma coordinates
-    make_malrsi(type, par) % calculate moist adiabatic lapse rate of model temperature sigma coordinates
+    % make_dtdzsi_alt(type, par) % calculate model lapse rate and interpolate to sigma coordinates
+    % make_malrsi(type, par) % calculate moist adiabatic lapse rate of model temperature sigma coordinates
     % save_mask(type, par) % save land and ocean masks once (faster than creating mask every time I need it)
 
-    proc_ga_malr_mon_lat(type, par) % calculate mon x lat MALR profiles
-    proc_ga_frac_mon_lat(type, par) % calculate mon x lat lapse rate deviation from a MALR profiles
-    proc_gad_frac_mon_lat(type, par) % calculate mon x lat lapse rate deviation from a DALR profiles
+    % proc_ga_malr_mon_lat(type, par) % calculate mon x lat MALR profiles
+    % proc_ga_frac_mon_lat(type, par) % calculate mon x lat lapse rate deviation from a MALR profiles
+    % proc_gad_frac_mon_lat(type, par) % calculate mon x lat lapse rate deviation from a DALR profiles
 
     % proc_thetaeq_mon_lat(type, par) % calculate mon x lat equivalent potential temperature profiles
     % make_dthedzsi(type, par) % calculate eq pot temp lapse rate and interpolate to sigma coordinates
@@ -158,6 +164,9 @@ function choose_proc_si_bl(type, par)
     proc_ga_malr_bl_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
     % proc_dthedpa_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
     % proc_ga_trop_malr_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
+
+    proc_ga_malr_diff_midlatitude_line(type, par);
+    proc_ga_malr_bl_diff_polar_line(type, par);
 end
 function choose_proc_ep(type, par)
     % proc_rcae(type, par) % calculate RCE and RAE regimes

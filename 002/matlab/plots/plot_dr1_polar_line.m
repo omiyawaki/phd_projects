@@ -44,7 +44,7 @@ function plot_dr1_polar_line(type, par)
 
                 % Set y axis limits of plots
                 ymin = 0.2;
-                ymax = 2.2;
+                ymax = 2.5;
 
                 ymin2 = -0.3;
                 ymax2 = 0.8;
@@ -78,6 +78,8 @@ function plot_dr1_polar_line(type, par)
                     % plot_dr2(dr2.r2z_lat.(land).(fw), dr2.r2z_ann_lat.(land).(fw), dr2.dr2z_lat.(land).(fw), dr2.comp1_lat.(land).(fw), dr2.comp2_lat.(land).(fw), '_noleg', ymin-1, ymax-1, type, fw, par, dr2_std.dr2z_lat.(land).(fw), dr2_std.comp1_lat.(land).(fw), dr2_std.comp2_lat.(land).(fw));
 
                 else
+
+                    % plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '_legonly', ymin, ymax, type, fw, par)
 
                     plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '', ymin, ymax, type, fw, par)
                     plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '_noleg', ymin, ymax, type, fw, par)

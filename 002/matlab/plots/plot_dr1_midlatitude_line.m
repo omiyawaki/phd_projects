@@ -44,13 +44,13 @@ function plot_dr1_midlatitude_line(type, par)
                 if ~exist(par.folder, 'dir'); mkdir(par.folder); end;
 
                 % Set y axis limits of plots
-                if strcmp(type, 'echam')
-                    ymin = -0.8;
+                % if strcmp(type, 'echam')
+                %     ymin = -0.8;
+                %     ymax = 0.8;
+                % else
+                    ymin = -0.4;
                     ymax = 0.8;
-                else
-                    ymin = -0.6;
-                    ymax = 0.8;
-                end
+                % end
 
                 % MAKE PLOTS
                 if strcmp(type, 'rea') 
@@ -82,11 +82,11 @@ function plot_dr1_midlatitude_line(type, par)
 
                     plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '', ymin, ymax, type, fw, par);
                     plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '_noleg', ymin, ymax, type, fw, par);
-                    plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '_legonly', ymin, ymax, type, fw, par);
+                    % plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '_legonly', ymin, ymax, type, fw, par);
 
                     plot_dr2(dr2.r2z_lat.(land).(fw), dr2.r2z_ann_lat.(land).(fw), dr2.dr2z_lat.(land).(fw), dr2.comp1_lat.(land).(fw), dr2.comp2_lat.(land).(fw), '', ymin-1, ymax-1, type, fw, par);
                     plot_dr2(dr2.r2z_lat.(land).(fw), dr2.r2z_ann_lat.(land).(fw), dr2.dr2z_lat.(land).(fw), dr2.comp1_lat.(land).(fw), dr2.comp2_lat.(land).(fw), '_noleg', ymin-1, ymax-1, type, fw, par);
-                    plot_dr2(dr2.r2z_lat.(land).(fw), dr2.r2z_ann_lat.(land).(fw), dr2.dr2z_lat.(land).(fw), dr2.comp1_lat.(land).(fw), dr2.comp2_lat.(land).(fw), '_legonly', ymin-1, ymax-1, type, fw, par);
+                    % plot_dr2(dr2.r2z_lat.(land).(fw), dr2.r2z_ann_lat.(land).(fw), dr2.dr2z_lat.(land).(fw), dr2.comp1_lat.(land).(fw), dr2.comp2_lat.(land).(fw), '_legonly', ymin-1, ymax-1, type, fw, par);
                 end
 
             end % for mse dse

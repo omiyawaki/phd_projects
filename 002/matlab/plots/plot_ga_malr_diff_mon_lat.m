@@ -23,8 +23,8 @@ function plot_ga_malr_diff_mon_lat(type, par)
         figure(); clf; hold all; box on;
         cmp = colCog(20);
         colormap(flipud(cmp));
-        contourf(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), -100:10:200, 'linecolor', 'none');
-        [C,h]=contour(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), -100:10:200, '-w', 'linewidth', 0.1);
+        contourf(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), -1000:10:2000, 'linecolor', 'none');
+        [C,h]=contour(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), -1000:10:2000, '-w', 'linewidth', 0.1);
         contour(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), [0 0], 'color', 0.75*[1 1 1]);
         clabel(C, h, -100:20:100, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
         caxis([-100 100]);
@@ -32,7 +32,7 @@ function plot_ga_malr_diff_mon_lat(type, par)
         make_title_type(type, par);
         cb = colorbar('limits', [0 100], 'ytick', [0:10:100], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-        ylabel(cb, sprintf('$\\left[(\\Gamma_d - \\Gamma)/\\Gamma_d\\right]_{1.0-%g}$ (\\%%)', par.si_bl));
+        ylabel(cb, sprintf('$\\left\\langle(\\Gamma_d - \\Gamma)/\\Gamma_d\\right\\rangle_{1.0-%g}$ (\\%%)', par.si_bl));
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         folder = sprintf('%s/ga_malr_diff/si_bl_%g/%s/', plotdir, par.si_bl, land);
@@ -46,8 +46,8 @@ function plot_ga_malr_diff_mon_lat(type, par)
         figure(); clf; hold all; box on;
         cmp = colCog(20);
         colormap(flipud(cmp));
-        contourf(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), -100:10:200, 'linecolor', 'none');
-        [C,h]=contour(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), -100:10:200, '-w', 'linewidth', 0.1);
+        contourf(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), -1000:10:2000, 'linecolor', 'none');
+        [C,h]=contour(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), -1000:10:2000, '-w', 'linewidth', 0.1);
         contour(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), par.ga_bl_thresh*[1 1], 'color', par.cyan, 'linewidth', 2);
         contour(mesh_lat, mesh_mon, ga_dalr_bl_diff.(land), [0 0], 'color', 0.75*[1 1 1]);
         clabel(C, h, -100:20:100, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
@@ -56,7 +56,7 @@ function plot_ga_malr_diff_mon_lat(type, par)
         make_title_type(type, par);
         cb = colorbar('limits', [0 100], 'ytick', [0:10:100], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-        ylabel(cb, sprintf('$\\left[(\\Gamma_d - \\Gamma)/\\Gamma_d\\right]_{1.0-%g}$ (\\%%)', par.si_bl));
+        ylabel(cb, sprintf('$\\left\\langle(\\Gamma_d - \\Gamma)/\\Gamma_d\\right\\rangle_{1.0-%g}$ (\\%%)', par.si_bl));
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         % print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_dalr_bl_diff_mon_lat_anot', plotdir, par.si_bl, land), '-dpng', '-r300');
@@ -67,8 +67,8 @@ function plot_ga_malr_diff_mon_lat(type, par)
         figure(); clf; hold all; box on;
         cmp = colCog(20);
         colormap(flipud(cmp));
-        contourf(mesh_lat, mesh_mon, ga_malr_bl_diff.(land), -100:10:200, 'linecolor', 'none');
-        [C,h]=contour(mesh_lat, mesh_mon, ga_malr_bl_diff.(land), -100:10:200, '-w', 'linewidth', 0.1);
+        contourf(mesh_lat, mesh_mon, ga_malr_bl_diff.(land), -1000:10:2000, 'linecolor', 'none');
+        [C,h]=contour(mesh_lat, mesh_mon, ga_malr_bl_diff.(land), -1000:10:2000, '-w', 'linewidth', 0.1);
         contour(mesh_lat, mesh_mon, ga_malr_bl_diff.(land), [0 0], 'color', 0.75*[1 1 1]);
         clabel(C, h, -100:20:100, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
         caxis([-100 100]);
@@ -76,7 +76,7 @@ function plot_ga_malr_diff_mon_lat(type, par)
         make_title_type(type, par);
         cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-        ylabel(cb, sprintf('$\\left[(\\Gamma_m - \\Gamma)/\\Gamma_m\\right]_{1.0-%g}$ (\\%%)', par.si_bl));
+        ylabel(cb, sprintf('$\\left\\langle(\\Gamma_m - \\Gamma)/\\Gamma_m\\right\\rangle_{1.0-%g}$ (\\%%)', par.si_bl));
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         % print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_malr_bl_diff_mon_lat', plotdir, par.si_bl, land), '-dpng', '-r300');
@@ -87,8 +87,8 @@ function plot_ga_malr_diff_mon_lat(type, par)
         figure(); clf; hold all; box on;
         cmp = colCog(20);
         colormap(flipud(cmp));
-        contourf(mesh_lat, mesh_mon, ga_malr_bl_diff.(land), -100:10:200, 'linecolor', 'none');
-        [C,h]=contour(mesh_lat, mesh_mon, ga_malr_bl_diff.(land), -100:10:200, '-w', 'linewidth', 0.1);
+        contourf(mesh_lat, mesh_mon, ga_malr_bl_diff.(land), -1000:10:2000, 'linecolor', 'none');
+        [C,h]=contour(mesh_lat, mesh_mon, ga_malr_bl_diff.(land), -1000:10:2000, '-w', 'linewidth', 0.1);
         contour(mesh_lat, mesh_mon, ga_malr_bl_diff.(land), par.ga_bl_thresh*[1 1], 'color', par.cyan, 'linewidth', 2);
         contour(mesh_lat, mesh_mon, ga_malr_bl_diff.(land), [0 0], 'color', 0.75*[1 1 1]);
         clabel(C, h, -100:20:100, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
@@ -97,7 +97,7 @@ function plot_ga_malr_diff_mon_lat(type, par)
         make_title_type(type, par);
         cb = colorbar('limits', [-100 100], 'ytick', [-100:20:100], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-        ylabel(cb, sprintf('$\\left[(\\Gamma_m - \\Gamma)/\\Gamma_m\\right]_{1.0-%g}$ (\\%%)', par.si_bl));
+        ylabel(cb, sprintf('$\\left\\langle(\\Gamma_m - \\Gamma)/\\Gamma_m\\right\\rangle_{1.0-%g}$ (\\%%)', par.si_bl));
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         % print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_malr_bl_diff_mon_lat_anot', plotdir, par.si_bl, land), '-dpng', '-r300');
@@ -108,8 +108,8 @@ function plot_ga_malr_diff_mon_lat(type, par)
         figure(); clf; hold all; box on;
         cmp = colCog(20);
         colormap(flipud(cmp));
-        contourf(mesh_lat, mesh_mon, ga_malr_diff.(land), -100:5:100, 'linecolor', 'none');
-        [C,h]=contour(mesh_lat, mesh_mon, ga_malr_diff.(land), -100:5:100, '-w', 'linewidth', 0.1);
+        contourf(mesh_lat, mesh_mon, ga_malr_diff.(land), -1000:5:1000, 'linecolor', 'none');
+        [C,h]=contour(mesh_lat, mesh_mon, ga_malr_diff.(land), -1000:5:1000, '-w', 'linewidth', 0.1);
         contour(mesh_lat, mesh_mon, ga_malr_diff.(land), [0 0], 'color', 0.75*[1 1 1]);
         clabel(C, h, -100:10:100, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
         caxis([-50 50]);
@@ -117,7 +117,7 @@ function plot_ga_malr_diff_mon_lat(type, par)
         make_title_type(type, par);
         cb = colorbar('limits', [-50 50], 'ytick', [-50:10:50], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-        ylabel(cb, sprintf('$\\left[(\\Gamma_m - \\Gamma)/\\Gamma_m\\right]_{%g-%g}$ (\\%%)', par.si_bl, par.si_up));
+        ylabel(cb, sprintf('$\\left\\langle(\\Gamma_m - \\Gamma)/\\Gamma_m\\right\\rangle_{%g-%g}$ (\\%%)', par.si_bl, par.si_up));
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         % print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_malr_diff_mon_lat_%g.png', plotdir, par.si_bl, land, par.si_up), '-dpng', '-r300');
@@ -128,8 +128,8 @@ function plot_ga_malr_diff_mon_lat(type, par)
         figure(); clf; hold all; box on;
         cmp = colCog(20);
         colormap(flipud(cmp));
-        contourf(mesh_lat, mesh_mon, ga_malr_diff.(land), -100:5:100, 'linecolor', 'none');
-        [C,h]=contour(mesh_lat, mesh_mon, ga_malr_diff.(land), -100:5:100, '-w', 'linewidth', 0.1);
+        contourf(mesh_lat, mesh_mon, ga_malr_diff.(land), -1000:5:1000, 'linecolor', 'none');
+        [C,h]=contour(mesh_lat, mesh_mon, ga_malr_diff.(land), -1000:5:1000, '-w', 'linewidth', 0.1);
         contour(mesh_lat, mesh_mon, ga_malr_diff.(land), par.ga_thresh*[1 1], 'color', par.orange, 'linewidth', 2);
         contour(mesh_lat, mesh_mon, ga_malr_diff.(land), [0 0], 'color', 0.75*[1 1 1]);
         clabel(C, h, -100:10:100, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
@@ -138,7 +138,7 @@ function plot_ga_malr_diff_mon_lat(type, par)
         make_title_type(type, par);
         cb = colorbar('limits', [-50 50], 'ytick', [-50:10:50], 'location', 'eastoutside');
         cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-        ylabel(cb, sprintf('$\\left[(\\Gamma_m - \\Gamma)/\\Gamma_m\\right]_{%g-%g}$ (\\%%)', par.si_bl, par.si_up));
+        ylabel(cb, sprintf('$\\left\\langle(\\Gamma_m - \\Gamma)/\\Gamma_m\\right\\rangle_{%g-%g}$ (\\%%)', par.si_bl, par.si_up));
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         % print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_malr_diff_mon_lat_%g_anot.png', plotdir, par.si_bl, land, par.si_up), '-dpng', '-r300');

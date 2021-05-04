@@ -23,7 +23,7 @@ par.jra55.yr_span = '1980_2005';
 par.gcm.yr_span = '198001-200512';
 par.merra2c.yr_span = '1980_2005';
 par.levtype = 'pl'; % analyze model level (ml) or pressure level (pl) data?
-par.ep_swp = 0.3; %[0.25 0.3 0.35]; % threshold value for determining RCE
+par.ep_swp = 0.2; %[0.25 0.3 0.35]; % threshold value for determining RCE
 par.ga_swp = 0.9; % threshold for determining RAE
 par.si_eval = [0.8 0.85 0.9]; % sigma level for calculating inversion strength
 par.ma = 1; % plot moist adiabat?
@@ -31,7 +31,7 @@ par.frz = 0; % consider effects of freezing on moist adiabat, computation of sat
 par.ma_init = 0.95; % 'surf' for initializing with 2 m data, otherwise enter starting sigma level for moist adiabat
 par.pa_eval = 500e2; % pressure level for calculating ma_diff
 % par.si_bl_swp = [0.85 0.9 0.95]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
-par.si_bl_swp = [0.8 0.9]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
+par.si_bl_swp = [0.7 0.8 0.9]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
 par.si_up_list = [0.3]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
 % par.si_up_list = [0.1]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
 par.ta_thresh = 6.5; % criteria for temperature difference in K of plotting contour for closeness to moist adiabat
@@ -76,7 +76,7 @@ end
 % plot_tediv_lat(par)
 
 % type = 'jra55'; par.lat_interp = 'native';
-type = 'rea'; par.lat_interp = '1.00';
+% type = 'rea'; par.lat_interp = '1.00';
 % choose_plots(type, par);
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
     % type='echam';
@@ -91,9 +91,9 @@ for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
     % choose_plots(type, par);
 end
 for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
-     type = 'gcm';
-     disp(par.model)
-     choose_plots(type, par);
+    %  type = 'gcm';
+    %  disp(par.model)
+    %  choose_plots(type, par);
 end
 
 % sweep through various boundary layer heights
@@ -101,25 +101,31 @@ for i = 1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
     for i = 1:length(par.si_up_list); par.si_up = par.si_up_list(i);
         % type = 'era5c'; par.lat_interp = 'native';
         type = 'rea'; par.lat_interp = '1.00';
-        % choose_plots_si_bl(type, par)
+        choose_plots_si_bl(type, par)
         for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
             % type='echam';
             % par.lat_interp = 'native';
             % disp(par.echam.clim)
             % choose_plots_si_bl(type, par);
         end
+        for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
+            % type='hahn';
+            % par.lat_interp = 'native';
+            % disp(par.hahn.clim)
+            % choose_plots_si_bl(type, par);
+        end
         for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-            type = 'gcm';
-            disp(par.model)
-            choose_plots_si_bl(type, par)
+            % type = 'gcm';
+            % disp(par.model)
+            % choose_plots_si_bl(type, par)
         end
     end
 end
 
 % sweep through various threshold values
 for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
-    % type = 'merra2c'; par.lat_interp = 'native';
-    type = 'rea'; par.lat_interp = '1.00';
+    % type = 'era5c'; par.lat_interp = 'native';
+    % type = 'rea'; par.lat_interp = '1.00';
     % choose_plots_ep(type, par)
     for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
         % type='echam'; par.lat_interp = 'native';
@@ -132,9 +138,9 @@ for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
         % choose_plots_ep(type, par);
     end
     for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-        type = 'gcm';
-        disp(par.model)
-        choose_plots_ep(type, par)
+        % type = 'gcm';
+        % disp(par.model)
+        % choose_plots_ep(type, par)
     end
 end
 
@@ -149,7 +155,7 @@ function choose_plots(type, par)
     % plot_dthedpa_zon_select(type, par) % plot eq pot temp profiles at specific latitudes
     % plot_tai_zon_select_comp(type, par) % plot temperature profiles at specific latitudes
     % plot_temp_pl_zon_select_comp(type, par) % plot temperature profiles at specific latitudes
-    % plot_ga_frac_binned_r1(type, par) % plot lapse rate profiles binned by R1
+    plot_ga_frac_binned_r1(type, par) % plot lapse rate profiles binned by R1
 
     % plot_dthedz_binned_r1(type, par) % plot eq pot temp lapse rate profiles binned by R1
     % plot_dthedpa_binned_r1(type, par) % plot eq pot temp lapse rate profiles binned by R1
@@ -164,8 +170,8 @@ function choose_plots(type, par)
 
     % plot_ga_midlatitude_comp(type, par) % plot lapse rate deviation assuming different vertical bounds
 
-    plot_dmse_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
-    plot_dmse_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dmse_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
+    % plot_dmse_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dmse_midlatitude_line_comp(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dmse_polar_line_comp(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
 
@@ -210,12 +216,14 @@ function choose_plots(type, par)
 
 end % select which functions to run at a time
 function choose_plots_si_bl(type, par)
-    plot_ga_malr_diff_mon_lat(type, par) % plot ga diff
+    % plot_ga_malr_diff_mon_lat(type, par) % plot ga diff
     % plot_ga_malr_diff_lon_lat(type, par) % plot ga diff
 
     % plot_dthedpa_diff_mon_lat(type, par) % plot ga diff
 
-    plot_r1_ga_midlatitude_line(type, par) % plot R1 and lapse rate deviation together at specific latitudes
+    % plot_r1_ga_midlatitude_line(type, par) % plot R1 and lapse rate deviation together at specific latitudes
+    plot_r1_ga_polar_line(type, par) % plot R1 and lapse rate deviation together at specific latitudes
+
     % plot_dim_ga_midlatitude_line(type, par) % plot R1 and lapse rate deviation together at specific latitudes
     % plot_r1_eptlr_midlatitude_line(type, par) % plot R1 and lapse rate deviation together at specific latitudes
 end
@@ -228,7 +236,7 @@ function choose_plots_ep(type, par)
 
     % plot_temp(type, par) % plot temperature profiles
     % plot_temp_ann(type, par) % plot temperature profiles
-    plot_ga_frac_ann(type, par) % plot temperature profiles
+    % plot_ga_frac_ann(type, par) % plot temperature profiles
 
     plot_dr1_midlatitude_line(type, par) % plot decomposition of R1 in mon at specific latitudes
     plot_dr1_polar_line(type, par) % plot decomposition of R1 in mon at specific latitudes

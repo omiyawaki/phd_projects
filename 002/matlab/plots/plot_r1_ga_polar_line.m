@@ -9,8 +9,7 @@ function plot_r1_ga_midlatitude_line(type, par)
     % load(sprintf('%s/flux_z.mat', prefix_proc)); % load lat x mon RCAE_ALT data
     % load(sprintf('%s/ga_frac_mon_lat.mat', prefix_proc));
 
-    lat_list = [10 -10];
-    lat_center = 50;
+    lat_list = [80 -80];
     
     for ep = 1:length(par.ep_swp); par.ep = par.ep_swp(ep);
         for ga = 1:length(par.ga_swp); par.ga = par.ga_swp(ga);
@@ -38,13 +37,13 @@ function plot_r1_ga_midlatitude_line(type, par)
                             monlabel = par.monlabelsh;
                         end
 
-                        lat_print = 'mid';
-                        [lat, clat, clat_mon, par] = make_midlatitude_lat(lat_center, par);
-                        lat1 = par.lat_center-par.lat_bound;
-                        lat2 = par.lat_center+par.lat_bound;
+                        lat_print = 'polar';
+                        [lat, clat, clat_mon, par] = make_polar_lat(par);
+                        lat1 = par.lat_bound;
+                        lat2 = par.lat_pole;
 
-                        load(sprintf('%s/dr1_midlatitude_lat_%g_to_%g.mat', prefix_proc, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound));
-                        load(sprintf('%s/si_bl_%g/ga_malr_diff_midlatitude_lat_%g_to_%g_%g.mat', prefix_proc, par.si_bl, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound, par.si_up));
+                        load(sprintf('%s/dr1_poleward_of_lat_%g.mat', prefix_proc, par.lat_bound));
+                        load(sprintf('%s/si_bl_%g/ga_malr_bl_diff_poleward_of_lat_%g.mat', prefix_proc, par.si_bl, par.lat_bound));
 
                         figure(); clf; hold all; box on;
 
@@ -95,22 +94,21 @@ function plot_r1_ga_midlatitude_line(type, par)
                         ax = gca;
                         ax.YAxis(1).Color = 'k';
                         if strcmp(type, 'rea')
-                            plot(1:12, circshift(ga_frac_lat_mmm.(land), shiftby), '-', 'color', par.maroon);
+                            plot(1:12, circshift(ga_frac_lat_mmm.(land), shiftby), '-', 'color', par.blue);
                             mon2 = [1:12, fliplr(1:12)];
                             ga_frac_spr = [circshift(ga_frac_lat_max.(land), par.shiftby, 2), fliplr(circshift(ga_frac_lat_min.(land), par.shiftby, 2))];
-                            fill(mon2, ga_frac_spr, par.maroon, 'facealpha', 0.2, 'edgealpha', 0.2);
+                            fill(mon2, ga_frac_spr, par.blue, 'facealpha', 0.2, 'edgealpha', 0.2);
                         elseif strcmp(type, 'gcm') & contains(par.model, 'mmm')
-                            plot(1:12, circshift(ga_frac_lat_mmm.(land), shiftby), '-', 'color', par.maroon);
+                            plot(1:12, circshift(ga_frac_lat_mmm.(land), shiftby), '-', 'color', par.blue);
                             mon2 = [1:12, fliplr(1:12)];
                             ga_frac_spr = [circshift(ga_frac_lat_75.(land), par.shiftby, 2), fliplr(circshift(ga_frac_lat_25.(land), par.shiftby, 2))];
-                            fill(mon2, ga_frac_spr, par.maroon, 'facealpha', 0.2, 'edgealpha', 0.2);
+                            fill(mon2, ga_frac_spr, par.blue, 'facealpha', 0.2, 'edgealpha', 0.2);
                         else
-                            plot(1:12, circshift(ga_ft, shiftby), '-', 'color', par.maroon);
+                            plot(1:12, circshift(ga_ft, shiftby), '-', 'color', par.blue);
                         end
                         ylabel(sprintf('$\\left\\langle(\\Gamma_m - \\Gamma)/\\Gamma_m\\right\\rangle_{%g}^{%g}$ (\\%%)', par.si_bl, par.si_up));
-                        set(gca, 'fontsize', par.fs, 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', monlabel, 'yminortick', 'on', 'ylim', [-5 35]) 
-                        % set(gca, 'fontsize', par.fs, 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', monlabel, 'yminortick', 'on', 'ylim', [-10 30]) 
-                        ax.YAxis(2).Color = par.maroon;
+                        set(gca, 'fontsize', par.fs, 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', monlabel, 'yminortick', 'on', 'ylim', [-100 700]) 
+                        ax.YAxis(2).Color = par.blue;
 
                         make_title_type_lat(type, lat1, lat2, par);
                         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
@@ -121,8 +119,8 @@ function plot_r1_ga_midlatitude_line(type, par)
                             figure(); clf; box on; hold all;
                             axis off;
                             axis([10,11,10,11])
-                            plot(1:12, circshift(r1, shiftby), '-', 'color', r1col);
-                            plot(1:12, circshift(mse_r1, shiftby), '--', 'color', r1col);
+                            plot(1:12, circshift(dr1.r1z_lat.(land).(fw), shiftby), '-', 'color', r1col);
+                            plot(1:12, circshift(dr1.r1z_lat.(land).mse, shiftby), '--', 'color', r1col);
                             legend('$\frac{\partial_t h + \nabla\cdot F_m}{R_a}$', '$\frac{\nabla\cdot F_m}{R_a}$', 'location', 'northwest', 'orientation', 'horizontal');
                             set(gcf, 'paperunits', 'inches', 'paperposition', [0 0 2.7 0.5])
                             print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/%s/legend.png', plotdir, par.si_bl, fw, land), '-dpng', '-r300');

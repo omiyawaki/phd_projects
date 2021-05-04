@@ -11,7 +11,7 @@ function temp = add_tas(temp, lo, la, mo, type, srfc)
     elseif strcmp(type, 'gcm')
         temp(1) = srfc.tas(lo,la,mo);
     elseif contains(type, 'hahn') % surface is last element in hahn data
-        temp(end) = srfc.TS(lo,la,mo);
+        temp(end) = srfc.TREFHT(lo,la,mo);
     elseif contains(type, 'echam')
         temp(1) = srfc.temp2(lo,la,mo);
     end
