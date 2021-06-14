@@ -152,6 +152,9 @@ function choose_proc(type, par)
     % proc_dr1_midlatitude_line(type, par);
     % proc_dr1_polar_line(type, par);
 
+    proc_ga_frac_midlatitude(type, par);
+    proc_ga_frac_polar(type, par);
+
     % proc_temp_mon_lat_interp(type, par) % calculate mon x lat temperature profiles
     % proc_temp_mon_lat_interp_mean(type, par) % calculate mon x lat temperature profiles
     % proc_dtdz_mon_lat(type, par) % calculate mon x lat lapse rate
@@ -165,8 +168,8 @@ function choose_proc_si_bl(type, par)
     % proc_dthedpa_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
     % proc_ga_trop_malr_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
 
-    proc_ga_malr_diff_midlatitude_line(type, par);
-    proc_ga_malr_bl_diff_polar_line(type, par);
+    % proc_ga_malr_diff_midlatitude_line(type, par);
+    % proc_ga_malr_bl_diff_polar_line(type, par);
 end
 function choose_proc_ep(type, par)
     % proc_rcae(type, par) % calculate RCE and RAE regimes

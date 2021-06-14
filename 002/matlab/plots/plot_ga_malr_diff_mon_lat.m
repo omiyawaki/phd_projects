@@ -81,6 +81,12 @@ function plot_ga_malr_diff_mon_lat(type, par)
         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         % print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_malr_bl_diff_mon_lat', plotdir, par.si_bl, land), '-dpng', '-r300');
         print(sprintf('%sga_malr_bl_diff_mon_lat', folder), '-dpng', '-r300');
+        if par.make_tikz & par.si_bl == 0.9
+            data = [mesh_lat(:) mesh_mon(:) ga_malr_bl_diff.(land)(:) ];
+            matlab2tikz(sprintf('%sga_malr_bl_diff_mon_lat.tex', folder));
+            save(sprintf('%sga_malr_bl_diff_mon_lat.dat', folder), 'data', '-ASCII')
+            clear data
+        end
         close;
 
         % ANOT MALR BL mon x lat of diff
@@ -122,6 +128,12 @@ function plot_ga_malr_diff_mon_lat(type, par)
         set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
         % print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/ga_malr_diff_mon_lat_%g.png', plotdir, par.si_bl, land, par.si_up), '-dpng', '-r300');
         print(sprintf('%sga_malr_diff_mon_lat_%g.png', folder, par.si_up), '-dpng', '-r300');
+        if par.make_tikz & par.si_bl == 0.7
+            data = [mesh_lat(:) mesh_mon(:) ga_malr_diff.(land)(:) ];
+            matlab2tikz(sprintf('%sga_malr_diff_mon_lat_%g.tex', folder, par.si_up));
+            save(sprintf('%sga_malr_diff_mon_lat_%g.dat', folder, par.si_up), 'data', '-ASCII')
+            clear data
+        end
         close;
 
         % ANOT mon x lat of diff

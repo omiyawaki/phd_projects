@@ -6,7 +6,7 @@ function tas = rename_tas(type, srfc)
         tas = srfc.TREFHT;
     elseif any(strcmp(type,{'merra2', 'merra2c'}))
         tas = srfc.T2M;
-    elseif any(strcmp(type, {'gcm', 'jra55'}))
+    elseif any(strcmp(type, {'gcm', 'jra55', 'rea'}))
         tas = srfc.tas;
     elseif strcmp(type, 'echam')
         tas = srfc.temp2;

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # declare -a vars_gcm=("va" "zg" "wap" "ta" "hur" "ps" "hurs" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "rldscs" "rlutcs" "rsdscs" "rsuscs" "rsutcs" "hfls" "hfss" "pr" "prc" "evspsbl" "vas") # list of GCM variables that we want to process
-declare -a vars_gcm=("hur" "hus" "hurs") # list of GCM variables that we want to process
+declare -a vars_gcm=("sfcWind") # list of GCM variables that we want to process
 # declare -a vars_gcm=("zg") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "tas" "ta" "zg" "ts" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "evspsbl") # list of GCM variables that we want to process
 #declare -a vars_gcm=("sit") # list of GCM variables that we want to process
@@ -11,7 +11,7 @@ declare -a realm=("atmos")
 declare -a models=("bcc-csm1-1-m/") # list of GCM models to process
 declare -a clim="historical" # climate name
 #declare -a skip_models="MPI-ESM-LR/ MPI-ESM-MR/ MPI-ESM-P/ FGOALS-g2/ CanAM4/ CanCM4/ CESM1-CAM5-1-FV2/ CMCC-CESM/ CMCC-CM/ CMCC-CMS/ FIO-ESM/ HadGEM2-A/ GFDL-HIRAM-C180/ GFDL-HIRAM-C360/ MRI-AGCM3-2H/ MRI-AGCM3-2S/ NICAM-09/"
-declare -a skip_models="FGOALS-s2/ CanAM4/ CanCM4/ CMCC-CMS/ CESM1-CAM5-1-FV2/ EC-EARTH/ FIO-ESM/ HadGEM2-A/ HadGEM2-AO/ GFDL-HIRAM-C180/ GFDL-HIRAM-C360/ MRI-AGCM3-2H/ MRI-AGCM3-2S/ NICAM-09/"
+declare -a skip_models="bcc-csm1-1/ bcc-csm1-1-m/ CCSM4/ CESM1-BGC/ CESM1-WACCM/ FGOALS-g2/ NorESM1-M/ NorESM1-ME/ CanAM4/ CanCM4/ CMCC-CMS/ CESM1-CAM5-1-FV2/ EC-EARTH/ FIO-ESM/ HadGEM2-A/ HadGEM2-AO/ GFDL-HIRAM-C180/ GFDL-HIRAM-C360/ MRI-AGCM3-2H/ MRI-AGCM3-2S/ NICAM-09/"
 declare -a skip_files=("_eady.nc")
 
 out_yr_begin="1980"

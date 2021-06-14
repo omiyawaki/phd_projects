@@ -8,6 +8,8 @@ addpath(genpath('./matlab'));
 echam_info
 figure_params
 
+par.make_tikz=0;
+
 par.echam_clims =  par.echam.noice_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 
 par.ep = 0.1;
@@ -157,151 +159,163 @@ close;
 type = 'echam';
 par.lat_interp = 'native';
 
-for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-    prefix = make_prefix(type, par);
-    prefix_proc = make_prefix_proc(type, par);
-    if k==1; load(sprintf('%s/grid.mat', prefix)); end;
-    tmp=load(sprintf('%s/flux_z.mat', prefix_proc)); % load lat x mon RCAE data
-    flux_z.(par.echam.clim) = tmp.flux_z;
-    tmp=load(sprintf('%s/srfc.mat', prefix)); % load lat x mon RCAE data
-    srfc.(par.echam.clim) = tmp.srfc;
-    tmp=load(sprintf('%s/rad.mat', prefix)); % load lat x mon RCAE data
-    rad.(par.echam.clim) = tmp.rad;
 
-    % plot zonal temperature structure
-    ann_ts = squeeze(nanmean(nanmean(srfc.(par.echam.clim).(par.ttype),1),3));
-    if k==1;
-        p2 = 1/2 * (3*sind(grid.dim2.lat).^2-1);
-        pred_ts_lat = par.a0*par.Qg/(par.A+par.B*par.Tf)*(1 + (par.s20)/(1+6*par.de).*p2); % non dimensional
-        pred_ts_lat = ((par.A+par.B*par.Tf)*pred_ts_lat-par.A)/par.B+273; % dimensional
-    end
-    figure(); clf; hold all; box on;
-    plot(grid.dim2.lat, ann_ts, '--k');
-    plot(grid.dim2.lat, pred_ts_lat, '-k');
-    xlabel('latitude (deg)'); ylabel('$T_s$ (K)');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos);
-    set(gca, 'xminortick','on', 'yminortick', 'on', 'xlim', [-90 90], 'xtick', [-90:30:90]);
-    print(sprintf('./figures_post/test/amp_r1_echam/lat_ts_echam_%g', d.(par.echam.clim)), '-dpng', '-r300');
-    close;
+if  ~exist('./amp_r1.mat', 'file')
 
-    % compute EBM prediction of div Fm (D * laplacian of ts)
-    clat = cosd(grid.dim2.lat);
-    dphi = deg2rad(grid.dim2.lat(2)-grid.dim2.lat(1)); % uniform lat grid
-    dtdlat = nan(size(pred_ts_lat));
-    dtdlat(2:end-1) = (pred_ts_lat(3:end) - pred_ts_lat(1:end-2))/(2*dphi); % central difference
-    dtdlat(1) = (pred_ts_lat(2) - pred_ts_lat(1))/dphi; % forward diff
-    dtdlat(end) = (pred_ts_lat(end) - pred_ts_lat(end-1))/dphi; % backward diff
-    dtdlat = clat .* dtdlat;
-    lapt = nan(size(pred_ts_lat));
-    lapt(2:end-1) = (dtdlat(3:end) - dtdlat(1:end-2))/(2*dphi); % central difference
-    lapt(1) = (dtdlat(2) - dtdlat(1))/dphi; % forward diff
-    lapt(end) = (dtdlat(end) - dtdlat(end-1))/dphi; % backward diff
-    lapt = lapt./clat;
-    pred_r1 = -par.D*lapt/par.Ra;
+    for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
+        prefix = make_prefix(type, par);
+        prefix_proc = make_prefix_proc(type, par);
+        if k==1; load(sprintf('%s/grid.mat', prefix)); end;
+        tmp=load(sprintf('%s/flux_z.mat', prefix_proc)); % load lat x mon RCAE data
+        flux_z.(par.echam.clim) = tmp.flux_z;
+        tmp=load(sprintf('%s/srfc.mat', prefix)); % load lat x mon RCAE data
+        srfc.(par.echam.clim) = tmp.srfc;
+        tmp=load(sprintf('%s/rad.mat', prefix)); % load lat x mon RCAE data
+        rad.(par.echam.clim) = tmp.rad;
 
-    % globally averaged values
-    rsdt = squeeze(nanmean(rad.(par.echam.clim).srad0d, 1));
-    swtoa = flux_z.(par.echam.clim).lo.sw - flux_z.(par.echam.clim).lo.swsfc;
-    swtoa_ann = nanmean(swtoa, 2);
-    rsdt_ann = nanmean(rsdt, 2);
-    swtoa_glb = nansum(swtoa_ann .* clat)/nansum(clat);
-    rsdt_glb = nansum(rsdt_ann .* clat)/nansum(clat);
-    % disp(sprintf('a for d=%g m is %g', d.(par.echam.clim) ,swtoa_glb/rsdt_glb))
-
-    % average over midlatitude region
-    lat_bound_list = [10];
-    center = 50;
-
-    for lb = 1:length(lat_bound_list); lat_bound = lat_bound_list(lb);
-        dlat = 0.25; % step size for standard lat grid
-        if lat_bound>0; lat_center=center; lat = [-lat_bound:dlat:lat_bound]+lat_center;
-        else; lat_center=-center; lat = [-lat_bound:-dlat:lat_bound]+lat_center; end;
-        clat = cosd(lat); % cosine of latitude for cosine weighting
-        clat_mon = repmat(clat', [1 12]);
-
-        % predicted r1
-        pred_r1_avg = interp1(grid.dim2.lat, pred_r1, lat);
-        pred_r1_avg = nansum(clat.*pred_r1_avg)/nansum(clat);
-    
-        % interpolate to midlat
-        tsz_lat.(par.echam.clim) = interp1(grid.dim2.lat, squeeze(nanmean(srfc.(par.echam.clim).(par.ttype), 1)), lat);
-        tsz_lat.(par.echam.clim) = nansum(tsz_lat.(par.echam.clim).*clat_mon)/nansum(clat);
-        
-        % annual mean
-        tsz_ann.(par.echam.clim) = repmat(squeeze(nanmean(nanmean(srfc.(par.echam.clim).(par.ttype),1),3))', [1 12]);
-        tsz_ann_lat.(par.echam.clim) = interp1(grid.dim2.lat, tsz_ann.(par.echam.clim), lat);
-        tsz_ann_lat.(par.echam.clim) = nansum(tsz_ann_lat.(par.echam.clim).*clat_mon)/nansum(clat);
-    
-        % seasonality
-        dtsz.(par.echam.clim) = squeeze(nanmean(srfc.(par.echam.clim).(par.ttype),1)) - tsz_ann.(par.echam.clim);
-        dtsz_lat.(par.echam.clim) = interp1(grid.dim2.lat, dtsz.(par.echam.clim), lat);
-        dtsz_lat.(par.echam.clim) = nansum(dtsz_lat.(par.echam.clim).*clat_mon)/nansum(clat);
-    
-        % predicted temperature seasonality
-        t_vec = [0.5:11.5]*365/12*86400; % monthly steps expressed in seconds
-        par.ga = par.rho*par.cw*d.(par.echam.clim)*par.omega/par.B;
-        pred_ts_mon = par.a0*par.s11*par.Qg*nansum(cosd(lat).*sind(lat))/nansum(cosd(lat))/par.B*((1+2*par.de).^2+par.ga.^2).^(-1/2)*cos(par.omega*t_vec-atan(par.ga./(1+2*par.de)));
-        
-        % plot seasonality of temperature
+        % plot zonal temperature structure
+        ann_ts = squeeze(nanmean(nanmean(srfc.(par.echam.clim).(par.ttype),1),3));
+        if k==1;
+            p2 = 1/2 * (3*sind(grid.dim2.lat).^2-1);
+            pred_ts_lat = par.a0*par.Qg/(par.A+par.B*par.Tf)*(1 + (par.s20)/(1+6*par.de).*p2); % non dimensional
+            pred_ts_lat = ((par.A+par.B*par.Tf)*pred_ts_lat-par.A)/par.B+273; % dimensional
+        end
         figure(); clf; hold all; box on;
-        plot([1:12], dtsz_lat.(par.echam.clim), '--k');
-        plot([1:12], pred_ts_mon, '-k');
+        plot(grid.dim2.lat, ann_ts, '--k');
+        plot(grid.dim2.lat, pred_ts_lat, '-k');
         xlabel('latitude (deg)'); ylabel('$T_s$ (K)');
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos);
-        set(gca, 'xminortick','on', 'yminortick', 'on', 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', par.monlabelnh);
-        print(sprintf('./figures_post/test/amp_r1_echam/mon_ts_echam_%g', d.(par.echam.clim)), '-dpng', '-r300');
+        set(gca, 'xminortick','on', 'yminortick', 'on', 'xlim', [-90 90], 'xtick', [-90:30:90]);
+        print(sprintf('./figures_post/test/amp_r1_echam/lat_ts_echam_%g', d.(par.echam.clim)), '-dpng', '-r300');
         close;
-    
-        % range of seasonality
-        range_dtsz.(par.echam.clim) = nanmax(dtsz_lat.(par.echam.clim)) - nanmin(dtsz_lat.(par.echam.clim));
-    
-        for l = {'lo'}; land = l{1};
-            for f = {'mse_old'}; fw = f{1};
-                % interpolate to midlat
-                r1z_lat.(par.echam.clim) = interp1(grid.dim3.lat, flux_z.(par.echam.clim).(land).res.(fw)./flux_z.(par.echam.clim).(land).ra.(fw), lat);
-                r1z_lat.(par.echam.clim) = nansum(r1z_lat.(par.echam.clim).*clat_mon)/nansum(clat);
-                raz_lat.(par.echam.clim) = interp1(grid.dim3.lat, flux_z.(par.echam.clim).(land).ra.(fw), lat);
-                raz_lat.(par.echam.clim) = nansum(raz_lat.(par.echam.clim).*clat_mon)/nansum(clat);
-    
-                % annual mean
-                r1z_ann.(par.echam.clim) = repmat(nanmean(flux_z.(par.echam.clim).(land).res.(fw)./flux_z.(par.echam.clim).(land).ra.(fw), 2), [1 12]);
-                r1z_ann_lat.(par.echam.clim) = interp1(grid.dim3.lat, r1z_ann.(par.echam.clim), lat);
-                r1z_ann_lat.(par.echam.clim) = nansum(r1z_ann_lat.(par.echam.clim).*clat_mon)/nansum(clat);
-                raz_ann.(par.echam.clim) = repmat(nanmean(flux_z.(par.echam.clim).(land).ra.(fw), 2), [1 12]);
-                raz_ann_lat.(par.echam.clim) = interp1(grid.dim3.lat, raz_ann.(par.echam.clim), lat);
-                raz_ann_lat.(par.echam.clim) = nansum(raz_ann_lat.(par.echam.clim).*clat_mon)/nansum(clat);
-                disp(sprintf('Ra for d=%g m is %g', d.(par.echam.clim), raz_ann_lat.(par.echam.clim)(1)))
-    
-                % seasonality
-                dr1z.(par.echam.clim) = flux_z.(par.echam.clim).(land).res.(fw)./flux_z.(par.echam.clim).(land).ra.(fw) - r1z_ann.(par.echam.clim);
-                dr1z_lat.(par.echam.clim) = interp1(grid.dim3.lat, dr1z.(par.echam.clim), lat);
-                dr1z_lat.(par.echam.clim) = nansum(dr1z_lat.(par.echam.clim).*clat_mon)/nansum(clat);
 
-                % plot r1 seasonality with EBM prediction
-                t_vec = (15:30.5:365)*86400;
-                pred_r1_lat.(par.echam.clim) = pred_r1_avg + nansum(cosd(lat).*sind(lat))/nansum(cosd(lat))*par.s11*par.Qg*par.a0*2*par.D./(par.Ra*((par.B+2*par.D).^2+(par.rho*par.cw*d.(par.echam.clim)*par.omega).^2)).*( (par.B + 2*par.D )*cos(par.omega * t_vec) + par.rho*par.cw*d.(par.echam.clim)*par.omega*sin(par.omega*t_vec) );
-                figure(); clf; hold all; box on;
-                plot([1:12], r1z_lat.(par.echam.clim), 'k');
-                plot([1:12], pred_r1_lat.(par.echam.clim), ':k');
-                set(gca, 'xlim', [1 12]);
-                print(sprintf('./figures_post/test/amp_r1_echam/r1_echam_%s_d%gm', par.choice, d.(par.echam.clim)), '-dpng', '-r300');
+        % compute EBM prediction of div Fm (D * laplacian of ts)
+        clat = cosd(grid.dim2.lat);
+        dphi = deg2rad(grid.dim2.lat(2)-grid.dim2.lat(1)); % uniform lat grid
+        dtdlat = nan(size(pred_ts_lat));
+        dtdlat(2:end-1) = (pred_ts_lat(3:end) - pred_ts_lat(1:end-2))/(2*dphi); % central difference
+        dtdlat(1) = (pred_ts_lat(2) - pred_ts_lat(1))/dphi; % forward diff
+        dtdlat(end) = (pred_ts_lat(end) - pred_ts_lat(end-1))/dphi; % backward diff
+        dtdlat = clat .* dtdlat;
+        lapt = nan(size(pred_ts_lat));
+        lapt(2:end-1) = (dtdlat(3:end) - dtdlat(1:end-2))/(2*dphi); % central difference
+        lapt(1) = (dtdlat(2) - dtdlat(1))/dphi; % forward diff
+        lapt(end) = (dtdlat(end) - dtdlat(end-1))/dphi; % backward diff
+        lapt = lapt./clat;
+        pred_r1 = -par.D*lapt/par.Ra;
 
-                % range of seasonality
-                range_dr1.(par.echam.clim) = nanmax(dr1z_lat.(par.echam.clim)) - nanmin(dr1z_lat.(par.echam.clim));
-    
-                % minimum of R1
-                min_r1.(par.echam.clim) = nanmin(r1z_lat.(par.echam.clim));
+        % globally averaged values
+        rsdt = squeeze(nanmean(rad.(par.echam.clim).srad0d, 1));
+        swtoa = flux_z.(par.echam.clim).lo.sw - flux_z.(par.echam.clim).lo.swsfc;
+        swtoa_ann = nanmean(swtoa, 2);
+        rsdt_ann = nanmean(rsdt, 2);
+        swtoa_glb = nansum(swtoa_ann .* clat)/nansum(clat);
+        rsdt_glb = nansum(rsdt_ann .* clat)/nansum(clat);
+        % disp(sprintf('a for d=%g m is %g', d.(par.echam.clim) ,swtoa_glb/rsdt_glb))
 
-                % minimum of dR1
-                min_dr1.(par.echam.clim) = nanmin(dr1z_lat.(par.echam.clim));
-    
-            end % fw
-    
-        end % land
-    
-    end %lat list
+        % average over midlatitude region
+        lat_bound_list = [10];
+        center = 50;
+
+        for lb = 1:length(lat_bound_list); lat_bound = lat_bound_list(lb);
+            dlat = 0.25; % step size for standard lat grid
+            if lat_bound>0; lat_center=center; lat = [-lat_bound:dlat:lat_bound]+lat_center;
+            else; lat_center=-center; lat = [-lat_bound:-dlat:lat_bound]+lat_center; end;
+            clat = cosd(lat); % cosine of latitude for cosine weighting
+            clat_mon = repmat(clat', [1 12]);
+
+            % predicted r1
+            pred_r1_avg = interp1(grid.dim2.lat, pred_r1, lat);
+            pred_r1_avg = nansum(clat.*pred_r1_avg)/nansum(clat);
+        
+            % interpolate to midlat
+            tsz_lat.(par.echam.clim) = interp1(grid.dim2.lat, squeeze(nanmean(srfc.(par.echam.clim).(par.ttype), 1)), lat);
+            tsz_lat.(par.echam.clim) = nansum(tsz_lat.(par.echam.clim).*clat_mon)/nansum(clat);
+            
+            % annual mean
+            tsz_ann.(par.echam.clim) = repmat(squeeze(nanmean(nanmean(srfc.(par.echam.clim).(par.ttype),1),3))', [1 12]);
+            tsz_ann_lat.(par.echam.clim) = interp1(grid.dim2.lat, tsz_ann.(par.echam.clim), lat);
+            tsz_ann_lat.(par.echam.clim) = nansum(tsz_ann_lat.(par.echam.clim).*clat_mon)/nansum(clat);
+        
+            % seasonality
+            dtsz.(par.echam.clim) = squeeze(nanmean(srfc.(par.echam.clim).(par.ttype),1)) - tsz_ann.(par.echam.clim);
+            dtsz_lat.(par.echam.clim) = interp1(grid.dim2.lat, dtsz.(par.echam.clim), lat);
+            dtsz_lat.(par.echam.clim) = nansum(dtsz_lat.(par.echam.clim).*clat_mon)/nansum(clat);
+        
+            % predicted temperature seasonality
+            t_vec = [0.5:11.5]*365/12*86400; % monthly steps expressed in seconds
+            par.ga = par.rho*par.cw*d.(par.echam.clim)*par.omega/par.B;
+            pred_ts_mon = par.a0*par.s11*par.Qg*nansum(cosd(lat).*sind(lat))/nansum(cosd(lat))/par.B*((1+2*par.de).^2+par.ga.^2).^(-1/2)*cos(par.omega*t_vec-atan(par.ga./(1+2*par.de)));
+            
+            % plot seasonality of temperature
+            figure(); clf; hold all; box on;
+            plot([1:12], dtsz_lat.(par.echam.clim), '--k');
+            plot([1:12], pred_ts_mon, '-k');
+            xlabel('latitude (deg)'); ylabel('$T_s$ (K)');
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos);
+            set(gca, 'xminortick','on', 'yminortick', 'on', 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', par.monlabelnh);
+            print(sprintf('./figures_post/test/amp_r1_echam/mon_ts_echam_%g', d.(par.echam.clim)), '-dpng', '-r300');
+            close;
+        
+            % range of seasonality
+            range_dtsz.(par.echam.clim) = nanmax(dtsz_lat.(par.echam.clim)) - nanmin(dtsz_lat.(par.echam.clim));
+        
+            for l = {'lo'}; land = l{1};
+                for f = {'mse_old'}; fw = f{1};
+                    % interpolate to midlat
+                    r1z_lat.(par.echam.clim) = interp1(grid.dim3.lat, flux_z.(par.echam.clim).(land).res.(fw)./flux_z.(par.echam.clim).(land).ra.(fw), lat);
+                    r1z_lat.(par.echam.clim) = nansum(r1z_lat.(par.echam.clim).*clat_mon)/nansum(clat);
+                    raz_lat.(par.echam.clim) = interp1(grid.dim3.lat, flux_z.(par.echam.clim).(land).ra.(fw), lat);
+                    raz_lat.(par.echam.clim) = nansum(raz_lat.(par.echam.clim).*clat_mon)/nansum(clat);
+        
+                    % annual mean
+                    r1z_ann.(par.echam.clim) = repmat(nanmean(flux_z.(par.echam.clim).(land).res.(fw)./flux_z.(par.echam.clim).(land).ra.(fw), 2), [1 12]);
+                    r1z_ann_lat.(par.echam.clim) = interp1(grid.dim3.lat, r1z_ann.(par.echam.clim), lat);
+                    r1z_ann_lat.(par.echam.clim) = nansum(r1z_ann_lat.(par.echam.clim).*clat_mon)/nansum(clat);
+                    raz_ann.(par.echam.clim) = repmat(nanmean(flux_z.(par.echam.clim).(land).ra.(fw), 2), [1 12]);
+                    raz_ann_lat.(par.echam.clim) = interp1(grid.dim3.lat, raz_ann.(par.echam.clim), lat);
+                    raz_ann_lat.(par.echam.clim) = nansum(raz_ann_lat.(par.echam.clim).*clat_mon)/nansum(clat);
+                    disp(sprintf('Ra for d=%g m is %g', d.(par.echam.clim), raz_ann_lat.(par.echam.clim)(1)))
+        
+                    % seasonality
+                    dr1z.(par.echam.clim) = flux_z.(par.echam.clim).(land).res.(fw)./flux_z.(par.echam.clim).(land).ra.(fw) - r1z_ann.(par.echam.clim);
+                    dr1z_lat.(par.echam.clim) = interp1(grid.dim3.lat, dr1z.(par.echam.clim), lat);
+                    dr1z_lat.(par.echam.clim) = nansum(dr1z_lat.(par.echam.clim).*clat_mon)/nansum(clat);
+
+                    % plot r1 seasonality with EBM prediction
+                    t_vec = (15:30.5:365)*86400;
+                    pred_r1_lat.(par.echam.clim) = pred_r1_avg + nansum(cosd(lat).*sind(lat))/nansum(cosd(lat))*par.s11*par.Qg*par.a0*2*par.D./(par.Ra*((par.B+2*par.D).^2+(par.rho*par.cw*d.(par.echam.clim)*par.omega).^2)).*( (par.B + 2*par.D )*cos(par.omega * t_vec) + par.rho*par.cw*d.(par.echam.clim)*par.omega*sin(par.omega*t_vec) );
+                    figure(); clf; hold all; box on;
+                    plot([1:12], r1z_lat.(par.echam.clim), 'k');
+                    plot([1:12], pred_r1_lat.(par.echam.clim), ':k');
+                    set(gca, 'xlim', [1 12]);
+                    print(sprintf('./figures_post/test/amp_r1_echam/r1_echam_%s_d%gm', par.choice, d.(par.echam.clim)), '-dpng', '-r300');
+
+                    % range of seasonality
+                    range_dr1.(par.echam.clim) = nanmax(dr1z_lat.(par.echam.clim)) - nanmin(dr1z_lat.(par.echam.clim));
+        
+                    % minimum of R1
+                    min_r1.(par.echam.clim) = nanmin(r1z_lat.(par.echam.clim));
+
+                    % minimum of dR1
+                    min_dr1.(par.echam.clim) = nanmin(dr1z_lat.(par.echam.clim));
+        
+                end % fw
+        
+            end % land
+        
+        end %lat list
+
+    end
+
+    save('./amp_r1.mat', 'd', 'pred_r1_avg', 'r1z_ann_lat', 'range_dtsz', 'min_r1', 'min_dr1', 'lat');
+
+else
+
+    load('./amp_r1.mat');
 
 end
+
 
 %% Annual mean R1
 figure(); clf; hold all; box on;
@@ -328,6 +342,9 @@ xlabel('$d$ (m)'); ylabel('$T_s^*$ (K)');
 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos);
 set(gca, 'xminortick','on', 'yminortick', 'on', 'xlim', xlim, 'ylim', [0 50]);
 print(sprintf('./figures_post/test/amp_r1_echam/amp_ts_echam_%s', par.choice), '-dpng', '-r300');
+if par.make_tikz & strcmp(par.choice, 'echam')
+    matlab2tikz(sprintf('./figures_post/test/amp_r1_echam/amp_ts_echam_%s.tex', par.choice));
+end
 close;
 
 %% min(R1) vs d
@@ -350,6 +367,9 @@ legend([pecham, ppred], 'AQUA', 'EBM', 'location', 'southeast');
 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos);
 set(gca, 'xminortick','on', 'yminortick', 'on', 'xlim', xlim, 'ylim', [ymin ymax]);
 print(sprintf('./figures_post/test/amp_r1_echam/amp_r1_echam_%s', par.choice), '-dpng', '-r300');
+if par.make_tikz & strcmp(par.choice, 'echam')
+    matlab2tikz(sprintf('./figures_post/test/amp_r1_echam/amp_r1_echam_%s.tex', par.choice));
+end
 close;
 
 figure(); clf; hold all; box on;

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-declare -a vtypes=("rad" "hydro" "stf" "temp" "temp_trop" "srfc" "zg" "zg_trop" "hus" "hus_trop" "lfrac" "rh") # variable type
-#declare -a vtypes=("temp_trop" "zg_trop")
+#declare -a vtypes=("rad" "hydro" "stf" "temp" "temp_trop" "srfc" "zg" "zg_trop" "hus" "hus_trop" "lfrac" "rh") # variable type
+declare -a vtypes=("srfWind")
 yr_start="1980"
 mon_start="1"
 day_start="1"
@@ -30,6 +30,8 @@ for vtype in ${vtypes[@]}; do
         declare -a vnames=("tmp")
     elif [ "$vtype" == "srfc" ]; then
         declare -a vnames=("pres" "tmp" "rh")
+    elif [ "$vtype" == "srfWind" ]; then
+        declare -a vnames=("ugrd" "vgrd")
     elif [ "$vtype" == "zg" ]; then
         declare -a vnames=("hgt")
     elif [ "$vtype" == "zg_trop" ]; then

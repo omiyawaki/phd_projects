@@ -60,25 +60,25 @@ function plot_r1_ga_midlatitude_line(type, par)
                         if strcmp(type, 'rea')
                             plot(1:12, circshift(dr1.r1z_lat.(land).(fw), shiftby), '-', 'color', r1col);
                             mon2 = [1:12, fliplr(1:12)];
-                            r1z_spr = [circshift(dr1_max.r1z_lat.(land).(fw), par.shiftby, 2), fliplr(circshift(dr1_min.r1z_lat.(land).(fw), par.shiftby, 2))];
+                            r1z_spr = nanmean(dr1.r1z_lat.(land).(fw)) + [circshift(dr1_max.dr1z_lat.(land).(fw), par.shiftby, 2), fliplr(circshift(dr1_min.dr1z_lat.(land).(fw), par.shiftby, 2))];
                             fill(mon2, r1z_spr, 0.5*[1 1 1], 'facealpha', 0.2, 'edgealpha', 0.2);
                             if strcmp(fw, 'mse_old')
                                 plot(1:12, circshift(dr1.r1z_lat.(land).mse, shiftby), '--', 'color', r1col);
-                                r1z_spr = [circshift(dr1_max.r1z_lat.(land).mse, par.shiftby, 2), fliplr(circshift(dr1_min.r1z_lat.(land).mse, par.shiftby, 2))];
+                                r1z_spr = nanmean(dr1.r1z_lat.(land).mse) + [circshift(dr1_max.dr1z_lat.(land).mse, par.shiftby, 2), fliplr(circshift(dr1_min.dr1z_lat.(land).mse, par.shiftby, 2))];
                                 fill(mon2, r1z_spr, 0.5*[1 1 1], 'facealpha', 0.2, 'edgealpha', 0.2);
                             end
                         elseif strcmp(type, 'gcm') & contains(par.model, 'mmm')
                             plot(1:12, circshift(dr1.r1z_lat.(land).(fw), shiftby), '-', 'color', r1col);
                             mon2 = [1:12, fliplr(1:12)];
-                            r1z_spr = [circshift(dr1_75.r1z_lat.(land).(fw), par.shiftby, 2), fliplr(circshift(dr1_25.r1z_lat.(land).(fw), par.shiftby, 2))];
+                            r1z_spr = nanmean(dr1.r1z_lat.(land).(fw)) + [circshift(dr1_75.dr1z_lat.(land).(fw), par.shiftby, 2), fliplr(circshift(dr1_25.dr1z_lat.(land).(fw), par.shiftby, 2))];
                             fill(mon2, r1z_spr, 0.5*[1 1 1], 'facealpha', 0.2, 'edgealpha', 0.2);
                             if strcmp(fw, 'mse_old')
                                 plot(1:12, circshift(dr1.r1z_lat.(land).mse, shiftby), '--', 'color', r1col);
-                                r1z_spr = [circshift(dr1_75.r1z_lat.(land).mse, par.shiftby, 2), fliplr(circshift(dr1_25.r1z_lat.(land).mse, par.shiftby, 2))];
+                                r1z_spr = nanmean(dr1.r1z_lat.(land).mse) +  [circshift(dr1_75.dr1z_lat.(land).mse, par.shiftby, 2), fliplr(circshift(dr1_25.dr1z_lat.(land).mse, par.shiftby, 2))];
                                 fill(mon2, r1z_spr, 0.5*[1 1 1], 'facealpha', 0.2, 'edgealpha', 0.2);
                             end
                         else
-                            plot(1:12, circshift(dr1.(land).(fw), shiftby), '-', 'color', r1col);
+                            plot(1:12, circshift(dr1.r1z_lat.(land).(fw), shiftby), '-', 'color', r1col);
                             if strcmp(fw, 'mse_old') & ~strcmp(type, 'hahn')
                                 plot(1:12, circshift(dr1.r1z_lat.(land).mse, shiftby), '--', 'color', r1col);
                             end
@@ -95,35 +95,38 @@ function plot_r1_ga_midlatitude_line(type, par)
                         ax = gca;
                         ax.YAxis(1).Color = 'k';
                         if strcmp(type, 'rea')
-                            plot(1:12, circshift(ga_frac_lat_mmm.(land), shiftby), '-', 'color', par.maroon);
+                            plot(1:12, circshift(ga_frac_lat_mmm.(land), shiftby), '-', 'color', par.orange);
                             mon2 = [1:12, fliplr(1:12)];
                             ga_frac_spr = [circshift(ga_frac_lat_max.(land), par.shiftby, 2), fliplr(circshift(ga_frac_lat_min.(land), par.shiftby, 2))];
-                            fill(mon2, ga_frac_spr, par.maroon, 'facealpha', 0.2, 'edgealpha', 0.2);
+                            fill(mon2, ga_frac_spr, par.orange, 'facealpha', 0.2, 'edgealpha', 0.2);
                         elseif strcmp(type, 'gcm') & contains(par.model, 'mmm')
-                            plot(1:12, circshift(ga_frac_lat_mmm.(land), shiftby), '-', 'color', par.maroon);
+                            plot(1:12, circshift(ga_frac_lat_mmm.(land), shiftby), '-', 'color', par.orange);
                             mon2 = [1:12, fliplr(1:12)];
                             ga_frac_spr = [circshift(ga_frac_lat_75.(land), par.shiftby, 2), fliplr(circshift(ga_frac_lat_25.(land), par.shiftby, 2))];
-                            fill(mon2, ga_frac_spr, par.maroon, 'facealpha', 0.2, 'edgealpha', 0.2);
+                            fill(mon2, ga_frac_spr, par.orange, 'facealpha', 0.2, 'edgealpha', 0.2);
                         else
-                            plot(1:12, circshift(ga_ft, shiftby), '-', 'color', par.maroon);
+                            plot(1:12, circshift(ga_frac_lat.(land), shiftby), '-', 'color', par.orange);
                         end
                         ylabel(sprintf('$\\left\\langle(\\Gamma_m - \\Gamma)/\\Gamma_m\\right\\rangle_{%g}^{%g}$ (\\%%)', par.si_bl, par.si_up));
-                        set(gca, 'fontsize', par.fs, 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', monlabel, 'yminortick', 'on', 'ylim', [-5 35]) 
+                        set(gca, 'fontsize', par.fs, 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', monlabel, 'yminortick', 'on', 'ylim', [-4.86 38]) 
                         % set(gca, 'fontsize', par.fs, 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', monlabel, 'yminortick', 'on', 'ylim', [-10 30]) 
-                        ax.YAxis(2).Color = par.maroon;
+                        ax.YAxis(2).Color = par.orange;
 
                         make_title_type_lat(type, lat1, lat2, par);
                         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
                         print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/%s/r1_gablft_mon_%g_%s_%s.png', plotdir, par.si_bl, fw, land, par.si_up, hemi, lat_print), '-dpng', '-r300');
+                        if par.make_tikz & par.lat_bound > 0 & par.si_bl == 0.7 & par.si_up == 0.3 & strcmp(fw, 'mse_old')
+                            matlab2tikz(sprintf('%s/ga_malr_diff/si_bl_%g/%s/%s/r1_gablft_mon_%g_%s_%s.tex', plotdir, par.si_bl, fw, land, par.si_up, hemi, lat_print));
+                        end
                         close;
 
                         if strcmp(fw, 'mse_old') & ~strcmp(type, 'hahn')
                             figure(); clf; box on; hold all;
                             axis off;
                             axis([10,11,10,11])
-                            plot(1:12, circshift(r1, shiftby), '-', 'color', r1col);
-                            plot(1:12, circshift(mse_r1, shiftby), '--', 'color', r1col);
-                            legend('$\frac{\partial_t h + \nabla\cdot F_m}{R_a}$', '$\frac{\nabla\cdot F_m}{R_a}$', 'location', 'northwest', 'orientation', 'horizontal');
+                            plot(1:12, circshift(dr1.r1z_lat.(land).(fw), shiftby), '-', 'color', r1col);
+                            plot(1:12, circshift(dr1.r1z_lat.(land).mse, shiftby), '--', 'color', r1col);
+                            legend('$\frac{\partial_t m + \nabla\cdot F_m}{R_a}$', '$\frac{\nabla\cdot F_m}{R_a}$', 'location', 'northwest', 'orientation', 'horizontal');
                             set(gcf, 'paperunits', 'inches', 'paperposition', [0 0 2.7 0.5])
                             print(sprintf('%s/ga_malr_diff/si_bl_%g/%s/%s/legend.png', plotdir, par.si_bl, fw, land), '-dpng', '-r300');
                         end

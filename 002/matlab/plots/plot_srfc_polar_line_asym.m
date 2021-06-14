@@ -53,8 +53,7 @@ function plot_dlh_polar_line(type, par)
         swsfc_cs = squeeze(nanmean(-radcs.srafs,1));
     end
 
-    % for l = {'lo', 'l', 'o'}; land = l{1};
-    for l = {'lo'}; land = l{1};
+    for l = par.land_list; land = l{1};
         if strcmp(land, 'lo'); land_text = 'L+O';
         elseif strcmp(land, 'l'); land_text = 'L';
         elseif strcmp(land, 'o'); land_text = 'O';

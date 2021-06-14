@@ -14,8 +14,8 @@ function plot_dr1(r1_var, r1_ann_var, dr1_var, comp1, comp2, leg, ymin, ymax, ty
 
     var_text = '$\Delta R_1$';
     figure(); clf; hold all; box on;
-    
-    if ~strcmp(type, 'hahn')
+
+    if ~strcmp(type, 'hahn') & ~(strcmp(type, 'echam') & ~isfield(par, 'lat_center'))
         colororder({'k', 'k'});
         
         yyaxis left
@@ -80,10 +80,18 @@ function plot_dr1(r1_var, r1_ann_var, dr1_var, comp1, comp2, leg, ymin, ymax, ty
             patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
         end
 
+        % line([1 12], r1_ann_var*[1 1], 'linewidth', 0.5, 'color', 'k');
+        if strcmp(type, 'hahn')
+            plot([1:12], circshift(r1_ann_var,par.shiftby,2), 'k', 'linewidth', 0.5);
+        end
         tot=plot([1:12], circshift(r1_var,par.shiftby,2), 'k');
         disp(sprintf('Annual mean R_1 is %g', nanmean(r1_var)))
         ylabel(sprintf('$R_1$ (unitless)'));
-        set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [0.7 1.7], 'yminortick', 'on', 'tickdir', 'out');
+        if strcmp(type, 'hahn')
+            set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [0.7 1.7], 'yminortick', 'on', 'tickdir', 'out');
+        else
+            set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'ylim', [0.5 1.3], 'yminortick', 'on', 'tickdir', 'out');
+        end
     
     end
 
@@ -95,11 +103,11 @@ function plot_dr1(r1_var, r1_ann_var, dr1_var, comp1, comp2, leg, ymin, ymax, ty
         end
     end
     
-    if ~strcmp(type, 'hahn')
+    if ~strcmp(type, 'hahn') & ~(strcmp(type, 'echam') & ~isfield(par, 'lat_center'))
         if leg == ""
             if ~strcmp(fw, 'mse_old')
                 ylabel(sprintf('$\\Delta R_1$ (unitless)'));
-                legend([tot res c1 c2], '$\Delta R_1$', 'Residual', '$\frac{\Delta (\partial_t h + \nabla\cdot F_m)}{\overline{R_a}}$', '$-\frac{\overline{\partial_t h + \nabla\cdot F_m}}{\overline{R_a^2}}\Delta R_a$', 'location', 'eastoutside', 'orientation', 'vertical');
+                legend([tot res c1 c2], '$\Delta R_1$', 'Residual', '$\frac{\Delta (\partial_t m + \nabla\cdot F_m)}{\overline{R_a}}$', '$-\frac{\overline{\partial_t m + \nabla\cdot F_m}}{\overline{R_a^2}}\Delta R_a$', 'location', 'eastoutside', 'orientation', 'vertical');
             else
                 ylabel(sprintf('$\\Delta R_1^*$ (unitless)'));
                 legend([tot res c1 c2], '$\Delta R_1^*$', 'Residual', '$\frac{\Delta (\nabla\cdot F_m)}{\overline{R_a}}$', '$-\frac{\overline{\nabla\cdot F_m}}{\overline{R_a^2}}\Delta R_a$', 'location', 'eastoutside', 'orientation', 'vertical');
@@ -114,12 +122,12 @@ function plot_dr1(r1_var, r1_ann_var, dr1_var, comp1, comp2, leg, ymin, ymax, ty
             if strcmp(type, 'hahn')
                 axis off;
                 axis([100 101 100 101])
-                legend([tot c1 c2 res], '$\Delta R_1$', '$\overline{R_1}\frac{\Delta (\partial_t h + \nabla\cdot F_m)}{\overline{\partial_t h + \nabla\cdot F_m}}$', '$-\overline{R_1}\frac{\Delta R_a}{\overline{R_a}}$', 'Residual', 'location', 'northwest', 'numcolumns', 4, 'orientation', 'horizontal');
+                legend([tot c1 c2 res], '$\Delta R_1$', '$\overline{R_1}\frac{\Delta (\partial_t m + \nabla\cdot F_m)}{\overline{\partial_t m + \nabla\cdot F_m}}$', '$-\overline{R_1}\frac{\Delta R_a}{\overline{R_a}}$', 'Residual', 'location', 'northwest', 'numcolumns', 4, 'orientation', 'horizontal');
                 set(gcf, 'paperunits', 'inches', 'paperposition', [0 0 6.4 0.55])
             else
                 axis off;
                 axis([100 101 100 101])
-                legend([tot res c1 c2], '$\Delta R_1$', 'Residual', '$\overline{R_1}\frac{\Delta (\partial_t h + \nabla\cdot F_m)}{\overline{\partial_t h + \nabla\cdot F_m}}$', '$-\overline{R_1}\frac{\Delta R_a}{\overline{R_a}}$', 'location', 'northwest', 'numcolumns', 2, 'orientation', 'horizontal');
+                legend([tot res c1 c2], '$\Delta R_1$', 'Residual', '$\overline{R_1}\frac{\Delta (\partial_t m + \nabla\cdot F_m)}{\overline{\partial_t m + \nabla\cdot F_m}}$', '$-\overline{R_1}\frac{\Delta R_a}{\overline{R_a}}$', 'location', 'northwest', 'numcolumns', 2, 'orientation', 'horizontal');
                 set(gcf, 'paperunits', 'inches', 'paperposition', [0 0 3.6 0.72])
             end
         end
@@ -129,6 +137,9 @@ function plot_dr1(r1_var, r1_ann_var, dr1_var, comp1, comp2, leg, ymin, ymax, ty
     end
 
     print(plotname, '-dpng', '-r300');
+    if par.make_tikz & strcmp(leg, "_noleg")
+        matlab2tikz(sprintf('%s.tex', plotname));
+    end
     close;
 
 end

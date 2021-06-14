@@ -207,7 +207,8 @@ function plot_flux(type, par)
                 figure(); clf; hold all; box on;
                 cmp = colCog(20);
                 colormap(flipud(cmp));
-                contourf(mesh_lat, mesh_mon, flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [-16 -8 -4 -2:0.1:2 4 8 16], 'linecolor', 'w', 'linewidth', 0.1);
+                r1z = flux_z.(land).res.(fw)./flux_z.(land).ra.(fw);
+                contourf(mesh_lat, mesh_mon, r1z, [-16 -8 -4 -2:0.1:2 4 8 16], 'linecolor', 'w', 'linewidth', 0.1);
                 contour(mesh_lat, mesh_mon,  flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [0 0], 'color', 0.75*[1 1 1]);
                 [C, h] = contour(mesh_lat, mesh_mon, flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [-16 -8 -4 -2:0.2:2 4 8 16], 'linecolor', 'w', 'linewidth', 0.1);
                 contour(mesh_lat, mesh_mon,  flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [-16 -8 -4 -2:0.1:2 4 8 16], 'color', 'w', 'linewidth', 0.1);
@@ -224,6 +225,11 @@ function plot_flux(type, par)
                 set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
                 set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
                 print(sprintf('%s/flux/%s/%s/0_r1z_mon_lat', plotdir, fw, land), '-dpng', '-r300');
+                data = [mesh_lat(:) mesh_mon(:) r1z(:) ];
+                save(sprintf('%s/flux/%s/%s/0_r1z_mon_lat.dat', plotdir, fw, land), 'data', '-ASCII')
+                % if par.make_tikz
+                %     matlab2tikz(sprintf('%s/flux/%s/%s/0_r1z_mon_lat.tex', plotdir, fw, land));
+                % end
                 close;
 
                 % R1z lat x mon dependence of RCE and RAE

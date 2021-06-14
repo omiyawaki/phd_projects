@@ -30,6 +30,6 @@ else
     full_hus=${cwd}/hus/${rea}_hus_${yr_begin}_${yr_end}.nc
     full_tend=${cwd}/tendmon/${rea}_tendmon_${yr_begin}_${yr_end}.nc
 
-    srun --partition=tas1 --mem=100G --time=6:00:00 --exclusive --pty python ${cwd}/make_tend_mon.py ${full_ps} ${full_ta} ${full_zg} ${full_hus} ${full_tend} ${full_tas} ${full_orog} ${full_huss}
+    srun --partition=tas1 --time=6:00:00 --exclusive --pty python ${cwd}/make_tend_mon.py ${full_ps} ${full_ta} ${full_zg} ${full_hus} ${full_tend} ${full_tas} ${full_orog} ${full_huss}
     # python ${cwd}/make_tend_mon.py ${full_ps} ${full_ta} ${full_zg} ${full_hus} ${full_tend} ${full_tas} ${full_orog} ${full_huss}
 fi

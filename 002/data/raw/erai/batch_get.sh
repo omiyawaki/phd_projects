@@ -4,7 +4,8 @@ module unload python
 module load python
 
 # declare -a vtypes=("rad" "hydro" "stf" "temp" "temp_ml" "srfc" "zg" "w500" "tend" "div" "vas" "albedo") # variable type
-declare -a vtypes=("hus") # variable type
+declare -a vtypes=("rad" "hydro" "stf" "temp" "temp_ml" "srfc" "zg") # variable type
+#declare -a vtypes=("hus") # variable type
 yr_start=1979
 mon_start=1
 day_start=1

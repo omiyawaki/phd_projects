@@ -25,8 +25,7 @@ function plot_dr1_midlatitude_line(type, par)
             load(sprintf('%s/dr2_midlatitude_lat_%g_to_%g.mat', prefix_proc, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound));
         end
         
-        % for l = {'lo', 'l', 'o'}; land = l{1};
-        for l = {'lo'}; land = l{1};
+        for l = par.land_list; land = l{1};
             if strcmp(land, 'lo'); land_text = 'L+O';
             elseif strcmp(land, 'l'); land_text = 'L';
             elseif strcmp(land, 'o'); land_text = 'O';
@@ -82,10 +81,10 @@ function plot_dr1_midlatitude_line(type, par)
 
                     plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '', ymin, ymax, type, fw, par);
                     plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '_noleg', ymin, ymax, type, fw, par);
-                    % plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '_legonly', ymin, ymax, type, fw, par);
+                    plot_dr1(dr1.r1z_lat.(land).(fw), dr1.r1z_ann_lat.(land).(fw), dr1.dr1z_lat.(land).(fw), dr1.comp1s_lat.(land).(fw), dr1.comp2s_lat.(land).(fw), '_legonly', ymin, ymax, type, fw, par);
 
-                    plot_dr2(dr2.r2z_lat.(land).(fw), dr2.r2z_ann_lat.(land).(fw), dr2.dr2z_lat.(land).(fw), dr2.comp1_lat.(land).(fw), dr2.comp2_lat.(land).(fw), '', ymin-1, ymax-1, type, fw, par);
-                    plot_dr2(dr2.r2z_lat.(land).(fw), dr2.r2z_ann_lat.(land).(fw), dr2.dr2z_lat.(land).(fw), dr2.comp1_lat.(land).(fw), dr2.comp2_lat.(land).(fw), '_noleg', ymin-1, ymax-1, type, fw, par);
+                    % plot_dr2(dr2.r2z_lat.(land).(fw), dr2.r2z_ann_lat.(land).(fw), dr2.dr2z_lat.(land).(fw), dr2.comp1_lat.(land).(fw), dr2.comp2_lat.(land).(fw), '', ymin-1, ymax-1, type, fw, par);
+                    % plot_dr2(dr2.r2z_lat.(land).(fw), dr2.r2z_ann_lat.(land).(fw), dr2.dr2z_lat.(land).(fw), dr2.comp1_lat.(land).(fw), dr2.comp2_lat.(land).(fw), '_noleg', ymin-1, ymax-1, type, fw, par);
                     % plot_dr2(dr2.r2z_lat.(land).(fw), dr2.r2z_ann_lat.(land).(fw), dr2.dr2z_lat.(land).(fw), dr2.comp1_lat.(land).(fw), dr2.comp2_lat.(land).(fw), '_legonly', ymin-1, ymax-1, type, fw, par);
                 end
 

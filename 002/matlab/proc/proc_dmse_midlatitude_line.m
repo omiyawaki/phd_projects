@@ -24,8 +24,7 @@ function proc_dmse_midlatitude_line(type, par)
 
         savename = sprintf('%s/dmse_midlatitude_lat_%g_to_%g', prefix_proc, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound);
                 
-        % for l = {'lo', 'l', 'o'}; land = l{1};
-        for l = {'lo'}; land = l{1};
+        for l = par.land_list; land = l{1};
             if strcmp(land, 'lo'); land_text = 'L+O';
             elseif strcmp(land, 'l'); land_text = 'L';
             elseif strcmp(land, 'o'); land_text = 'O';

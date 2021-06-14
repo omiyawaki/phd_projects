@@ -33,8 +33,7 @@ function plot_dmse_midlatitude_line(type, par)
         end
         clear tmp;
 
-        % for l = {'lo', 'l', 'o'}; land = l{1};
-        for l = {'lo'}; land = l{1};
+        for l = par.land_list; land = l{1};
             if strcmp(land, 'lo'); land_text = 'L+O';
             elseif strcmp(land, 'l'); land_text = 'L';
             elseif strcmp(land, 'o'); land_text = 'O';
@@ -54,7 +53,7 @@ function plot_dmse_midlatitude_line(type, par)
                 par.folder = sprintf('%s/dmse/%s/%s/0_midlatitude_lat_%g_to_%g', plotdir, fw, land, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound);
                 if ~exist(par.folder, 'dir'); mkdir(par.folder); end;
 
-                ymin = -150;
+                ymin = -160;
                 if strcmp(type, 'erai') & strcmp(fw, 'ceresrad')
                     ymax = 120;
                 else
@@ -80,7 +79,7 @@ function plot_dmse_midlatitude_line(type, par)
                         plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.stf_lat.(land).(fw), dmse.stf_lat.(land).(fw), "", ymin, ymax, type, fw, par);
                         plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.stf_lat.(land).(fw), dmse.stf_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par);
                     else
-                        plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), dmse.tend_lat.(land).(fw), "", ymin, ymax, type, fw, par);
+                        % plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), dmse.tend_lat.(land).(fw), "", ymin, ymax, type, fw, par);
                         plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), dmse.tend_lat.(land).(fw), "_noleg", ymin, ymax, type, fw, par);
                         plot_dmse(dmse.ra_lat.(land).(fw), dmse.res_lat.(land).(fw), dmse.lh_lat.(land).(fw), dmse.sh_lat.(land).(fw), dmse.tend_lat.(land).(fw), "_legonly", ymin, ymax, type, fw, par);
                     end

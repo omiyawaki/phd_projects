@@ -5,6 +5,7 @@ addpath(genpath('/project2/tas1/miyawaki/matlab'));
 addpath(genpath('./matlab'));
 
 mmm_info
+raw_varnames
 
 %% set parameters
 if 1
@@ -33,20 +34,22 @@ par.si_up_list = [0.3]; % sigma level for upper boundary of vertical average for
 % par.si_up_list = [0.1]; % sigma level for upper boundary of vertical average for close to moist adiabatic
 par.z = [0:500:40e3]';
 par.land_list = {'lo'};
+par.frz = 0;
 par.rea.fw = {'mse', 'mse_old'};
 par.gcm.fw = {'mse', 'mse_old'};
 par.cpd = 1005.7; par.cpv = 1870; par.cpl = 4186; par.cpi = 2108; par.Rd = 287; par.Rv = 461; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3; par.eps = 0.622; % common constants, all in SI units for brevity
 end
 
-% type = 'gcm';
-% par.model_list = par.gcm_models;
-% par.clim = par.gcm.clim;
+type = 'gcm';
+par.model_list = par.gcm_models;
+par.clim = par.gcm.clim;
 
-type = 'rea';
-par.model_list = {'era5c', 'jra55', 'merra2c'};
-par.clim = '1980_2005';
+% type = 'rea';
+% par.model_list = {'era5c', 'jra55', 'merra2c'};
+% par.clim = '1980_2005';
 
 make_grid(type, par);
+% choose_mmm_raw_2d(type, par);
 % choose_mmm_lat_mon_lev(type, par); % make mmm of mon x lat x lev data
 % choose_mmm_lat_mon(type, par); % make mmm of mon x lat data
 % choose_mmm_lon_lat(type, par); % make mmm of lon x lat data
@@ -55,6 +58,7 @@ make_grid(type, par);
 for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
     for i=1:length(par.si_up_list); par.si_up = par.si_up_list(i);
         choose_mmm_lat_mon_bl(type, par);
+        choose_mmm_lat_bl(type, par);
     end
 end
 
@@ -78,14 +82,24 @@ function make_grid(type, par)
 end
 
 %% Choose functions to run
+
+function choose_mmm_raw_2d(type, par)
+    % mmm_srfc(type, par);
+    mmm_sfcWind(type, par);
+    % mmm_e(type, par);
+end
+
 function choose_mmm_lat_mon_lev(type, par)
     % mmm_ta_mon_lat(type, par);
     % mmm_tai_mon_lat(type, par);
     % mmm_ta_pl_mon_lat(type, par);
     % mmm_ma_mon_lat(type, par);
-    mmm_ga_diff_mon_lat(type, par);
-    mmm_ga_frac_mon_lat(type, par);
-    mmm_gad_frac_mon_lat(type, par);
+    % mmm_ga_diff_mon_lat(type, par);
+    % mmm_ga_frac_mon_lat(type, par);
+    % mmm_gad_frac_mon_lat(type, par);
+
+    mmm_ga_frac_midlatitude(type, par);
+    mmm_ga_frac_polar(type, par);
 end
 
 function choose_mmm_lat_mon(type, par)
@@ -94,12 +108,12 @@ function choose_mmm_lat_mon(type, par)
 end
 
 function choose_mmm_lat_mon_bl(type, par)
-    % mmm_ga_dalr_bl_diff_si_mon_lat(type, par);
+    mmm_ga_dalr_bl_diff_si_mon_lat(type, par);
     % mmm_ga_malr_bl_diff_si_mon_lat(type, par);
     % mmm_ga_malr_diff_si_mon_lat(type, par);
 
     % mmm_ga_malr_diff_midlatitude_line(type, par);
-    mmm_ga_malr_bl_diff_polar_line(type, par);
+    % mmm_ga_malr_bl_diff_polar_line(type, par);
 end
 
 function choose_mmm_lon_lat(type, par)
@@ -107,8 +121,14 @@ function choose_mmm_lon_lat(type, par)
 end
 
 function choose_mmm_lat(type, par)
-    mmm_flux_zt(type, par);
-    mmm_vh(type, par);
+    % mmm_flux_zt(type, par);
+    % mmm_vh(type, par);
+end
+
+function choose_mmm_lat_bl(type, par)
+    mmm_ga_dalr_bl_diff_si_lat(type, par);
+    % mmm_ga_malr_bl_diff_si_lat(type, par);
+    % mmm_ga_malr_diff_si_lat(type, par);
 end
 
 function choose_mmm_mon(type, par)

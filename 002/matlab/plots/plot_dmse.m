@@ -21,8 +21,25 @@ function plot_dmse(ra_lat, res_lat, lh_lat, sh_lat, tend_lat, leg, ymin, ymax, t
         disp(sprintf('Annual mean dhdt+divFm from %g to %g is %g Wm^-2', par.lat_bound, par.lat_pole, nanmean(res_lat)))
     end
 
-    figure(); clf; hold all; box on;
+    if strcmp(fw, 'mse_old')
+        figure(); clf; hold all; box on;
+        line([1 12], [0 0], 'color', 'k', 'linewidth', 0.5);
+        line([1 12], nanmean(res_lat)*[1 1], 'color', par.maroon, 'linewidth', 0.5);
+        res=plot([1:12], circshift(res_lat,par.shiftby,2), 'color', par.maroon);
+        ylabel(sprintf('$\\partial_t m + \\nabla\\cdot F_m$ (Wm$^{-2}$)'));
+        if ~strcmp(leg, "_legonly")
+            if isfield(par, 'lat_center')
+                make_title_type_lat(type, par.lat_center-par.lat_bound, par.lat_center+par.lat_bound, par);
+            else
+                make_title_type_lat(type, par.lat_bound, par.lat_pole, par);
+            end
+        end
+        set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+        set(gca, 'ylim', [-80 20], 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'yminortick', 'on', 'tickdir', 'out');
+        print(sprintf('%s/0_mon_dyn_%s', par.folder, leg), '-dpng', '-r300');
+    end
 
+    figure(); clf; hold all; box on;
     line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
     ra=plot([1:12],  circshift(ra_lat, par.shiftby, 2), 'color', 0.5*[1 1 1]);
     tend=plot([1:12],  circshift(tend_lat, par.shiftby, 2), 'color', 'k');
@@ -72,12 +89,12 @@ function plot_dmse(ra_lat, res_lat, lh_lat, sh_lat, tend_lat, leg, ymin, ymax, t
     
     if leg == ""
         if strcmp(fw, 'ceresrad')
-            legend([ra res stf], '$R_a$', '$\partial_t h + \nabla\cdot F_m$', '$\mathrm{LH+SH}$', 'location', 'eastoutside', 'orientation', 'vertical');
+            legend([ra res stf], '$R_a$', '$\partial_t m + \nabla\cdot F_m$', '$\mathrm{LH+SH}$', 'location', 'eastoutside', 'orientation', 'vertical');
         else
             if strcmp(fw, 'mse')
-                legend([tend, ra, res, lhf, shf], '$\partial_t h$', '$R_a$', '$\nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', 'location', 'eastoutside', 'orientation', 'vertical');
+                legend([tend, ra, res, lhf, shf], '$\partial_t m$', '$R_a$', '$\nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', 'location', 'eastoutside', 'orientation', 'vertical');
             else
-                legend([ra res lhf, shf], '$R_a$', '$\partial_t h + \nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', 'location', 'eastoutside', 'orientation', 'vertical');
+                legend([ra res lhf, shf], '$R_a$', '$\partial_t m + \nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', 'location', 'eastoutside', 'orientation', 'vertical');
             end
         end
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide)
@@ -85,25 +102,29 @@ function plot_dmse(ra_lat, res_lat, lh_lat, sh_lat, tend_lat, leg, ymin, ymax, t
         set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     end
 
-    if strcmp(type, 'echam')
-        set(gca, 'ylim', [-inf inf], 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'yminortick', 'on', 'tickdir', 'out');
-    else
+    % if strcmp(type, 'echam')
+    %     set(gca, 'ylim', [-inf inf], 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'yminortick', 'on', 'tickdir', 'out');
+    % else
         set(gca, 'ylim', [ymin ymax], 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabel, 'yminortick', 'on', 'tickdir', 'out');
-    end
+    % end
 
     if strcmp(leg, "_legonly")
         axis off;
         axis([10,11,10,11])
         if strcmp(fw, 'mse')
-            legend([ra, res, lhf, shf, tend], '$R_a$', '$\nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', '$\partial_t h$', 'location', 'northwest', 'numcolumns', 3, 'orientation', 'vertical');
+            legend([ra, res, lhf, shf, tend], '$R_a$', '$\nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', '$\partial_t m$', 'location', 'northwest', 'numcolumns', 3, 'orientation', 'vertical');
             set(gcf, 'paperunits', 'inches', 'paperposition', [0 0 3.5 0.65])
         else
-            legend([ra res lhf, shf], '$R_a$', '$\partial_t h + \nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', 'location', 'northwest', 'numcolumns', 2, 'orientation', 'vertical');
+            legend([ra res lhf, shf], '$R_a$', '$\partial_t m + \nabla\cdot F_m$', '$\mathrm{LH}$', '$\mathrm{SH}$', 'location', 'northwest', 'numcolumns', 2, 'orientation', 'vertical');
             set(gcf, 'paperunits', 'inches', 'paperposition', [0 0 2.9 0.65])
         end
     end
 
     print(plotname, '-dpng', '-r300');
+
+    if par.make_tikz & strcmp(leg, "_noleg")
+        matlab2tikz(sprintf('%s.tex', plotname));
+    end
     close;
 
 end

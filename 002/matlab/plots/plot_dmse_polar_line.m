@@ -31,8 +31,7 @@ function plot_dmse_polar_line(type, par)
         end
         clear tmp;
         
-        % for l = {'lo', 'l', 'o'}; land = l{1};
-        for l = {'lo'}; land = l{1};
+        for l = par.land_list; land = l{1};
             if strcmp(land, 'lo'); land_text = 'L+O';
             elseif strcmp(land, 'l'); land_text = 'L';
             elseif strcmp(land, 'o'); land_text = 'O';
@@ -52,11 +51,11 @@ function plot_dmse_polar_line(type, par)
                 par.folder = sprintf('%s/dmse/%s/%s/0_poleward_of_lat_%g', plotdir, fw, land, par.lat_bound);
                 if ~exist(par.folder, 'dir'); mkdir(par.folder); end;
 
-                ymin = -170;
+                ymin = -180;
                 if strcmp(type, 'erai') & strcmp(fw, 'ceresrad')
                     ymax = 50;
                 else
-                    ymax = 30;
+                    ymax = 50;
                 end
 
                 if strcmp(type, 'rea') 

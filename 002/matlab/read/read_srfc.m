@@ -7,7 +7,7 @@ function read_srfc(type, ymonmean, par)
         ymm_in = '';
         ymm_out = '_mon';
     end
-    
+
     if strcmp(type, 'era5') | strcmp(type, 'erai') | strcmp(type, 'era5c')
         srfc_vars=par.era.vars.srfc;
         for i=1:length(srfc_vars); var = srfc_vars{i};
@@ -94,6 +94,10 @@ function read_srfc(type, ymonmean, par)
                 fullpath=sprintf('%s/%s', file.folder, file.name);
                 srfc.(var) = double(squeeze(ncread(fullpath, 'PRES_GDS0_SFC_S123')));
             elseif strcmp(var, 'tas')
+                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_tmp_%s%s.nc', type, type, par.(type).yr_span, ymm_in));
+                fullpath=sprintf('%s/%s', file.folder, file.name);
+                srfc.(var) = double(squeeze(ncread(fullpath, 'TMP_GDS0_HTGL_S123')));
+            elseif strcmp(var, 'ts')
                 file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/srfc/%s_tmp_%s%s.nc', type, type, par.(type).yr_span, ymm_in));
                 fullpath=sprintf('%s/%s', file.folder, file.name);
                 srfc.(var) = double(squeeze(ncread(fullpath, 'TMP_GDS0_HTGL_S123')));
@@ -208,6 +212,28 @@ function read_srfc(type, ymonmean, par)
                         end
                     end
                 end
+            elseif strcmp(var, 'huss')
+                prefix=sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s', type, par.(type).clim);
+                load(sprintf('%s/grid.mat', prefix)); % read grid data
+                file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/hahn/lapserateclima/%s.%s.nc', fprefix, 'Q'));
+                fullpath=sprintf('%s/%s', file.folder, file.name);
+                hus=double(ncread(fullpath, 'varmo'));
+                % if ~isequal(grid.dim2.lon, grid.dim3.lon); hus=interp1(grid.dim3.lon, hus, grid.dim2.lon); end; % interpolate to 2D lon if different from 3D
+                % hus=permute(hus, [2 1 3 4]); % bring lat to first dim
+                % if ~isequal(grid.dim2.lat, grid.dim3.lat); hus=interp1(grid.dim3.lat, hus, grid.dim2.lat); end;
+                hus=permute(hus, [3 1 2 4]); % bring plev to first dim
+                pb=CmdLineProgressBar("Calculating huss..."); % track progress of this loop
+                for id_lon=1:length(grid.dim2.lon)
+                    pb.print(id_lon, length(grid.dim2.lon));
+                    for id_lat=1:length(grid.dim2.lat)
+                        for id_time=1:size(srfc.PS, 3)
+                            srfc.huss(id_lon, id_lat, id_time)=interp1(grid.dim3.plev, hus(:,id_lon,id_lat,id_time), srfc.PS(id_lon, id_lat, id_time), 'linear', 'extrap');
+                        end
+                    end
+                end
+                srfc.huss = permute(srfc.huss, [2 1 3]);
+                srfc.huss = interp1(grid.dim2.lat, srfc.huss, grid.dim3.lat);
+                srfc.huss = permute(srfc.huss, [2 1 3]);
             else
                 fprefix = make_hahn_fprefix(par);
                 file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/hahn/lapserateclima/%s.%s.nc', fprefix, var));

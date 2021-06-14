@@ -17,7 +17,7 @@ function [lat, clat, clat_mon, par] = make_polar_lat(par, pole_lat)
             lat = par.lat_bound:-dlat:par.lat_pole;
             par.shiftby=6;
             if isfield(par, 'monlabelsh')
-                par.monlabel=par.monlabelnh;
+                par.monlabel=par.monlabelsh;
             end
         end
         clat = cosd(lat); % cosine of latitude for cosine weighting

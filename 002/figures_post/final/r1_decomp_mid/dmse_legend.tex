@@ -1,0 +1,30 @@
+\definecolor{maroon}{rgb}{0.63500,0.07800,0.18400}%
+\definecolor{ml_blue}{rgb}{0.00000,0.44700,0.74100}%
+\definecolor{ml_orange}{rgb}{0.85000,0.32500,0.09800}%
+
+\begin{tikzpicture}
+    \begin{axis}[
+        hide axis,
+        xmin=10,
+        xmax=50,
+        ymin=0,
+        ymax=0.4,
+        legend style={
+            % minimum height=0.65cm,
+            legend cell align=left,
+            /tikz/every even column/.append style={column sep=0.5cm}
+        },
+        legend columns=3,
+    ]
+    \addlegendimage{gray, thick}
+    \addlegendentry{$R_a$};
+    \addlegendimage{ml_blue, thick}
+    \addlegendentry{$\mathrm{LH}$};
+    \addlegendimage{black, thick}
+    \addlegendentry{$\partial_t m$};
+    \addlegendimage{maroon, thick}
+    \addlegendentry{$\partial_y (vm)$};
+    \addlegendimage{ml_orange, thick}
+    \addlegendentry{$\mathrm{SH}$};
+    \end{axis}
+\end{tikzpicture}

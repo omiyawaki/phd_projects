@@ -1,53 +1,143 @@
 \documentclass[preview]{standalone}
 
-\usepackage[font=normalsize]{caption}
+\usepackage[font=small]{caption}
 \usepackage[labelformat=empty, position=top]{subcaption}
 \usepackage{graphicx}
 \graphicspath{{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/}}
 \usepackage[export]{adjustbox}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage{amsmath,amsfonts,amssymb,bm}
+\usepackage{mathptmx}%{times}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+\usepackage{scalefnt}
 
 \begin{document}
 
 \begin{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TEX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
   \begin{subfigure}[t]{0.05\textwidth}
+    \vskip 0pt
     \textbf{\normalsize{(a)}}
   \end{subfigure}
-  \begin{subfigure}[t]{0.45\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{dr1/mse_old/lo/0_poleward_of_lat_80/0_mon_dr1z_decomp_noleg_range.png}
+  \hspace{0.02\textwidth}
+  \begin{subfigure}[t]{0.36\textwidth}
+    \vskip 0pt
+    \resizebox{\textwidth}{!}{
+      {\scalefont{1.25}
+        \input{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dr1/mse_old/lo/0_poleward_of_lat_80/0_mon_dr1z_decomp_noleg_range.tuned.tex}
+      }
+    }
   \end{subfigure}
+  \hspace{0.07\textwidth}
   \begin{subfigure}[t]{0.05\textwidth}
+    \vskip 0pt
     \textbf{\normalsize{(b)}}
   \end{subfigure}
-  \begin{subfigure}[t]{0.45\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{dmse/mse/lo/0_poleward_of_lat_80/0_mon_mse_noleg_range.png}
+  \hspace{0.03\textwidth}
+  \begin{subfigure}[t]{0.36\textwidth}
+    \vskip 0pt
+    \resizebox{\textwidth}{!}{
+      {\scalefont{1.25}
+        \input{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dmse/mse/lo/0_poleward_of_lat_80/0_mon_mse_noleg_range.tuned.tex}
+      }
+    }
   \end{subfigure}
 
   \begin{subfigure}[t]{0.05\textwidth}
+    \vskip 0pt
     \textbf{\normalsize{(c)}}
   \end{subfigure}
-  \begin{subfigure}[t]{0.45\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{dr1/mse_old/lo/0_poleward_of_lat_-80/0_mon_dr1z_decomp_noleg_range.png}
+  \hspace{0.02\textwidth}
+  \begin{subfigure}[t]{0.36\textwidth}
+    \vskip 0pt
+    \resizebox{\textwidth}{!}{
+      {\scalefont{1.25}
+        \input{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dr1/mse_old/lo/0_poleward_of_lat_-80/0_mon_dr1z_decomp_noleg_range.tuned.tex}
+      }
+    }
   \end{subfigure}
+  \hspace{0.07\textwidth}
   \begin{subfigure}[t]{0.05\textwidth}
+    \vskip 0pt
     \textbf{\normalsize{(d)}}
   \end{subfigure}
-  \begin{subfigure}[t]{0.45\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{dmse/mse/lo/0_poleward_of_lat_-80/0_mon_mse_noleg_range.png}
+  \hspace{0.03\textwidth}
+  \begin{subfigure}[t]{0.36\textwidth}
+    \vskip 0pt
+    \resizebox{\textwidth}{!}{
+      {\scalefont{1.25}
+        \input{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dmse/mse/lo/0_poleward_of_lat_-80/0_mon_mse_noleg_range.tuned.tex}
+      }
+    }
   \end{subfigure}
 
-  \begin{subfigure}[t]{0.05\textwidth}
-    \phantom{\textbf{\normalsize{(d)}}}
-  \end{subfigure}
-  \begin{subfigure}[t]{0.45\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1980_2005/native/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr1z_decomp_legonly.png}
-  \end{subfigure}
-  \begin{subfigure}[t]{0.05\textwidth}
+  \begin{subfigure}[t]{0.085\textwidth}
     \hfill
   \end{subfigure}
-  \begin{subfigure}[t]{0.42\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{legends/0_mon_mse_legonly.png}
+  \begin{subfigure}[t]{0.35\textwidth}
+    \vskip 0pt
+    \resizebox{\textwidth}{!}{
+      \input{../r1_decomp_mid/dr1_legend.tex}
+    }
   \end{subfigure}
+  \begin{subfigure}[t]{0.175\textwidth}
+    \hfill
+  \end{subfigure}
+  \begin{subfigure}[t]{0.35\textwidth}
+    \vskip 5pt
+    \resizebox{\textwidth}{!}{
+      \input{../r1_decomp_mid/dmse_legend.tex}
+    }
+  \end{subfigure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PNG
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  % \begin{subfigure}[t]{0.05\textwidth}
+  %   \textbf{\small{(a)}}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.45\textwidth}
+  %   \includegraphics[width=\textwidth, valign=t]{dr1/mse_old/lo/0_poleward_of_lat_80/0_mon_dr1z_decomp_noleg_range.png}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.05\textwidth}
+  %   \textbf{\small{(b)}}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.45\textwidth}
+  %   \includegraphics[width=\textwidth, valign=t]{dmse/mse/lo/0_poleward_of_lat_80/0_mon_mse_noleg_range.png}
+  % \end{subfigure}
+
+  % \begin{subfigure}[t]{0.05\textwidth}
+  %   \textbf{\small{(c)}}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.45\textwidth}
+  %   \includegraphics[width=\textwidth, valign=t]{dr1/mse_old/lo/0_poleward_of_lat_-80/0_mon_dr1z_decomp_noleg_range.png}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.05\textwidth}
+  %   \textbf{\small{(d)}}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.45\textwidth}
+  %   \includegraphics[width=\textwidth, valign=t]{dmse/mse/lo/0_poleward_of_lat_-80/0_mon_mse_noleg_range.png}
+  % \end{subfigure}
+
+  % \begin{subfigure}[t]{0.05\textwidth}
+  %   \phantom{\textbf{\small{(d)}}}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.45\textwidth}
+  %   \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1980_2005/native/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr1z_decomp_legonly.png}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.05\textwidth}
+  %   \hfill
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.42\textwidth}
+  %   \includegraphics[width=\textwidth, valign=t]{legends/0_mon_mse_legonly.png}
+  % \end{subfigure}
 
 \end{figure}
 

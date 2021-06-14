@@ -5,43 +5,84 @@
 \usepackage{graphicx}
 \graphicspath{{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/ga_malr_diff/}}
 \usepackage[export]{adjustbox}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage{amsmath,amsfonts,amssymb,bm}
+\usepackage{mathptmx}%{times}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+\usepackage{tikz}
+\usepackage{tikzscale}
+\usepackage{scalefnt}
 
 \begin{document}
 
 \begin{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TEX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
   \begin{subfigure}[t]{0.05\textwidth}
+    \vskip 0pt
     \textbf{\normalsize{(a)}}
   \end{subfigure}
-  \begin{subfigure}[t]{0.44\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{{si_bl_0.8/mse_old/lo/r1_gablft_mon_0.3_sh_mid}.png}
+  \hspace{-0.06\textwidth}
+  \begin{subfigure}[t]{0.48\textwidth}
+    \vskip 0pt
+    \resizebox{\textwidth}{!}{
+      {\scalefont{1.25}
+        \input{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/ga_malr_diff/si_bl_0.7/mse_old/lo/r1_gablft_mon_0.3_nh_mid.tuned.tex}
+      }
+    }
   \end{subfigure}
   \begin{subfigure}[t]{0.05\textwidth}
+    \vskip 0pt
     \textbf{\normalsize{(b)}}
   \end{subfigure}
-  \begin{subfigure}[t]{0.44\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{{si_bl_0.8/mse_old/lo/r1_gablft_mon_0.3_nh_mid}.png}
+  \hspace{-0.06\textwidth}
+  \begin{subfigure}[t]{0.48\textwidth}
+    \vskip 0pt
+    \resizebox{\textwidth}{!}{
+      {\scalefont{1.25}
+        \input{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/ga_malr_diff/si_bl_0.9/mse_old/lo/r1_gablft_mon_0.3_nh_polar.tuned.tex}
+      }
+    }
   \end{subfigure}
 
-  \begin{subfigure}[t]{0.05\textwidth}
-    \textbf{\normalsize{(c)}}
-  \end{subfigure}
-  \begin{subfigure}[t]{0.44\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{{si_bl_0.9/mse_old/lo/r1_gablft_mon_0.3_sh_polar}.png}
-  \end{subfigure}
-  \begin{subfigure}[t]{0.05\textwidth}
-    \textbf{\normalsize{(d)}}
-  \end{subfigure}
-  \begin{subfigure}[t]{0.44\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{{si_bl_0.9/mse_old/lo/r1_gablft_mon_0.3_nh_polar}.png}
-  \end{subfigure}
-
-  \begin{subfigure}[t]{0.23\textwidth}
+  \begin{subfigure}[t]{0.33\textwidth}
     \hfill 
   \end{subfigure}
-  \begin{subfigure}[t]{0.6\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{si_bl_0.9/mse_old/lo/legend.png}
+  \begin{subfigure}[t]{0.33\textwidth}
+    \vskip 0pt
+    \resizebox{\textwidth}{!}{
+      \input{./r1_ga_temporal_legend.tex}
+    }
   \end{subfigure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PNG
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  % \begin{subfigure}[t]{0.05\textwidth}
+  %   \textbf{\normalsize{(b)}}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.44\textwidth}
+  %   \includegraphics[width=\textwidth, valign=t]{{si_bl_0.7/mse_old/lo/r1_gablft_mon_0.3_nh_mid}.png}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.05\textwidth}
+  %   \textbf{\normalsize{(d)}}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.44\textwidth}
+  %   \includegraphics[width=\textwidth, valign=t]{{si_bl_0.9/mse_old/lo/r1_gablft_mon_0.3_nh_polar}.png}
+  % \end{subfigure}
+
+  % \begin{subfigure}[t]{0.23\textwidth}
+  %   \hfill 
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.6\textwidth}
+  %   \includegraphics[width=\textwidth, valign=t]{si_bl_0.9/mse_old/lo/legend.png}
+  % \end{subfigure}
 
 \end{figure}
 

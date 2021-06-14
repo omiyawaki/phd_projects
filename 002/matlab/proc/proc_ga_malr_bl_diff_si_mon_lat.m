@@ -55,6 +55,7 @@ function proc_ga_malr_bl_diff_si_mon_lat(type, par)
             elseif strcmp(time, 'son')
                 ga_malr_bl_diff_t.(land).(time) = squeeze(nanmean(ga_malr_bl_diff0.(land)(:,:,9:11), 3));
             end
+            ga_malr_bl_diff_zt.(land).(time)= squeeze(nanmean(ga_malr_bl_diff_t.(land).(time), 1)); % zonal average
         end
     end
 
@@ -66,8 +67,9 @@ function proc_ga_malr_bl_diff_si_mon_lat(type, par)
     save(printname, 'ga_malr_bl_diff', 'lat');
 
     printname = [foldername 'ga_malr_bl_diff_si_lon_lat'];
-    if ~exist(foldername, 'dir')
-        mkdir(foldername)
-    end
     save(printname, 'ga_malr_bl_diff_t', 'lat');
+
+    printname = [foldername 'ga_malr_bl_diff_si_lat'];
+    save(printname, 'ga_malr_bl_diff_zt', 'lat');
+
 end % compute mon x lat gamma percentage difference field with land/ocean masking

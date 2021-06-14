@@ -9,7 +9,7 @@ function mmm_flux_t(type, par)
 
     for l = par.land_list; land=l{1};
         for t = {'ann', 'djf', 'mam', 'jja', 'son'}; time = t{1};
-            var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
+            var_vec = {'hfls', 'hfss', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
             for fn = var_vec; fname = fn{1};
                 flux_t_list.(land).(time).(fname) = nan(length(par.model_list), length(par.lon), length(par.lat));
                 flux_t_mmm.(land).(time).(fname) = nan(length(par.lon), length(par.lat));
@@ -46,7 +46,7 @@ function mmm_flux_t(type, par)
             for t = {'ann', 'djf', 'mam', 'jja', 'son'}; time = t{1};
                 f_vec = par.(type).fw;
                 for f = f_vec; fw = f{1};
-                    var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
+                    var_vec = {'hfls', 'hfss', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
                     var_vec_in = make_varvec(type_in, fw);
                     for fn = 1:length(var_vec); fname = var_vec{fn}; fname_in = var_vec_in{fn};
                         if any(strcmp(fname_in, {'sshf', 'slhf'}))
@@ -74,7 +74,7 @@ function mmm_flux_t(type, par)
 
     for l = par.land_list; land=l{1};
         for t = {'ann', 'djf', 'mam', 'jja', 'son'}; time = t{1};
-            var_vec = {'hfls', 'hfss', 'pr', 'evspsbl', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
+            var_vec = {'hfls', 'hfss', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
             for fn = 1:length(var_vec); fname = var_vec{fn};
                 flux_t_mmm.(land).(time).(fname) = squeeze(nanmean(flux_t_list.(land).(time).(fname), 1));
                 if strcmp(type, 'rea')

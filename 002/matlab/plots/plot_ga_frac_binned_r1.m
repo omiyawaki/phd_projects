@@ -40,6 +40,7 @@ function plot_ga_frac_binned_r1(type, par)
 
             [~,idx09]=min(abs(par.r1_bins-0.85));
             [~,idx02]=min(abs(par.r1_bins-0.15));
+            [~,idx01]=min(abs(par.r1_bins-0.05));
             figure(); clf; hold all; box on;
             line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
             line(100*[1 1], [0 1], 'linestyle', '--', 'color', 'k', 'linewidth', 0.5);
@@ -49,7 +50,7 @@ function plot_ga_frac_binned_r1(type, par)
                 disp(sprintf('For R1 = %g, the vertically integrated lapse rate deviation from MALR is %g%%.', 1/2*(par.r1_bins(bin)+par.r1_bins(bin+1)), vavg_dev))
                 r1_list(bin) = 1/2*(par.r1_bins(bin)+par.r1_bins(bin+1));
                 dev_list(bin) = vavg_dev;
-                if bin==idx09 | bin==idx02
+                if bin==idx09 | bin==idx01
                     plot(ga_fr_area(bin,:), grid.dim3.si, 'k', 'color', cmp(bin,:), 'linewidth', 1.5);
                     % compute vertically-averaged deviation from sigma = 0.9 to 0.3
                 else
@@ -61,7 +62,7 @@ function plot_ga_frac_binned_r1(type, par)
             text(105, 0.8, 'Inversion', 'fontsize', 7);
             % text(5+ga_fr_area(1,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(1),par.r1_bins(2)), 'fontsize',6, 'roga_frtion', -55);
             % text(-5+ga_fr_area(end,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(end-1),par.r1_bins(end)), 'fontsize',6, 'roga_frtion', -55);
-            xlabel('$\frac{\Gamma_m - \Gamma}{\Gamma_m}$ (\%)'); ylabel('$\sigma$ (unitless)');
+            xlabel('$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)'); ylabel('$\sigma$ (unitless)');
             axis('tight');
             caxis([min(par.r1_bins) max(par.r1_bins)]);
             c = colorbar('ticks', [min(par.r1_bins):0.2:max(par.r1_bins)], 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
@@ -71,11 +72,15 @@ function plot_ga_frac_binned_r1(type, par)
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
             set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.3 1], 'xminortick', 'on', 'xlim', [-50 150])
             print(sprintf('%s/ga_frac_binned_r1/%s/%s/ga_frac_r1_all.png', plotdir, fw, land), '-dpng', '-r300');
+            if par.make_tikz
+                matlab2tikz(sprintf('%s/ga_frac_binned_r1/%s/%s/ga_frac_r1_all.tex', plotdir, fw, land));
+            end
             close;
 
             [~,idx09]=min(abs(par.r1_bins-0.85));
             [~,idx02]=min(abs(par.r1_bins-0.15));
-            [~,idx0]=min(abs(par.r1_bins-0.05));
+            [~,idx01]=min(abs(par.r1_bins-0.05));
+            [~,idx0]=min(abs(par.r1_bins+0.05));
             figure(); clf; hold all; box on;
             line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
             line(20*[1 1], [0 1], 'linestyle', '--', 'color', 'k', 'linewidth', 0.5);
@@ -98,7 +103,7 @@ function plot_ga_frac_binned_r1(type, par)
             text(105, 0.8, 'Inversion', 'fontsize', 7);
             % text(5+ga_fr_area(1,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(1),par.r1_bins(2)), 'fontsize',6, 'roga_frtion', -55);
             % text(-5+ga_fr_area(end,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(end-1),par.r1_bins(end)), 'fontsize',6, 'roga_frtion', -55);
-            xlabel('$\frac{\Gamma_m - \Gamma}{\Gamma_m}$ (\%)'); ylabel('$\sigma$ (unitless)');
+            xlabel('$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)'); ylabel('$\sigma$ (unitless)');
             axis('tight');
             caxis([min(par.r1_bins) max(par.r1_bins)]);
             c = colorbar('ticks', [min(par.r1_bins):0.2:max(par.r1_bins)], 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
@@ -117,17 +122,18 @@ function plot_ga_frac_binned_r1(type, par)
             end
             plot(r1_list, dev_list, '*k');
             xlabel('$R_1$ (unitless)');
-            ylabel('$\frac{\Gamma_m - \Gamma}{\Gamma_m}$ (\%)');
+            ylabel('$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)');
             print(sprintf('%s/ga_frac_binned_r1/%s/%s/r1_dev.png', plotdir, fw, land), '-dpng', '-r300');
 
             [~,idx09]=min(abs(par.r1_bins-0.85));
             [~,idx02]=min(abs(par.r1_bins-0.15));
+            [~,idx01]=min(abs(par.r1_bins-0.05));
             figure(); clf; hold all; box on;
             line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
             line(100*[1 1], [0 1], 'linestyle', '--', 'color', 'k', 'linewidth', 0.5);
             cmp = flip(parula(length(par.r1_bins)-1));
             for bin = 1:length(par.r1_bins)-1
-                if bin==idx09 | bin==idx02
+                if bin==idx09 | bin==idx01
                     plot(ga_fr_area(bin,:), grid.dim3.si, 'k', 'color', cmp(bin,:), 'linewidth', 1.5);
                 else
                     plot(ga_fr_area(bin,:), grid.dim3.si, 'k', 'color', cmp(bin,:), 'linewidth', 0.3);
@@ -135,7 +141,7 @@ function plot_ga_frac_binned_r1(type, par)
             end
             % text(5+ga_fr_area(1,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(1),par.r1_bins(2)), 'fontsize',6, 'roga_frtion', -55);
             % text(-5+ga_fr_area(end,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(end-1),par.r1_bins(end)), 'fontsize',6, 'roga_frtion', -55);
-            xlabel('$\frac{\Gamma_m - \Gamma}{\Gamma_m}$ (\%)'); ylabel('$\sigma$ (unitless)');
+            xlabel('$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)'); ylabel('$\sigma$ (unitless)');
             axis('tight');
             make_title_type(type, par);
             set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
@@ -160,7 +166,7 @@ function plot_ga_frac_binned_r1(type, par)
             % plot(ga_fr_area(idx09,:), grid.dim3.si, 'k', 'color', cmp(idx09,:));
             % text(5+ga_fr_area(1,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(1),par.r1_bins(2)), 'fontsize',6, 'roga_frtion', -55);
             % text(-5+ga_fr_area(end,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(end-1),par.r1_bins(end)), 'fontsize',6, 'roga_frtion', -55);
-            xlabel('$\frac{\Gamma_m - \Gamma}{\Gamma_m}$ (\%)'); ylabel('$\sigma$ (unitless)');
+            xlabel('$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)'); ylabel('$\sigma$ (unitless)');
             legend(sprintf('$%g \\le R_1 < %g$',par.r1_bins(idx09-1),par.r1_bins(idx09)),...
                    sprintf('$%g \\le R_1 < %g$',par.r1_bins(idx09),par.r1_bins(idx09+1)),...
                    sprintf('$%g \\le R_1 < %g$',par.r1_bins(idx09+1),par.r1_bins(idx09+2)),...
@@ -182,7 +188,7 @@ function plot_ga_frac_binned_r1(type, par)
             % plot(ga_fr_area(idx09,:), grid.dim3.si, 'k', 'color', cmp(idx09,:));
             % text(5+ga_fr_area(1,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(1),par.r1_bins(2)), 'fontsize',6, 'roga_frtion', -55);
             % text(-5+ga_fr_area(end,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(end-1),par.r1_bins(end)), 'fontsize',6, 'roga_frtion', -55);
-            xlabel('$\frac{\Gamma_m - \Gamma}{\Gamma_m}$ (\%)'); ylabel('$\sigma$ (unitless)');
+            xlabel('$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)'); ylabel('$\sigma$ (unitless)');
             % legend(sprintf('$%g \\le R_1 < %g$',par.r1_bins(idx02-1),par.r1_bins(idx02)),...
             %        sprintf('$%g \\le R_1 < %g$',par.r1_bins(idx02),par.r1_bins(idx02+1)),...
             %        sprintf('$%g \\le R_1 < %g$',par.r1_bins(idx02+1),par.r1_bins(idx02+2)),...

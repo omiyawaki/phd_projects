@@ -6,7 +6,7 @@ function ps = rename_ps(type, srfc)
         ps = srfc.PS;
     elseif any(strcmp(type,{'merra2', 'merra2c'}))
         ps = srfc.PS;
-    elseif any(strcmp(type, {'gcm', 'jra55'}))
+    elseif any(strcmp(type, {'gcm', 'jra55', 'rea'}))
         ps = srfc.ps;
     elseif strcmp(type, 'echam')
         ps = srfc.aps;

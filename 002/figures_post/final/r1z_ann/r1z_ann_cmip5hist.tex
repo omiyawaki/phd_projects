@@ -5,30 +5,65 @@
 \usepackage{graphicx}
 \graphicspath{{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/}}
 \usepackage[export]{adjustbox}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage{amsmath,amsfonts,amssymb,bm}
+\usepackage{mathptmx}%{times}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
 
 \begin{document}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TEX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{figure}
   \begin{subfigure}[t]{0.05\textwidth}
+    \vskip 0pt
     \textbf{\large{(a)}}
   \end{subfigure}
+  \hspace{-0.07\textwidth}
   \begin{subfigure}[t]{0.95\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{energy-flux/lo/ann/mse_old-r1z.png}
+    \vskip 0pt
+    \resizebox{0.9\textwidth}{!}{
+      \input{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/ga_malr_diff/si_bl_0.7/mse_old/lo/ann/r1_gaft_lat_0.3.tuned.tex}
+    }
   \end{subfigure}
 
   \begin{subfigure}[t]{0.05\textwidth}
+    \vskip 0pt
     \textbf{\large{(b)}}
   \end{subfigure}
-  \begin{subfigure}[t]{0.45\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{eps_0.3_ga_0.9/mse_old/def/lo/ann/ga_fr/all_sh_ann.png}
-  \end{subfigure}
-  \begin{subfigure}[t]{0.05\textwidth}
-    \textbf{\large{(c)}}
-  \end{subfigure}
-  \begin{subfigure}[t]{0.45\textwidth}
-    \includegraphics[width=\textwidth, valign=t]{eps_0.3_ga_0.9/mse_old/def/lo/ann/ga_fr/all_nh_ann.png}
+  \hspace{-0.07\textwidth}
+  \begin{subfigure}[t]{0.95\textwidth}
+    \vskip 0pt
+    \resizebox{0.9\textwidth}{!}{
+      \input{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/ga_malr_diff/si_bl_0.9/mse_old/lo/ann/r1_gabl_lat.tuned.tex}
+    }
   \end{subfigure}
 
 \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PNG
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \begin{figure}
+%   \begin{subfigure}[t]{0.05\textwidth}
+%     \textbf{\large{(a)}}
+%   \end{subfigure}
+%   \begin{subfigure}[t]{0.95\textwidth}
+%     \includegraphics[width=\textwidth, valign=t]{{ga_malr_diff/si_bl_0.7/mse_old/lo/ann/r1_gaft_lat_0.3}.png}
+%   \end{subfigure}
+
+%   \begin{subfigure}[t]{0.05\textwidth}
+%     \textbf{\large{(b)}}
+%   \end{subfigure}
+%   \begin{subfigure}[t]{0.95\textwidth}
+%     \includegraphics[width=\textwidth, valign=t]{{ga_malr_diff/si_bl_0.9/mse_old/lo/ann/r1_gabl_lat}.png}
+%   \end{subfigure}
+
+% \end{figure}
 
 \end{document}
