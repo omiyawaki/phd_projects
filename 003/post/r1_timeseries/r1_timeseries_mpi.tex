@@ -1,0 +1,28 @@
+\documentclass[preview]{standalone}
+% \documentclass{article}
+
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage{amsmath,amsfonts,amssymb,bm}
+\usepackage{mathptmx}%{times}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+
+\begin{document}
+Example text
+\begin{figure}
+
+  \begin{subfigure}[t]{0.05\textwidth}
+    \vskip 0pt
+    \textbf{\normalsize{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \vskip 0pt
+    \input{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/r1_mon_lat.tex}
+  \end{subfigure}
+
+\end{figure}
+
+\end{document}
