@@ -33,5 +33,7 @@ def suffix_str(sim, model, yr_span, **kwargs):
        suffix_str = '%s/%s' % (sim, model)
     elif sim == 'echam':
        suffix_str = '%s/%s/%s' % (sim, model, yr_span)
+    elif sim == 'era5':
+       suffix_str = '%s/%s' % (sim, yr_span)
 
     return suffix_str

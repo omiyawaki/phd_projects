@@ -1,6 +1,6 @@
 import sys
 sys.path.append('/project2/tas1/miyawaki/projects/003/scripts')
-from misc.translate_varname import translate_varname
+from misc.translate import translate_varname
 from misc.dirnames import get_datadir
 from misc.filenames import filenames_raw
 import numpy as np
@@ -47,12 +47,8 @@ def save_r1(sim, **kwargs):
 
         flux[translate_varname(varname)] = file[varname].variables[varname][:]
 
-    if sim == 'echam':
+    if sim == 'era5' or sim == 'echam':
         flux['ra'] = flux['trad0'] + flux['srad0'] - flux['trads'] - flux['srads'] 
-        flux['hfls'] = -flux['hfls']
-        flux['hfss'] = -flux['hfss']
-    elif sim == 'era5':
-        flux['ra'] = flux['ttr'] + flux['tsr'] - flux['str'] - flux['ssr'] 
         flux['hfls'] = -flux['hfls']
         flux['hfss'] = -flux['hfss']
     else:

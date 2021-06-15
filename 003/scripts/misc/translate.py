@@ -3,11 +3,18 @@ def translate_varname(varnames_in, **kwargs):
 
     # key are nonstandard names, value is the standard name
     trans_dict = {
+        # RADIATION
+        # ECHAM
         'srad0': 'srad0',
         'trad0': 'trad0',
         'srads': 'srads',
         'trads': 'trads',
-
+        # ERA
+        'tsr': 'srad0',
+        'ttr': 'trad0',
+        'ssr': 'srads',
+        'str': 'trads',
+        # CMIP
         'rsdt' : 'rsdt',
         'rsut' : 'rsut',
         'rlut' : 'rlut',
@@ -16,13 +23,18 @@ def translate_varname(varnames_in, **kwargs):
         'rlds' : 'rlds',
         'rlus' : 'rlus',
 
-        'hfls' : 'hfls',
-        'ahfl' : 'hfls',
+        # LATENT HEAT
+        'hfls' : 'hfls', # CMIP
+        'ahfl' : 'hfls', # ECHAM
+        'slhf' : 'hfls', # ERA
 
-        'hfss' : 'hfss',
-        'ahfs' : 'hfss',
+        # SENSIBLE HEAT
+        'hfss' : 'hfss', # CMIP
+        'ahfs' : 'hfss', # ECHAM
+        'sshf' : 'hfss', # ERA
 
-        'sic' : 'sic'
+        # SEA ICE CONCENTRATION
+        'sic' : 'sic' # CMIP
     }
 
     # if input is a list of variables, output as list of variables
