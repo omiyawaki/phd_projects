@@ -1,7 +1,7 @@
 import sys
 sys.path.append('/project2/tas1/miyawaki/projects/003/scripts')
 from misc.dirnames import get_datadir, get_plotdir
-from proc.ga_dev import save_ga_dev
+from proc.ga import make_ga_dev
 from plot.titles import make_title_sim_time
 import os
 import pickle
@@ -17,6 +17,7 @@ def ga_dev_mon_lat(sim, **kwargs):
 
     zonmean = kwargs.get('zonmean', '.zonmean') # zonal mean?
     timemean = kwargs.get('timemean', '') # type of time mean (.yearmean, .jjamean, .djfmean, .ymonmean-30)
+    vertcoord = kwargs.get('vertcoord', '.si') # vertical coordinate (si for sigma, pa for pressure, z for height)
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
 
     if sim == 'longrun':
@@ -68,33 +69,33 @@ def ga_dev_mon_lat(sim, **kwargs):
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
     plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
-    # location of pickled R1 data
-    ga_dev_file = '%s/ga_dev%s%s.pickle' % (datadir, zonmean, timemean)
+    # location of pickled vertically-integrated lapse rate deviation data
+    ga_dev_vint_file = '%s/ga_dev_vint%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean)
 
-    if not (os.path.isfile(ga_dev_file) and try_load):
-        save_ga_dev(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
+    if not (os.path.isfile(ga_dev_vint_file) and try_load):
+        make_ga_dev(sim, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
 
-    [ga_dev, grid] = pickle.load(open(ga_dev_file, 'rb'))
+    [ga_dev_vint, grid] = pickle.load(open(ga_dev_vint_file, 'rb'))
 
     # print(np.reshape(ga_dev, (-1,96,12)).shape)
     if timemean == '':
-        ga_dev = np.mean(np.reshape(ga_dev, (-1,12,ga_dev.shape[1])),1)
+        ga_dev_vint = np.mean(np.reshape(ga_dev_vint, (-1,12,ga_dev_vint.shape[1])),1)
 
     rolling_mean = 0; # smooth data using a rolling mean? (units: yr)
-    ga_dev_filt = uniform_filter(ga_dev, [rolling_mean,0]) # apply rolling mean
+    ga_dev_vint_filt = uniform_filter(ga_dev_vint, [rolling_mean,0]) # apply rolling mean
 
-    [mesh_lat, mesh_time] = np.meshgrid(grid['lat'], yr_base + np.arange(ga_dev.shape[0])) # create mesh
+    [mesh_lat, mesh_time] = np.meshgrid(grid['lat'], yr_base + np.arange(ga_dev_vint.shape[0])) # create mesh
 
     ##################################
     # REGULAR
     ##################################
-    plotname = '%s/ga_dev_mon_lat%s' % (plotdir, timemean)
+    plotname = '%s/ga_dev_vint_mon_lat%s' % (plotdir, timemean)
     fig, ax = plt.subplots()
     vmin = -1.7
     vmax = 1.7
-    csf = ax.contourf(mesh_time, mesh_lat, ga_dev_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
-    cs_rae = ax.contour(mesh_time, mesh_lat, ga_dev_filt, levels=[0.9], colors='royalblue', linewidths=3)
-    cs_rce = ax.contour(mesh_time, mesh_lat, ga_dev_filt, levels=[0.1], colors='sandybrown', linewidths=3)
+    csf = ax.contourf(mesh_time, mesh_lat, ga_dev_vint_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
+    cs_rae = ax.contour(mesh_time, mesh_lat, ga_dev_vint_filt, levels=[0.9], colors='royalblue', linewidths=3)
+    cs_rce = ax.contour(mesh_time, mesh_lat, ga_dev_vint_filt, levels=[0.1], colors='sandybrown', linewidths=3)
     make_title_sim_time(ax, sim, model=model, timemean=timemean)
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:
@@ -116,8 +117,8 @@ def ga_dev_mon_lat(sim, **kwargs):
     ##################################
     plotname = '%s/rce_mon_lat_nh%s' % (plotdir, timemean)
     fig, ax = plt.subplots()
-    csf = ax.contourf(mesh_time, mesh_lat, ga_dev_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
-    cs_rce = ax.contour(mesh_time, mesh_lat, ga_dev_filt, levels=[0.1], colors='sandybrown', linewidths=1)
+    csf = ax.contourf(mesh_time, mesh_lat, ga_dev_vint_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
+    cs_rce = ax.contour(mesh_time, mesh_lat, ga_dev_vint_filt, levels=[0.1], colors='sandybrown', linewidths=1)
     make_title_sim_time(ax, sim, model=model, timemean=timemean)
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:
@@ -137,8 +138,8 @@ def ga_dev_mon_lat(sim, **kwargs):
     ##################################
     plotname = '%s/rae_mon_lat_nh%s' % (plotdir, timemean)
     fig, ax = plt.subplots()
-    csf = ax.contourf(mesh_time, mesh_lat, ga_dev_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
-    cs_rae = ax.contour(mesh_time, mesh_lat, ga_dev_filt, levels=[0.9], colors='royalblue', linewidths=1)
+    csf = ax.contourf(mesh_time, mesh_lat, ga_dev_vint_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
+    cs_rae = ax.contour(mesh_time, mesh_lat, ga_dev_vint_filt, levels=[0.9], colors='royalblue', linewidths=1)
     make_title_sim_time(ax, sim, model=model, timemean=timemean)
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:
@@ -158,8 +159,8 @@ def ga_dev_mon_lat(sim, **kwargs):
     ##################################
     plotname = '%s/rce_mon_lat_sh%s' % (plotdir, timemean)
     fig, ax = plt.subplots()
-    csf = ax.contourf(mesh_time, mesh_lat, ga_dev_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
-    cs_rce = ax.contour(mesh_time, mesh_lat, ga_dev_filt, levels=[0.1], colors='sandybrown', linewidths=1)
+    csf = ax.contourf(mesh_time, mesh_lat, ga_dev_vint_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
+    cs_rce = ax.contour(mesh_time, mesh_lat, ga_dev_vint_filt, levels=[0.1], colors='sandybrown', linewidths=1)
     make_title_sim_time(ax, sim, model=model, timemean=timemean)
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:
@@ -179,8 +180,8 @@ def ga_dev_mon_lat(sim, **kwargs):
     ##################################
     plotname = '%s/rae_mon_lat_sh%s' % (plotdir, timemean)
     fig, ax = plt.subplots()
-    csf = ax.contourf(mesh_time, mesh_lat, ga_dev_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
-    cs_rae = ax.contour(mesh_time, mesh_lat, ga_dev_filt, levels=[0.9], colors='royalblue', linewidths=1)
+    csf = ax.contourf(mesh_time, mesh_lat, ga_dev_vint_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
+    cs_rae = ax.contour(mesh_time, mesh_lat, ga_dev_vint_filt, levels=[0.9], colors='royalblue', linewidths=1)
     make_title_sim_time(ax, sim, model=model, timemean=timemean)
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:

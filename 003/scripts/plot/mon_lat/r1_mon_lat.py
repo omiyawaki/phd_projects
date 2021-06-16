@@ -45,6 +45,8 @@ def r1_mon_lat(sim, **kwargs):
         vmax_lat_rce_sh = -43
         vmin_lat_rae_sh = -60
         vmax_lat_rae_sh = -80
+        vmin_lat_rce_nh_lower = 30
+        vmax_lat_rce_nh_lower = 40
     elif timemean == '.djfmean':
         vmin_lat_rce_nh = 38 
         vmax_lat_rce_nh = 43
@@ -54,6 +56,8 @@ def r1_mon_lat(sim, **kwargs):
         vmax_lat_rce_sh = -43
         vmin_lat_rae_sh = -60
         vmax_lat_rae_sh = -80
+        vmin_lat_rce_nh_lower = 30
+        vmax_lat_rce_nh_lower = 40
     elif timemean == '.jjamean':
         vmin_lat_rce_nh = 40
         vmax_lat_rce_nh = 60
@@ -63,6 +67,8 @@ def r1_mon_lat(sim, **kwargs):
         vmax_lat_rce_sh = -43
         vmin_lat_rae_sh = -60
         vmax_lat_rae_sh = -80
+        vmin_lat_rce_nh_lower = 30
+        vmax_lat_rce_nh_lower = 40
 
     # load data and plot directories
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
@@ -127,6 +133,27 @@ def r1_mon_lat(sim, **kwargs):
         ax.set_xlabel('Year')
     ax.set_ylabel('Latitude (deg)')
     ax.set_ylim([vmin_lat_rce_nh, vmax_lat_rce_nh])
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_minor_locator(MultipleLocator(10))
+    # plt.savefig('%s.png' % (plotname), dpi=300)
+    plt.savefig('%s.pdf' % (plotname), format='pdf', dpi=300)
+
+    ##################################
+    # NH RCE LOWER
+    ##################################
+    plotname = '%s/rce_lower_mon_lat_nh%s' % (plotdir, timemean)
+    fig, ax = plt.subplots()
+    csf = ax.contourf(mesh_time, mesh_lat, r1_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
+    cs_rce = ax.contour(mesh_time, mesh_lat, r1_filt, levels=[-0.1], colors='sandybrown', linewidths=1)
+    make_title_sim_time(ax, sim, model=model, timemean=timemean)
+    ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
+    if 'ymonmean' in timemean:
+        ax.set_xticks(np.arange(0,12,1))
+        ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
+    else:
+        ax.set_xlabel('Year')
+    ax.set_ylabel('Latitude (deg)')
+    ax.set_ylim([vmin_lat_rce_nh_lower, vmax_lat_rce_nh_lower])
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(MultipleLocator(10))
     # plt.savefig('%s.png' % (plotname), dpi=300)

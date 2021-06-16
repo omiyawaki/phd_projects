@@ -37,7 +37,7 @@ try_load = 0 # try to load data if available; otherwise, compute R1
 # load data and plot directories
 plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
-# location of pickled R1 data
+# read sea ice data
 sic_file = filenames_raw(sim, varname, model=model, timemean=timemean, yr_span=yr_span)
 if not zonmean:
     sic = sic_file.variables[varname][:]
