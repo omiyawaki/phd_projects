@@ -1,4 +1,5 @@
 import sys
+from tqdm import tqdm
 import numpy as np
 from scipy import interpolate
 
@@ -12,6 +13,7 @@ def pa_to_sigma(varname, var_pa, varname_sfc, var_sfc, var_ps, si):
 	# varname_sfc is the surface companion of the data to be converted
 	# si is the sigma grid that the data should be converted to
 
+	# rename input data for easier access
 	vpa = var_pa[varname]	
 	vsfc = var_sfc[varname_sfc]
 	ps = var_ps['ps']
@@ -19,6 +21,11 @@ def pa_to_sigma(varname, var_pa, varname_sfc, var_sfc, var_ps, si):
 	lat2d = var_sfc['grid']['lat']
 	lat3d = var_pa['grid']['lat']
 	pa = var_pa['grid']['lev']
+
+	var_pa = None; var_sfc = None; var_ps = None;
+
+	# initialize output array in sigma coord
+	vsi = np.empty([vpa.shape[0], si.size, vpa.shape[2], vpa.shape[3]])
 
 	# create surface mask
 	vpa = vpa.filled(fill_value=np.nan)
@@ -37,12 +44,30 @@ def pa_to_sigma(varname, var_pa, varname_sfc, var_sfc, var_ps, si):
 	ps3d = np.transpose(ps3d, [1, 0, 2, 3])
 	pa3d = np.tile(pa, [ps.shape[0], ps.shape[1], ps.shape[2], 1])
 	pa3d = np.transpose(pa3d, [0, 3, 1, 2])
-	print(pa3d.shape)
+	idx_subsrfc = pa3d > ps3d
+	ps3d = None; pa3d = None;
 
-	sys.exit()
+	vpa[idx_subsrfc] = np.nan
 
+	pa_inc = 1 if pa[2]-pa[1] > 0 else 0 # check if pa is increasing or decreasing
 
+	for ilon in tqdm(range(vpa.shape[3])):
+		for ilat in range(vpa.shape[2]):
+			for itime in range(vpa.shape[0]):
+				idx_atm_local = ~idx_subsrfc[itime,:,ilat,ilon]
+				si_local = (pa/ps[itime,ilat,ilon])[idx_atm_local]
+				vpa_local = (vpa[itime,:,ilat,ilon])[idx_atm_local]
+				vsfc_local = vsfc[itime,ilat,ilon]
 
-	var_si = None
+				# add surface value
+				if pa_inc: # append if pressure grid increases with index
+					si_local = np.append(si_local, 1)
+					vpa_local = np.append(vpa_local, vsfc_local)
+				else: # insert at beginning if pressure grid decreases with index
+					si_local = np.insert(si_local, 0, 1)
+					vpa_local = np.insert(si_local, 0, vsfc_local)
 
-	return var_si
+				f = interpolate.interp1d(si_local, vpa_local)
+				vsi[itime,:,ilat,ilon] = f(si)
+
+	return vsi

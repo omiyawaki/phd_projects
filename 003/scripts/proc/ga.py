@@ -22,7 +22,7 @@ def make_ga_dev(sim, **kwargs):
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
 
     if vertcoord == '.si':
-        si_std = np.linspace(1,1e-2,100) # standard sigma grid to convert to
+        si_std = np.linspace(1e-2,1,100) # standard sigma grid to convert to
 
     # directory to save pickled data
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
@@ -63,10 +63,13 @@ def make_ga_dev(sim, **kwargs):
         # compute lapse rate
         make_ga(sim, ga_indata, model=model, vertcoord=vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
 
+    sys.exit()
+
     [ga_dev, grid] = pickle.load(open(ga_dev_file, 'rb'))
 
 
-    pickle.dump([ga_dev_vint, grid], open('%s/r1%s%s.pickle' % (datadir, zonmean, timemean), 'wb'))
+
+    pickle.dump([ga_dev_vint, grid], open('%s/ga_dev_vint%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean), 'wb'))
 
     rlut = None; rsdt = None; rsut = None; rsus = None; rsds = None; rlds = None; rlus = None;
 
@@ -82,12 +85,20 @@ def make_ga(sim, ga_indata, **kwargs):
     timemean = kwargs.get('timemean', '') # do annual mean? (bool)
     vertcoord = kwargs.get('vertcoord', '.si') # vertical coordinate (si for sigma, pa for pressure, z for height)
     yr_span = kwargs.get('yr_span') # considered span of years
+    try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
 
     # directory to save pickled data
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
 
     # location of pickled data if available
     file = '%s/ga_%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean)
+
+    if (os.path.isfile(file) and try_load):
+        alldata = pickle.load(open(file, 'rb'))
+    else:
+        alldata = None
+
+    return alldata
 
 def load_var(sim, varname, **kwargs):
 
@@ -104,7 +115,7 @@ def load_var(sim, varname, **kwargs):
     file = '%s/%s%s%s.pickle' % (datadir, varname, zonmean, timemean)
 
     if (os.path.isfile(file) and try_load):
-        [vardata, grid] = pickle.load(open(file, 'rb'))
+        alldata = pickle.load(open(file, 'rb'))
     else:
         file_raw = {}
         grid = {}
