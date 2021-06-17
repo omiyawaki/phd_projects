@@ -26,6 +26,10 @@ def pa_to_sigma(varname, var_pa, varname_sfc, var_sfc, var_ps, si):
 
 	# initialize output array in sigma coord
 	vsi = np.empty([vpa.shape[0], si.size, vpa.shape[2], vpa.shape[3]])
+	var_si = {varname, 'grid'}
+	var_si['grid']['lat'] = var_pa['grid']['lat']
+	var_si['grid']['lon'] = var_pa['grid']['lon']
+	var_si['grid']['lev'] = var_pa['grid']['lev']
 
 	# create surface mask
 	vpa = vpa.filled(fill_value=np.nan)
@@ -70,4 +74,6 @@ def pa_to_sigma(varname, var_pa, varname_sfc, var_sfc, var_ps, si):
 				f = interpolate.interp1d(si_local, vpa_local)
 				vsi[itime,:,ilat,ilon] = f(si)
 
-	return vsi
+	var_si[varname] = vsi
+
+	return var_si

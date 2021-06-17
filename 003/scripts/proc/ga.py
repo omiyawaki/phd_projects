@@ -50,7 +50,7 @@ def make_ga_dev(sim, **kwargs):
                 file_vertconv[varname_std] = '%s/%s%s%s%s.pickle' % (datadir, varname, vertcoord, zonmean, timemean)
 
                 if (os.path.isfile(file_vertconv[varname_std]) and try_load): # load pickled data if available
-                    ga_indata[varname_std] = pickle.load(open(file_vertconv, 'rb'))
+                    ga_indata[varname_std] = (pickle.load(open(file_vertconv[varname_std], 'rb')))
 
                 else: # if not convert and save
                     if varname_std == 'ta': 
