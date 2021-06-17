@@ -7,6 +7,7 @@ from misc.filenames import filenames_raw
 from misc.vertconv import pa_to_sigma
 from misc import par
 import numpy as np
+from scipy import interpolate
 import pickle
 from netCDF4 import Dataset
 
@@ -91,14 +92,35 @@ def make_ga(sim, ga_indata, **kwargs):
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
 
     # location of pickled data if available
-    file = '%s/ga_%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean)
+    file = '%s/ga%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean)
 
     if (os.path.isfile(file) and try_load):
-        alldata = pickle.load(open(file, 'rb'))
+        ga = pickle.load(open(file, 'rb'))
     else:
-        alldata = None
+        ga = {}
+        ga['ga'] = np.empty_like(ga_indata['ta']['ta'])
+        ga['grid'] = ga_indata['ta']['grid']
 
-    return alldata
+        # compute lapse rate using centered finite difference (forward and backward Euler at the boundaries)
+        ga[:,0,:,:] = (ga_indata['ta']['ta'][:,1,:,:]-ga_indata['ta']['ta'][:,0,:,:])/(ga_indata['zg']['zg'][:,1,:,:]-ga_indata['zg']['zg'][:,0,:,:])
+
+        ga[:,1:-1,:,:] = (ga_indata['ta']['ta'][:,2:,:,:]-ga_indata['ta']['ta'][:,-2:,:,:])/(ga_indata['zg']['zg'][:,2:,:,:]-ga_indata['zg']['zg'][:,:-2,:,:])
+
+        ga[:,-1,:,:] = (ga_indata['ta']['ta'][:,-1,:,:]-ga_indata['ta']['ta'][:,:-2,:,:])/(ga_indata['zg']['zg'][:,-1,:,:]-ga_indata['zg']['zg'][:,-2,:,:])
+
+        # lev_mp = 1/2 * (ga_indata['ta']['grid']['lev'][1:] + ga_indata['ta']['grid']['lev'][:-1]) # midpoint levels 
+        # ga_mp = (ga_indata['ta']['ta'][:,1:,:,:]-ga_indata['ta']['ta'][:,:-1,:,:])/(ga_indata['zg']['zg'][:,1:,:,:]-ga_indata['zg']['zg'][:,:-1,:,:]) # lapse rate at midpoints
+
+        # f = interpolate.interp1d(lev_mp, ga_mp, axis=1, fill_value='extrapolate')
+        # ga['ga'] = f(ga['grid']['lev'])
+
+        ga['ga'] = -1e3 * ga['ga'] # convert K/m to K/km and use the sign convention lapse rate = - dT/dz
+
+        pickle.dump(ga, open('%s/ga%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean), 'wb'))
+
+    print(ga['ga'][0,:,0,0])
+
+    return ga
 
 def load_var(sim, varname, **kwargs):
 
@@ -123,7 +145,6 @@ def load_var(sim, varname, **kwargs):
 
         file_raw[varname] = filenames_raw(sim, varname, model=model, timemean=timemean, yr_span=yr_span)
 
-        grid = {}
         grid['lat'] = file_raw[varname].variables[latetrans_grid(sim, 'lat')][:]
         grid['lon'] = file_raw[varname].variables[latetrans_grid(sim, 'lon')][:]
         try: # try to load vertical grid  data

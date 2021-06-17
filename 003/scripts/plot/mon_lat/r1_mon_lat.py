@@ -17,6 +17,7 @@ def r1_mon_lat(sim, **kwargs):
 
     zonmean = kwargs.get('zonmean', '.zonmean') # zonal mean?
     timemean = kwargs.get('timemean', '') # type of time mean (.yearmean, .jjamean, .djfmean, .ymonmean-30)
+    domain = kwargs.get('domain', '')
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
 
     if sim == 'longrun':
@@ -36,39 +37,49 @@ def r1_mon_lat(sim, **kwargs):
         yr_span = kwargs.get('yr_span', '1980_2005')
         yr_base = 1980
 
-    if timemean == '' or timemean == '.yearmean': 
-        vmin_lat_rce_nh = 40
-        vmax_lat_rce_nh = 45
-        vmin_lat_rae_nh = 70
-        vmax_lat_rae_nh = 90
-        vmin_lat_rce_sh = -38
-        vmax_lat_rce_sh = -43
-        vmin_lat_rae_sh = -60
-        vmax_lat_rae_sh = -80
-        vmin_lat_rce_nh_lower = 30
-        vmax_lat_rce_nh_lower = 40
-    elif timemean == '.djfmean':
-        vmin_lat_rce_nh = 38 
-        vmax_lat_rce_nh = 43
-        vmin_lat_rae_nh = 70
-        vmax_lat_rae_nh = 90
-        vmin_lat_rce_sh = -38
-        vmax_lat_rce_sh = -43
-        vmin_lat_rae_sh = -60
-        vmax_lat_rae_sh = -80
-        vmin_lat_rce_nh_lower = 30
-        vmax_lat_rce_nh_lower = 40
-    elif timemean == '.jjamean':
-        vmin_lat_rce_nh = 40
-        vmax_lat_rce_nh = 60
-        vmin_lat_rae_nh = 70
-        vmax_lat_rae_nh = 90
-        vmin_lat_rce_sh = -38
-        vmax_lat_rce_sh = -43
-        vmin_lat_rae_sh = -60
-        vmax_lat_rae_sh = -80
-        vmin_lat_rce_nh_lower = 30
-        vmax_lat_rce_nh_lower = 40
+    if domain == '':
+        vmin = -90
+        vmax = 90
+    elif domain == '.rce_nh':
+        if timemean == '.yearmean':
+            vmin = 40
+            vmax = 45
+        elif timemean == '.djfmean':
+            vmin = 38 
+            vmax = 43
+        elif timemean == '.jjamean':
+            vmin = 40
+            vmax = 60
+    elif domain == '.rce_sh':
+        if timemean == '.yearmean':
+            vmin = -38
+            vmax = -43
+        elif timemean == '.djfmean':
+            vmin = -38
+            vmax = -43
+        elif timemean == '.jjamean':
+            vmin = -38
+            vmax = -43
+    elif domain == '.rae_nh':
+        if timemean == '.yearmean':
+            vmin = 70
+            vmax = 90
+        elif timemean == '.djfmean':
+            vmin = 70
+            vmax = 90
+        elif timemean == '.jjamean':
+            vmin = 70
+            vmax = 90
+    elif domain == '.rae_sh':
+        if timemean == '.yearmean':
+            vmin = -60
+            vmax = -80
+        elif timemean == '.djfmean':
+            vmin = -60
+            vmax = -80
+        elif timemean == '.jjamean':
+            vmin = -60
+            vmax = -80
 
     # load data and plot directories
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
@@ -92,9 +103,9 @@ def r1_mon_lat(sim, **kwargs):
     [mesh_lat, mesh_time] = np.meshgrid(grid['lat'], yr_base + np.arange(r1.shape[0])) # create mesh
 
     ##################################
-    # REGULAR
+    # PLOT
     ##################################
-    plotname = '%s/r1_mon_lat%s' % (plotdir, timemean)
+    plotname = '%s/r1_mon_lat%s%s' % (plotdir, domain, timemean)
     fig, ax = plt.subplots()
     vmin = -1.7
     vmax = 1.7
@@ -108,116 +119,12 @@ def r1_mon_lat(sim, **kwargs):
         ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
     else:
         ax.set_xlabel('Year')
+    ax.set_ylim([vmin, vmax])
     ax.set_ylabel('Latitude (deg)')
     ax.set_yticks(np.arange(-90,91,30))
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(MultipleLocator(10))
     cbar = plt.colorbar(csf)
     cbar.set_label('$R_1$ (unitless)')
-    # plt.savefig('%s.png' % (plotname), dpi=300)
-    plt.savefig('%s.pdf' % (plotname), format='pdf', dpi=300)
-
-    ##################################
-    # NH RCE 
-    ##################################
-    plotname = '%s/rce_mon_lat_nh%s' % (plotdir, timemean)
-    fig, ax = plt.subplots()
-    csf = ax.contourf(mesh_time, mesh_lat, r1_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
-    cs_rce = ax.contour(mesh_time, mesh_lat, r1_filt, levels=[0.1], colors='sandybrown', linewidths=1)
-    make_title_sim_time(ax, sim, model=model, timemean=timemean)
-    ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
-    if 'ymonmean' in timemean:
-        ax.set_xticks(np.arange(0,12,1))
-        ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
-    else:
-        ax.set_xlabel('Year')
-    ax.set_ylabel('Latitude (deg)')
-    ax.set_ylim([vmin_lat_rce_nh, vmax_lat_rce_nh])
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_minor_locator(MultipleLocator(10))
-    # plt.savefig('%s.png' % (plotname), dpi=300)
-    plt.savefig('%s.pdf' % (plotname), format='pdf', dpi=300)
-
-    ##################################
-    # NH RCE LOWER
-    ##################################
-    plotname = '%s/rce_lower_mon_lat_nh%s' % (plotdir, timemean)
-    fig, ax = plt.subplots()
-    csf = ax.contourf(mesh_time, mesh_lat, r1_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
-    cs_rce = ax.contour(mesh_time, mesh_lat, r1_filt, levels=[-0.1], colors='sandybrown', linewidths=1)
-    make_title_sim_time(ax, sim, model=model, timemean=timemean)
-    ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
-    if 'ymonmean' in timemean:
-        ax.set_xticks(np.arange(0,12,1))
-        ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
-    else:
-        ax.set_xlabel('Year')
-    ax.set_ylabel('Latitude (deg)')
-    ax.set_ylim([vmin_lat_rce_nh_lower, vmax_lat_rce_nh_lower])
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_minor_locator(MultipleLocator(10))
-    # plt.savefig('%s.png' % (plotname), dpi=300)
-    plt.savefig('%s.pdf' % (plotname), format='pdf', dpi=300)
-
-    ##################################
-    # NH RAE
-    ##################################
-    plotname = '%s/rae_mon_lat_nh%s' % (plotdir, timemean)
-    fig, ax = plt.subplots()
-    csf = ax.contourf(mesh_time, mesh_lat, r1_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
-    cs_rae = ax.contour(mesh_time, mesh_lat, r1_filt, levels=[0.9], colors='royalblue', linewidths=1)
-    make_title_sim_time(ax, sim, model=model, timemean=timemean)
-    ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
-    if 'ymonmean' in timemean:
-        ax.set_xticks(np.arange(0,12,1))
-        ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
-    else:
-        ax.set_xlabel('Year')
-    ax.set_ylabel('Latitude (deg)')
-    ax.set_ylim([vmin_lat_rae_nh, vmax_lat_rae_nh])
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_minor_locator(MultipleLocator(10))
-    # plt.savefig('%s.png' % (plotname), dpi=300)
-    plt.savefig('%s.pdf' % (plotname), format='pdf', dpi=300)
-
-    ##################################
-    # SH RCE 
-    ##################################
-    plotname = '%s/rce_mon_lat_sh%s' % (plotdir, timemean)
-    fig, ax = plt.subplots()
-    csf = ax.contourf(mesh_time, mesh_lat, r1_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
-    cs_rce = ax.contour(mesh_time, mesh_lat, r1_filt, levels=[0.1], colors='sandybrown', linewidths=1)
-    make_title_sim_time(ax, sim, model=model, timemean=timemean)
-    ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
-    if 'ymonmean' in timemean:
-        ax.set_xticks(np.arange(0,12,1))
-        ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
-    else:
-        ax.set_xlabel('Year')
-    ax.set_ylabel('Latitude (deg)')
-    ax.set_ylim([vmax_lat_rce_sh, vmin_lat_rce_sh])
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_minor_locator(MultipleLocator(10))
-    # plt.savefig('%s.png' % (plotname), dpi=300)
-    plt.savefig('%s.pdf' % (plotname), format='pdf', dpi=300)
-
-    ##################################
-    # SH RAE
-    ##################################
-    plotname = '%s/rae_mon_lat_sh%s' % (plotdir, timemean)
-    fig, ax = plt.subplots()
-    csf = ax.contourf(mesh_time, mesh_lat, r1_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
-    cs_rae = ax.contour(mesh_time, mesh_lat, r1_filt, levels=[0.9], colors='royalblue', linewidths=1)
-    make_title_sim_time(ax, sim, model=model, timemean=timemean)
-    ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
-    if 'ymonmean' in timemean:
-        ax.set_xticks(np.arange(0,12,1))
-        ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
-    else:
-        ax.set_xlabel('Year')
-    ax.set_ylabel('Latitude (deg)')
-    ax.set_ylim([vmax_lat_rae_sh, vmin_lat_rae_sh])
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_minor_locator(MultipleLocator(10))
     # plt.savefig('%s.png' % (plotname), dpi=300)
     plt.savefig('%s.pdf' % (plotname), format='pdf', dpi=300)
