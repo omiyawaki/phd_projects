@@ -112,7 +112,7 @@ def make_ga_dev(sim, **kwargs):
         else:
             ga_m = pickle.load(open(ga_m_file, 'rb'))
 
-        plot_test(ga_m, 'ga_m')
+        plot_test(ga, 'ga')
 
         # pickle.dump([ga_dev_vint, grid], open('%s/ga_dev_vint%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean), 'wb'))
 
@@ -190,11 +190,13 @@ def make_ga(sim, ga_indata, **kwargs):
     ga['grid'] = ga_indata['ta']['grid']
 
     # compute lapse rate using centered finite difference (forward and backward Euler at the boundaries)
-    ga[:,0,:,:] = (ga_indata['ta']['ta'][:,1,:,:]-ga_indata['ta']['ta'][:,0,:,:])/(ga_indata['zg']['zg'][:,1,:,:]-ga_indata['zg']['zg'][:,0,:,:])
+    ga['ga'][:,0,:,:] = (ga_indata['ta']['ta'][:,1,:,:]-ga_indata['ta']['ta'][:,0,:,:])/(ga_indata['zg']['zg'][:,1,:,:]-ga_indata['zg']['zg'][:,0,:,:])
 
-    ga[:,1:-1,:,:] = (ga_indata['ta']['ta'][:,2:,:,:]-ga_indata['ta']['ta'][:,-2:,:,:])/(ga_indata['zg']['zg'][:,2:,:,:]-ga_indata['zg']['zg'][:,:-2,:,:])
+    ga['ga'][:,1:-1,:,:] = (ga_indata['ta']['ta'][:,2:,:,:]-ga_indata['ta']['ta'][:,:-2,:,:])/(ga_indata['zg']['zg'][:,2:,:,:]-ga_indata['zg']['zg'][:,:-2,:,:])
 
-    ga[:,-1,:,:] = (ga_indata['ta']['ta'][:,-1,:,:]-ga_indata['ta']['ta'][:,:-2,:,:])/(ga_indata['zg']['zg'][:,-1,:,:]-ga_indata['zg']['zg'][:,-2,:,:])
+    ga['ga'][:,-1,:,:] = (ga_indata['ta']['ta'][:,-1,:,:]-ga_indata['ta']['ta'][:,-2,:,:])/(ga_indata['zg']['zg'][:,-1,:,:]-ga_indata['zg']['zg'][:,-2,:,:])
+
+    print(np.any(np.isnan(ga['ga'])))
 
     ga['ga'] = -1e3 * ga['ga'] # convert K/m to K/km and use the sign convention lapse rate = - dT/dz
 
