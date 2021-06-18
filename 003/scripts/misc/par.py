@@ -1,4 +1,13 @@
+import numpy as np
+
+# scalars
 a = 6378.1370e3 # Radius of Earth [m]
+
 g = 9.80665 # gravitational acceleration [m s**-2]
+
 rho_air = 1.225 # density of dry air [kg m**-3]
 rho_co2 = 1.98 # density of CO2 [kg m**-3]
+
+# vectors
+si50 = np.linspace(1e-2,1,50)
+si100 = np.linspace(1e-2,1,100)

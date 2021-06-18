@@ -121,6 +121,33 @@ def translate_varcat(varnames_in, **kwargs):
 
     return varcat
 
+def translate_vardim(varname_std, **kwargs):
+    # outputs whether a variable is 2D (horizontal) or 3D (+vertical) in space
+    trans_dict = {
+        'ps' : '2d',
+        'ts' : '2d',
+        'tas' : '2d',
+        'orog' : '2d',
+
+        'ta' : '3d',
+        'zg' : '3d',
+    }
+
+    vardim = trans_dict.get(varname_std, "No translation available")
+
+    return vardim
+
+def translate_varsfc(varname_std, **kwargs):
+    # outputs the surface variable name of a 3D (vertical) variable
+    trans_dict = {
+        'ta' : 'ts',
+        'zg' : 'orog',
+    }
+
+    varsfc = trans_dict.get(varname_std, "No translation available")
+
+    return varsfc
+
 def latetrans_grid(sim, gridname_in, **kwargs):
     # outputs non standard grid names for reanalyses/models
     if sim == 'era5':
