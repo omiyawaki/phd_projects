@@ -11,8 +11,79 @@ from scipy import interpolate
 import pickle
 from netCDF4 import Dataset
 
-def make_ga_dev(sim, **kwargs):
+def varnames_ga_m(sim):
+    if sim == 'echam':
+        varnames = ['sp', 't']
+    elif sim == 'era5':
+        varnames = ['sp', 't']
+    else:
+        varnames = ['ps', 'ta']
+
+    return varnames
+
+def varnames_ga(sim):
+    if sim == 'echam':
+        varnames = ['sp', 'ts', 't', 'zs', 'z']
+    elif sim == 'era5':
+        varnames = ['sp', 't2m', 't', 'zs', 'z']
+    else:
+        varnames = ['ps', 'tas', 'ta', 'orog', 'zg']
+
+    return varnames
+
+def make_ga_dev_vint(sim, vertbnd, **kwargs):
     # computes vertically integrated lapse rate deviation from a moist adiabat
+
+    model = kwargs.get('model') # name of model
+    zonmean = kwargs.get('zonmean', '.zonmean') # do zonal mean? (bool)
+    timemean = kwargs.get('timemean', '') # do annual mean? (bool)
+    vertcoord = kwargs.get('vertcoord', '.si') # vertical coordinate (si for sigma, pa for pressure, z for height)
+    yr_span = kwargs.get('yr_span') # considered span of years
+    try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
+
+    # directory to save pickled data
+    datadir = get_datadir(sim, model=model, yr_span=yr_span)
+
+    # location of pickled vertically-integrated lapse rate deviation data
+    ga_dev_vint_file = '%s/ga_dev_vint%g.%g%s%s%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean)
+
+    if not (os.path.isfile(ga_dev_vint_file) and try_load):
+
+        ga_dev = make_ga_dev(sim, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
+
+        f = interpolate.interp1d(ga_dev['grid']['lev'], ga_dev['ga_dev'], axis=1)
+
+        # identify which bound is the lower/upper bound
+        if ((vertbnd[0] > vertbnd[1]) and vertcoord in ['.si', '.pa'] ):
+            vertbnd_lo = vertbnd[0]
+            vertbnd_up = vertbnd[1]
+        else:
+            vertbnd_lo = vertbnd[1]
+            vertbnd_up = vertbnd[0]
+        # vertically interpolate between the provided bounds
+        ga_dev_itp = f(np.linspace(vertbnd_up,vertbnd_lo,ga_dev['grid']['lev'].size))
+
+        ga_dev_vint = {}
+        ga_dev_vint['grid'] = {}
+        ga_dev_vint['grid']['lon'] = ga_dev['grid']['lon']
+        ga_dev_vint['grid']['lat'] = ga_dev['grid']['lat']
+        ga_dev_vint['ga_dev_vint'] = np.mean(ga_dev_itp, axis=1)
+        ga_dev_itp = None
+
+        # plot_mon_lat_test(ga_dev_vint, 'ga_dev_vint')
+
+        pickle.dump(ga_dev_vint, open('%s/ga_dev_vint%g.%g%s%s%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean), 'wb'))
+    else:
+        ga_dev_vint = pickle.load(open(ga_dev_vint_file, 'rb'))
+
+    if zonmean:
+        ga_dev_vint['ga_dev_vint'] = np.mean(ga_dev_vint['ga_dev_vint'],2)
+
+    return ga_dev_vint
+
+
+def make_ga_dev(sim, **kwargs):
+    # computes lapse rate deviation from a moist adiabat
     # sim is the name of the simulation, e.g. rcp85
 
     model = kwargs.get('model') # name of model
@@ -43,12 +114,7 @@ def make_ga_dev(sim, **kwargs):
             file_vertconv = {}
 
             # variable names to load (load surface pressure first because it is required to convert the 3D variables to other vertical coordinate systems)
-            if sim == 'echam':
-                varnames = ['sp', 'ts', 't', 'zs', 'z']
-            elif sim == 'era5':
-                varnames = ['sp', 'skt', 't', 'zs', 'z']
-            else:
-                varnames = ['ps', 'ta', 'zg', 'ts', 'zs']
+            varnames = varnames_ga(sim)
 
             for varname in varnames:
                 varname_std = translate_varname(varname)
@@ -62,10 +128,6 @@ def make_ga_dev(sim, **kwargs):
 
                     else: # if not convert and save
                         ga_indata[varname_std] = pa_to_sigma(varname_std, ga_indata[varname_std], translate_varsfc(varname_std), ga_indata[translate_varsfc(varname_std)], ga_indata['ps'], si_std)
-                        # if varname_std == 'ta': 
-                        #     ga_indata[varname_std] = pa_to_sigma(varname_std, ga_indata[varname_std], 'ts', ga_indata['ts'], ga_indata['ps'], si_std)
-                        # elif varname_std == 'zg': 
-                        #     ga_indata[varname_std] = pa_to_sigma(varname_std, ga_indata[varname_std], 'orog', ga_indata['orog'], ga_indata['ps'], si_std)
 
                         pickle.dump(ga_indata[translate_varname(varname)], open('%s/%s%s%s%s.pickle' % (datadir, varname, vertcoord, zonmean, timemean), 'wb'))
 
@@ -84,12 +146,7 @@ def make_ga_dev(sim, **kwargs):
 
         if not (os.path.isfile(ga_m_file) and try_load):
             # load data required to compute MALR 
-            if sim == 'echam':
-                varnames = ['sp', 't']
-            elif sim == 'era5':
-                varnames = ['sp', 't']
-            else:
-                varnames = ['ps', 'ta']
+            varnames = varnames_ga_m(sim)
 
             file_ga_m = {}
             ga_m_indata = {}
@@ -112,12 +169,18 @@ def make_ga_dev(sim, **kwargs):
         else:
             ga_m = pickle.load(open(ga_m_file, 'rb'))
 
-        plot_test(ga, 'ga')
+        ga_dev = {}
+        ga_dev['grid'] = ga['grid']
+        ga_dev['ga_dev'] = 1e2 * (ga_m['ga_m'] - ga['ga'])/ga_m['ga_m'] # lapse rate deviation from moist adiabat (percent)
 
-        # pickle.dump([ga_dev_vint, grid], open('%s/ga_dev_vint%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean), 'wb'))
+        # plot_lat_si_test(ga_dev, 'ga_dev')
+
+        pickle.dump(ga_dev, open('%s/ga_dev%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean), 'wb'))
 
     else:
         ga_dev = pickle.load(open(ga_dev_file, 'rb'))
+
+    return ga_dev
 
 
 def make_ga_m(sim, ga_m_indata, **kwargs):
@@ -196,7 +259,9 @@ def make_ga(sim, ga_indata, **kwargs):
 
     ga['ga'][:,-1,:,:] = (ga_indata['ta']['ta'][:,-1,:,:]-ga_indata['ta']['ta'][:,-2,:,:])/(ga_indata['zg']['zg'][:,-1,:,:]-ga_indata['zg']['zg'][:,-2,:,:])
 
-    print(np.any(np.isnan(ga['ga'])))
+    print(np.where(ga['ga']==ga['ga'].max()))
+    print(ga_indata['ta']['ta'][6,:,1,304])
+    print(ga_indata['zg']['zg'][6,:,1,304])
 
     ga['ga'] = -1e3 * ga['ga'] # convert K/m to K/km and use the sign convention lapse rate = - dT/dz
 
@@ -248,7 +313,7 @@ def load_var(sim, varname, **kwargs):
 
     return alldata
 
-def plot_test(ga, varname):
+def plot_lat_si_test(ga, varname):
     import matplotlib.pyplot as plt
 
     [mesh_si, mesh_lat] = np.meshgrid(ga['grid']['lev'], ga['grid']['lat']) # create mesh
@@ -262,4 +327,22 @@ def plot_test(ga, varname):
     ax.set_xticks(np.arange(-90,91,30))
     ax.set_ylabel('$\sigma$')
     ax.set_ylim(ax.get_ylim()[::-1])
+    plt.show()
+
+def plot_mon_lat_test(ga, varname):
+    import matplotlib.pyplot as plt
+
+    print(ga[varname].shape[0])
+
+    [mesh_lat, mesh_time] = np.meshgrid(ga['grid']['lat'], range(ga[varname].shape[0])) # create mesh
+
+    fig, ax = plt.subplots()
+    vmin = -50
+    vmax = 50
+    csf = ax.contourf(mesh_time, mesh_lat, np.squeeze(np.mean(ga[varname],axis=2)), np.arange(vmin,vmax,1), cmap='RdBu_r', vmin=vmin, vmax=vmax, extend='both')
+    ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
+    ax.set_ylabel('Latitude (deg)')
+    ax.set_yticks(np.arange(-90,91,30))
+    # ax.set_xlabel('$\sigma$')
+    # ax.set_xlim(ax.get_ylim()[::-1])
     plt.show()

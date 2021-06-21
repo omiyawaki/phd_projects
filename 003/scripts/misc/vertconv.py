@@ -49,7 +49,7 @@ def pa_to_sigma(varname, var_pa, varname_sfc, var_sfc, var_ps, si):
 	ps3d = np.transpose(ps3d, [1, 0, 2, 3])
 	pa3d = np.tile(pa, [ps.shape[0], ps.shape[1], ps.shape[2], 1])
 	pa3d = np.transpose(pa3d, [0, 3, 1, 2])
-	idx_subsrfc = pa3d > ps3d
+	idx_subsrfc = pa3d > 0.9961*ps3d
 	ps3d = None; pa3d = None;
 
 	vpa[idx_subsrfc] = np.nan
@@ -59,6 +59,9 @@ def pa_to_sigma(varname, var_pa, varname_sfc, var_sfc, var_ps, si):
 	for ilon in tqdm(range(vpa.shape[3])):
 		for ilat in range(vpa.shape[2]):
 			for itime in range(vpa.shape[0]):
+	# for ilon in [304]:
+	# 	for ilat in [1]:
+	# 		for itime in [6]:
 				idx_atm_local = ~idx_subsrfc[itime,:,ilat,ilon]
 				si_local = (pa/ps[itime,ilat,ilon])[idx_atm_local]
 				vpa_local = (vpa[itime,:,ilat,ilon])[idx_atm_local]
@@ -72,10 +75,11 @@ def pa_to_sigma(varname, var_pa, varname_sfc, var_sfc, var_ps, si):
 					si_local = np.insert(si_local, 0, 1)
 					vpa_local = np.insert(si_local, 0, vsfc_local)
 
-				f = interpolate.interp1d(si_local, vpa_local, kind='cubic')
+				# f = interpolate.interp1d(si_local, vpa_local, kind='cubic')
+				# vsi[itime,:,ilat,ilon] = f(si)
 
-				vsi[itime,:,ilat,ilon] = f(si)
-
+				tck = interpolate.splrep(si_local, vpa_local)
+				vsi[itime,:,ilat,ilon] = interpolate.splev(si, tck)
 
 	var_si[varname] = vsi
 

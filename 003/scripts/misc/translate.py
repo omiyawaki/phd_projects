@@ -140,7 +140,7 @@ def translate_vardim(varname_std, **kwargs):
 def translate_varsfc(varname_std, **kwargs):
     # outputs the surface variable name of a 3D (vertical) variable
     trans_dict = {
-        'ta' : 'ts',
+        'ta' : 'tas',
         'zg' : 'orog',
     }
 
