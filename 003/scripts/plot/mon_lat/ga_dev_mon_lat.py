@@ -17,7 +17,7 @@ def ga_dev_mon_lat(sim, **kwargs):
     categ = 'mon_lat'
 
     zonmean = kwargs.get('zonmean', 'zonmean') # zonal mean?
-    timemean = kwargs.get('timemean', '') # type of time mean (.yearmean, .jjamean, .djfmean, .ymonmean-30)
+    timemean = kwargs.get('timemean', '') # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
     vertcoord = kwargs.get('vertcoord', 'si') # vertical coordinate (si for sigma, pa for pressure, z for height)
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
     vertbnd = kwargs.get('vertbnd', (0.7, 0.3)) # sigma bounds of vertical integral
@@ -29,7 +29,7 @@ def ga_dev_mon_lat(sim, **kwargs):
     elif sim == 'rcp85':
         model = kwargs.get('model', 'MPI-ESM-LR')
         yr_span = kwargs.get('yr_span', '200601-230012')
-        yr_base = 2006
+        yr_base = 0 if 'ymonmean' in timemean else 2006
     elif sim == 'echam':
         model = kwargs.get('model', 'rp000140')
         yr_span = kwargs.get('yr_span', '0001_0039')
@@ -37,7 +37,7 @@ def ga_dev_mon_lat(sim, **kwargs):
     elif sim == 'era5':
         model = None
         yr_span = kwargs.get('yr_span', '1980_2005')
-        yr_base = 1980
+        yr_base = 0 if 'ymonmean' in timemean else 1980
 
     if vertbnd[0] == 1:
         vmin = -100
@@ -70,7 +70,7 @@ def ga_dev_mon_lat(sim, **kwargs):
     if vertbnd[0] == 1:
         cs_inv = ax.contour(mesh_time, mesh_lat, ga_dev_vint['ga_dev_vint'], levels=[100], colors='royalblue', linewidths=3)
     else:
-        cs_ma = ax.contour(mesh_time, mesh_lat, ga_dev_vint['ga_dev_vint'], levels=[0], colors='sandybrown', linewidths=3)
+        cs_ma = ax.contour(mesh_time, mesh_lat, ga_dev_vint['ga_dev_vint'], levels=[13], colors='sandybrown', linewidths=3)
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:
         ax.set_xticks(np.arange(0,12,1))
