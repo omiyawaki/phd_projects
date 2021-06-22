@@ -1,6 +1,7 @@
 import sys
 sys.path.append('/project2/tas1/miyawaki/projects/003/scripts')
 from misc.dirnames import get_datadir, get_plotdir
+from misc.filenames import remove_repdots
 from proc.ga import make_ga_dev_vint
 from plot.titles import make_title_sim_time
 import os
@@ -9,7 +10,7 @@ import numpy as np
 from scipy.ndimage import uniform_filter
 import matplotlib.pyplot as plt
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
-import tikzplotlib
+# import tikzplotlib
 
 def ga_dev_mon_lat(sim, **kwargs):
 
@@ -69,5 +70,5 @@ def ga_dev_mon_lat(sim, **kwargs):
         ax.set_xlabel('Year')
     # cbar = plt.colorbar(csf)
     # cbar.set_label('$R_1$ (unitless)')
-    plt.savefig('%s.pdf' % (plotname), format='pdf', dpi=300)
+    plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
     plt.show()

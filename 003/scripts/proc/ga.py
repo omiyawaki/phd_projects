@@ -5,6 +5,7 @@ from misc.translate import *
 from misc.dirnames import get_datadir
 from misc.filenames import *
 from misc.vertconv import pa_to_sigma
+from misc.timeutil import *
 from misc import par
 import numpy as np
 from scipy import interpolate
@@ -45,11 +46,13 @@ def make_ga_dev_vint(sim, vertbnd, **kwargs):
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
 
     # location of pickled vertically-integrated lapse rate deviation data
-    ga_dev_vint_file = remove_repdots('%s/ga_dev_vint%g.%g.%s.%s.%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean))
+    ga_dev_vint_file = remove_repdots('%s/ga_dev_vint.%g.%g.%s.%s.%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean))
 
     if not (os.path.isfile(ga_dev_vint_file) and try_load):
 
         ga_dev = make_ga_dev(sim, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
+
+        t0 = start_time('Computing vertical integral of lapse rate deviation...')
 
         f = interpolate.interp1d(ga_dev['grid']['lev'], ga_dev['ga_dev'], axis=1)
 
@@ -71,13 +74,26 @@ def make_ga_dev_vint(sim, vertbnd, **kwargs):
         ga_dev_itp = None
 
         # plot_mon_lat_test(ga_dev_vint, 'ga_dev_vint')
+        end_time(t0)
 
-        pickle.dump(ga_dev_vint, open(remove_repdots('%s/ga_dev_vint%g.%g.%s.%s.%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean)), 'wb'))
+        t0 = start_time('Pickling vertically-integrated lapse rate deviation...')
+
+        pickle.dump(ga_dev_vint, open(remove_repdots('%s/ga_dev_vint.%g.%g.%s.%s.%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean)), 'wb'))
+
+        end_time(t0)
     else:
+        t0 = start_time('Reading vertically-integrated lapse rate deviation...')
+
         ga_dev_vint = pickle.load(open(ga_dev_vint_file, 'rb'))
 
+        end_time(t0)
+
     if zonmean:
+        t0 = start_time('Computing zonal mean of vertically-integrated lapse rate deviation...')
+
         ga_dev_vint['ga_dev_vint'] = np.mean(ga_dev_vint['ga_dev_vint'],2)
+
+        end_time(t0)
 
     return ga_dev_vint
 
@@ -104,7 +120,7 @@ def make_ga_dev(sim, **kwargs):
 
     if not (os.path.isfile(ga_dev_file) and try_load):
 
-        # location of pickled lapse rate deviation data
+        # location of pickled lapse rate data
         ga_file = remove_repdots('%s/ga.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean))
 
         if not (os.path.isfile(ga_file) and try_load):
@@ -169,16 +185,28 @@ def make_ga_dev(sim, **kwargs):
         else:
             ga_m = pickle.load(open(ga_m_file, 'rb'))
 
+        t0 = start_time('Computing lapse rate deviation...')
+
         ga_dev = {}
         ga_dev['grid'] = ga['grid']
         ga_dev['ga_dev'] = 1e2 * (ga_m['ga_m'] - ga['ga'])/ga_m['ga_m'] # lapse rate deviation from moist adiabat (percent)
 
+        end_time(t0)
+
         # plot_lat_si_test(ga_dev, 'ga_dev')
+
+        t0 = start_time('Pickling lapse rate deviation...')
 
         pickle.dump(ga_dev, open(remove_repdots('%s/ga_dev.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'))
 
+        end_time(t0)
+
     else:
+        t0 = start_time('Loading lapse rate deviation...')
+
         ga_dev = pickle.load(open(ga_dev_file, 'rb'))
+
+        end_time(t0)
 
     return ga_dev
 
@@ -309,7 +337,7 @@ def load_var(sim, varname, **kwargs):
         alldata[translate_varname(varname)] = vardata
         alldata['grid'] = grid
 
-        pickle.dump(alldata, open(remove_repdots('%s/%s.%s.%s.pickle' % (datadir, varname, zonmean, timemean)), 'wb'))
+        pickle.dump(alldata, open(remove_repdots('%s/%s.%s.%s.pickle' % (datadir, varname, zonmean, timemean)), 'wb'), protocol=4)
 
     return alldata
 

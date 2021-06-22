@@ -54,26 +54,26 @@ def pa_to_sigma(varname, var_pa, varname_sfc, var_sfc, var_ps, si):
 
 	vpa[idx_subsrfc] = np.nan
 
-	pa_inc = 1 if pa[2]-pa[1] > 0 else 0 # check if pa is increasing or decreasing
+	pa_dec = 1 if pa[2]-pa[1] < 0 else 0 # check if pa is increasing or decreasing
 
 	for ilon in tqdm(range(vpa.shape[3])):
 		for ilat in range(vpa.shape[2]):
 			for itime in range(vpa.shape[0]):
-	# for ilon in [304]:
-	# 	for ilat in [1]:
-	# 		for itime in [6]:
 				idx_atm_local = ~idx_subsrfc[itime,:,ilat,ilon]
 				si_local = (pa/ps[itime,ilat,ilon])[idx_atm_local]
 				vpa_local = (vpa[itime,:,ilat,ilon])[idx_atm_local]
-				vsfc_local = vsfc[itime,ilat,ilon]
+				if len(vsfc.shape)==2: # if surface data is not a function of time, only read using lat and lon indices (e.g. for surface orography)
+					vsfc_local = vsfc[ilat,ilon]
+				else:
+					vsfc_local = vsfc[itime,ilat,ilon]
+
+				if pa_dec: # flip data if pressure is decreasing (required for interpolation)
+					si_local = np.flip(si_local)
+					vpa_local = np.flip(vpa_local)
 
 				# add surface value
-				if pa_inc: # append if pressure grid increases with index
-					si_local = np.append(si_local, 1)
-					vpa_local = np.append(vpa_local, vsfc_local)
-				else: # insert at beginning if pressure grid decreases with index
-					si_local = np.insert(si_local, 0, 1)
-					vpa_local = np.insert(si_local, 0, vsfc_local)
+				si_local = np.append(si_local, 1)
+				vpa_local = np.append(vpa_local, vsfc_local)
 
 				# f = interpolate.interp1d(si_local, vpa_local, kind='cubic')
 				# vsi[itime,:,ilat,ilon] = f(si)
