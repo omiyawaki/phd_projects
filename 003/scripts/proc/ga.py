@@ -227,6 +227,8 @@ def make_ga_m(sim, ga_m_indata, **kwargs):
     # location of pickled data if available
     file = remove_repdots('%s/ga_m.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean))
 
+    t0 = start_time('Computing moist adiabatic lapse rate...')
+
     ga_m = {}
     ga_m['ga_m'] = np.empty_like(ga_m_indata['ta']['ta'])
     ga_m['grid'] = ga_m_indata['ta']['grid']
@@ -258,6 +260,8 @@ def make_ga_m(sim, ga_m_indata, **kwargs):
 
     ga_m['ga_m'] = dalr * (1+eps*L*es/(pa*R*ta))/(1+(eps*L/(cp*pa))*(desdT))
 
+    end_time(t0)
+
     return ga_m
 
 def make_ga(sim, ga_indata, **kwargs):
@@ -276,6 +280,8 @@ def make_ga(sim, ga_indata, **kwargs):
     # location of pickled data if available
     file = remove_repdots('%s/ga.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean))
 
+    t0 = start_time('Computing lapse rate...')
+
     ga = {}
     ga['ga'] = np.empty_like(ga_indata['ta']['ta'])
     ga['grid'] = ga_indata['ta']['grid']
@@ -287,11 +293,9 @@ def make_ga(sim, ga_indata, **kwargs):
 
     ga['ga'][:,-1,:,:] = (ga_indata['ta']['ta'][:,-1,:,:]-ga_indata['ta']['ta'][:,-2,:,:])/(ga_indata['zg']['zg'][:,-1,:,:]-ga_indata['zg']['zg'][:,-2,:,:])
 
-    print(np.where(ga['ga']==ga['ga'].max()))
-    print(ga_indata['ta']['ta'][6,:,1,304])
-    print(ga_indata['zg']['zg'][6,:,1,304])
-
     ga['ga'] = -1e3 * ga['ga'] # convert K/m to K/km and use the sign convention lapse rate = - dT/dz
+
+    end_time(t0)
 
     pickle.dump(ga, open(remove_repdots('%s/ga.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'))
 

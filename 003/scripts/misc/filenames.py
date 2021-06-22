@@ -10,7 +10,7 @@ def filenames_raw(sim, varname, **kwargs):
 
     if sim == 'rcp85':
         if varname in ['orog', 'sftlf']:
-            fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*.%s.nc' % (sim, model, varname, model, sim, timemean)))
+            fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*.nc' % (sim, model, varname, model, sim)))
         else:
             fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean)))
         filename = Dataset(fname[0], 'r')

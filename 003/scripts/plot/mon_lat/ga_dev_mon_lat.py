@@ -39,6 +39,13 @@ def ga_dev_mon_lat(sim, **kwargs):
         yr_span = kwargs.get('yr_span', '1980_2005')
         yr_base = 1980
 
+    if vertbnd[0] == 1:
+        vmin = -100
+        vmax = 100
+    else:
+        vmin = -50
+        vmax = 50
+
     # load data and plot directories
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
     plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
@@ -59,9 +66,11 @@ def ga_dev_mon_lat(sim, **kwargs):
     ##################################
     plotname = '%s/ga_dev_mon_lat.%g.%g.%s' % (plotdir, vertbnd[0], vertbnd[1], timemean)
     fig, ax = plt.subplots()
-    vmin = -50
-    vmax = 50
     csf = ax.contourf(mesh_time, mesh_lat, ga_dev_vint['ga_dev_vint'], np.arange(vmin,vmax,1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
+    if vertbnd[0] == 1:
+        cs_inv = ax.contour(mesh_time, mesh_lat, ga_dev_vint['ga_dev_vint'], levels=[100], colors='royalblue', linewidths=3)
+    else:
+        cs_ma = ax.contour(mesh_time, mesh_lat, ga_dev_vint['ga_dev_vint'], levels=[0], colors='sandybrown', linewidths=3)
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:
         ax.set_xticks(np.arange(0,12,1))
