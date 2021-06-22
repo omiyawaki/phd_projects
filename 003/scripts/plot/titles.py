@@ -48,15 +48,15 @@ def base_title_str(sim, **kwargs):
     return base_str
 
 def time_str(timemean):
-    if timemean == '.yearmean' or timemean == '':
+    if timemean == 'yearmean' or timemean == '':
         time_str = 'ANN'
-    elif timemean == '.djfmean':
+    elif timemean == 'djfmean':
         time_str = 'DJF'
-    elif timemean == '.jjamean':
+    elif timemean == 'jjamean':
         time_str = 'JJA'
-    elif timemean == '.ymonmean-30':
+    elif timemean == 'ymonmean-30':
         time_str = 'Last 30 years'
-    elif timemean == '.ymonmean-10':
+    elif timemean == 'ymonmean-10':
         time_str = 'Last 10 years'
 
     return time_str

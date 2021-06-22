@@ -1,8 +1,8 @@
 import sys
 sys.path.append('/project2/tas1/miyawaki/projects/003/scripts')
 from misc.dirnames import get_datadir, get_plotdir
-from misc.filenames import filenames_raw
-from misc.translate_varname import translate_varname
+from misc.filenames import *
+# from misc.translate import translate_varname
 from misc.means import lat_mean, global_int
 from misc import par
 from proc.r1 import save_r1
@@ -25,21 +25,21 @@ yr_span = '1000'
 # model = 'MPI-ESM-LR'
 # yr_span = '200601-230012'
 
-zonmean = '.zonmean' # zonal mean?
+zonmean = 'zonmean' # zonal mean?
 
-# timemean = '.djfmean' # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
+# timemean = 'djfmean' # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
 # vmin_r1 = 0.6
 # vmax_r1 = 1.0
 # vmin_sic = -20
 # vmax_sic = 100
 
-timemean = '.jjamean' # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
+timemean = 'jjamean' # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
 vmin_r1 = 0.825
 vmax_r1 = 1.0
 vmin_sic = 0
 vmax_sic = 120
 
-# timemean = '.yearmean' # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
+# timemean = 'yearmean' # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
 # vmin_r1 = 0.7
 # vmax_r1 = 0.95
 # vmin_sic = -40
@@ -58,7 +58,7 @@ datadir = get_datadir(sim, model=model, yr_span=yr_span)
 plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
 # location of pickled R1 data
-r1_file = '%s/r1%s%s.pickle' % (datadir, zonmean, timemean)
+r1_file = remove_repdots('%s/r1.%s.%s.pickle' % (datadir, zonmean, timemean))
 
 if not (os.path.isfile(r1_file) and try_load):
     save_r1(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
@@ -88,7 +88,7 @@ time = np.arange(r1_hl.shape[0]) # create time vector
 # PLOT
 ############################################
 
-plotname = '%s/r1_mon_hl%s' % (plotdir, timemean)
+plotname = '%s/r1_mon_hl.%s' % (plotdir, timemean)
 fig, ax = plt.subplots()
 rae = patches.Rectangle((0,0.9),r1_hl.shape[0],vmax_r1-0.9, alpha=0.5)
 ax.add_patch(rae)
@@ -156,7 +156,7 @@ if sim == 'longrun':
 
 sic_hl = lat_mean(sic, grid, lat_int, dim=1)
 
-plotname = '%s/r1_sic_mon_hl%s' % (plotdir, timemean)
+plotname = '%s/r1_sic_mon_hl.%s' % (plotdir, timemean)
 fig, ax = plt.subplots()
 rae = patches.Rectangle((0,0.9),r1_hl.shape[0],vmax_r1-0.9, alpha=0.5)
 ax.add_patch(rae)
@@ -174,7 +174,7 @@ ax.yaxis.set_minor_locator(MultipleLocator(0.01))
 ax.set_xlim(0,r1_hl.shape[0])
 ax.set_ylim(vmin_r1,vmax_r1)
 sax = ax.twinx()
-if timemean == '.jjamean':
+if timemean == 'jjamean':
     sax.plot(time, 100-sic_hl, color='tab:blue')
     sax.set_ylabel('Ocean fraction (%)', color='tab:blue')
 else:

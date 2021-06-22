@@ -15,9 +15,9 @@ def ga_dev_mon_lat(sim, **kwargs):
 
     categ = 'mon_lat'
 
-    zonmean = kwargs.get('zonmean', '.zonmean') # zonal mean?
+    zonmean = kwargs.get('zonmean', 'zonmean') # zonal mean?
     timemean = kwargs.get('timemean', '') # type of time mean (.yearmean, .jjamean, .djfmean, .ymonmean-30)
-    vertcoord = kwargs.get('vertcoord', '.si') # vertical coordinate (si for sigma, pa for pressure, z for height)
+    vertcoord = kwargs.get('vertcoord', 'si') # vertical coordinate (si for sigma, pa for pressure, z for height)
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
     vertbnd = kwargs.get('vertbnd', (0.7, 0.3)) # sigma bounds of vertical integral
 
@@ -56,7 +56,7 @@ def ga_dev_mon_lat(sim, **kwargs):
     ##################################
     # PLOT
     ##################################
-    plotname = '%s/ga_dev_mon_lat%g.%g%s' % (plotdir, vertbnd[0], vertbnd[1], timemean)
+    plotname = '%s/ga_dev_mon_lat.%g.%g.%s' % (plotdir, vertbnd[0], vertbnd[1], timemean)
     fig, ax = plt.subplots()
     vmin = -50
     vmax = 50

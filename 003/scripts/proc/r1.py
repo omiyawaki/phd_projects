@@ -2,7 +2,7 @@ import sys
 sys.path.append('/project2/tas1/miyawaki/projects/003/scripts')
 from misc.translate import translate_varname
 from misc.dirnames import get_datadir
-from misc.filenames import filenames_raw
+from misc.filenames import *
 import numpy as np
 import pickle
 from netCDF4 import Dataset
@@ -12,8 +12,8 @@ def save_r1(sim, **kwargs):
     # sim is the name of the simulation, e.g. rcp85
 
     model = kwargs.get('model') # name of model
-    zonmean = kwargs.get('zonmean', '.zonmean') # do zonal mean? (bool)
-    timemean = kwargs.get('timemean', '.yearmean') # do annual mean? (bool)
+    zonmean = kwargs.get('zonmean', 'zonmean') # do zonal mean? (bool)
+    timemean = kwargs.get('timemean', 'yearmean') # do annual mean? (bool)
     yr_span = kwargs.get('yr_span') # considered span of years
 
     # directory to save pickled data
@@ -65,8 +65,8 @@ def save_r1(sim, **kwargs):
         stg_adv = np.mean(flux['stg_adv'], 2)
         ra = np.mean(flux['ra'], 2)
 
-    pickle.dump([r1, grid], open('%s/r1%s%s.pickle' % (datadir, zonmean, timemean), 'wb'))
-    pickle.dump([stg_adv, grid], open('%s/stg_adv%s%s.pickle' % (datadir, zonmean, timemean), 'wb'))
-    pickle.dump([ra, grid], open('%s/ra%s%s.pickle' % (datadir, zonmean, timemean), 'wb'))
+    pickle.dump([r1, grid], open(remove_repdots('%s/r1.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
+    pickle.dump([stg_adv, grid], open(remove_repdots('%s/stg_adv.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
+    pickle.dump([ra, grid], open(remove_repdots('%s/ra.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
 
     rlut = None; rsdt = None; rsut = None; rsus = None; rsds = None; rlds = None; rlus = None;

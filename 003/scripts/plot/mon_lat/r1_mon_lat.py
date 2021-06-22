@@ -1,6 +1,7 @@
 import sys
 sys.path.append('/project2/tas1/miyawaki/projects/003/scripts')
 from misc.dirnames import get_datadir, get_plotdir
+from misc.filenames import *
 from proc.r1 import save_r1
 from plot.titles import make_title_sim_time
 import os
@@ -15,8 +16,8 @@ def r1_mon_lat(sim, **kwargs):
 
     categ = 'mon_lat'
 
-    zonmean = kwargs.get('zonmean', '.zonmean') # zonal mean?
-    timemean = kwargs.get('timemean', '') # type of time mean (.yearmean, .jjamean, .djfmean, .ymonmean-30)
+    zonmean = kwargs.get('zonmean', 'zonmean') # zonal mean?
+    timemean = kwargs.get('timemean', '') # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
     domain = kwargs.get('domain', '')
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
 
@@ -40,44 +41,44 @@ def r1_mon_lat(sim, **kwargs):
     if domain == '':
         vmin = -90
         vmax = 90
-    elif domain == '.rce_nh':
-        if timemean == '.yearmean':
+    elif domain == 'rce_nh':
+        if timemean == 'yearmean':
             vmin = 40
             vmax = 45
-        elif timemean == '.djfmean':
+        elif timemean == 'djfmean':
             vmin = 38 
             vmax = 43
-        elif timemean == '.jjamean':
+        elif timemean == 'jjamean':
             vmin = 40
             vmax = 60
-    elif domain == '.rce_sh':
-        if timemean == '.yearmean':
+    elif domain == 'rce_sh':
+        if timemean == 'yearmean':
             vmin = -38
             vmax = -43
-        elif timemean == '.djfmean':
+        elif timemean == 'djfmean':
             vmin = -38
             vmax = -43
-        elif timemean == '.jjamean':
+        elif timemean == 'jjamean':
             vmin = -38
             vmax = -43
-    elif domain == '.rae_nh':
-        if timemean == '.yearmean':
+    elif domain == 'rae_nh':
+        if timemean == 'yearmean':
             vmin = 70
             vmax = 90
-        elif timemean == '.djfmean':
+        elif timemean == 'djfmean':
             vmin = 70
             vmax = 90
-        elif timemean == '.jjamean':
+        elif timemean == 'jjamean':
             vmin = 70
             vmax = 90
-    elif domain == '.rae_sh':
-        if timemean == '.yearmean':
+    elif domain == 'rae_sh':
+        if timemean == 'yearmean':
             vmin = -60
             vmax = -80
-        elif timemean == '.djfmean':
+        elif timemean == 'djfmean':
             vmin = -60
             vmax = -80
-        elif timemean == '.jjamean':
+        elif timemean == 'jjamean':
             vmin = -60
             vmax = -80
 
@@ -86,7 +87,7 @@ def r1_mon_lat(sim, **kwargs):
     plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
     # location of pickled R1 data
-    r1_file = '%s/r1%s%s.pickle' % (datadir, zonmean, timemean)
+    r1_file = remove_repdots('%s/r1.%s.%s.pickle' % (datadir, zonmean, timemean))
 
     if not (os.path.isfile(r1_file) and try_load):
         save_r1(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
@@ -105,7 +106,7 @@ def r1_mon_lat(sim, **kwargs):
     ##################################
     # PLOT
     ##################################
-    plotname = '%s/r1_mon_lat%s%s' % (plotdir, domain, timemean)
+    plotname = remove_repdots('%s/r1_mon_lat.%s.%s' % (plotdir, domain, timemean))
     fig, ax = plt.subplots()
     vmin = -1.7
     vmax = 1.7

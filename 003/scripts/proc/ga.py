@@ -3,7 +3,7 @@ import os
 sys.path.append('/project2/tas1/miyawaki/projects/003/scripts')
 from misc.translate import *
 from misc.dirnames import get_datadir
-from misc.filenames import filenames_raw
+from misc.filenames import *
 from misc.vertconv import pa_to_sigma
 from misc import par
 import numpy as np
@@ -35,9 +35,9 @@ def make_ga_dev_vint(sim, vertbnd, **kwargs):
     # computes vertically integrated lapse rate deviation from a moist adiabat
 
     model = kwargs.get('model') # name of model
-    zonmean = kwargs.get('zonmean', '.zonmean') # do zonal mean? (bool)
+    zonmean = kwargs.get('zonmean', 'zonmean') # do zonal mean? (bool)
     timemean = kwargs.get('timemean', '') # do annual mean? (bool)
-    vertcoord = kwargs.get('vertcoord', '.si') # vertical coordinate (si for sigma, pa for pressure, z for height)
+    vertcoord = kwargs.get('vertcoord', 'si') # vertical coordinate (si for sigma, pa for pressure, z for height)
     yr_span = kwargs.get('yr_span') # considered span of years
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
 
@@ -45,7 +45,7 @@ def make_ga_dev_vint(sim, vertbnd, **kwargs):
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
 
     # location of pickled vertically-integrated lapse rate deviation data
-    ga_dev_vint_file = '%s/ga_dev_vint%g.%g%s%s%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean)
+    ga_dev_vint_file = remove_repdots('%s/ga_dev_vint%g.%g.%s.%s.%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean))
 
     if not (os.path.isfile(ga_dev_vint_file) and try_load):
 
@@ -54,7 +54,7 @@ def make_ga_dev_vint(sim, vertbnd, **kwargs):
         f = interpolate.interp1d(ga_dev['grid']['lev'], ga_dev['ga_dev'], axis=1)
 
         # identify which bound is the lower/upper bound
-        if ((vertbnd[0] > vertbnd[1]) and vertcoord in ['.si', '.pa'] ):
+        if ((vertbnd[0] > vertbnd[1]) and vertcoord in ['si', 'pa'] ):
             vertbnd_lo = vertbnd[0]
             vertbnd_up = vertbnd[1]
         else:
@@ -72,7 +72,7 @@ def make_ga_dev_vint(sim, vertbnd, **kwargs):
 
         # plot_mon_lat_test(ga_dev_vint, 'ga_dev_vint')
 
-        pickle.dump(ga_dev_vint, open('%s/ga_dev_vint%g.%g%s%s%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean), 'wb'))
+        pickle.dump(ga_dev_vint, open(remove_repdots('%s/ga_dev_vint%g.%g.%s.%s.%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean)), 'wb'))
     else:
         ga_dev_vint = pickle.load(open(ga_dev_vint_file, 'rb'))
 
@@ -87,25 +87,25 @@ def make_ga_dev(sim, **kwargs):
     # sim is the name of the simulation, e.g. rcp85
 
     model = kwargs.get('model') # name of model
-    zonmean = kwargs.get('zonmean', '.zonmean') # do zonal mean? (bool)
+    zonmean = kwargs.get('zonmean', 'zonmean') # do zonal mean? (bool)
     timemean = kwargs.get('timemean', '') # do annual mean? (bool)
-    vertcoord = kwargs.get('vertcoord', '.si') # vertical coordinate (si for sigma, pa for pressure, z for height)
+    vertcoord = kwargs.get('vertcoord', 'si') # vertical coordinate (si for sigma, pa for pressure, z for height)
     yr_span = kwargs.get('yr_span') # considered span of years
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
 
-    if vertcoord == '.si':
+    if vertcoord == 'si':
         si_std = par.si50 # standard sigma grid to convert to
 
     # directory to save pickled data
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
 
     # location of pickled lapse rate deviation data
-    ga_dev_file = '%s/ga_dev%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean)
+    ga_dev_file = remove_repdots('%s/ga_dev.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean))
 
     if not (os.path.isfile(ga_dev_file) and try_load):
 
         # location of pickled lapse rate deviation data
-        ga_file = '%s/ga%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean)
+        ga_file = remove_repdots('%s/ga.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean))
 
         if not (os.path.isfile(ga_file) and try_load):
 
@@ -120,8 +120,8 @@ def make_ga_dev(sim, **kwargs):
                 varname_std = translate_varname(varname)
                 ga_indata[varname_std] = load_var(sim, varname, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load) # load raw data (in pressure grid)
 
-                if (translate_vardim(varname_std) == '3d' and vertcoord == '.si'): # convert 3D data to sigma coordinate
-                    file_vertconv[varname_std] = '%s/%s%s%s%s.pickle' % (datadir, varname, vertcoord, zonmean, timemean)
+                if (translate_vardim(varname_std) == '3d' and vertcoord == 'si'): # convert 3D data to sigma coordinate
+                    file_vertconv[varname_std] = remove_repdots('%s/%s.%s.%s.%s.pickle' % (datadir, varname, vertcoord, zonmean, timemean))
 
                     if (os.path.isfile(file_vertconv[varname_std]) and try_load): # load pickled data if available
                         ga_indata[varname_std] = (pickle.load(open(file_vertconv[varname_std], 'rb')))
@@ -129,12 +129,12 @@ def make_ga_dev(sim, **kwargs):
                     else: # if not convert and save
                         ga_indata[varname_std] = pa_to_sigma(varname_std, ga_indata[varname_std], translate_varsfc(varname_std), ga_indata[translate_varsfc(varname_std)], ga_indata['ps'], si_std)
 
-                        pickle.dump(ga_indata[translate_varname(varname)], open('%s/%s%s%s%s.pickle' % (datadir, varname, vertcoord, zonmean, timemean), 'wb'))
+                        pickle.dump(ga_indata[translate_varname(varname)], open(remove_repdots('%s/%s.%s.%s.%s.pickle' % (datadir, varname, vertcoord, zonmean, timemean)), 'wb'))
 
             # compute lapse rate
             ga = make_ga(sim, ga_indata, model=model, vertcoord=vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
 
-            pickle.dump(ga, open('%s/ga%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean), 'wb'))
+            pickle.dump(ga, open(remove_repdots('%s/ga.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'))
 
             ga_indata = None
 
@@ -142,7 +142,7 @@ def make_ga_dev(sim, **kwargs):
             ga = pickle.load(open(ga_file, 'rb'))
 
         # location of pickled MALR data
-        ga_m_file = '%s/ga_m%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean)
+        ga_m_file = remove_repdots('%s/ga_m.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean))
 
         if not (os.path.isfile(ga_m_file) and try_load):
             # load data required to compute MALR 
@@ -154,15 +154,15 @@ def make_ga_dev(sim, **kwargs):
                 varname_std = translate_varname(varname)
 
                 if translate_vardim(varname_std) == '3d':
-                    file_ga_m[varname_std] = '%s/%s%s%s%s.pickle' % (datadir, varname, vertcoord, zonmean, timemean)
+                    file_ga_m[varname_std] = remove_repdots('%s/%s.%s.%s.%s.pickle' % (datadir, varname, vertcoord, zonmean, timemean))
                 else:
-                    file_ga_m[varname_std] = '%s/%s%s%s.pickle' % (datadir, varname, zonmean, timemean)
+                    file_ga_m[varname_std] = remove_repdots('%s/%s.%s.%s.pickle' % (datadir, varname, zonmean, timemean))
 
                 ga_m_indata[varname_std] = (pickle.load(open(file_ga_m[varname_std], 'rb')))
 
             ga_m = make_ga_m(sim, ga_m_indata, model=model, vertcoord=vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
 
-            pickle.dump(ga_m, open('%s/ga_m%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean), 'wb'))
+            pickle.dump(ga_m, open(remove_repdots('%s/ga_m%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'))
 
             ga_m_indata = None
 
@@ -175,7 +175,7 @@ def make_ga_dev(sim, **kwargs):
 
         # plot_lat_si_test(ga_dev, 'ga_dev')
 
-        pickle.dump(ga_dev, open('%s/ga_dev%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean), 'wb'))
+        pickle.dump(ga_dev, open(remove_repdots('%s/ga_dev.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'))
 
     else:
         ga_dev = pickle.load(open(ga_dev_file, 'rb'))
@@ -187,9 +187,9 @@ def make_ga_m(sim, ga_m_indata, **kwargs):
     # Computes the moist adiabatic lapse rate
 
     model = kwargs.get('model') # name of model
-    zonmean = kwargs.get('zonmean', '.zonmean') # do zonal mean? (bool)
+    zonmean = kwargs.get('zonmean', 'zonmean') # do zonal mean? (bool)
     timemean = kwargs.get('timemean', '') # do annual mean? (bool)
-    vertcoord = kwargs.get('vertcoord', '.si') # vertical coordinate (si for sigma, pa for pressure, z for height)
+    vertcoord = kwargs.get('vertcoord', 'si') # vertical coordinate (si for sigma, pa for pressure, z for height)
     yr_span = kwargs.get('yr_span') # considered span of years
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
 
@@ -197,7 +197,7 @@ def make_ga_m(sim, ga_m_indata, **kwargs):
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
 
     # location of pickled data if available
-    file = '%s/ga_m%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean)
+    file = remove_repdots('%s/ga_m.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean))
 
     ga_m = {}
     ga_m['ga_m'] = np.empty_like(ga_m_indata['ta']['ta'])
@@ -236,9 +236,9 @@ def make_ga(sim, ga_indata, **kwargs):
     # Computes the reanalysis/model lapse rate
     
     model = kwargs.get('model') # name of model
-    zonmean = kwargs.get('zonmean', '.zonmean') # do zonal mean? (bool)
+    zonmean = kwargs.get('zonmean', 'zonmean') # do zonal mean? (bool)
     timemean = kwargs.get('timemean', '') # do annual mean? (bool)
-    vertcoord = kwargs.get('vertcoord', '.si') # vertical coordinate (si for sigma, pa for pressure, z for height)
+    vertcoord = kwargs.get('vertcoord', 'si') # vertical coordinate (si for sigma, pa for pressure, z for height)
     yr_span = kwargs.get('yr_span') # considered span of years
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
 
@@ -246,7 +246,7 @@ def make_ga(sim, ga_indata, **kwargs):
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
 
     # location of pickled data if available
-    file = '%s/ga%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean)
+    file = remove_repdots('%s/ga.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean))
 
     ga = {}
     ga['ga'] = np.empty_like(ga_indata['ta']['ta'])
@@ -265,14 +265,14 @@ def make_ga(sim, ga_indata, **kwargs):
 
     ga['ga'] = -1e3 * ga['ga'] # convert K/m to K/km and use the sign convention lapse rate = - dT/dz
 
-    pickle.dump(ga, open('%s/ga%s%s%s.pickle' % (datadir, vertcoord, zonmean, timemean), 'wb'))
+    pickle.dump(ga, open(remove_repdots('%s/ga.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'))
 
     return ga
 
 def load_var(sim, varname, **kwargs):
 
     model = kwargs.get('model') # name of model
-    zonmean = kwargs.get('zonmean', '.zonmean') # do zonal mean? (bool)
+    zonmean = kwargs.get('zonmean', 'zonmean') # do zonal mean? (bool)
     timemean = kwargs.get('timemean', '') # do annual mean? (bool)
     yr_span = kwargs.get('yr_span') # considered span of years
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
@@ -281,7 +281,7 @@ def load_var(sim, varname, **kwargs):
     datadir = get_datadir(sim, model=model, yr_span=yr_span)
 
     # location of pickled data if available
-    file = '%s/%s%s%s.pickle' % (datadir, varname, zonmean, timemean)
+    file = remove_repdots('%s/%s.%s.%s.pickle' % (datadir, varname, zonmean, timemean))
 
     if (os.path.isfile(file) and try_load):
         alldata = pickle.load(open(file, 'rb'))
@@ -309,7 +309,7 @@ def load_var(sim, varname, **kwargs):
         alldata[translate_varname(varname)] = vardata
         alldata['grid'] = grid
 
-        pickle.dump(alldata, open('%s/%s%s%s.pickle' % (datadir, varname, zonmean, timemean), 'wb'))
+        pickle.dump(alldata, open(remove_repdots('%s/%s.%s.%s.pickle' % (datadir, varname, zonmean, timemean)), 'wb'))
 
     return alldata
 
