@@ -1,0 +1,142 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{Goals and scope of the final project}
+\date{\today}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+In last week's committee meeting, we agreed that identifying the focus of my final research project should be the top priority. Although the original plan in the prospectus was to explore the response of energy balance regimes to climate change spanning from Snowball to Hothouse Earth, there are already several questions that can be investigated for anthropogenic climate change alone. Thus, I propose that the third project focus solely on the Anthropocene and outline below the research questions that can be explored based on preliminary results I obtained and some ideas on how we could answer them. 
+
+\section{Are energy balance regimes and the vertical temperature response quantitatively linked?}
+\subsection{Background}
+\begin{itemize}
+	\item \cite{payne2015} show that the vertical temperature response to increased CO$_2$ in the low and high latitudes are consistent with predictions based on column models of RCE and RAE, respectively.
+	\item Similar to how we compared the spatio-temporal structure of energy balance and lapse rate regimes, we seek to quantify the connection to the vertical temperature response. 
+	\item The expectation is that regions of RCE exhibit amplified warming in the upper troposphere while regions of RAE exhibit amplified warming near the surface.
+\end{itemize}
+\subsection{Plan}
+\begin{itemize}
+	\item Develop a way to categorize atmospheric columns where the warming is upper-troposphere-amplified or surface-amplified. A simple example is the height where maximum warming occurs.
+	\item Compute the observed temperature trend in reanalyses/CMIP5 historical run.
+	\item Create a contour plot showing the latitudinal structure and seasonality of where amplified upper tropospheric and surface amplified warming occur. Compare with the seasonality of climatological $R_1$.
+	\item Compute the projected warming in the CMIP5 RCP8.5 run.
+	\item Create a contour plot showing the latitudinal structure and the timeseries of where amplified upper tropospheric and surface amplified warming occur. Compare with the timeseries of $R_1$.
+	\item Investigate the intermodel variability of $R_1$ and the temperature response among CMIP5 models and see if biases in the temperature response are associated with biases in climatological $R_1$.
+	\item Can the reanalysis $R_1$ be used as an emergent constraint to narrow the intermodel spread of the vertical temperature response?
+\end{itemize}
+\subsection{Expected outcome}
+\begin{itemize}
+	\item If energy balance regimes and the vertical temperature response are connected, simple models that predict the spatio-temporal structure of RCE/RAE (such as EBMs and aquaplanets) can be used to understand the latter.
+\end{itemize}
+
+\section{Does Northern Hemisphere RAE during wintertime exhibit hysteresis as a function of surface temperature?}
+\subsection{Background}
+\begin{itemize}
+	\item The NH high latitudes in MPI-ESM-LR undergo a wintertime regime transition from RAE to RCAE (Fig.~\ref{fig:mpi-rcp85-r1-mon-lat-djf}).
+	\item The timing of the regime transition is associated with a rapid decrease in wintertime sea ice (Fig.~\ref{fig:mpi-rcp85-r1-sic-mon-hl-djf}).
+	\item Considering the abruptness of wintertime sea ice loss in MPI-ESM, could there be a hysteresis in the regime transition?
+\end{itemize}
+\subsection{Plan}
+\begin{itemize}
+	\item Configure ECHAM6 with sea ice and transiently increasing CO$_2$ concentration to see if it can capture the MPI-ESM behavior.
+	\item Run the same experiment but in reverse.
+\end{itemize}
+\subsection{Expected outcome}
+\begin{itemize}
+	\item There is currently no consensus regarding the existence of hysteresis in melting/freezing of wintertime Arctic sea ice. This simulation would provide evidence for either the existence of hysteresis or the lack thereof. The existence of hysteresis in sea ice and the wintertime regime transition has important implications to society because it makes it more difficult to reverse the effects of climate change.
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_lat/r1_mon_lat.djfmean}.pdf}
+    \caption{The wintertime (DJF) evolution of $R_1$ in MPI-ESM-LR following the RCP8.5 increase in CO$_2$. Orange contour shows the boundary of RCE ($R_1\le0.1$). Blue contour shows the boundary of RAE ($R_1\ge0.9$).}
+    \label{fig:mpi-rcp85-r1-mon-lat-djf}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_lat/ga_dev_mon_lat.1.0.9.djfmean}.pdf}
+    \caption{The wintertime (DJF) evolution of $R_1$ in MPI-ESM-LR following the RCP8.5 increase in CO$_2$. Orange contour shows the boundary of RCE ($R_1\le0.1$). Blue contour shows the boundary of RAE ($R_1\ge0.9$).}
+    \label{fig:mpi-rcp85-r1-mon-lat-djf}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.djfmean.ga_dev.1.0.9}.pdf}
+    \caption{The wintertime (DJF) evolution of $R_1$ (black line, left axis) and sea ice fraction (blue line, right axis) in MPI-ESM-LR following the RCP8.5 scenario. The blue region corresponds to regions of RAE.}
+    \label{fig:mpi-rcp85-r1-sic-mon-hl-djf}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.-90.-80.jjamean.ga_dev.1.0.9}.pdf}
+    \caption{The wintertime (DJF) evolution of $R_1$ (black line, left axis) and sea ice fraction (blue line, right axis) in MPI-ESM-LR following the RCP8.5 scenario. The blue region corresponds to regions of RAE.}
+    \label{fig:mpi-rcp85-r1-sic-mon-hl-djf}
+\end{figure}
+
+\section{Is the emergence of summertime RAE in the NH high latitudes due to the long timescale of ocean heat uptake?}
+\subsection{Background}
+\begin{itemize}
+	\item The NH high latitudes in MPI-ESM-LR undergo a summertime regime transition from RCAE to RAE (Fig.~\ref{fig:mpi-rcp85-r1-mon-lat-jja}).
+	\item This may be associated with the transient response of the ocean; i.e., it takes hundreds of years for the ocean to equilibrate to the CO$_2$ forcing.
+	\item Interestingly, summertime RAE persists after 1000 years for the abrupt4xCO2 forcing (Fig.~\ref{fig:mpi-4x-r1-mon-lat-jja}).
+\end{itemize}
+\subsection{Plan}
+\begin{itemize}
+	\item Look at the timeseries of SST to see if the ocean has reached equilibrium after 1000 years.
+	\item Check if the lapse rate is consistent with the existence of RAE: is there a summertime inversion in the NH high latitudes?
+	\item Can we reproduce this behavior by increasing CO$_2$ in a slab-ocean aquaplanet and varying the mixed layer depth? The deeper the mixed layer, the longer the transient RAE state should last.
+\end{itemize}
+\subsection{Expected outcome}
+\begin{itemize}
+	\item It is unintuitive that RAE would persist in a warmer Arctic climate. The answer to this question will help determine whether this is a temporary state as the ocean equilibrates, or a permanent state that is characteristic of a warmer Earth. If summertime RAE and inversion are the equilibrium states of a warmer Arctic, it would have important implications for understanding the dynamics of an ice-free Arctic (convection and high clouds in winter but stable, low clouds in summer).
+\end{itemize}
+
+\section{Does RCE expand poleward with warming?}
+\subsection{Background}
+\begin{itemize}
+	\item The boundary of the tropics are observed to have expanded by $\approx 1^\circ$ from 1979 to 2005 as measured by the sign change of the 500 hPa streamfunction or surface zonal wind.
+	\item Does RCE similarly expand poleward? Considering that the Hadley Cell plays an important role in advective heat transport that is quantified by $R_1$, it seems reasonable to expect the boundary of RCE to expand poleward with warming, consistent with existing theories of tropical expansion.
+\end{itemize}
+\subsection{Plan}
+\begin{itemize}
+	\item Quantify the historical trend of the boundary of RCE in reanalyses (e.g. Fig.~\ref{fig:era5-rce-mon-lat}) and CMIP5 historical runs and the projected trend in CMIP5 RCP8.5 runs.
+	\item Considering that there is a large difference in the edge of the Hadley Cell ($\approx 30^\circ$) and RCE ($\approx 40^\circ$ for $R_1=0.1$), it may be worth investigating a different threshold of RCE.
+\end{itemize}
+\subsection{Expected outcome}
+\begin{itemize}
+	\item The poleward expansion of the Hadley Cell is thought to be due to increased subtropical static stability with warming. This increased stability is associated with amplified upper tropospheric warming, which is expected in regions of RCE. Thus, the connection between RCE and amplified upper tropospheric warming is expected to support the existing understanding behind the poleward expansion of the tropics.
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_lat/r1_mon_lat.ymonmean-30}.pdf}
+    \caption{The ERA5 annual mean timeseries of $R_1$ near the threshold of the RCE regime (orange line, $R_1=0.1$).}
+    \label{fig:era5-rce-mon-lat}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_lat/ga_dev_mon_lat.1.0.9.ymonmean-30}.pdf}
+    \caption{The ERA5 annual mean timeseries of $R_1$ near the threshold of the RCE regime (orange line, $R_1=0.1$).}
+    \label{fig:era5-rce-mon-lat}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_lat/ga_dev_mon_lat.0.7.0.3.ymonmean-30}.pdf}
+    \caption{The ERA5 annual mean timeseries of $R_1$ near the threshold of the RCE regime (orange line, $R_1=0.1$).}
+    \label{fig:era5-rce-mon-lat}
+\end{figure}
+
+\bibliographystyle{apalike}
+\bibliography{../../../002/draft/references.bib}
+
+\end{document}
