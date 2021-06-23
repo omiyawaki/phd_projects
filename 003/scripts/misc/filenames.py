@@ -13,6 +13,7 @@ def filenames_raw(sim, varname, **kwargs):
             fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*.nc' % (sim, model, varname, model, sim)))
         else:
             fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean)))
+        print(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean)))
         filename = Dataset(fname[0], 'r')
     elif sim == 'longrun':
         filename = Dataset(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_mon_%s_%s.%s.nc' % (sim, model, varname, model, yr_span, timemean)), 'r')
