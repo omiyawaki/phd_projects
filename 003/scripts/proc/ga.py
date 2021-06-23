@@ -145,7 +145,7 @@ def make_ga_dev(sim, **kwargs):
                     else: # if not convert and save
                         ga_indata[varname_std] = pa_to_sigma(varname_std, ga_indata[varname_std], translate_varsfc(varname_std), ga_indata[translate_varsfc(varname_std)], ga_indata['ps'], si_std)
 
-                        pickle.dump(ga_indata[translate_varname(varname)], open(remove_repdots('%s/%s.%s.%s.%s.pickle' % (datadir, varname, vertcoord, zonmean, timemean)), 'wb'))
+                        pickle.dump(ga_indata[translate_varname(varname)], open(remove_repdots('%s/%s.%s.%s.%s.pickle' % (datadir, varname, vertcoord, zonmean, timemean)), 'wb', protocol=4))
 
             # compute lapse rate
             ga = make_ga(sim, ga_indata, model=model, vertcoord=vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span)

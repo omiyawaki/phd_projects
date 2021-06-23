@@ -38,9 +38,6 @@ zg = zg/g # era5 geopot height is gz
 hus = file_hus.variables['hus'][:] # (day x lev x lat x lon)
 plev = file_ta.variables['level'][:] 
 
-print(plev)
-time.sleep(1000)
-
 # for datasets that fill data below surface as missing data, fill with nans
 ta = ta.filled(fill_value=np.nan)
 zg = zg.filled(fill_value=np.nan)
