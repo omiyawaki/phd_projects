@@ -6,7 +6,6 @@ from misc.filenames import *
 from misc.means import lat_mean, global_int
 from misc import par
 from proc.r1 import save_r1
-from proc.ga import make_ga_dev_vint
 from plot.titles import make_title_sim_time_lat
 import os
 import pickle
@@ -27,7 +26,7 @@ def r1_mon_hl(sim, **kwargs):
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
     latbnd = kwargs.get('latbnd', (80,90))
     latstep = kwargs.get('latstep', 0.25) # latitude step size used for interpolation
-    plotover = kwargs.get('plotover', 'sic') # plot overlay (sic for sea ice, ga_dev for lapse rate deviation)?
+    plotover = kwargs.get('plotover', 'sic') # plot overlay (sic for sea ice, ga_dev for lapse rate deviation, pr for precip)?
     if plotover == 'ga_dev':
         vertcoord = kwargs.get('vertcoord', 'si') # vertical coordinate (si for sigma, pa for pressure, z for height)
         vertbnd = kwargs.get('vertbnd', (0.7, 0.3)) # sigma bounds of vertical integral
@@ -53,12 +52,18 @@ def r1_mon_hl(sim, **kwargs):
 
     if latbnd[0] > 0: # NH
         if timemean == 'djfmean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
-            vmin_r1 = 0.6
+            vmin_r1 = 0.5
             vmax_r1 = 1.0
             vmin_sic = -20
             vmax_sic = 100
             vmin_ga_dev = -200
             vmax_ga_dev = 200
+            vmin_pr = 0.6
+            vmax_pr = 2.2
+            vmin_prc = -0.2
+            vmax_prc = 0.8
+            vmin_prl = 0.5
+            vmax_prl = 1.8
         elif timemean == 'jjamean':
             vmin_r1 = 0.825
             vmax_r1 = 1.0
@@ -71,6 +76,10 @@ def r1_mon_hl(sim, **kwargs):
             vmax_sic = 100
             vmin_ga_dev = -200
             vmax_ga_dev = 175
+            vmin_pr = 0.6
+            vmax_pr = 2.2
+            vmin_prc = -0.1
+            vmax_prc = 0.4
     else: # SH
         if timemean == 'djfmean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
             vmin_r1 = 0.8 
@@ -170,6 +179,8 @@ def r1_mon_hl(sim, **kwargs):
         ############################################
         # COMPARE WITH LAPSE RATE DEVIATION
         ###########################################
+        from proc.ga import make_ga_dev_vint
+
         plotname = '%s.%s.%g.%g' % (plotname, plotover, vertbnd[0], vertbnd[1])
 
         ga_dev_vint = make_ga_dev_vint(sim, vertbnd, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
@@ -182,6 +193,79 @@ def r1_mon_hl(sim, **kwargs):
         sax.set_ylim(vmin_ga_dev,vmax_ga_dev)
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(MultipleLocator(5))
+    elif plotover == 'pr':
+        ############################################
+        # COMPARE WITH PRECIPITATION
+        ###########################################
+        plotname = '%s.%s' % (plotname, plotover)
+
+        pr_file = filenames_raw(sim, 'pr', model=model, timemean=timemean, yr_span=yr_span)
+        if not zonmean:
+            pr = pr_file.variables['pr'][:]
+        else:
+            pr = np.mean(np.squeeze(pr_file.variables['pr'][:]),2)
+
+        pr = 86400*pr # convert kg m**-2 s**-1 to mm d**-1
+
+        pr_hl = lat_mean(pr, grid, lat_int, dim=1)
+
+        sax = ax.twinx()
+        sax.plot(time, pr_hl, color='tab:blue')
+        sax.set_ylabel(r'$P$ (mm d$^{-1}$)', color='tab:blue')
+        sax.set_ylim(vmin_pr,vmax_pr)
+        sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
+        sax.yaxis.set_minor_locator(MultipleLocator(5))
+
+        ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
+    elif plotover == 'prc':
+        ############################################
+        # COMPARE WITH CONVECTIVE PRECIPITATION
+        ###########################################
+        plotname = '%s.%s' % (plotname, plotover)
+
+        prc_file = filenames_raw(sim, 'prc', model=model, timemean=timemean, yr_span=yr_span)
+        if not zonmean:
+            prc = prc_file.variables['prc'][:]
+        else:
+            prc = np.mean(np.squeeze(prc_file.variables['prc'][:]),2)
+
+        prc = 86400*prc # convert kg m**-2 s**-1 to mm d**-1
+
+        prc_hl = lat_mean(prc, grid, lat_int, dim=1)
+
+        sax = ax.twinx()
+        sax.plot(time, prc_hl, color='tab:blue')
+        sax.set_ylabel(r'$P_c$ (mm d$^{-1}$)', color='tab:blue')
+        sax.set_ylim(vmin_prc,vmax_prc)
+        sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
+        sax.yaxis.set_minor_locator(MultipleLocator(5))
+
+        ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
+    elif plotover == 'prl':
+        ############################################
+        # COMPARE WITH LARGE-SCALE PRECIPITATION
+        ###########################################
+        plotname = '%s.%s' % (plotname, plotover)
+
+        pr_file = filenames_raw(sim, 'pr', model=model, timemean=timemean, yr_span=yr_span)
+        prc_file = filenames_raw(sim, 'prc', model=model, timemean=timemean, yr_span=yr_span)
+        if not zonmean:
+            prl = pr_file.variables['pr'][:]-prc_file.variables['prc'][:]
+        else:
+            prl = np.mean(np.squeeze(pr_file.variables['pr'][:]-prc_file.variables['prc'][:]),2)
+
+        prl = 86400*prl # convert kg m**-2 s**-1 to mm d**-1
+
+        prl_hl = lat_mean(prl, grid, lat_int, dim=1)
+
+        sax = ax.twinx()
+        sax.plot(time, prl_hl, color='tab:blue')
+        sax.set_ylabel(r'$P_l$ (mm d$^{-1}$)', color='tab:blue')
+        sax.set_ylim(vmin_prl,vmax_prl)
+        sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
+        sax.yaxis.set_minor_locator(MultipleLocator(5))
+
+        ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
 
     plt.tight_layout()
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
