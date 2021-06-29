@@ -59,6 +59,9 @@ def translate_varname(varnames_in, **kwargs):
 
         # 2 M DEW POINT TEMP
         'd2m' : 'd2m', # ERA
+        
+        # PRECIPITATION
+        'pr' : 'pr', # CMIP
 
         # SEA ICE CONCENTRATION
         'sic' : 'sic' # CMIP

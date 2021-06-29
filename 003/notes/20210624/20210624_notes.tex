@@ -1,0 +1,100 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{Research notes}
+\date{June 24, 2021}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+Last week, we discussed how some of the research questions that I proposed may be too disparate and thus would not all fit together within the scope of one paper. Thus, I provide below a new outline for a paper, this time with the aim of addressing specific questions related to the temperature response to increased CO$_2$.
+
+\section{Introduction}
+\begin{itemize}
+	\item Understanding the latitude-height temperature response to increased CO$_2$ is important for many reasons:
+	\begin{itemize}
+		\item influences tropical (CAPE) and midlatitude storms (baroclinicity)
+		\item the vertical structure of warming can modulate (low latitudes) or amplify (high latitudes) warming at the surface (lapse rate feedback)
+	\end{itemize}
+	\item Since energy balance and lapse rate regimes were found to be closely connected in the modern climate, can we use $R_1$ to understand the vertical structure of warming?
+	\item For example, \cite{payne2015} show that the vertical temperature response to increased CO$_2$ in the low and high latitudes are consistent with predictions based on column models of RCE and RAE, respectively.
+	\begin{itemize}
+		\item Arctic amplification has been shown to be time dependent, where amplification weakens after wintertime sea ice melts \citep{dai2019}. Is the wintertime melting of sea ice and the associated weakening of Arctic amplification consistent with a regime transition from RAE to RCAE? Do regions of RAE always experience surface amplified warming? 
+		\item Observations and model projections show that the tropics exhibit amplified warming in the upper troposphere, consistent with expectations from moist adiabatic adjustment and RCE. However, relatively little attention has been given on the existence of amplified upper tropospheric warming in the midlatitudes, which we would expect based on the existence of RCE in the NH midlatitudes during summertime. Brogli et al. (under review in WCD) show that the midlatitudes exhibit amplified upper tropospheric warming over land. Is the midlatitude temperature response over oceans not as amplified aloft, and is this consistent with the zonal structure of energy balance regimes?
+	\end{itemize}
+\end{itemize}
+
+\section{The connection between RAE and surface inversions through interannual time scales}
+\begin{itemize}
+	\item The NH high latitudes undergo a RAE to RCAE regime transition during wintertime (Fig.~\ref{fig:mpi-rcp85-r1-mon-lat-djf}). 
+	\item The NH high latitude surface inversion vanishes around the same time (Fig.~\ref{fig:mpi-rcp85-ga-bl-mon-lat-djf} and \ref{fig:mpi-rcp85-r1-ga-bl-mon-hl-djf}).
+	\item In contrast, the inversion persists in the SH consistent with a state of RAE (Fig.~\ref{fig:mpi-rcp85-r1-ga-bl-mon-hl-sh-jja}).
+	\item These results show that $R_1$ and surface inversions are closely connected not only through the seasonal cycle but also through anthropogenic climate change as well. 
+	\item A decomposition of $\Delta R_1$ may be useful for understanding the hemispheric asymmetry in the rate that $R_1$ decreases with warming ($R_1$ decreases more rapidly in the NH). I expect the rapid decrease in $R_1$ to be associated with an increase in surface turbulent fluxes due to melting wintertime sea ice. Can this be useful for understanding the hemispheric asymmetry in the magnitude of polar amplification?
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_lat/r1_mon_lat.djfmean}.pdf}
+    \caption{The wintertime (DJF) evolution of $R_1$ in MPI-ESM-LR following the RCP8.5 increase in CO$_2$. Orange contour shows the boundary of RCE ($R_1\le0.1$). Blue contour shows the boundary of RAE ($R_1\ge0.9$).}
+    \label{fig:mpi-rcp85-r1-mon-lat-djf}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_lat/ga_dev_mon_lat.1.0.9.djfmean}.pdf}
+    \caption{The wintertime (DJF) evolution of the lapse rate deviation from a moist adiabat in MPI-ESM-LR following the RCP8.5 increase in CO$_2$. Blue contour shows the boundary of a surface inversion (100\% deviation).}
+    \label{fig:mpi-rcp85-ga-bl-mon-lat-djf}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.djfmean.ga_dev.1.0.9}.pdf}
+    \caption{The wintertime (DJF) evolution of $R_1$ (black line, left axis) and the boundary layer lapse rate deviation from a moist adiabat (blue line, right axis) in MPI-ESM-LR following the RCP8.5 scenario. The blue region corresponds to regions of RAE and a surface inversion.}
+    \label{fig:mpi-rcp85-r1-ga-bl-mon-hl-djf}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.-90.-80.jjamean.ga_dev.1.0.9}.pdf}
+    \caption{Similar to Fig.~\ref{fig:mpi-rcp85-r1-ga-bl-mon-hl-djf} but evaluated in the SH high latitudes during SH winter (JJA).}
+    \label{fig:mpi-rcp85-r1-ga-bl-mon-hl-sh-jja}
+\end{figure}
+
+\section{Seasonality of energy balance and lapse rate regimes in a warmer climate}
+\begin{itemize}
+	\item The seasonality of RCE and SH RAE by the end of the 300 year RCP8.5 simulation are similar to the modern seasonality. Even though sea ice is completely melted away in the MPI-ESM-LR model by the end of the 300 year RCP8.5 simulation, RAE persists in the NH high latitudes during JAS (Fig.~\ref{fig:mpi-r1-mon-lat}).
+	\item Consistent with RAE, there is a surface inversion around the same time in the NH high latitudes (Fig.~\ref{fig:mpi-ga-bl-mon-lat}).
+	\item Interestingly, regions of near-moist adiabatic lapse rate in the free troposphere extend all the way out to the North Pole during summertime (Fig.~\ref{fig:mpi-ga-ft-mon-lat}). This may be an indication that there is convective activity in the NH high latitudes during summertime.
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_lat/r1_mon_lat.ymonmean-30}.pdf}
+    \caption{The seasonality of RCE and RAE regimes averaged over the last 30 years of the 300 year RCP8.5 simulation in MPI-ESM-LR.}
+    \label{fig:mpi-r1-mon-lat}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_lat/ga_dev_mon_lat.1.0.9.ymonmean-30}.pdf}
+    \caption{The seasonality of the boundary layer lapse rate deviation from a moist adiabat averaged over the last 30 years of the 300 year RCP8.5 simulation in MPI-ESM-LR. Blue contour shows the region with a surface inversion.}
+    \label{fig:mpi-ga-bl-mon-lat}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_lat/ga_dev_mon_lat.0.7.0.3.ymonmean-30}.pdf}
+    \caption{The seasonality of the free tropospheric lapse rate deviation from a moist adiabat averaged over the last 30 years of the 300 year RCP8.5 simulation in MPI-ESM-LR. Orange contour shows regions with a 15\% deviation from a moist adiabatic lapse rate.}
+    \label{fig:mpi-ga-ft-mon-lat}
+\end{figure}
+
+\bibliographystyle{apalike}
+\bibliography{../../../002/draft/references.bib}
+
+\end{document}

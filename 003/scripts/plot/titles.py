@@ -10,6 +10,18 @@ def make_title_sim_time(ax, sim, **kwargs):
     timemean = kwargs.get('timemean')
 
     ax.set_title('%s, %s' % (base_title_str(sim, model=model), time_str(timemean)))
+
+def make_title_sim_time_seas(ax, sim, **kwargs):
+
+    model = kwargs.get('model')
+    timemean = kwargs.get('timemean')
+    seasmean = kwargs.get('seasmean')
+    levstr = kwargs.get('levstr', None)
+
+    if levstr is None:
+        ax.set_title('%s, %s, %s' % (base_title_str(sim, model=model), time_str(timemean), seas_str(seasmean)))
+    else:
+        ax.set_title('%s, %s, %s, %s' % (base_title_str(sim, model=model), time_str(timemean), seas_str(seasmean), levstr))
     
 def make_title_sim_time_lat(ax, sim, **kwargs):
 
@@ -58,5 +70,15 @@ def time_str(timemean):
         time_str = 'Last 30 years'
     elif timemean == 'ymonmean-10':
         time_str = 'Last 10 years'
-
+        
     return time_str
+
+def seas_str(seasmean):
+    if seasmean == 'djf':
+        seas_str = 'DJF'
+    elif seasmean == 'jja':
+        seas_str = 'JJA'
+    elif seasmean == '':
+        seas_str = 'ANN'
+
+    return seas_str
