@@ -56,17 +56,26 @@ def save_r1(sim, **kwargs):
 
     flux['stg_adv'] = flux['ra'] + flux['hfls'] + flux['hfss']
 
-    if not zonmean:
-        r1 = flux['stg_adv']/flux['ra']
-        stg_adv = flux['stg_adv']
-        ra = flux['ra']
-    else:
-        r1 = np.mean(flux['stg_adv'], 2)/np.mean(flux['ra'], 2)
-        stg_adv = np.mean(flux['stg_adv'], 2)
-        ra = np.mean(flux['ra'], 2)
+    if zonmean:
+        for fluxname in flux:
+            flux[fluxname] = np.mean(flux[fluxname], 2)
+
+    r1 = flux['stg_adv']/flux['ra']
+    stg_adv = flux['stg_adv']
+    ra = flux['ra']
+
+    # linearly decompose r1 seasonality
+    r1_dc = {}
+    r1_dc['dr1'] = r1 - r1[0,...] # r1 deviation from first year
+    ra_tavg = ra[0,...]
+    stg_adv_tavg = stg_adv[0,...]
+    r1_dc['dyn'] = (stg_adv - stg_adv_tavg) / ra_tavg # dynamic component
+    r1_dc['rad'] = - stg_adv_tavg / (ra_tavg**2) * (ra - ra_tavg) # radiative component
+    r1_dc['res'] = r1_dc['dr1'] - ( r1_dc['dyn'] + r1_dc['rad'] )
 
     pickle.dump([r1, grid], open(remove_repdots('%s/r1.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
+    pickle.dump([r1_dc, grid], open(remove_repdots('%s/r1_dc.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
     pickle.dump([stg_adv, grid], open(remove_repdots('%s/stg_adv.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
-    pickle.dump([ra, grid], open(remove_repdots('%s/ra.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
+    pickle.dump([flux, grid], open(remove_repdots('%s/flux.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
 
     rlut = None; rsdt = None; rsut = None; rsus = None; rsds = None; rlds = None; rlus = None;

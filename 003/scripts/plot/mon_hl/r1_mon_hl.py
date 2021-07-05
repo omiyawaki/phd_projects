@@ -26,7 +26,8 @@ def r1_mon_hl(sim, **kwargs):
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
     latbnd = kwargs.get('latbnd', (80,90))
     latstep = kwargs.get('latstep', 0.25) # latitude step size used for interpolation
-    plotover = kwargs.get('plotover', 'sic') # plot overlay (sic for sea ice, ga_dev for lapse rate deviation, pr for precip)?
+    plotover = kwargs.get('plotover', 'sic') # plot overlay (sic for sea ice, ga_dev for lapse rate deviation, pr for precip, decomp for linear decomposition)?
+    legend = kwargs.get('legend', 0)
     if plotover == 'ga_dev':
         vertcoord = kwargs.get('vertcoord', 'si') # vertical coordinate (si for sigma, pa for pressure, z for height)
         vertbnd = kwargs.get('vertbnd', (0.7, 0.3)) # sigma bounds of vertical integral
@@ -40,7 +41,17 @@ def r1_mon_hl(sim, **kwargs):
     elif sim == 'rcp85':
         model = kwargs.get('model', 'MPI-ESM-LR')
         yr_span = kwargs.get('yr_span', '200601-230012')
-        yr_base = 2006
+        if 'ymonmean' not in timemean:
+            yr_base = 2006
+        else:
+            yr_base = 0
+    elif sim == 'historical':
+        model = kwargs.get('model', 'MPI-ESM-LR')
+        yr_span = kwargs.get('yr_span', '185001-200512')
+        if 'ymonmean' not in timemean:
+            yr_base = 1850
+        else:
+            yr_base = 0
     elif sim == 'echam':
         model = kwargs.get('model', 'rp000140')
         yr_span = kwargs.get('yr_span', '0001_0039')
@@ -52,8 +63,12 @@ def r1_mon_hl(sim, **kwargs):
 
     if latbnd[0] > 0: # NH
         if timemean == 'djfmean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
-            vmin_r1 = 0.5
-            vmax_r1 = 1.0
+            if plotover == 'decomp':
+                vmin_r1 = 0.5
+                vmax_r1 = 1.1
+            else:
+                vmin_r1 = 0.5
+                vmax_r1 = 1.0
             vmin_sic = -20
             vmax_sic = 100
             vmin_ga_dev = -200
@@ -69,6 +84,12 @@ def r1_mon_hl(sim, **kwargs):
             vmax_r1 = 1.0
             vmin_sic = 0
             vmax_sic = 120
+            vmin_pr = 0.6
+            vmax_pr = 2.2
+            vmin_prc = -0.2
+            vmax_prc = 0.8
+            vmin_prl = 0.5
+            vmax_prl = 1.8
         elif timemean == 'yearmean' or timemean == '':
             vmin_r1 = 0.7
             vmax_r1 = 0.95
@@ -80,6 +101,17 @@ def r1_mon_hl(sim, **kwargs):
             vmax_pr = 2.2
             vmin_prc = -0.1
             vmax_prc = 0.4
+        elif timemean == 'ymonmean-30':
+            vmin_r1 = 0.5
+            vmax_r1 = 1.4
+            vmin_sic = -40
+            vmax_sic = 100
+            vmin_ga_dev = -200
+            vmax_ga_dev = 175
+            vmin_pr = 0
+            vmax_pr = 4
+            vmin_prc = -0.1
+            vmax_prc = 1
     else: # SH
         if timemean == 'djfmean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
             vmin_r1 = 0.8 
@@ -124,7 +156,7 @@ def r1_mon_hl(sim, **kwargs):
     rolling_mean = 0; # smooth data using a rolling mean? (units: yr)
     r1_filt = uniform_filter(r1, [rolling_mean,0]) # apply rolling mean
 
-    time = np.arange(r1_hl.shape[0]) # create time vector
+    time = yr_base + np.arange(r1_hl.shape[0]) # create time vector
 
     ############################################
     # PLOT
@@ -132,7 +164,8 @@ def r1_mon_hl(sim, **kwargs):
     plotname = '%s/r1_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean)
 
     fig, ax = plt.subplots()
-    rae = patches.Rectangle((0,0.9),r1_hl.shape[0],vmax_r1-0.9, alpha=0.5)
+    # rae = patches.Rectangle((0,0.9),r1_hl.shape[0],vmax_r1-0.9, alpha=0.5)
+    rae = patches.Rectangle((yr_base,0.9),yr_base + r1_hl.shape[0],vmax_r1-0.9, alpha=0.5)
     ax.add_patch(rae)
     lp_r1 = ax.plot(time, r1_hl, color='black')
     make_title_sim_time_lat(ax, sim, model=model, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
@@ -145,7 +178,7 @@ def r1_mon_hl(sim, **kwargs):
     ax.set_ylabel('$R_1$ (unitless)')
     ax.xaxis.set_minor_locator(MultipleLocator(10))
     ax.yaxis.set_minor_locator(MultipleLocator(0.01))
-    ax.set_xlim(0,r1_hl.shape[0])
+    ax.set_xlim(yr_base,yr_base+r1_hl.shape[0]-1)
     ax.set_ylim(vmin_r1,vmax_r1)
 
     if plotover == 'sic':
@@ -175,6 +208,7 @@ def r1_mon_hl(sim, **kwargs):
         sax.set_ylim(vmin_sic,vmax_sic)
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(MultipleLocator(5))
+
     elif plotover == 'ga_dev':
         ############################################
         # COMPARE WITH LAPSE RATE DEVIATION
@@ -193,6 +227,7 @@ def r1_mon_hl(sim, **kwargs):
         sax.set_ylim(vmin_ga_dev,vmax_ga_dev)
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(MultipleLocator(5))
+
     elif plotover == 'pr':
         ############################################
         # COMPARE WITH PRECIPITATION
@@ -214,9 +249,10 @@ def r1_mon_hl(sim, **kwargs):
         sax.set_ylabel(r'$P$ (mm d$^{-1}$)', color='tab:blue')
         sax.set_ylim(vmin_pr,vmax_pr)
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
-        sax.yaxis.set_minor_locator(MultipleLocator(5))
+        sax.yaxis.set_minor_locator(AutoMinorLocator())
 
         ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
+
     elif plotover == 'prc':
         ############################################
         # COMPARE WITH CONVECTIVE PRECIPITATION
@@ -238,9 +274,10 @@ def r1_mon_hl(sim, **kwargs):
         sax.set_ylabel(r'$P_c$ (mm d$^{-1}$)', color='tab:blue')
         sax.set_ylim(vmin_prc,vmax_prc)
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
-        sax.yaxis.set_minor_locator(MultipleLocator(5))
+        sax.yaxis.set_minor_locator(AutoMinorLocator())
 
         ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
+
     elif plotover == 'prl':
         ############################################
         # COMPARE WITH LARGE-SCALE PRECIPITATION
@@ -263,44 +300,40 @@ def r1_mon_hl(sim, **kwargs):
         sax.set_ylabel(r'$P_l$ (mm d$^{-1}$)', color='tab:blue')
         sax.set_ylim(vmin_prl,vmax_prl)
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
-        sax.yaxis.set_minor_locator(MultipleLocator(5))
+        sax.yaxis.set_minor_locator(AutoMinorLocator())
 
         ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
+
+    elif plotover == 'decomp':
+        ############################################
+        # COMPARE WITH SEA ICE CONCENTRATION
+        ###########################################
+        # location of pickled R1 seasonality data
+        r1_dc_file = remove_repdots('%s/r1_dc.%s.%s.pickle' % (datadir, zonmean, timemean))
+
+        if not (os.path.isfile(r1_dc_file) and try_load):
+            save_r1(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
+
+        [r1_dc, grid] = pickle.load(open(r1_dc_file, 'rb'))
+
+        ############################################
+        # AVERAGE R1 COMPONENTS ONLY AT HIGH LATITUDES
+        ############################################
+        r1_dc_hl = {}
+        for varname in r1_dc:
+            r1_dc_hl[varname] = lat_mean(r1_dc[varname], grid, lat_int, dim=1)
+
+        sax = ax.twinx()
+        sax.plot(time, r1_dc_hl['dyn'], color='maroon', label='$\overline{R_1} \dfrac{\Delta (\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}}$')
+        sax.plot(time, r1_dc_hl['rad'], color='tab:gray', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$')
+        sax.plot(time, r1_dc_hl['res'], '-.k', label='Residual')
+        sax.set_ylabel(r'$\Delta R_1$ (unitless)', color='black')
+        sax.set_ylim(vmin_r1-r1_hl[0],vmax_r1-r1_hl[0])
+        if legend:
+            sax.legend()
+        sax.tick_params(axis='y', labelcolor='black', color='black')
+        sax.yaxis.set_minor_locator(AutoMinorLocator())
 
     plt.tight_layout()
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
     plt.show()
-    # tikzplotlib.save('%s.tex' % (plotname))
-
-    # ############################################
-    # # PLOT (WHERE X-AXIS IS CO2 CONCENTRATION)
-    # ############################################
-    # co2mass_file = filenames_raw(sim, 'co2mass', model=model, timemean=timemean, yr_span=yr_span)
-    # co2mass = co2mass_file.variables['co2mass'][:]
-    # ps_file = filenames_raw(sim, 'ps', model=model, timemean=timemean, yr_span=yr_span)
-    # # ps = ps_file.variables['ps'][:].filled(fill_value=np.nan)
-    # ps = ps_file.variables['ps'][:].filled(fill_value=np.nan)
-    # grid['lon'] = grid['lon'].filled(fill_value=np.nan)
-    # grid['lat'] = grid['lat'].filled(fill_value=np.nan)
-    # ps_g = global_int(ps, grid, par.a, dim_lat=1, dim_lon=2)
-    # co2_ppmv = 1e6 * par.g * co2mass/ps_g*par.rho_air/par.rho_co2
-
-    # plotname = '%s/r1_co2_hl%s' % (plotdir, timemean)
-    # fig, ax = plt.subplots()
-    # rae = patches.Rectangle((co2_ppmv.min(),0.9),co2_ppmv.max()-co2_ppmv.min(),vmax_r1-0.9, alpha=0.5)
-    # ax.add_patch(rae)
-    # lp_r1 = ax.plot(co2_ppmv, r1_hl, color='black')
-    # make_title_sim_time_lat(ax, sim, model=model, timemean=timemean, lat1=lat_lo, lat2=lat_up)
-    # ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
-    # if 'ymonmean' in timemean:
-    #     ax.set_xticks(np.arange(0,12,1))
-    #     ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
-    # else:
-    #     ax.set_xlabel('CO$_2$ (ppmv)')
-    # ax.set_ylabel('$R_1$ (unitless)')
-    # ax.xaxis.set_minor_locator(MultipleLocator(10))
-    # ax.yaxis.set_minor_locator(MultipleLocator(0.01))
-    # ax.set_xlim(co2_ppmv.min(),co2_ppmv.max())
-    # ax.set_ylim(vmin_r1,vmax_r1)
-    # plt.savefig('%s.pdf' % (plotname), format='pdf', dpi=300)
-    # # tikzplotlib.save('%s.tex' % (plotname))

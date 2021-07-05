@@ -27,12 +27,10 @@ def get_plotdir(sim, **kwargs):
 
 def suffix_str(sim, model, yr_span, **kwargs):
 
-    if sim == 'rcp85':
+    if sim in ['rcp85', 'historical', 'echam']:
        suffix_str = '%s/%s/%s' % (sim, model, yr_span)
     elif sim == 'longrun':
        suffix_str = '%s/%s' % (sim, model)
-    elif sim == 'echam':
-       suffix_str = '%s/%s/%s' % (sim, model, yr_span)
     elif sim == 'era5':
        suffix_str = '%s/%s' % (sim, yr_span)
 

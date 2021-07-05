@@ -1,0 +1,66 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{Research notes}
+\date{June 30, 2021}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+I present below a research question focusing on the dynamical aspect (polar lows) of the RAE to RCAE regime transition that is projected to occur with the disappearance of winter sea ice in the Arctic.
+
+\section{Introduction}
+\begin{itemize}
+	\item Polar lows are one of the key weather systems that characterize the dynamics of the Arctic atmosphere \citep{jonassen2020}.
+	\item The strong winds, waves, and snowfall associated with polar lows affect offshore oil structures \citep{pakkan2013}, ships \citep{orimolade2017}, and even populated regions over land \citep[Japan in particular, e.g.,][]{yanase2016}.
+    \item Polar lows are distinguished from midlatitude extratropical cyclones in the follows ways:
+    \begin{itemize}
+        \item Smaller in scale (consistent with a smaller Rossby radius of deformation $NH/f$, where coriolis parameter is larger, static stability is weaker (over open ocean in the winter), and troposphere is shallower in the high latitudes compared to the midlatitudes) \citep{rasmussen2003}
+        \item Located poleward of the polar front \citep{heinemann1997}
+    \end{itemize}
+    \item In the Northern Hemisphere, polar lows commonly form over the Northern Atlantic and Pacific \citep[see Fig.~5a in][]{stoll2018}. This region has a strong temperature gradient owing to the cold air over sea ice and warm air over the Northernmost extent of the Western boundary current. In the Southern Hemisphere polar lows are more, but not entirely, zonally symmetric \citep[see Fig.~5b in][]{stoll2018}.
+    \item As sea ice retreats, the polar low storm track is expected to shift poleward. That is, polar low frequency is expected to increase over the newly exposed open ocean \citep{zabolotskikh2015} while they are expected to decrease in the North Atlantic \citep{romero2017}.
+    \item Most polar lows in the modern climate is increasingly thought to be driven by baroclinicity \citep[similar to midlatitude extratropical cyclones, e.g.][]{kolstad2016, stoll2021} moreso than WISHE \citep[similar to tropical cyclones, e.g.][]{emanuel1989}.
+    \item A large source of this baroclinicity in the modern climate is associated with the sea ice edge. Once the Arctic becomes perennially ice-free, will polar lows become more hurricane-like and maintained through WISHE as opposed to baroclinicity \citep[i.e., more like the M0 vs M3 storm in the simulations of][]{yanase2005, yanase2007}? This would have important implications for our theoretical understanding of polar lows in a future climate in additional to practical consequences, such as the size and the wind speed of future polar lows (hurricane-like polar lows are smaller and have higher maximum wind speed).
+\end{itemize}
+
+\section{Some preliminary insights}
+\subsection{Weakened (reversed) surface baroclinicity in an ice-free Central Arctic}
+\begin{itemize}
+    \item In an ice-free Arctic, surface baroclinicity is weakened (Fig.~\ref{fig:tas}). In fact, the baroclinicity is reversed with warmer temperatures at the North Pole compared to that around 70$^\circ$N. This is because the latitude around 60--70$^\circ$N is dominated by land, whose smaller surface heat capacity leads to cooler surface temperatures during polar night \citep{burt2016, henry2021}.
+    \item Weakened baroclinicity over the Central Arctic in an ice-free state makes it plausible that a typical polar low that develops in this area resembles a hurricane (axisymmetric, surface evaporation-driven) moreso than an extratropical cyclone (comma-shaped, baroclinically-driven) \cite{yanase2005,yanase2007}.
+    \item Additional food for thought: given the reversed temperature gradient, does the polar cell become thermally indirect? Alternatively, does the polar cell reverse directions and remain thermally direct (rise at North Pole, sink around 60-70$^\circ$N)? Does the zonally-averaged circulation provide any useful information at the high latitudes?
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/lat/tas_lat.ymonmean-30.djf}.pdf}
+    \caption{The wintertime (DJF) latitudinal structure of 2 m temperature averaged over years 2270--2300 of the RCP8.5 run of MPI-ESM-LR.}
+    \label{fig:tas}
+\end{figure}
+
+\subsection{Transition into the RCAE regime is associated with transition to nonzero convective precipitation}
+\begin{itemize}
+    \item The high latitudes in MPI-ESM-LR undergo a regime transition to RCAE around year 2100 (black line crosses over to white region in Fig.~\ref{fig:prc}).
+    \item Prior to year 2100 (in a state of RAE), convective precipitation is negligibly small (blue line in Fig.~\ref{fig:prc}).
+    \item The transition to RCAE and the subsequent decrease in $R_1$ is associated with increasing convective precipitation, indicating that deep convection is active in the RCAE regime. This is consistent with previous work that show convection can occur over the Arctic during wintertime \citep{abbot2008, abbot2008a, arnold2014}.
+    \item The dominant moisture source of increased precipitation over the Central Arctic is local evaporation rather than moisture advection from lower latitudes \citep{bintanja2014}. This is consistent with the hypothesis that the polar lows over an ice-free Central Arctic is driven by WISHE rather than baroclinicity.
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.djfmean.prc}.pdf}
+    \caption{The wintertime (DJF) evolution of $R_1$ (left axis, black line) and convective precipitation (right axis, blue line) in MPI-ESM-LR high latitudes (80 to 90$^\circ$N) following the RCP8.5 increase in CO$_2$. Blue region shows the boundary of RAE ($R_1\le0.9$). Note that $R_1$ decreases upward to facilitate comparison with precipitation.}
+    \label{fig:prc}
+\end{figure}
+
+
+\bibliographystyle{apalike}
+\bibliography{../../../002/draft/references.bib}
+
+\end{document}
