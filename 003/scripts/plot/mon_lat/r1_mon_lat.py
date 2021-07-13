@@ -20,6 +20,7 @@ def r1_mon_lat(sim, **kwargs):
     timemean = kwargs.get('timemean', '') # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
     domain = kwargs.get('domain', '')
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
+    viewplt = kwargs.get('viewplt', 0) # view plot? (plt.show)
 
     if sim == 'longrun':
         model = kwargs.get('model', 'MPIESM12_abrupt4x')
@@ -97,22 +98,25 @@ def r1_mon_lat(sim, **kwargs):
     # print(np.reshape(r1, (-1,96,12)).shape)
     if timemean == '':
         r1 = np.mean(np.reshape(r1, (-1,12,r1.shape[1])),1)
-
-    rolling_mean = 0; # smooth data using a rolling mean? (units: yr)
-    r1_filt = uniform_filter(r1, [rolling_mean,0]) # apply rolling mean
+        
+    # rolling_mean = 0; # smooth data using a rolling mean? (units: yr)
+    # r1 = uniform_filter(r1, [rolling_mean,0]) # apply rolling mean
 
     [mesh_lat, mesh_time] = np.meshgrid(grid['lat'], yr_base + np.arange(r1.shape[0])) # create mesh
 
     ##################################
     # PLOT
     ##################################
+    if viewplt:
+        plt.show()
+
     plotname = remove_repdots('%s/r1_mon_lat.%s.%s' % (plotdir, domain, timemean))
     fig, ax = plt.subplots()
     vmin = -1.7
     vmax = 1.7
-    csf = ax.contourf(mesh_time, mesh_lat, r1_filt, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
-    cs_rae = ax.contour(mesh_time, mesh_lat, r1_filt, levels=[0.9], colors='royalblue', linewidths=3)
-    cs_rce = ax.contour(mesh_time, mesh_lat, r1_filt, levels=[0.1], colors='sandybrown', linewidths=3)
+    csf = ax.contourf(mesh_time, mesh_lat, r1, np.arange(vmin,vmax,0.1), cmap='RdBu', vmin=vmin, vmax=vmax, extend='both')
+    cs_rae = ax.contour(mesh_time, mesh_lat, r1, levels=[0.9], colors='royalblue', linewidths=3)
+    cs_rce = ax.contour(mesh_time, mesh_lat, r1, levels=[0.1], colors='sandybrown', linewidths=3)
     make_title_sim_time(ax, sim, model=model, timemean=timemean)
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:

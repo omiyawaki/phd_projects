@@ -17,7 +17,7 @@ def lat_mean(var, grid, lat, **kwargs):
 
     clat = np.cos(np.radians(lat))
 
-    var_fint = interp1d(grid['lat'], var, axis=1, bounds_error=False)
+    var_fint = interp1d(grid['lat'], var, axis=dim, bounds_error=False)
     var_int = var_fint(lat)
     nanfilt = np.copy(var_int)
     nanfilt[~np.isnan(nanfilt)] = 1

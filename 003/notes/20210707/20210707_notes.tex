@@ -1,0 +1,78 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{Research notes}
+\date{July 7, 2021}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+\section{$R_1$ decomposition reveals two stages of evolution}
+\begin{itemize}
+    \item Decomposing the $R_1$ deviation from the control climate value may provide some insight into the mechanism that contributes to the wintertime $R_1$ regime transition.
+    \item Prior to the regime transition around year 2100, the evolution of $R_1$ closely follows the radiative component (gray line, Fig.~\ref{fig:decomp-mpi}).
+    \item Stronger radiative cooling $R_a$ is mostly balanced by comparable increases in latent and sensible heat fluxes (compare gray line to blue and orange lines, Fig.~\ref{fig:flux-dev-mpi}). Stronger radiative cooling is likely due to the greenhouse effect dominating over the shortwave absorption effect of increased atmospheric water vapor with warming.
+    \item Around year 2100 (when winter sea ice begins to melt), the decrease in $R_1$ becomes dominated by the dynamic component (red line, Fig.~\ref{fig:decomp-mpi}).
+    \item Weaker MSE flux convergence in the RCAE regime is mostly balanced by an increase in latent heat flux (compare red and blue lines, Fig.~\ref{fig:flux-dev-mpi}).
+    \item Research question: what does this wintertime Arctic RCAE regime look like dynamically?
+        \begin{itemize}
+            \item Zonal mean circulation (Fig.~\ref{fig:diagram})
+            \begin{itemize}
+                \item Will the NH zonal mean circulation remain in a 3-cell configuration? Since the near-surface temperature increases with latitude in the ice-free Arctic, does the Polar Cell become thermally indirect? If so, how is the Polar Cell maintained? Is the maintenance of the modern Polar Cell understood? So far I have not found any papers that provides a theory of the Polar Cell. The upper branch of the Polar Cell likely isn't angular momentum conserving because the zonal wind exactly at the North Pole must be 0; is it possibly eddy-driven?
+                \item Alternatively, can the Ferrel Cell expand all the way to the pole, where the upward branch of the Ferrel Cell becomes thermally direct? This seems unlikely because we expect regions of mixing by baroclinic eddies to be flanked by easteries.
+                \item Another possibility is that a new, fourth cell emerges as a thermally direct cell (Polar Cell 2). If this is the case, will the equatorward Polar Cell (Polar Cell 1) be thermally direct or indirect?
+            \end{itemize}
+            \item Eddies/polar lows? (possibly beyond the scope of this project)
+        \end{itemize}
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.djfmean.decomp}.pdf}
+    \caption{The wintertime (DJF) time evolution of $R_1$ decomposed into the dynamic (red) and radiative (gray) components for the RCP8.5 run of MPI-ESM-LR.}
+    \label{fig:decomp-mpi}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/flux_dev_mon_hl.80.90.djfmean}.pdf}
+    \caption{The wintertime (DJF) energy flux changes relative to 2006 for the RCP8.5 run of MPI-ESM-LR.}
+    \label{fig:flux-dev-mpi}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{{/project2/tas1/miyawaki/projects/003/notes/20210707/diagrams}.pdf}
+    \caption{Diagram showing the maintenance of the modern Ferrel Cell and possible configurations in an ice-free state.}
+    \label{fig:diagram}
+\end{figure}
+
+\section{$R_1$ evolution in ERA5}
+\begin{itemize}
+    \item High latitude $R_1$ does not show a discernible trend (just judging by naked eye for the time being; I can do a more rigorous trend analysis next). Interestingly, the lack of a trend in $R_1$ appears to be due to a cancelation of the dynamic and radiative components (Fig.~\ref{fig:flux-dev-era}).
+    \item Unlike the RCP8.5 evolution in MPI-ESM-LR, in the past 40-year trend in ERA5, stronger radiative cooling is balanced by increased MSE flux convergence into the high latitudes (Fig.~\ref{fig:flux-dev-era}).
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/era5/1979_2019/mon_hl/r1_mon_hl.80.90.djfmean.decomp}.pdf}
+    \caption{Same as Fig.~\ref{fig:decomp-mpi} but for the ERA5 reanalysis from 1979 through 2019.}
+    \label{fig:decomp-era}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/era5/1979_2019/mon_hl/flux_dev_mon_hl.80.90.djfmean}.pdf}
+    \caption{Same as Fig.~\ref{fig:flux-dev-mpi} but for the ERA5 reanalysis from 1979 through 2019.}
+    \label{fig:flux-dev-era}
+\end{figure}
+
+% \bibliographystyle{apalike}
+% \bibliography{../../../002/draft/references.bib}
+
+\end{document}

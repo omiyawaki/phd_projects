@@ -24,9 +24,11 @@ def r1_mon_hl(sim, **kwargs):
     zonmean = kwargs.get('zonmean', 'zonmean') # zonal mean?
     timemean = kwargs.get('timemean', '') # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
+    viewplt = kwargs.get('viewplt', 0) # view plot? (plt.show)
     latbnd = kwargs.get('latbnd', (80,90))
     latstep = kwargs.get('latstep', 0.25) # latitude step size used for interpolation
-    plotover = kwargs.get('plotover', 'sic') # plot overlay (sic for sea ice, ga_dev for lapse rate deviation, pr for precip, decomp for linear decomposition)?
+    plotover = kwargs.get('plotover', None) # plot overlay (sic for sea ice, ga_dev for lapse rate deviation, pr for precip, decomp for linear decomposition)?
+    refclim = kwargs.get('refclim', 'hist-30') # reference climate from which to compute deviations (init is first time step, hist-30 is the last 30 years of the historical run)
     legend = kwargs.get('legend', 0)
     if plotover == 'ga_dev':
         vertcoord = kwargs.get('vertcoord', 'si') # vertical coordinate (si for sigma, pa for pressure, z for height)
@@ -58,17 +60,25 @@ def r1_mon_hl(sim, **kwargs):
         yr_base = 0
     elif sim == 'era5':
         model = None
-        yr_span = kwargs.get('yr_span', '1980_2005')
-        yr_base = 1980
+        yr_span = kwargs.get('yr_span', '1979_2019')
+        yr_base = 1979
 
     if latbnd[0] > 0: # NH
         if timemean == 'djfmean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
             if plotover == 'decomp':
-                vmin_r1 = 0.5
-                vmax_r1 = 1.1
+                if sim == 'era5':
+                    vmin_r1 = 0.5
+                    vmax_r1 = 1.2
+                else:
+                    vmin_r1 = 0.5
+                    vmax_r1 = 1.1
             else:
-                vmin_r1 = 0.5
-                vmax_r1 = 1.0
+                if sim == 'era5':
+                    vmin_r1 = 0.5
+                    vmax_r1 = 1.05
+                else:
+                    vmin_r1 = 0.5
+                    vmax_r1 = 1.1
             vmin_sic = -20
             vmax_sic = 100
             vmin_ga_dev = -200
@@ -80,8 +90,20 @@ def r1_mon_hl(sim, **kwargs):
             vmin_prl = 0.5
             vmax_prl = 1.8
         elif timemean == 'jjamean':
-            vmin_r1 = 0.825
-            vmax_r1 = 1.0
+            if plotover == 'decomp':
+                if sim == 'era5':
+                    vmin_r1 = 0.5
+                    vmax_r1 = 1.2
+                else:
+                    vmin_r1 = 0.5
+                    vmax_r1 = 1.1
+            else:
+                if sim == 'era5':
+                    vmin_r1 = 0.825
+                    vmax_r1 = 1.0
+                else:
+                    vmin_r1 = 0.825
+                    vmax_r1 = 1.0
             vmin_sic = 0
             vmax_sic = 120
             vmin_pr = 0.6
@@ -144,7 +166,7 @@ def r1_mon_hl(sim, **kwargs):
     r1_file = remove_repdots('%s/r1.%s.%s.pickle' % (datadir, zonmean, timemean))
 
     if not (os.path.isfile(r1_file) and try_load):
-        save_r1(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
+        save_r1(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span, refclim=refclim, try_load=try_load)
 
     [r1, grid] = pickle.load(open(r1_file, 'rb'))
 
@@ -161,6 +183,7 @@ def r1_mon_hl(sim, **kwargs):
     ############################################
     # PLOT
     ############################################
+
     plotname = '%s/r1_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean)
 
     fig, ax = plt.subplots()
@@ -308,6 +331,8 @@ def r1_mon_hl(sim, **kwargs):
         ############################################
         # COMPARE WITH SEA ICE CONCENTRATION
         ###########################################
+        plotname = '%s.%s' % (plotname, plotover)
+
         # location of pickled R1 seasonality data
         r1_dc_file = remove_repdots('%s/r1_dc.%s.%s.pickle' % (datadir, zonmean, timemean))
 
@@ -324,6 +349,7 @@ def r1_mon_hl(sim, **kwargs):
             r1_dc_hl[varname] = lat_mean(r1_dc[varname], grid, lat_int, dim=1)
 
         sax = ax.twinx()
+        sax.axhline(0, color='k', linewidth=0.5)
         sax.plot(time, r1_dc_hl['dyn'], color='maroon', label='$\overline{R_1} \dfrac{\Delta (\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}}$')
         sax.plot(time, r1_dc_hl['rad'], color='tab:gray', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$')
         sax.plot(time, r1_dc_hl['res'], '-.k', label='Residual')
@@ -336,4 +362,5 @@ def r1_mon_hl(sim, **kwargs):
 
     plt.tight_layout()
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
-    plt.show()
+    if viewplt:
+        plt.show()

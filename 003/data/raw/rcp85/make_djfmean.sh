@@ -1,12 +1,12 @@
 #!/bin/sh
 
-models=("MPI-ESM-LR")
-# varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
-varnames=("pr" "prc")
+models=("ACCESS1-0")
+varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
+# varnames=("pr" "prc")
 sim="rcp85"
 freq="Amon"
 ens="r1i1p1"
-yr_span="200601-230012"
+yr_span="200601-210012"
 
 # save path to current directory
 cwd=$(pwd)

@@ -26,6 +26,8 @@ def flux_mon_hl(sim, **kwargs):
     latbnd = kwargs.get('latbnd', (80,90))
     latstep = kwargs.get('latstep', 0.25) # latitude step size used for interpolation
     legend = kwargs.get('legend', 0) # draw legend?
+    refclim = kwargs.get('refclim', 'hist-30') # reference climate from which to compute deviations (init is first time step, hist-30 is the last 30 years of the historical run)
+    viewplt = kwargs.get('viewplt', 0) # view plot? (plt.show)
 
     lat_int = np.arange(latbnd[0], latbnd[1], latstep)
 
@@ -53,8 +55,8 @@ def flux_mon_hl(sim, **kwargs):
         yr_base = 0
     elif sim == 'era5':
         model = None
-        yr_span = kwargs.get('yr_span', '1980_2005')
-        yr_base = 1980
+        yr_span = kwargs.get('yr_span', '1979_2019')
+        yr_base = 1979
 
     if latbnd[0] > 0: # NH
         if timemean == 'djfmean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
@@ -79,6 +81,27 @@ def flux_mon_hl(sim, **kwargs):
         save_r1(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
 
     [flux, grid] = pickle.load(open(flux_file, 'rb'))
+    
+    if refclim == 'hist-30':
+        sim_ref='historical'
+        timemean_ref='ymonmean-30'
+        yr_span_ref='185001-200512'
+
+        datadir_ref = get_datadir(sim_ref, model=model, yr_span=yr_span_ref)
+
+        # location of pickled historical flux data
+        flux_file_ref = remove_repdots('%s/flux.%s.%s.pickle' % (datadir_ref, zonmean, timemean_ref))
+
+        if not (os.path.isfile(flux_file_ref) and try_load):
+            save_r1(sim_ref, model=model, zonmean=zonmean, timemean=timemean_ref, yr_span=yr_span_ref, refclim='init')
+
+        [flux_ref, grid_ref] = pickle.load(open(flux_file_ref, 'rb'))
+        
+        if timemean == 'djfmean':
+            for fluxname in flux_ref:
+                flux_ref[fluxname] = np.mean(np.roll(flux_ref[fluxname],1,axis=0)[0:3], 0)
+
+        flux_ref_hl = {}
 
     ############################################
     # AVERAGE FLUXES ONLY AT HIGH LATITUDES
@@ -87,7 +110,12 @@ def flux_mon_hl(sim, **kwargs):
     flux_dev_hl = {}
     for fluxname in flux:
         flux_hl[fluxname] = lat_mean(flux[fluxname], grid, lat_int, dim=1)
-        flux_dev_hl[fluxname] = flux_hl[fluxname] - flux_hl[fluxname][0]
+        
+        if refclim == 'init':
+            flux_dev_hl[fluxname] = flux_hl[fluxname] - flux_hl[fluxname][0]
+        else:
+            flux_ref_hl[fluxname] = lat_mean(flux_ref[fluxname], grid, lat_int, dim=0)
+            flux_dev_hl[fluxname] = flux_hl[fluxname] - flux_ref_hl[fluxname]
 
         # rolling_mean = 0; # smooth data using a rolling mean? (units: yr)
         # flux_hl[fluxname] = uniform_filter(flux_hl[fluxname], [rolling_mean,0]) # apply rolling mean
@@ -121,7 +149,8 @@ def flux_mon_hl(sim, **kwargs):
         ax.legend()
     plt.tight_layout()
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
-    plt.show()
+    if viewplt:
+        plt.show()
 
     ############################################
     # PLOT (DEVIATION FROM INITIAL)
@@ -149,4 +178,5 @@ def flux_mon_hl(sim, **kwargs):
         ax.legend()
     plt.tight_layout()
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
-    plt.show()
+    if viewplt:
+        plt.show()
