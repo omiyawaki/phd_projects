@@ -79,7 +79,7 @@ def save_r1(sim, **kwargs):
     elif refclim == 'hist-30':
         sim_ref='historical'
         timemean_ref='ymonmean-30'
-        yr_span_ref='185001-200512'
+        yr_span_ref='186001-200512'
 
         datadir_ref = get_datadir(sim_ref, model=model, yr_span=yr_span_ref)
 
@@ -110,6 +110,7 @@ def save_r1(sim, **kwargs):
 
     pickle.dump([r1, grid], open(remove_repdots('%s/r1.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
     pickle.dump([r1_dc, grid], open(remove_repdots('%s/r1_dc.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
+    pickle.dump([ra, grid], open(remove_repdots('%s/ra.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
     pickle.dump([stg_adv, grid], open(remove_repdots('%s/stg_adv.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
     pickle.dump([flux, grid], open(remove_repdots('%s/flux.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
 

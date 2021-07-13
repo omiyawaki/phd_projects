@@ -49,9 +49,9 @@ def r1_mon_hl(sim, **kwargs):
             yr_base = 0
     elif sim == 'historical':
         model = kwargs.get('model', 'MPI-ESM-LR')
-        yr_span = kwargs.get('yr_span', '185001-200512')
+        yr_span = kwargs.get('yr_span', '186001-200512')
         if 'ymonmean' not in timemean:
-            yr_base = 1850
+            yr_base = 1860
         else:
             yr_base = 0
     elif sim == 'echam':
@@ -71,7 +71,7 @@ def r1_mon_hl(sim, **kwargs):
                     vmax_r1 = 1.2
                 else:
                     vmin_r1 = 0.5
-                    vmax_r1 = 1.1
+                    vmax_r1 = 1.3
             else:
                 if sim == 'era5':
                     vmin_r1 = 0.5
@@ -199,7 +199,7 @@ def r1_mon_hl(sim, **kwargs):
     else:
         ax.set_xlabel('Time (yr)')
     ax.set_ylabel('$R_1$ (unitless)')
-    ax.xaxis.set_minor_locator(MultipleLocator(10))
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(MultipleLocator(0.01))
     ax.set_xlim(yr_base,yr_base+r1_hl.shape[0]-1)
     ax.set_ylim(vmin_r1,vmax_r1)
@@ -364,3 +364,4 @@ def r1_mon_hl(sim, **kwargs):
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
     if viewplt:
         plt.show()
+    plt.close()

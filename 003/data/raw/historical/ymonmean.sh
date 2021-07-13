@@ -1,7 +1,7 @@
 #!/bin/sh
 
-declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/historical/ && ls -d */) # list of GCM models to process
-# models=("MPI-ESM-LR")
+# declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/historical/ && ls -d */) # list of GCM models to process
+models=("inmcm4/")
 varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
 # varnames=("pr")
 sim="historical"

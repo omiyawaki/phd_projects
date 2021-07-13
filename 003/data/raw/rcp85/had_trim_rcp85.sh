@@ -6,19 +6,20 @@ declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hf
 # declare -a vars_gcm=("ps" "tas" "ta" "zg" "ts" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "evspsbl") # list of GCM variables that we want to process
 # declare -a vars_gcm=("pr") # list of GCM variables that we want to process
 declare -a realm=("atmos")
-declare -a clim="historical" # climate name
+declare -a clim="rcp85" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
 declare -a ens="r1i1p1" # ensemble specification 
-# declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/historical/ && ls -d */) # list of GCM models to process
-declare -a models=("inmcm4/") # list of GCM models to process
-declare -a skip_models="FGOALS-s2/"
+# declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/rcp85/ && ls -d */) # list of GCM models to process
+declare -a models="HadGEM2-CC/" # list of GCM models to process
+# declare -a models=("ACCESS1-0/") # list of GCM models to process
+declare -a skip_models="ACCESS1-0/ inmcm4/ FGOALS-s2/"
 declare -a skip_files=("_eady.nc")
 # declare -a skip_files=("185001-200512.nc _eady.nc")
 # declare -a skip_files=("185001-201212.nc 185001-200512.nc _eady.nc")
 
-out_yr_begin=1860
+out_yr_begin=2006
 out_mn_begin=01
-out_yr_end=2005
+out_yr_end=2100
 out_mn_end=12
 
 cwd=$(pwd) # save current working directory
@@ -38,7 +39,7 @@ for dirs in ${models[@]}; do # loop through models
             #     echo "${vars} was already converted. Skipping..."
             # else
 
-                pattern="${vars}_*${dirs%/}*200512.nc"
+                pattern="${vars}_*${dirs%/}*12.nc"
                 files=( $pattern )
 
                 if [[ ${files[@]} != *.nc ]]; then # check if this file exists
@@ -60,7 +61,7 @@ for dirs in ${models[@]}; do # loop through models
                     fi
 
                 else
-                    echo "There are multiple files ending with year 2005. Make sure there are no duplicates of this data."
+                    echo "There are multiple files beginning with year 2006. Make sure there are no duplicates of this data."
                 fi
 
         done

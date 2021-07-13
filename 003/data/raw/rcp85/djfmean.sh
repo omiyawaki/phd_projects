@@ -1,6 +1,8 @@
 #!/bin/sh
 
-models=("ACCESS1-0")
+# declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/rcp85/ && ls -d */) # list of GCM models to process
+# models=("IPSL-CM5A-MR/")
+models=("CCSM4/")
 varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
 # varnames=("pr" "prc")
 sim="rcp85"
@@ -12,7 +14,8 @@ yr_span="200601-210012"
 cwd=$(pwd)
 
 for model in ${models[@]}; do
-
+    
+    model=${model%/}
     echo ${model}
 
     cd ${cwd}/${model}
@@ -24,11 +27,11 @@ for model in ${models[@]}; do
         filename="${varname}_${freq}_${model}_${sim}_${ens}_${yr_span}"
 
         # create DJF mean file if it doesn't exist yet
-        if [ -f "${filename}.djfmean.nc" ]; then
-            echo "DJF mean already taken, skipping..."
-        else
+        # if [ -f "${filename}.djfmean.nc" ]; then
+        #     echo "DJF mean already taken, skipping..."
+        # else
             cdo -seasmean -selseas,DJF ${filename}.nc ${filename}.djfmean.nc 
-        fi
+        # fi
 
     done # varnames
 done # models

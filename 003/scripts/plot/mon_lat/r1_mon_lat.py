@@ -107,9 +107,6 @@ def r1_mon_lat(sim, **kwargs):
     ##################################
     # PLOT
     ##################################
-    if viewplt:
-        plt.show()
-
     plotname = remove_repdots('%s/r1_mon_lat.%s.%s' % (plotdir, domain, timemean))
     fig, ax = plt.subplots()
     vmin = -1.7
@@ -133,3 +130,6 @@ def r1_mon_lat(sim, **kwargs):
     cbar.set_label('$R_1$ (unitless)')
     # plt.savefig('%s.png' % (plotname), dpi=300)
     plt.savefig('%s.pdf' % (plotname), format='pdf', dpi=300)
+    if viewplt:
+        plt.show()
+    plt.close()

@@ -44,9 +44,9 @@ def flux_mon_hl(sim, **kwargs):
             yr_base = 0
     elif sim == 'historical':
         model = kwargs.get('model', 'MPI-ESM-LR')
-        yr_span = kwargs.get('yr_span', '185001-200512')
+        yr_span = kwargs.get('yr_span', '186001-200512')
         if 'ymonmean' not in timemean:
-            yr_base = 1850
+            yr_base = 1860
         else:
             yr_base = 0
     elif sim == 'echam':
@@ -85,7 +85,7 @@ def flux_mon_hl(sim, **kwargs):
     if refclim == 'hist-30':
         sim_ref='historical'
         timemean_ref='ymonmean-30'
-        yr_span_ref='185001-200512'
+        yr_span_ref='186001-200512'
 
         datadir_ref = get_datadir(sim_ref, model=model, yr_span=yr_span_ref)
 
@@ -151,6 +151,7 @@ def flux_mon_hl(sim, **kwargs):
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
     if viewplt:
         plt.show()
+    plt.close()
 
     ############################################
     # PLOT (DEVIATION FROM INITIAL)
@@ -180,3 +181,4 @@ def flux_mon_hl(sim, **kwargs):
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
     if viewplt:
         plt.show()
+    plt.close()
