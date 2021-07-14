@@ -1,9 +1,10 @@
 import sys
 sys.path.append('/project2/tas1/miyawaki/projects/003/scripts')
-from misc.dirnames import get_datadir, get_plotdir
+from misc.dirnames import *
 from misc.filenames import *
 # from misc.translate import translate_varname
 from misc.means import lat_mean, global_int
+from misc.load_data import load_r1, load_r1_dc
 from misc import par
 from proc.r1 import save_r1
 from plot.titles import make_title_sim_time_lat
@@ -157,18 +158,13 @@ def r1_mon_hl(sim, **kwargs):
             vmin_ga_dev = 50
             vmax_ga_dev = 350
 
-
-    # load data and plot directories
-    datadir = get_datadir(sim, model=model, yr_span=yr_span)
-    plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
-
-    # location of pickled R1 data
-    r1_file = remove_repdots('%s/r1.%s.%s.pickle' % (datadir, zonmean, timemean))
-
-    if not (os.path.isfile(r1_file) and try_load):
-        save_r1(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span, refclim=refclim, try_load=try_load)
-
-    [r1, grid] = pickle.load(open(r1_file, 'rb'))
+    ##################################
+    # LOAD DATA
+    ##################################
+    if isinstance(model, str):
+        [r1, grid, datadir, plotdir, modelstr] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span) 
+    else:
+        [r1, grid, datadir, plotdir, modelstr, r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span) 
 
     ############################################
     # AVERAGE R1 ONLY AT HIGH LATITUDES
@@ -191,7 +187,7 @@ def r1_mon_hl(sim, **kwargs):
     rae = patches.Rectangle((yr_base,0.9),yr_base + r1_hl.shape[0],vmax_r1-0.9, alpha=0.5)
     ax.add_patch(rae)
     lp_r1 = ax.plot(time, r1_hl, color='black')
-    make_title_sim_time_lat(ax, sim, model=model, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
+    make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:
         ax.set_xticks(np.arange(0,12,1))
@@ -329,29 +325,44 @@ def r1_mon_hl(sim, **kwargs):
 
     elif plotover == 'decomp':
         ############################################
-        # COMPARE WITH SEA ICE CONCENTRATION
+        # DECOMPOSE INTO DYNAMIC AND RADIATIVE COMPONENTS
         ###########################################
         plotname = '%s.%s' % (plotname, plotover)
 
-        # location of pickled R1 seasonality data
-        r1_dc_file = remove_repdots('%s/r1_dc.%s.%s.pickle' % (datadir, zonmean, timemean))
+        if isinstance(model, str):
+            [r1_dc, grid, datadir, plotdir, modelstr] = load_r1_dc(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span) 
+        else:
+            [r1_dc, grid, datadir, plotdir, modelstr, r1_dc_mmm] = load_r1_dc(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span) 
 
-        if not (os.path.isfile(r1_dc_file) and try_load):
-            save_r1(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
+        # # location of pickled R1 seasonality data
+        # r1_dc_file = remove_repdots('%s/r1_dc.%s.%s.pickle' % (datadir, zonmean, timemean))
 
-        [r1_dc, grid] = pickle.load(open(r1_dc_file, 'rb'))
+        # if not (os.path.isfile(r1_dc_file) and try_load):
+        #     save_r1(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
+
+        # [r1_dc, grid] = pickle.load(open(r1_dc_file, 'rb'))
 
         ############################################
         # AVERAGE R1 COMPONENTS ONLY AT HIGH LATITUDES
         ############################################
         r1_dc_hl = {}
+        r1_dc_mmm_hl = {}
         for varname in r1_dc:
             r1_dc_hl[varname] = lat_mean(r1_dc[varname], grid, lat_int, dim=1)
 
+            r1_dc_mmm_hl[varname] = {}
+            for stat in r1_dc_mmm[varname]:
+                r1_dc_mmm_hl[varname][stat] = lat_mean(r1_dc_mmm[varname][stat], grid, lat_int, dim=1)
+
         sax = ax.twinx()
+        if not isinstance(model, str):
+            sax.fill_between(time, r1_dc_mmm_hl['dr1']['prc25'], r1_dc_mmm_hl['dr1']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
+            sax.fill_between(time, r1_dc_mmm_hl['dyn']['prc25'], r1_dc_mmm_hl['dyn']['prc75'], facecolor='maroon', alpha=0.2, edgecolor=None)
+            sax.fill_between(time, r1_dc_mmm_hl['rad']['prc25'], r1_dc_mmm_hl['rad']['prc75'], facecolor='tab:gray', alpha=0.3, edgecolor=None)
+            sax.fill_between(time, r1_dc_mmm_hl['res']['prc25'], r1_dc_mmm_hl['res']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
         sax.axhline(0, color='k', linewidth=0.5)
         sax.plot(time, r1_dc_hl['dyn'], color='maroon', label='$\overline{R_1} \dfrac{\Delta (\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}}$')
-        sax.plot(time, r1_dc_hl['rad'], color='tab:gray', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$')
+        sax.plot(time, r1_dc_hl['rad'], color='lightgray', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$')
         sax.plot(time, r1_dc_hl['res'], '-.k', label='Residual')
         sax.set_ylabel(r'$\Delta R_1$ (unitless)', color='black')
         sax.set_ylim(vmin_r1-r1_hl[0],vmax_r1-r1_hl[0])
