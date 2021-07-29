@@ -22,6 +22,11 @@ def translate_varname(varnames_in, **kwargs):
         'rsus' : 'rsus',
         'rlds' : 'rlds',
         'rlus' : 'rlus',
+        'rsutcs' : 'rsutcs',
+        'rlutcs' : 'rlutcs',
+        'rsdscs' : 'rsdscs',
+        'rsuscs' : 'rsuscs',
+        'rldscs' : 'rldscs',
 
         # LATENT HEAT
         'hfls' : 'hfls', # CMIP

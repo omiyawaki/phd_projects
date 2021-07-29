@@ -1,15 +1,14 @@
 #!/bin/sh
 
-# declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/historical/ && ls -d */) # list of GCM models to process
-models=("MPI-ESM-LR/")
-varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
-# varnames=("pr")
-sim="historical"
+models=("MPI-ESM-LR")
+# varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
+varnames=("divaht" "divmmc" "divse" "divte")
+sim="rcp85"
 freq="Amon"
 ens="r1i1p1"
-yr_span="186001-200512"
+yr_span="200601-230012"
 
-n_yr="146"
+n_yr="295"
 n_myr_begin="30"
 
 tstep_begin=$((1 + 12 * ($n_yr - $n_myr_begin)))
@@ -20,7 +19,6 @@ cwd=$(pwd)
 
 for model in ${models[@]}; do
 
-    model=${model%/}
     echo ${model}
 
     cd ${cwd}/${model}

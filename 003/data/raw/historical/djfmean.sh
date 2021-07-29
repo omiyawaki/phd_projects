@@ -2,7 +2,8 @@
 
 models=("MPI-ESM-LR")
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
-varnames=("pr" "prc")
+varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" )
+# varnames=("pr" "prc")
 sim="rcp85"
 freq="Amon"
 ens="r1i1p1"

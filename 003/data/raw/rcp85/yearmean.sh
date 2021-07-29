@@ -5,13 +5,12 @@
 models=("MPI-ESM-LR/")
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
 # varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
-# varnames=("divaht" "divmmc" "divse" "divte")
-varnames=("aht" "vmmmc" "vmse" "vmte")
+varnames=("vmmmc" "vmse")
 # varnames=("pr" "prc")
 sim="rcp85"
 freq="Amon"
 ens="r1i1p1"
-yr_span="200601-230012"
+yr_span="200601-200612"
 
 # save path to current directory
 cwd=$(pwd)
@@ -33,7 +32,7 @@ for model in ${models[@]}; do
         # if [ -f "${filename}.djfmean.nc" ]; then
         #     echo "DJF mean already taken, skipping..."
         # else
-            cdo -seasmean -selseas,DJF ${filename}.nc ${filename}.djfmean.nc 
+            cdo -yearmean ${filename}.nc ${filename}.yearmean.nc 
         # fi
 
     done # varnames

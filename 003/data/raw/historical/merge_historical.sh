@@ -2,16 +2,19 @@
 set -euo pipefail
 
 # declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
-declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
-# declare -a vars_gcm=("ps" "tas" "ta" "zg" "ts" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "evspsbl") # list of GCM variables that we want to process
-# declare -a vars_gcm=("pr") # list of GCM variables that we want to process
+# declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
+# declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("ps" "tas" "ta" "zg" "ts" "hus" "huss") # list of GCM variables that we want to process
+declare -a vars_gcm=("vas") # list of GCM variables that we want to process
+# declare -a vars_gcm=("ta") # list of GCM variables that we want to process
+# declare -a vars_gcm=("ps" "ta" "zg" "hus" "va") # list of GCM variables that we want to process
 declare -a realm=("atmos")
 declare -a clim="historical" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
 declare -a ens="r1i1p1" # ensemble specification 
 declare -a models=$(cd /project2/tas1/ockham/data9/tas/CMIP5_RAW && ls -d */) # list of GCM models to process
-declare -a models=("NorESM1-ME/") # list of GCM models to process
-declare -a skip_models="ACCESS1-0/ ACCESS1-3/ bcc-csm1-1/ bcc-csm1-1-m/ BNU-ESM/ CanESM2/ CCSM4/ CESM1-BGC/ CESM1-CAM5/ CESM1-WACCM/ CMCC-CESM/ CMCC-CM/ CMCC-CMS/ CNRM-CM5/ CNRM-CM5-2/ CSIRO-Mk3-6-0/ FGOALS-g2/ FGOALS-s2/ GFDL-CM3/ GFDL-ESM2G/ GFDL-ESM2M/ GISS-E2-H/ GISS-E2-H-CC/ GISS-E2-R/ GISS-E2-R-CC/ HadCM3/ HadGEM2-CC/ HadGEM2-ES/ inmcm4/ IPSL-CM5A-LR/ IPSL-CM5A-MR/ IPSL-CM5B-LR/ MIROC5/ MIROC-ESM/ MIROC-ESM-CHEM/ MPI-ESM-LR/ MPI-ESM-MR/ MRI-CGCM3/ MRI-ESM1/ NorESM1-M/ NorESM1-ME/ CanAM4/ CanCM4/ CESM1-CAM5-1-FV2/ EC-EARTH/ FIO-ESM/ HadGEM2-A/ HadGEM2-AO/ GFDL-HIRAM-C180/ GFDL-HIRAM-C360/ MRI-AGCM3-2H/ MRI-AGCM3-2S/ NICAM-09/ MPI-ESM-P/"
+declare -a models=("MPI-ESM-LR/") # list of GCM models to process
+declare -a skip_models="CanAM4/ CanCM4/ CESM1-CAM5-1-FV2/ EC-EARTH/ FIO-ESM/ HadGEM2-A/ HadGEM2-AO/ GFDL-HIRAM-C180/ GFDL-HIRAM-C360/ MRI-AGCM3-2H/ MRI-AGCM3-2S/ NICAM-09/ MPI-ESM-P/"
 declare -a skip_files=("_eady.nc")
 # declare -a skip_files=("185001-200512.nc _eady.nc")
 # declare -a skip_files=("185001-201212.nc 185001-200512.nc _eady.nc")
@@ -48,7 +51,8 @@ for dirs in ${models[@]}; do # loop through models
                 files=( $pattern )
                 # remove files that are not original (list of non-original data is contained in variable $delete )
                 for (( i=0; i<${#files[@]}; i++ )); do 
-                    case $skip_files in *"${files[i]#*_}"* | *"${files[i]:(-16)}"* )
+                    # case $skip_files in *"${files[i]#*_}"* | *"${files[i]:(-16)}"* )
+                    case $skip_files in *"${files[i]#*_}"* | *"${files[i]:(-8)}"* | *"${files[i]:(-16)}"* )
                         files=( "${files[@]:0:$i}" "${files[@]:$((i + 1))}" )
                         i=$((i - 1))
                         ;;
@@ -57,6 +61,7 @@ for dirs in ${models[@]}; do # loop through models
                         ;;
                     esac
                 done
+                echo ${files[@]}
 
                 if [[ ${files[@]} != *.nc ]]; then # check if this file exists
                     echo "File of type $pattern does not exist. Please download the file and place it in the corresponding directory."

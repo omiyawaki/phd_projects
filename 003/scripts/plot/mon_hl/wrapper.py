@@ -1,7 +1,8 @@
 from r1_mon_hl import *
 from flux_mon_hl import *
+from rad_mon_hl import *
 
-# models = ['MPI-ESM-LR']
+models = ['MPI-ESM-LR']
 
 # STANDARD RCP8.5 RUNS, OUT TO 2100
 # yr_span = '200601-210012'
@@ -9,27 +10,28 @@ from flux_mon_hl import *
 
 # EXTENDED RCP8.5 RUNS, TO 2300
 yr_span = '200601-230012'
-models = ['GISS-E2-H', 'GISS-E2-R', 'bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
+# models = ['GISS-E2-H', 'GISS-E2-R', 'bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
 
-mmm = 1
+mmm = 0
 sim = 'rcp85'
 plotover = 'decomp'
 timemean = 'djfmean'
 refclim = 'hist-30'
 latbnd = (80,90)
-viewplt = 1
-try_load = 1
+viewplt = 0
+try_load = 0
 legend = 1
 
 if mmm:
-    r1_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=models, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=1)
+    r1_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=models, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend)
 
-    flux_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=models, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=1)
+    flux_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=models, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend)
 
 else:
     for model in models:
         print(model)
 
-        # r1_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd)
+        # r1_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend)
 
-        # flux_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd)
+        # flux_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend)
+        rad_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend)

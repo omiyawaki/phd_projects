@@ -4,9 +4,7 @@
 # models=("IPSL-CM5A-MR/")
 models=("MPI-ESM-LR/")
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
-# varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
-# varnames=("divaht" "divmmc" "divse" "divte")
-varnames=("aht" "vmmmc" "vmse" "vmte")
+varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
 # varnames=("pr" "prc")
 sim="rcp85"
 freq="Amon"
