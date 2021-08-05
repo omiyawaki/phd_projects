@@ -5,7 +5,7 @@ set -euo pipefail
 # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "tas" "ta" "zg" "ts" "hus" "huss") # list of GCM variables that we want to process
-declare -a vars_gcm=("vas") # list of GCM variables that we want to process
+declare -a vars_gcm=("evspsbl") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ta") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "ta" "zg" "hus" "va") # list of GCM variables that we want to process
 declare -a realm=("atmos")

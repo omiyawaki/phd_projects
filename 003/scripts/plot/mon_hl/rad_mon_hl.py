@@ -89,7 +89,7 @@ def rad_mon_hl(sim, **kwargs):
     # LOAD DATA
     ##################################
     
-    if isinstance(model, str):
+    if isinstance(model, str) or model is None:
         [rad, grid, datadir, plotdir, modelstr] = load_rad(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
     else:
         [rad, grid, datadir, plotdir, modelstr, rad_mmm] = load_rad(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)

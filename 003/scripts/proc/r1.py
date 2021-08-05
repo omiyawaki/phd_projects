@@ -99,10 +99,18 @@ def save_r1(sim, **kwargs):
             r1_ref = np.mean(np.roll(r1_ref,1,axis=0)[0:3], 0)
             ra_ref = np.mean(np.roll(ra_ref,1,axis=0)[0:3], 0)
             stg_adv_ref = np.mean(np.roll(stg_adv_ref,1,axis=0)[0:3], 0)
+        elif timemean == 'mammean':
+            r1_ref = np.mean(r1_ref[2:5], 0)
+            ra_ref = np.mean(ra_ref[2:5], 0)
+            stg_adv_ref = np.mean(stg_adv_ref[2:5], 0)
         elif timemean == 'jjamean':
             r1_ref = np.mean(r1_ref[5:8], 0)
             ra_ref = np.mean(ra_ref[5:8], 0)
             stg_adv_ref = np.mean(stg_adv_ref[5:8], 0)
+        elif timemean == 'sonmean':
+            r1_ref = np.mean(r1_ref[8:11], 0)
+            ra_ref = np.mean(ra_ref[8:11], 0)
+            stg_adv_ref = np.mean(stg_adv_ref[8:11], 0)
 
         r1_dc['dr1'] = r1 - r1_ref # r1 deviation from first year
         ra_tavg = ra_ref

@@ -4,10 +4,11 @@ from misc.dirnames import *
 from misc.filenames import *
 # from misc.translate import translate_varname
 from misc.means import lat_mean, global_int
-from misc.load_data import load_r1, load_r1_dc
+from misc.load_data import *
 from misc import par
 from proc.r1 import save_r1
 from plot.titles import make_title_sim_time_lat
+from yaxis_r1_mon_hl import yaxis_r1_mon_hl
 import os
 import pickle
 import numpy as np
@@ -62,109 +63,45 @@ def r1_mon_hl(sim, **kwargs):
     elif sim == 'era5':
         model = None
         yr_span = kwargs.get('yr_span', '1979_2019')
-        yr_base = 1979
+        if 'ymonmean' not in timemean:
+            yr_base = int(yr_span[0:4])
+        else:
+            yr_base = 0
 
-    if latbnd[0] > 0: # NH
-        if timemean == 'djfmean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
-            if plotover == 'decomp':
-                if sim == 'era5':
-                    vmin_r1 = 0.5
-                    vmax_r1 = 1.2
-                else:
-                    vmin_r1 = 0.5
-                    vmax_r1 = 1.3
-            else:
-                if sim == 'era5':
-                    vmin_r1 = 0.5
-                    vmax_r1 = 1.05
-                else:
-                    vmin_r1 = 0.5
-                    vmax_r1 = 1.1
-            vmin_sic = -20
-            vmax_sic = 100
-            vmin_ga_dev = -200
-            vmax_ga_dev = 200
-            vmin_pr = 0.6
-            vmax_pr = 2.2
-            vmin_prc = -0.2
-            vmax_prc = 0.8
-            vmin_prl = 0.5
-            vmax_prl = 1.8
-        elif timemean == 'jjamean':
-            if plotover == 'decomp':
-                if sim == 'era5':
-                    vmin_r1 = 0.5
-                    vmax_r1 = 1.2
-                else:
-                    vmin_r1 = 0.5
-                    vmax_r1 = 1.1
-            else:
-                if sim == 'era5':
-                    vmin_r1 = 0.825
-                    vmax_r1 = 1.0
-                else:
-                    vmin_r1 = 0.825
-                    vmax_r1 = 1.0
-            vmin_sic = 0
-            vmax_sic = 120
-            vmin_pr = 0.6
-            vmax_pr = 2.2
-            vmin_prc = -0.2
-            vmax_prc = 0.8
-            vmin_prl = 0.5
-            vmax_prl = 1.8
-        elif timemean == 'yearmean' or timemean == '':
-            vmin_r1 = 0.7
-            vmax_r1 = 0.95
-            vmin_sic = -40
-            vmax_sic = 100
-            vmin_ga_dev = -200
-            vmax_ga_dev = 175
-            vmin_pr = 0.6
-            vmax_pr = 2.2
-            vmin_prc = -0.1
-            vmax_prc = 0.4
-        elif timemean == 'ymonmean-30':
-            vmin_r1 = 0.5
-            vmax_r1 = 1.4
-            vmin_sic = -40
-            vmax_sic = 100
-            vmin_ga_dev = -200
-            vmax_ga_dev = 175
-            vmin_pr = 0
-            vmax_pr = 4
-            vmin_prc = -0.1
-            vmax_prc = 1
-    else: # SH
-        if timemean == 'djfmean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
-            vmin_r1 = 0.8 
-            vmax_r1 = 1.4
-            vmin_sic = -40
-            vmax_sic = 100
-            vmin_ga_dev = 50
-            vmax_ga_dev = 350
-        elif timemean == 'jjamean':
-            vmin_r1 = 0.8 
-            vmax_r1 = 1.4
-            vmin_sic = -40
-            vmax_sic = 100
-            vmin_ga_dev = 50
-            vmax_ga_dev = 350
-        elif timemean == 'yearmean' or timemean == '':
-            vmin_r1 = 0.8 
-            vmax_r1 = 1.4
-            vmin_sic = -40
-            vmax_sic = 100
-            vmin_ga_dev = 50
-            vmax_ga_dev = 350
+    ##########################################
+    ## Y AXIS SPECIFICATIONS
+    ##########################################
+    vmin, vmax = yaxis_r1_mon_hl(sim, timemean=timemean, latbnd=latbnd, plotover=plotover)
 
     ##################################
     # LOAD DATA
     ##################################
-    if isinstance(model, str):
-        [r1, grid, datadir, plotdir, modelstr] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span) 
+    if isinstance(model, str) or model is None:
+        [r1, grid, datadir, plotdir, modelstr] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
     else:
-        [r1, grid, datadir, plotdir, modelstr, r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span) 
+        [r1, grid, datadir, plotdir, modelstr, r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
+
+    if 'pr' in plotover:
+        if isinstance(model, str) or model is None:
+            [hydro, grid, datadir, plotdir, modelstr] = load_hydro(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+        else:
+            [hydro, grid, datadir, plotdir, modelstr, hydro_mmm] = load_hydro(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+
+        if refclim == 'hist-30':
+            sim_ref = 'historical'
+            timemean_ref = 'ymonmean-30'
+            yr_span_ref = '186001-200512'
+            if isinstance(model, str):
+                [hydro_ref, _, _, _, _] = load_hydro(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
+            else:
+                [hydro_ref, _, _, _, _, hydro_ref_mmm] = load_hydro(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
+            
+            if timemean == 'djfmean':
+                for hydroname in hydro_ref:
+                    hydro_ref[hydroname] = np.mean(np.roll(hydro_ref[hydroname],1,axis=0)[0:3], 0)
+            elif timemean == 'jjamean':
+                for hydroname in hydro_ref:
+                    hydro_ref[hydroname] = np.mean(hydro_ref[hydroname][5:8], 0)
 
     ############################################
     # AVERAGE R1 ONLY AT HIGH LATITUDES
@@ -177,6 +114,13 @@ def r1_mon_hl(sim, **kwargs):
     time = yr_base + np.arange(r1_hl.shape[0]) # create time vector
 
     ############################################
+    # COMPUTE REGRESSION
+    ############################################
+    if 'ymonmean' not in timemean and sim == 'era5':
+        A = np.vstack([time, np.ones(len(time))]).T
+        m, c = np.linalg.lstsq(A, r1_hl, rcond=None)[0]
+
+    ############################################
     # PLOT
     ############################################
 
@@ -184,21 +128,25 @@ def r1_mon_hl(sim, **kwargs):
 
     fig, ax = plt.subplots()
     # rae = patches.Rectangle((0,0.9),r1_hl.shape[0],vmax_r1-0.9, alpha=0.5)
-    rae = patches.Rectangle((yr_base,0.9),yr_base + r1_hl.shape[0],vmax_r1-0.9, alpha=0.5)
+    rae = patches.Rectangle((yr_base,0.9),yr_base + r1_hl.shape[0],vmax['r1']-0.9, alpha=0.5)
     ax.add_patch(rae)
     lp_r1 = ax.plot(time, r1_hl, color='black')
+    if 'ymonmean' not in timemean and sim == 'era5':
+        # lp_trend = ax.plot(time, m*time + c, '--k', label='%g decade$^{-1}$' % (m*10))
+        lp_trend = ax.plot(time, m*time + c, '--k', label='$R_1$ trend$ = %.1f$ %% decade$^{-1}$' % (m/np.nanmean(r1_hl) *1e3))
     make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
+    print(timemean)
     if 'ymonmean' in timemean:
         ax.set_xticks(np.arange(0,12,1))
         ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
     else:
         ax.set_xlabel('Time (yr)')
+        ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.set_ylabel('$R_1$ (unitless)')
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(MultipleLocator(0.01))
     ax.set_xlim(yr_base,yr_base+r1_hl.shape[0]-1)
-    ax.set_ylim(vmin_r1,vmax_r1)
+    ax.set_ylim(vmin['r1'],vmax['r1'])
 
     if plotover == 'sic':
         ############################################
@@ -224,7 +172,7 @@ def r1_mon_hl(sim, **kwargs):
         else:
             sax.plot(time, sic_hl, color='tab:blue')
             sax.set_ylabel('Sea ice fraction (%)', color='tab:blue')
-        sax.set_ylim(vmin_sic,vmax_sic)
+        sax.set_ylim(vmin['sic'],vmax['sic'])
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(MultipleLocator(5))
 
@@ -243,33 +191,63 @@ def r1_mon_hl(sim, **kwargs):
         sax = ax.twinx()
         sax.plot(time, ga_dev_vint_hl, color='tab:blue')
         sax.set_ylabel(r'$\langle(\Gamma_m-\Gamma)/\Gamma_m\rangle_{%0.1f}^{%0.1f}$ (%%)' % (vertbnd[0], vertbnd[1]), color='tab:blue')
-        sax.set_ylim(vmin_ga_dev,vmax_ga_dev)
+        sax.set_ylim(vmin['ga_dev'],vmax['ga_dev'])
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(MultipleLocator(5))
+
+    elif plotover == 'prfrac':
+        ############################################
+        # COMPARE WITH FRACTION OF LARGE SCALE PRECIPITATION
+        ###########################################
+        plotname = '%s.%s' % (plotname, plotover)
+        
+        hydro_ref_hl = {}
+
+        # take mean in high latitudes
+        prfrac_hl = lat_mean(100*hydro['prl']/hydro['pr'], grid, lat_int, dim=1)
+
+        # compute trends
+        if 'ymonmean' not in timemean and sim == 'era5':
+            A = np.vstack([time, np.ones(len(time))]).T
+            m, c = np.linalg.lstsq(A, prfrac_hl, rcond=None)[0]
+
+        sax = ax.twinx()
+        sax.plot(time, prfrac_hl, color='tab:blue')
+        if 'ymonmean' not in timemean and sim == 'era5':
+            # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
+            sax.plot(time, m*time + c, '--', color='tab:blue', label='$P_l/P$ trend$ = %.1f$ %% decade$^{-1}$' % (m*10))
+        sax.set_ylabel(r'$P_l/P$ (%)', color='tab:blue')
+        sax.set_ylim(vmin['prfrac'],vmax['prfrac'])
+        sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
+        sax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
+        sax.set_ylim(sax.get_ylim()[::-1]) # invert r1 axis
 
     elif plotover == 'pr':
         ############################################
         # COMPARE WITH PRECIPITATION
         ###########################################
         plotname = '%s.%s' % (plotname, plotover)
+        
+        hydro_ref_hl = {}
 
-        pr_file = filenames_raw(sim, 'pr', model=model, timemean=timemean, yr_span=yr_span)
-        if not zonmean:
-            pr = pr_file.variables['pr'][:]
-        else:
-            pr = np.mean(np.squeeze(pr_file.variables['pr'][:]),2)
+        # take mean in high latitudes
+        pr_hl = lat_mean(hydro['pr'], grid, lat_int, dim=1)
 
-        pr = 86400*pr # convert kg m**-2 s**-1 to mm d**-1
-
-        pr_hl = lat_mean(pr, grid, lat_int, dim=1)
+        # compute trends
+        if 'ymonmean' not in timemean and sim == 'era5':
+            A = np.vstack([time, np.ones(len(time))]).T
+            m, c = np.linalg.lstsq(A, pr_hl, rcond=None)[0]
 
         sax = ax.twinx()
         sax.plot(time, pr_hl, color='tab:blue')
+        if 'ymonmean' not in timemean and sim == 'era5':
+            # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
+            sax.plot(time, m*time + c, '--', color='tab:blue', label='$P$ trend$ = %.1f$ %% decade$^{-1}$' % (m/np.nanmean(pr_hl)*1e3))
         sax.set_ylabel(r'$P$ (mm d$^{-1}$)', color='tab:blue')
-        sax.set_ylim(vmin_pr,vmax_pr)
+        sax.set_ylim(vmin['pr'],vmax['pr'])
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(AutoMinorLocator())
-
         ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
 
     elif plotover == 'prc':
@@ -277,24 +255,26 @@ def r1_mon_hl(sim, **kwargs):
         # COMPARE WITH CONVECTIVE PRECIPITATION
         ###########################################
         plotname = '%s.%s' % (plotname, plotover)
+        
+        hydro_ref_hl = {}
 
-        prc_file = filenames_raw(sim, 'prc', model=model, timemean=timemean, yr_span=yr_span)
-        if not zonmean:
-            prc = prc_file.variables['prc'][:]
-        else:
-            prc = np.mean(np.squeeze(prc_file.variables['prc'][:]),2)
+        # take mean in high latitudes
+        prc_hl = lat_mean(hydro['prc'], grid, lat_int, dim=1)
 
-        prc = 86400*prc # convert kg m**-2 s**-1 to mm d**-1
-
-        prc_hl = lat_mean(prc, grid, lat_int, dim=1)
+        # compute trends
+        if 'ymonmean' not in timemean and sim == 'era5':
+            A = np.vstack([time, np.ones(len(time))]).T
+            m, c = np.linalg.lstsq(A, prc_hl, rcond=None)[0]
 
         sax = ax.twinx()
         sax.plot(time, prc_hl, color='tab:blue')
+        if 'ymonmean' not in timemean and sim == 'era5':
+            # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
+            sax.plot(time, m*time + c, '--', color='tab:blue', label='$P_c$ trend$ = %.1f$ %% decade$^{-1}$' % (m/np.nanmean(prc_hl)*1e3))
         sax.set_ylabel(r'$P_c$ (mm d$^{-1}$)', color='tab:blue')
-        sax.set_ylim(vmin_prc,vmax_prc)
+        sax.set_ylim(vmin['prc'],vmax['prc'])
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(AutoMinorLocator())
-
         ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
 
     elif plotover == 'prl':
@@ -317,7 +297,7 @@ def r1_mon_hl(sim, **kwargs):
         sax = ax.twinx()
         sax.plot(time, prl_hl, color='tab:blue')
         sax.set_ylabel(r'$P_l$ (mm d$^{-1}$)', color='tab:blue')
-        sax.set_ylim(vmin_prl,vmax_prl)
+        sax.set_ylim(vmin['prl'],vmax['prl'])
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(AutoMinorLocator())
 
@@ -365,14 +345,16 @@ def r1_mon_hl(sim, **kwargs):
         sax.plot(time, r1_dc_hl['rad'], color='lightgray', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$')
         sax.plot(time, r1_dc_hl['res'], '-.k', label='Residual')
         sax.set_ylabel(r'$\Delta R_1$ (unitless)', color='black')
-        sax.set_ylim(vmin_r1-r1_hl[0],vmax_r1-r1_hl[0])
-        if legend:
-            sax.legend()
+        sax.set_ylim(vmin['r1']-r1_hl[0],vmax['r1']-r1_hl[0])
         sax.tick_params(axis='y', labelcolor='black', color='black')
         sax.yaxis.set_minor_locator(AutoMinorLocator())
 
+    if legend and sim == 'era5':
+        fig.legend(loc='upper right', bbox_to_anchor=(1,1), bbox_transform=ax.transAxes)
+
     plt.tight_layout()
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+
     if viewplt:
         plt.show()
     plt.close()

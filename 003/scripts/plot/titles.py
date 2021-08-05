@@ -66,20 +66,30 @@ def time_str(timemean):
         time_str = 'ANN'
     elif timemean == 'djfmean':
         time_str = 'DJF'
+    elif timemean == 'mammean':
+        time_str = 'MAM'
     elif timemean == 'jjamean':
         time_str = 'JJA'
+    elif timemean == 'sonmean':
+        time_str = 'SON'
     elif timemean == 'ymonmean-30':
         time_str = 'Last 30 years'
     elif timemean == 'ymonmean-10':
         time_str = 'Last 10 years'
+    elif timemean == 'ymonmean':
+        time_str = '1979-2019 Climatology'
         
     return time_str
 
 def seas_str(seasmean):
     if seasmean == 'djf':
         seas_str = 'DJF'
+    elif seasmean == 'mam':
+        seas_str = 'MAM'
     elif seasmean == 'jja':
         seas_str = 'JJA'
+    elif seasmean == 'son':
+        seas_str = 'SON'
     elif seasmean == '':
         seas_str = 'ANN'
 

@@ -67,6 +67,13 @@ def translate_varname(varnames_in, **kwargs):
         
         # PRECIPITATION
         'pr' : 'pr', # CMIP
+        
+        # CONVECTIVE PRECIP
+        'prc' : 'prc', # CMIP
+        'cp' : 'prc', # ERA
+        
+        # LARGE-SCALE PRECIP
+        'lsp' : 'prl', # ERA
 
         # SEA ICE CONCENTRATION
         'sic' : 'sic' # CMIP
@@ -114,7 +121,13 @@ def translate_varcat(varnames_in, **kwargs):
         'skt' : 'srfc',
 
         # OROGRAPHY
-        'zs' : 'orog'
+        'zs' : 'orog',
+        
+        # HYDROLOGY
+        # ERA
+        'cp' : 'hydro',
+        'lsp' : 'hydro',
+        'e' : 'hydro',
     }
 
     # if input is a list of variables, output as list of variables

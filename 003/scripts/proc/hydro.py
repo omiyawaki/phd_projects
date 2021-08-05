@@ -9,8 +9,8 @@ import numpy as np
 import pickle
 from netCDF4 import Dataset
 
-def save_rad(sim, **kwargs):
-    # saves various radiation data (e.g., clear vs cloudy sky, lw vs sw) in one file
+def save_hydro(sim, **kwargs):
+    # saves various hydroiation data (e.g., clear vs cloudy sky, lw vs sw) in one file
     # sim is the name of the simulation, e.g. rcp85
 
     model = kwargs.get('model') # name of model
@@ -26,18 +26,18 @@ def save_rad(sim, **kwargs):
     # initialize dictionaries
     file = {}
     grid = {}
-    rad = {}
+    hydro = {}
 
     # counter so grid is only loaded once
     loaded_grid = 0
 
     # variable names
     if sim == 'echam':
-        varnames = ['trad0', 'srad0', 'trads', 'srads', 'ahfl', 'ahfs']
+        varnames = ['thydro0', 'shydro0', 'thydros', 'shydros', 'ahfl', 'ahfs']
     elif sim == 'era5':
-        varnames = ['ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf']
+        varnames = ['cp', 'lsp', 'e']
     else:
-        varnames = ['rlut', 'rlutcs', 'rsut', 'rsutcs', 'rsus', 'rsuscs', 'rsds', 'rsdscs', 'rlds', 'rldscs', 'rsdt', 'rlus']
+        varnames = ['pr', 'prc', 'evspsbl']
 
     # load all variables
     print(varnames)
@@ -51,24 +51,19 @@ def save_rad(sim, **kwargs):
             grid['lon'] = file[varname].variables['lon'][:]
             loaded_grid = 1
 
-        rad[translate_varname(varname)] = np.squeeze(file[varname].variables[varname][:])
-        if sim == 'era5':
-            rad[translate_varname(varname)] = rad[translate_varname(varname)]/86400
+        hydro[translate_varname(varname)] = np.squeeze(file[varname].variables[varname][:])
+        if sim == 'era5': # convert m accumulated over a day to mm/d
+            hydro[translate_varname(varname)] = hydro[translate_varname(varname)]*1e3
+        else: # convert kg m**-2 s**-1 to mm/d
+            hydro[translate_varname(varname)] = hydro[translate_varname(varname)]/86400
 
-    if sim == 'era5' or sim == 'echam':
-        rad['ra'] = rad['trad0'] + rad['srad0'] - rad['trads'] - rad['srads'] 
+    if sim == 'era5':
+        hydro['pr'] = hydro['prc'] + hydro['prl']
     else:
-        rad['ra'] = rad['rsdt'] - rad['rsut'] - rad['rlut'] + rad['rsus'] - rad['rsds'] + rad['rlus'] - rad['rlds']
-        rad['ra_cs'] = rad['rsdt'] - rad['rsutcs'] - rad['rlutcs'] + rad['rsuscs'] - rad['rsdscs'] + rad['rlus'] - rad['rldscs']
-
-        rad['sw'] = rad['rsdt'] - rad['rsut'] + rad['rsus'] - rad['rsds']
-        rad['sw_cs'] = rad['rsdt'] - rad['rsutcs'] + rad['rsuscs'] - rad['rsdscs']
-
-        rad['lw'] = -rad['rlut'] + rad['rlus'] - rad['rlds']
-        rad['lw_cs'] = -rad['rlutcs'] + rad['rlus'] - rad['rldscs']
+        hydro['prl'] = hydro['pr'] - hydro['prc']
 
     if zonmean:
-        for radname in rad:
-            rad[radname] = np.mean(rad[radname], 2)
+        for hydroname in hydro:
+            hydro[hydroname] = np.mean(hydro[hydroname], 2)
     
-    pickle.dump([rad, grid], open(remove_repdots('%s/rad.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
+    pickle.dump([hydro, grid], open(remove_repdots('%s/hydro.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))

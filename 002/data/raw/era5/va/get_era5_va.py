@@ -9,7 +9,7 @@ c.retrieve(
     {
         'format': 'netcdf',
         'product_type': 'reanalysis-monthly-means-of-daily-means',
-        'variable': 'specific_humidity',
+        'variable': 'v_component_of_wind',
         'pressure_level': [
             '1', '2', '3',
             '5', '7', '10',
@@ -45,5 +45,5 @@ c.retrieve(
         ],
         'time': '00:00',
     },
-    'era5_hus_1950_1978.nc')
+    'era5_va_1950_1978.nc')
 

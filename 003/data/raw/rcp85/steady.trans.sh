@@ -10,7 +10,7 @@ models=("MPI-ESM-LR/")
 sim="rcp85"
 freq="Amon"
 ens="r1i1p1"
-yr_span="200601-230012"
+yr_span="200601-200612"
 
 cwd=$(pwd) # save current working directory
 

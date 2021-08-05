@@ -11,43 +11,26 @@ from netCDF4 import Dataset,num2date
 cpd = 1005.7; Rd = 287; Rv = 461; L = 2.501e6; g = 9.81; a = 6357e3; eps = Rd/Rv;
 
 # paths to ps and mse files
-path_ps = sys.argv[1]
-path_va = sys.argv[2]
-path_vas = sys.argv[3]
-path_mse = sys.argv[4]
-path_mses = sys.argv[5]
-path_mmc = sys.argv[6]
-path_se = sys.argv[7]
+path_atm = sys.argv[1]
+path_bot = sys.argv[2]
+path_mse = sys.argv[3]
+path_mmc = sys.argv[4]
+path_se = sys.argv[5]
+path_te = sys.argv[6]
 
 # open files
-file_ps = Dataset(path_ps, 'r')
-file_va = Dataset(path_va, 'r')
-file_vas = Dataset(path_vas, 'r')
+file_atm = Dataset(path_atm, 'r')
 file_mse = Dataset(path_mse, 'r')
-file_mses = Dataset(path_mses, 'r')
 
 # read data
-ps = file_ps.variables['ps'][:] # (mon x lat x lon)
-va = file_va.variables['va'][:] # (mon x lev x lat x lon)
-vas = file_vas.variables['vas'][:] # (mon x lev x lat x lon)
+ps = file_atm.variables['aps'][:] # (mon x lat x lon)
+va = file_atm.variables['v'][:] # (mon x lev x lat x lon)
 mse = file_mse.variables['mse'][:] # (mon x lev x lat x lon)
-mses = file_mses.variables['mses'][:] # (mon x lev x lat x lon)
-plev = file_mse.variables['plev'][:]
+# plev = file_mse.variables['lev'][:]
 
 # # for datasets that fill data below surface as missing data, fill with nans
 va = va.filled(fill_value=np.nan)
 mse = mse.filled(fill_value=np.nan)
-
-# check if 2d and 3d lat grids are the same and interpolate 2d data to 3d grid if different
-lat2d = file_ps.variables['lat'][:] # (mon x lat x lon)
-lat3d = file_mse.variables['lat'][:] # (mon x lev x lat x lon)
-if not np.array_equal(lat2d,lat3d):
-    filledps = ps.filled(fill_value=np.nan)
-    filledlat2d = lat2d.filled(fill_value=np.nan)
-    filledlat3d = lat3d.filled(fill_value=np.nan)
-    f = interpolate.interp1d(filledlat2d, filledps, axis=1)
-    ps = f(filledlat3d)
-    filledps = None; f = None;
 
 # Zonal and annual means of surface pressure
 ps_z = np.mean(ps, axis=2)
@@ -56,23 +39,31 @@ ps_za = np.mean(ps, axis=(0,2))
 
 ps_a_tile = np.tile(ps_a, [ps.shape[0], 1, 1])
 
-# mask out data below surface
-pa = np.transpose(np.tile(plev, [ps.shape[0], ps.shape[1], ps.shape[2], 1]), [0,3,1,2])
-subsurf = pa > np.transpose(np.tile(ps_a_tile, [len(plev),1,1,1]),[1,0,2,3])
-va[subsurf] = np.nan
-mse[subsurf] = np.nan
-pa[subsurf] = np.nan
+# take monthly mean
+va_t = np.nanmean(va, axis=0)
+mse_t = np.nanmean(mse, axis=0)
+# va_t = np.tile(np.nanmean(va, axis=0), [va.shape[0],1,1,1])
+# mse_t = np.tile(np.nanmean(mse, axis=0), [mse.shape[0],1,1,1])
 
-# take zonal mean
-va_z = np.nanmean(va, axis=3)
-vas_z = np.nanmean(vas, axis=2)
-mse_z = np.nanmean(mse, axis=3)
-mses_z = np.nanmean(mses, axis=2)
-pa_z = np.nanmean(pa, axis=3)
+# take zonal mean of monthly mean
+va_zt = np.nanmean(va_t, axis=2)
+mse_zt = np.nanmean(mse_t, axis=2)
 
 # compute stationary eddy transport
-vms_se = np.squeeze(np.nanmean((vas - vas_z[...,np.newaxis]) * (mses - mses_z[...,np.newaxis]), axis=2))
-vm_se = np.squeeze(np.nanmean((va - va_z[...,np.newaxis]) * (mse - mse_z[...,np.newaxis]), axis=3))
+vm_se = np.nanmean((va_t - va_zt[...,np.newaxis]) * (mse_t - mse_zt[...,np.newaxis]), axis=2)
+
+# deviation from monthly mean zonal mean
+va_dt = va - va_t
+mse_dt = mse - mse_t
+va_dzt = va_dt - np.nanmean(va_dt, axis=3)[...,np.newaxis]
+mse_dzt = mse_dt - np.nanmean(mse_dt, axis=3)[...,np.newaxis]
+
+# compute transient eddy transport
+vm_te = np.nanmean(va_dzt * mse_dzt, axis=(0,3))
+print(vm_se.shape)
+print(vm_te.shape)
+
+sys.exit()
 
 rlat = np.radians(lat3d)
 clat = np.cos(rlat)
@@ -82,28 +73,27 @@ vm_mmc_vint = np.empty_like(ps_z)
 vm_se_vint = np.empty_like(ps_z)
 for itime in tqdm(range(ps_z.shape[0])):
     for ilat in range(ps_z.shape[1]):
-        # ps_z_local = ps_za[ilat]
-        ps_z_local = ps_z[itime, ilat]
+        ps_z_local = ps_za[ilat]
         vas_z_local = vas_z[itime, ilat]
         mses_z_local = mses_z[itime, ilat]
         vms_se_z_local = vms_se[itime, ilat]
 
-        # remove subsurface data
-        abovesurf = (plev < ps_za[ilat])
-        plev_local = plev[abovesurf]
-        va_z_local = va_z[itime, abovesurf, ilat]
-        mse_z_local = mse_z[itime, abovesurf, ilat]
-        vm_se_local = vm_se[itime, abovesurf, ilat]
+        # # remove subsurface data
+        # abovesurf = (plev < ps_za[ilat])
+        # plev_local = plev[abovesurf]
+        # va_z_local = va_z[itime, abovesurf, ilat]
+        # mse_z_local = mse_z[itime, abovesurf, ilat]
+        # vm_se_local = vm_se[itime, abovesurf, ilat]
 
-        # plev_local = pa_z[itime, :, ilat]
-        # va_z_local = va_z[itime, :, ilat]
-        # mse_z_local = mse_z[itime, :, ilat]
-        # vm_se_local = vm_se[itime, :, ilat]
+        plev_local = pa_z[itime, :, ilat]
+        va_z_local = va_z[itime, :, ilat]
+        mse_z_local = mse_z[itime, :, ilat]
+        vm_se_local = vm_se[itime, :, ilat]
 
-        # plev_local = plev_local[~np.isnan(plev_local)]
-        # va_z_local = va_z_local[~np.isnan(va_z_local)]
-        # mse_z_local = mse_z_local[~np.isnan(mse_z_local)]
-        # vm_se_local = vm_se_local[~np.isnan(vm_se_local)]
+        plev_local = plev_local[~np.isnan(plev_local)]
+        va_z_local = va_z_local[~np.isnan(va_z_local)]
+        mse_z_local = mse_z_local[~np.isnan(mse_z_local)]
+        vm_se_local = vm_se_local[~np.isnan(vm_se_local)]
 
         if plev[1]-plev[0]>0: # if pressure increases with index
             # plev_local = np.append(plev_local, ps_za[ilat]) 

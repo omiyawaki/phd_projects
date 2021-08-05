@@ -2,8 +2,8 @@
 
 # declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/historical/ && ls -d */) # list of GCM models to process
 models=("MPI-ESM-LR/")
-varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
-# varnames=("pr")
+# varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
+varnames=("pr" "prc" "evspsbl")
 sim="historical"
 freq="Amon"
 ens="r1i1p1"

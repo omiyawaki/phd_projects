@@ -24,11 +24,11 @@ for model in ${models[@]}; do
 
         filename="${varname}_${freq}_${model}_${sim}_${ens}_${yr_span}"
 
-        # create DJF mean file if it doesn't exist yet
-        if [ -f "${filename}.djfmean.nc" ]; then
-            echo "DJF mean already taken, skipping..."
+        # create son mean file if it doesn't exist yet
+        if [ -f "${filename}.sonmean.nc" ]; then
+            echo "son mean already taken, skipping..."
         else
-            cdo -seasmean -selseas,DJF ${filename}.nc ${filename}.djfmean.nc 
+            cdo -seasmean -selseas,son ${filename}.nc ${filename}.sonmean.nc 
         fi
 
     done # varnames

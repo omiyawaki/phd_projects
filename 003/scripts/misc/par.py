@@ -3,6 +3,7 @@ import numpy as np
 # scalars
 a = 6378.1370e3 # Radius of Earth [m]
 
+sigma = 5.67e-8 # stephan boltzmann constant [W m**-2 K**-4]
 g = 9.80665 # gravitational acceleration [m s**-2]
 
 rho_air = 1.225 # density of dry air [kg m**-3]

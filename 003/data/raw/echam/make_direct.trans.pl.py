@@ -11,9 +11,6 @@ from netCDF4 import Dataset,num2date
 cpd = 1005.7; Rd = 287; Rv = 461; L = 2.501e6; g = 9.81; a = 6357e3; eps = Rd/Rv;
 
 # paths to ps and mse files
-path_ps = sys.argv[1]
-path_va = sys.argv[2]
-path_vas = sys.argv[3]
 path_mse = sys.argv[4]
 path_mses = sys.argv[5]
 path_mmc = sys.argv[6]
@@ -82,28 +79,27 @@ vm_mmc_vint = np.empty_like(ps_z)
 vm_se_vint = np.empty_like(ps_z)
 for itime in tqdm(range(ps_z.shape[0])):
     for ilat in range(ps_z.shape[1]):
-        # ps_z_local = ps_za[ilat]
-        ps_z_local = ps_z[itime, ilat]
+        ps_z_local = ps_za[ilat]
         vas_z_local = vas_z[itime, ilat]
         mses_z_local = mses_z[itime, ilat]
         vms_se_z_local = vms_se[itime, ilat]
 
-        # remove subsurface data
-        abovesurf = (plev < ps_za[ilat])
-        plev_local = plev[abovesurf]
-        va_z_local = va_z[itime, abovesurf, ilat]
-        mse_z_local = mse_z[itime, abovesurf, ilat]
-        vm_se_local = vm_se[itime, abovesurf, ilat]
+        # # remove subsurface data
+        # abovesurf = (plev < ps_za[ilat])
+        # plev_local = plev[abovesurf]
+        # va_z_local = va_z[itime, abovesurf, ilat]
+        # mse_z_local = mse_z[itime, abovesurf, ilat]
+        # vm_se_local = vm_se[itime, abovesurf, ilat]
 
-        # plev_local = pa_z[itime, :, ilat]
-        # va_z_local = va_z[itime, :, ilat]
-        # mse_z_local = mse_z[itime, :, ilat]
-        # vm_se_local = vm_se[itime, :, ilat]
+        plev_local = pa_z[itime, :, ilat]
+        va_z_local = va_z[itime, :, ilat]
+        mse_z_local = mse_z[itime, :, ilat]
+        vm_se_local = vm_se[itime, :, ilat]
 
-        # plev_local = plev_local[~np.isnan(plev_local)]
-        # va_z_local = va_z_local[~np.isnan(va_z_local)]
-        # mse_z_local = mse_z_local[~np.isnan(mse_z_local)]
-        # vm_se_local = vm_se_local[~np.isnan(vm_se_local)]
+        plev_local = plev_local[~np.isnan(plev_local)]
+        va_z_local = va_z_local[~np.isnan(va_z_local)]
+        mse_z_local = mse_z_local[~np.isnan(mse_z_local)]
+        vm_se_local = vm_se_local[~np.isnan(vm_se_local)]
 
         if plev[1]-plev[0]>0: # if pressure increases with index
             # plev_local = np.append(plev_local, ps_za[ilat]) 
