@@ -9,6 +9,7 @@ from misc import par
 from proc.r1 import save_r1
 from proc.rad import save_rad
 from proc.hydro import save_hydro
+from proc.co2 import save_co2
 import pickle
 
 def load_var(sim, varname, **kwargs):
@@ -369,4 +370,59 @@ def load_hydro(sim, categ, **kwargs):
             hydro[varname] = hydro_mmm[varname]['mmm']
         
         return hydro, grid, datadir, plotdir, modelstr, hydro_mmm
+    
+def load_co2(sim, categ, **kwargs):
+
+    timemean = kwargs.get('timemean', '') # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
+    try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
+    model = kwargs.get('model')
+    yr_span = kwargs.get('yr_span')
+
+    if isinstance(model, str) or model is None: # single model
+        modelstr = model
+
+        # load data and plot directories
+        datadir = get_datadir(sim, model=model, yr_span=yr_span)
+        plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
+
+        # location of pickled co2 data
+        co2_file = remove_repdots('%s/co2.%s.pickle' % (datadir, timemean))
+
+        if not (os.path.isfile(co2_file) and try_load):
+            save_co2(sim, model=model, timemean=timemean, yr_span=yr_span)
+
+        co2 = pickle.load(open(co2_file, 'rb'))
+
+        return co2, datadir, plotdir, modelstr
+
+    else: # multi-model mean
+        modellist = model
+        model = 'mmm'
+        modelstr = 'CMIP5 mean'
+        plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
+
+        co2list = [ [] for _ in range(len(modellist)) ]
+        for i in range(len(modellist)):
+            modelname = modellist[i]
+            # load data and plot directories
+            datadir = get_datadir(sim, model=modelname, yr_span=yr_span)
+
+            # location of pickled R1 data
+            co2_file = remove_repdots('%s/co2.%s.%s.pickle' % (datadir, timemean))
+
+            if not (os.path.isfile(co2_file) and try_load):
+                save_co2(sim, model=modelname, timemean=timemean, yr_span=yr_span)
+
+            co2list[i] = pickle.load(open(co2_file, 'rb'))
+        
+        co2_mmm = {}
+        co2 = {}
+        for varname in co2list[0]:
+            varnamelist = [ [] for _ in range(len(modellist)) ]
+            for i in range(len(modellist)):
+                varnamelist[i] = co2list[i][varname]
+            co2_mmm[varname] = mmm_mon(varnamelist)
+            co2[varname] = co2_mmm[varname]['mmm']
+        
+        return co2, datadir, plotdir, modelstr, co2_mmm
     

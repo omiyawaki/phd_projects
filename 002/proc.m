@@ -13,10 +13,31 @@ if 1
 par.erai.yr_span = '1980_2005'; % spanning years for ERA-Interim
 par.era5.yr_span = '1980_2005'; % spanning years for ERA5
 par.jra55.yr_span = '1980_2005'; % spanning years for JRA55
-par.gcm.yr_span = '198001-200512'; % spanning years for JRA55
 par.era5c.yr_span = par.era5.yr_span;
 par.merra2c.yr_span = '1980_2005'; % spanning years for MERRA2
-par.echam_clims = {'rp000134', 'rp000135', 'rp000141'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+% par.echam_clims = {'rp000134', 'rp000135', 'rp000141'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+% par.echam_clims = {'rp000149'};
+par.echam_clims = {"rp000046",... % 50 m
+                       "rp000149",... % 45 m
+                       "rp000135",... % 40 m
+                       "rp000147",... % 35 m
+                       "rp000131",... % 30 m
+                       "rp000145",... % 25 m
+                       "rp000133",... % 20 m
+                       "rp000141",... % 15 m
+                       "rp000034",... % 10 m
+                       "rp000086",... % 5 m
+                       "rp000172"}; % 3 m
+
+% par.echam_clims = {            "rp000126",... % 50 m
+%                                  "rp000148",... % 45 m
+%                                  "rp000134",... % 40 m
+%                                  "rp000146",... % 35 m
+%                                  "rp000130",... % 30 m
+%                                  "rp000144",... % 25 m
+%                                  "rp000132",... % 20 m
+%                                  "rp000140",... % 15 m
+%                                  "rp000124"};   % 10 m
 % par.echam_clims = par.echam.noice_mld; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 par.hahn_clims = {'Control1850'}; % Control1850, Flat1850, Control2xCO2, Flat2xCO2
 % par.hahn_clims = {'Flat1850', 'Control1850'}; % Control1850, Flat1850, Control2xCO2, Flat2xCO2
@@ -87,9 +108,9 @@ for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
             % choose_proc_si_bl(type, par)
         end
         for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-            % type='echam';
-            % disp(par.echam.clim)
-            % choose_proc_si_bl(type, par);
+            type='echam';
+            disp(par.echam.clim)
+            choose_proc_si_bl(type, par);
         end
         for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
             % type='hahn';
@@ -97,9 +118,9 @@ for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
             % choose_proc_si_bl(type, par);
         end
         for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-            type = 'gcm';
-            disp(par.model)
-            choose_proc_si_bl(type, par)
+            % type = 'gcm';
+            % disp(par.model)
+            % choose_proc_si_bl(type, par)
         end
     end
 end
@@ -134,6 +155,7 @@ function choose_proc(type, par)
 
     % proc_ga_malr_mon_lat(type, par) % calculate mon x lat MALR profiles
     % proc_ga_frac_mon_lat(type, par) % calculate mon x lat lapse rate deviation from a MALR profiles
+    proc_dtempsi_mon_lat(type, par) % calculate mon x lat temperature response profiles
     % proc_gad_frac_mon_lat(type, par) % calculate mon x lat lapse rate deviation from a DALR profiles
 
     % proc_thetaeq_mon_lat(type, par) % calculate mon x lat equivalent potential temperature profiles
@@ -152,8 +174,8 @@ function choose_proc(type, par)
     % proc_dr1_midlatitude_line(type, par);
     % proc_dr1_polar_line(type, par);
 
-    proc_ga_frac_midlatitude(type, par);
-    proc_ga_frac_polar(type, par);
+    % proc_ga_frac_midlatitude(type, par);
+    % proc_ga_frac_polar(type, par);
 
     % proc_temp_mon_lat_interp(type, par) % calculate mon x lat temperature profiles
     % proc_temp_mon_lat_interp_mean(type, par) % calculate mon x lat temperature profiles
@@ -162,14 +184,14 @@ function choose_proc(type, par)
     % proc_net_flux(type, par) % calculate net energy fluxes at TOA and surface
 end % select which functions to run at a time
 function choose_proc_si_bl(type, par)
-    proc_ga_malr_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
-    proc_ga_dalr_bl_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
+    % proc_ga_malr_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
+    % proc_ga_dalr_bl_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
     proc_ga_malr_bl_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
     % proc_dthedpa_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
     % proc_ga_trop_malr_diff_si_mon_lat(type, par) % calculate mon x lat gamma percentage difference
 
     % proc_ga_malr_diff_midlatitude_line(type, par);
-    % proc_ga_malr_bl_diff_polar_line(type, par);
+    proc_ga_malr_bl_diff_polar_line(type, par);
 end
 function choose_proc_ep(type, par)
     % proc_rcae(type, par) % calculate RCE and RAE regimes

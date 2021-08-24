@@ -2,13 +2,17 @@
 
 models=("MPI-ESM-LR")
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
-varnames=("divaht" "divmmc" "divse" "divte")
+varnames=("tasi")
 sim="rcp85"
 freq="Amon"
 ens="r1i1p1"
-yr_span="200601-230012"
 
-n_yr="295"
+# yr_span="200601-230012"
+# n_yr="295"
+
+yr_span="200601-210012"
+n_yr="95"
+
 n_myr_begin="30"
 
 tstep_begin=$((1 + 12 * ($n_yr - $n_myr_begin)))

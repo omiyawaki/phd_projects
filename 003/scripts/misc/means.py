@@ -55,3 +55,18 @@ def mmm_mon_lat(var, grid_in, grid_out, **kwargs):
     var_out['max'] = np.squeeze(np.max(var_list, axis=0))
     
     return var_out
+
+def mmm_mon(var, **kwargs):
+    
+    var_list = np.empty([len(var), var[0].shape[0]])
+    for i in range(len(var)):
+        var_list[i,:,:] = var[i]
+    
+    var_out = {}    
+    var_out['mmm'] = np.squeeze(np.mean(var_list, axis=0))
+    var_out['prc25'] = np.squeeze(np.percentile(var_list, 25, axis=0))
+    var_out['prc75'] = np.squeeze(np.percentile(var_list, 75, axis=0))
+    var_out['min'] = np.squeeze(np.min(var_list, axis=0))
+    var_out['max'] = np.squeeze(np.max(var_list, axis=0))
+    
+    return var_out

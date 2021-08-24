@@ -54,16 +54,17 @@ function read_grid(type, ymonmean, par)
         save(sprintf('%s/%s', newdir, filename), 'grid')
     elseif strcmp(type, 'gcm')
         file.dim2=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, 'tas', par.model, par.gcm.clim, par.gcm.yr_span, ymm_in));
-        file.dim2sfcWind=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, 'sfcWind', par.model, par.gcm.clim, par.gcm.yr_span, ymm_in));
+        % file.dim2sfcWind=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, 'sfcWind', par.model, par.gcm.clim, par.gcm.yr_span, ymm_in));
         file.dim3=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, 'ta', par.model, par.gcm.clim, par.gcm.yr_span, ymm_in));
         fullpath.dim2=sprintf('%s/%s', file.dim2.folder, file.dim2.name);
-        fullpath.dim2sfcWind=sprintf('%s/%s', file.dim2sfcWind.folder, file.dim2sfcWind.name);
+        % fullpath.dim2sfcWind=sprintf('%s/%s', file.dim2sfcWind.folder, file.dim2sfcWind.name);
         fullpath.dim3=sprintf('%s/%s', file.dim3.folder, file.dim3.name);
         grid.dim2.lon=double(ncread(fullpath.dim2, 'lon'));
         grid.dim3.lon=double(ncread(fullpath.dim3, 'lon'));
-        grid.dim2.lat_sfcWind=double(ncread(fullpath.dim2sfcWind, 'lat'));
+        % grid.dim2.lat_sfcWind=double(ncread(fullpath.dim2sfcWind, 'lat'));
         grid.dim2.lat=double(ncread(fullpath.dim2, 'lat'));
         grid.dim3.lat=double(ncread(fullpath.dim3, 'lat'));
+        grid.dim3.plev=double(ncread(fullpath.dim3, 'plev'));
         if contains(par.model, 'GISS')
             file.dim3=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*%s.nc', par.model, 'zg', par.model, par.gcm.clim, par.gcm.yr_span, ymm_in));
             fullpath.dim2=sprintf('%s/%s', file.dim2.folder, file.dim2.name);
@@ -72,8 +73,8 @@ function read_grid(type, ymonmean, par)
             grid.dim3.lon_zg=double(ncread(fullpath.dim3, 'lon'));
             grid.dim2.lat_zg=double(ncread(fullpath.dim2, 'lat'));
             grid.dim3.lat_zg=double(ncread(fullpath.dim3, 'lat'));
+            grid.dim3.plev_zg=double(ncread(fullpath.dim3, 'plev'));
         end
-        grid.dim3.plev=double(ncread(fullpath.dim3, 'plev'));
         grid.dim3.z = par.z;
         grid.dim3.si = 1e-5*par.pa;
         newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/gcm/%s/%s/%s', par.model, par.(type).clim, par.(type).yr_span);

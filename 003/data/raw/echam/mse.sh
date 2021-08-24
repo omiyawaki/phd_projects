@@ -7,7 +7,7 @@ lev="pl"
 yr_begin="1030"
 mn_begin="01"
 yr_end="1030"
-mn_end="01"
+mn_end="12"
 
 cwd=$(pwd) # save current working directory
 

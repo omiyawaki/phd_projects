@@ -29,6 +29,10 @@ def r1_mon_lat(sim, **kwargs):
         model = kwargs.get('model', 'MPIESM12_abrupt4x')
         yr_span = kwargs.get('yr_span', '1000')
         yr_base = 0
+    elif sim == 'historical':
+        model = kwargs.get('model', 'MPI-ESM-LR')
+        yr_span = kwargs.get('yr_span', '186001-200512')
+        yr_base = 1860
     elif sim == 'rcp85':
         model = kwargs.get('model', 'MPI-ESM-LR')
         yr_span = kwargs.get('yr_span', '200601-230012')
@@ -98,6 +102,9 @@ def r1_mon_lat(sim, **kwargs):
     if timemean == '':
         r1 = np.mean(np.reshape(r1, (-1,12,r1.shape[1])),1)
         
+    
+    if 'ymonmean' in timemean:
+        yr_base=0
     [mesh_lat, mesh_time] = np.meshgrid(grid['lat'], yr_base + np.arange(r1.shape[0])) # create mesh
 
     ##################################
@@ -113,9 +120,11 @@ def r1_mon_lat(sim, **kwargs):
     make_title_sim_time(ax, sim, model=modelstr, timemean=timemean)
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:
+        print('ymonmean')
         ax.set_xticks(np.arange(0,12,1))
         ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
     else:
+        print('else')
         ax.set_xlabel('Year')
     ax.set_ylim([vmin, vmax])
     ax.set_ylabel('Latitude (deg)')

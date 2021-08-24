@@ -86,7 +86,7 @@ for name, variable in file_rlut.variables.items():
     file_aht[name].setncatts(file_rlut[name].__dict__)
     file_aht[name][:] = file_rlut[name][:]
     
-vE = file_aht.createVariable('vE', 'f4', ("time","lat"))
+vE = file_aht.createVariable('aht', 'f4', ("time","lat"))
 vE.units = "W"
 vE.long_name = "vertically integrated total energy flux transport"
 vE[:,:] = aht

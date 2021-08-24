@@ -132,16 +132,17 @@ function read_srfc(type, ymonmean, par)
                     % if ~isequal(grid.dim2.lat, grid.dim3.lat); hur=interp1(grid.dim3.lat, hur, grid.dim2.lat); end;
                     hur=permute(hur, [3 1 2 4]); % bring plev to first dim
                     pb=CmdLineProgressBar("Calculating hurs..."); % track progress of this loop
-                    for id_lon=1:length(grid.dim2.lon)
-                        pb.print(id_lon, length(grid.dim2.lon));
-                        for id_lat=1:length(grid.dim2.lat)
+                    for id_lon=1:length(grid.dim3.lon)
+                        pb.print(id_lon, length(grid.dim3.lon));
+                        for id_lat=1:length(grid.dim3.lat)
                             for id_time=1:size(srfc.ps, 3)
                                 srfc.hurs(id_lon, id_lat, id_time)=interp1(grid.dim3.plev, hur(:,id_lon,id_lat,id_time), srfc.ps(id_lon, id_lat, id_time), 'linear', 'extrap');
                             end
                         end
                     end
                 srfc.hurs = permute(srfc.hurs, [2 1 3]);
-                srfc.hurs = interp1(grid.dim2.lat, srfc.hurs, grid.dim3.lat);
+                % srfc.hurs = interp1(grid.dim2.lat, srfc.hurs, grid.dim3.lat);
+                srfc.hurs = interp1(grid.dim3.lat, srfc.hurs, grid.dim2.lat);
                 srfc.hurs = permute(srfc.hurs, [2 1 3]);
 
                 elseif strcmp(var, 'zs')
@@ -165,11 +166,16 @@ function read_srfc(type, ymonmean, par)
                         end
                         zg = permute(zg, [3 1 2 4]);
                         pb=CmdLineProgressBar("Calculating zs..."); % track progress of this loop
+                        if contains(par.model, 'GISS')
+                            plev = grid.dim3.plev_zg;
+                        else
+                            plev = grid.dim3.plev;
+                        end
                         for lo = 1:length(grid.dim3.lon)
                             pb.print(lo, length(grid.dim2.lon));
                             for la = 1:length(grid.dim3.lat)
                                 for mo = 1:12
-                                    srfc.zs(lo,la,mo) = interp1(grid.dim3.plev, zg(:,lo,la,mo), srfc.ps(lo,la,mo), 'linear', 'extrap');
+                                    srfc.zs(lo,la,mo) = interp1(plev, zg(:,lo,la,mo), srfc.ps(lo,la,mo), 'linear', 'extrap');
                                 end
                             end
                         end

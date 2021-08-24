@@ -1,0 +1,27 @@
+
+\documentclass[preview]{standalone}
+
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+
+\begin{document}
+
+\begin{figure}
+  \begin{subfigure}[t]{0.04\textwidth}
+    \textbf{\normalsize{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.44\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/002/figures/echam/rp000144/native/alb/lh_mon_era5c}.png}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.04\textwidth}
+    \textbf{\normalsize{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.44\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/002/figures/echam/rp000144/native/alb/tas_mon_era5c}.png}
+  \end{subfigure}
+\end{figure}
+  
+\end{document}
+

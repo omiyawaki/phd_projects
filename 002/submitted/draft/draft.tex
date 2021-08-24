@@ -1,0 +1,545 @@
+%% Version 5.0, 2 January 2020
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TemplateV5.tex --  LaTeX-based template for submissions to the 
+% American Meteorological Society
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PREAMBLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Start with one of the following:
+% DOUBLE-SPACED VERSION FOR SUBMISSION TO THE AMS
+\documentclass{ametsocV5}
+
+% TWO-COLUMN JOURNAL PAGE LAYOUT---FOR AUTHOR USE ONLY
+% \documentclass[twocol]{ametsocV5}
+
+
+% Enter packages here. If too many math alphabets are used,
+% remove unnecessary packages or define hmmax and bmmax as necessary.
+
+%\newcommand{\hmmax}{0}
+%\newcommand{\bmmax}{0}
+\usepackage{amsmath,amsfonts,amssymb,bm}
+\usepackage{mathptmx}%{times}
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% To be entered by author:
+
+%% May use \\ to break lines in title:
+
+\title{When and where do Radiative Convective and Radiative Advective Equilibrium regimes occur on modern Earth?}
+
+%%% Enter authors' names, as you see in this example:
+%%% Use \correspondingauthor{} and \thanks{Current Affiliation:...}
+%%% immediately following the appropriate author.
+%%%
+%%% Note that the \correspondingauthor{} command is NECESSARY.
+%%% The \thanks{} commands are OPTIONAL.
+
+    %\authors{Author One\correspondingauthor{Author name, email address}
+% and Author Two\thanks{Current affiliation: American Meteorological Society, 
+    % Boston, Massachusetts.}}
+
+\authors{Osamu Miyawaki\correspondingauthor{Osamu Miyawaki, miyawaki@uchicago.edu}, Tiffany A. Shaw, and Malte F. Jansen}
+
+%% Follow this form:
+    % \affiliation{American Meteorological Society, 
+    % Boston, Massachusetts}
+
+\affiliation{The University of Chicago, Chicago, Illinois}
+
+%% If appropriate, add additional authors, different affiliations:
+    %\extraauthor{Extra Author}
+    %\extraaffil{Affiliation, City, State/Province, Country}
+
+%\extraauthor{}
+%\extraaffil{}
+
+%% May repeat for a additional authors/affiliations:
+
+%\extraauthor{}
+%\extraaffil{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ABSTRACT
+%
+% Enter your abstract here
+% Abstracts should not exceed 250 words in length!
+%
+ 
+
+\abstract{Energy balance and lapse rate regimes qualitatively characterize the low, mid, and high latitudes of Earth's modern climate. Currently we do not have a complete quantitative understanding of the spatio-temporal structure of energy balance regimes (e.g., Radiative Convective Equilibrium or RCE, and Radiative Advective Equilibrium or RAE) and their connection to lapse rate regimes. Here we use the vertically-integrated moist static energy budget to define a nondimensional number that quantifies when and where RCE and RAE are approximately satisfied in Earth's modern climate. We find RCE exists yearround in the tropics and in the Northern midlatitudes during summertime. RAE exists yearround over Antarctica and in the Arctic with the exception of early summer. We show that the lapse rates in RCE and RAE regimes in reanalyses and CMIP5 models are broadly consistent with moist adiabatic and surface inversion lapse rates, respectively. We use idealized models (energy balance and aquaplanet models) to test the following hypotheses: 1) the RCE regime occurs during midlatitude summer for land-like (small heat capacity) surface conditions and 2) sea ice is necessary for the existence of the RAE regime over a polar ocean, such as the Arctic. Consistent with the first hypothesis, an aquaplanet model configured with a shallow mixed layer depth transitions to RCE in the midlatitudes during summertime whereas it does not for a deep mixed layer depth. Furthermore, we confirm the second hypothesis using mechanism-denial aquaplanet experiments with and without thermodynamic sea ice.}
+
+\begin{document}
+
+%% Necessary!
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SIGNIFICANCE STATEMENT/CAPSULE SUMMARY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% If you are including an optional significance statement for a journal article or a required capsule summary for BAMS 
+% (see www.ametsoc.org/ams/index.cfm/publications/authors/journal-and-bams-authors/formatting-and-manuscript-components for details), 
+% please apply the necessary command as shown below:
+%
+% \statement
+% Significance statement here.
+%
+% \capsule
+% Capsule summary here.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MAIN BODY OF PAPER
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+%% In all cases, if there is only one entry of this type within
+%% the higher level heading, use the star form: 
+%%
+% \section{Section title}
+% \subsection*{subsection}
+% text...
+% \section{Section title}
+
+%vs
+
+% \section{Section title}
+% \subsection{subsection one}
+% text...
+% \subsection{subsection two}
+% \section{Section title}
+
+%%%
+% \section{First primary heading}
+
+% \subsection{First secondary heading}
+
+% \subsubsection{First tertiary heading}
+
+% \paragraph{First quaternary heading}
+
+\section{Introduction}
+Earth's modern climate is maintained by three types of energy transfer: advection, radiation, and surface turbulent fluxes \citep[e.g., see Ch.~6.2 in][]{hartmann2016}. These energy transfer types can be most easily defined using the vertically-integrated, zonal mean, annual mean moist static energy (MSE) budget:
+\begin{equation} \label{eq:mse-ann}
+    {\underbrace{ \langle\partial_y \overline{[vm]}\rangle}_{\text{advection}}} = {\underbrace{\vphantom{\partial_y \langle [vm]\rangle} \overline{[R_{a}]}}_\text{radiation}} + {\underbrace{\vphantom{\partial_y \langle [vm]\rangle} \mathrm{\overline{[LH]}+\overline{[SH]}}}_\text{surface turbulence}} \, ,
+\end{equation}
+where $m=c_p T + gz + Lq$ is MSE, $\overline{(\cdot)}$ is the annual mean, $[\cdot]$ is the zonal mean, and $\langle \cdot \rangle$ is the mass-weighted vertical integral \citep{neelin1987}. Advection corresponds to the meridional divergence ($\partial_y(\cdot)\equiv \frac{1}{r\cos{\phi}}\partial_\phi\left((\cdot)\cos{\phi}\right)$ is the meridional divergence in spherical coordinates, where $\phi$ is latitude and $r$ is the radius of Earth) of MSE flux ($vm$ where $v$ is meridional velocity) and represents the energy transported by the atmospheric circulation, such as the Hadley cell and storm tracks. Radiation ($R_a$) corresponds to atmospheric radiative cooling, which is equivalent to the sum of radiative fluxes through the top of the atmosphere and surface. Finally, surface turbulent fluxes correspond to surface latent ($\mathrm{LH}$) and sensible ($\mathrm{SH}$) heat flux.
+
+In the annual mean, the dominant types of energy transfer depend on latitude \citep[e.g., see Fig.~6.1 in][]{hartmann2016}. In the low latitudes, atmospheric radiative cooling is primarily balanced by surface turbulent fluxes \citep{riehl1958}, which destabilize the column to convection by supplying moist, warm air to the boundary layer. The dominant balance between radiative cooling and surface turbulent fluxes is consistent with Radiative Convective Equilibrium \citep[RCE,][]{wing2018}. In the high latitudes, atmospheric radiative cooling is primarily balanced by advection from lower latitudes \citep{nakamura1988} consistent with Radiative Advective Equilibrium \citep[RAE,][]{cronin2016}. Finally in the midlatitudes, all three types of energy transfer are important; thus, we introduce the term Radiative Convective Advective Equilibrium (RCAE). In this way, three energy balance regimes qualitatively characterize the low, mid, and high latitude regions of Earth's modern climate.
+
+The annual mean lapse rate structure also characterizes low, mid, and high latitude regions of Earth's modern climate. The lapse rate in low latitudes is close to moist adiabatic \citep{stone1979,betts1982,xu1989,williams1993}, the high latitudes typically feature a surface inversion \citep[e.g., see Fig.~1.3 in][]{hartmann2016}, and the midlatitudes are typically more stable than a moist adiabat \citep{stone1979,korty2007} and do not exhibit surface inversions.
+
+The lapse rate structure varies through the seasonal cycle in the Northern Hemisphere. For example, the lapse rate in the midlatitudes is within 20\% of a moist adiabat in July, whereas the deviation increases up to 50\% in January \citep{stone1979}. In the Northern Hemisphere high latitudes, the inversion frequency and strength decrease in summertime \citep{bradley1992, tjernstrom2009, devasthale2010, zhang2011, cronin2016} and may vanish altogether \citep{stone1979}.
+
+While energy balance and lapse rate regimes characterize low, mid, and high latitude regions of Earth's modern climate, few studies to date have quantified 1) the latitudinal and seasonal dependence of observed energy balance regimes and 2) the link between energy balance and lapse rate regimes in reanalyses and GCMs. Quantifying the latitudinal dependence of observed energy balance regimes would allow us to assess where idealized models that assume RCE or RAE hold. This is particularly important for RCE, which has become a standard idealized configuration for tropical theories \citep[e.g.,][]{emanuel1996,nilsson1999,romps2014,singh2015} and simulations \citep[][and the references therein]{wing2018}. Recent work by \cite{jakob2019} quantified regions of RCE using the dry static energy (DSE) budget and a dimensional threshold (sum of radiative cooling, latent heating associated with precipitation, and surface sensible heating $< \pm 50$ Wm$^{-2}$). They find that RCE is approximately satisfied over large spatial ($>5000$ km) and temporal ($>$ daily) scales in the tropics. However, the latitudinal distribution of RCE outside the tropics and the distribution of RAE and RCAE have not been investigated.
+
+Quantifying the link between energy balance and lapse rate regimes would also allow us to better understand the regional response to CO$_2$ forcing. For example, regions of RCE that exhibit a moist adiabatic lapse rate will have amplified warming aloft in response to increased CO$_2$ \citep{held1993, romps2011}. In contrast, regions of RAE that exhibit a surface inversion will have amplified warming at the surface in response to increased CO$_2$ \citep{held1993, cronin2016}.
+
+We therefore seek to answer the questions: when and where do energy balance regimes (RCE, RAE, and RCAE) occur on modern Earth, and how closely are they linked to lapse rate regimes (moist adiabatic and surface inversion)? To answer these questions, we develop a quantitative definition for energy balance regimes using the nondimensionalized MSE budget (Section~\ref{sec:methods}\ref{subsec:mse}). We use this definition to quantify where and when energy balance regimes occur in the annual mean and seasonally on modern Earth using reanalysis and CMIP5 data. We then quantify the connection between energy balance and lapse rate regimes (Section~\ref{sec:diagnostics}). We use idealized climate models to formulate and test hypotheses that explain the seasonality of energy balance regime transitions in the Northern Hemisphere (Section~\ref{sec:hypo}). Lastly, the results are summarized and discussed (Section~\ref{sec:conclusion}).
+
+\section{Methods}\label{sec:methods}
+    \subsection{Defining energy balance regimes using the nondimensionalized MSE budget} \label{subsec:mse}
+    In order to define energy balance regimes seasonally, we begin with the vertically-integrated, zonal mean MSE equation:
+    \begin{equation} \label{eq:mse}
+        \left\langle\left[\partial_t m\right]\right\rangle + \langle\partial_y [vm]\rangle = [R_{a}] + \mathrm{[LH]+[SH]} \, ,
+    \end{equation}
+    where $\langle[\partial_t m]\rangle$ represents atmospheric MSE storage. In order to nondimensionalize equation~(\ref{eq:mse}), we divide by radiative cooling $R_a$, which is sign definite in the zonal mean:
+    \begin{equation}
+        {\underbrace{\frac{\partial_t m + \partial_y (vm)}{R_{a}}}_{R_1}} = 1 + {\underbrace{\frac{\mathrm{LH+SH}}{R_{a}}}_{R_2}} \, ,
+    \end{equation}
+    where $R_1$ and $R_2$ are nondimensional numbers and the $[\cdot]$ and $\langle\cdot\rangle$ have been dropped for brevity. 
+
+    In the strictest sense, RCE is a steady-state equilibrium where radiation balances surface turbulent fluxes (\(R_{1}=0\)). As this is exactly satisfied only in the global mean, we define RCE as \(R_{1}\le \varepsilon\), where $\varepsilon$ is a small number. This definition includes regions of vertically-integrated MSE flux divergence and weak convergence because temperature profiles in regions of divergence are set by convective adjustment \citep{warren2020}.
+
+    RAE as defined in \cite{cronin2016} requires surface turbulent fluxes to be negligibly small (\(R_{2}=0\) or equivalently \(R_{1}=1\)). Although exact RAE further requires atmospheric storage to be small ($\partial_t m=0$), the framework developed by \cite{cronin2016} could readily be generalized to account for the time tendency term, which would add to the advective tendency. To be consistent with the definition of RCE, we define RAE as regions where surface turbulent fluxes are small or directed from the atmosphere to the surface (\(R_{2} \ge -\varepsilon \) or equivalently \(R_{1} \ge 1-\varepsilon\)).
+
+    In order to choose the value for $\varepsilon$, we examine the zonal mean, annual mean deviation of the lapse rate from the moist adiabatic lapse rate binned by the value of $R_1$ using reanalysis data (Fig.~\ref{fig:rea-binned-r1}). The lapse rate deviation is plotted in sigma coordinates to ensure that surface inversions are properly represented (see Appendix~A for more details). The tropospheric lapse rate deviation is nearly a monotonic function of $R_1$ (especially above $\sigma=0.7$ and below $\sigma=0.9$), demonstrating the quantitative link between energy balance and lapse rate regimes. A surface inversion occurs for $R_1 \ge 0.9$ and thus we define the RAE regime as $R_1\ge1-\epsilon=0.9$ (thick blue line, Fig.~\ref{fig:rea-binned-r1}). Consistently, we define the RCE regime as $R_1\le\varepsilon=0.1$. Where $R_1\le 0.1$, the free tropospheric lapse rate (vertically averaged from $\sigma=0.7$ to 0.3) deviates from the moist adiabatic lapse rate by less than 13\% (thick green line, Fig.~\ref{fig:rea-binned-r1}). Finally, RCAE is defined for the intermediate values of $0.1<R_1<0.9$.
+
+    \subsection{Reanalysis data}\label{subsec:reanalysis}
+    We consider three reanalysis data sets from 1980--2005: ERA5 \citep{hersbach2020}, MERRA2 \citep{gelaro2017}, and JRA55 \citep{kobayashi2015}. We focus on the energy balance and lapse rate regimes for the multi-reanalysis mean and show the spread as the range across the three reanalyses. Atmospheric storage ($\partial_t m$) is computed by taking the finite difference of MSE using monthly temperature, specific humidity, and geopotential data, following \cite{donohoe2013}. Additionally, we use the monthly radiative ($R_a$) and surface turbulent ($\mathrm{LH}$ and $\mathrm{SH}$) fluxes and infer the advective flux ($\partial_y (vm)$) as the residual. We choose to infer advection as the residual because the mass-correction technique for directly computing the MSE flux divergence in reanalysis data is known to produce unphysical results in the high latitudes \citep{porter2010}. 
+
+    \subsection{CMIP5 historical simulations}
+    We consider the r1i1p1 historical run of 41 CMIP5 models from 1980--2005 \citep[Table~B1,][]{taylor2012}. We show the energy balance and lapse rate regimes for the multimodel mean and show the spread as the interquartile range across the models. Consistent with the reanalysis products, we compute $R_1$ using monthly $\partial_t m$, $R_a$, $\mathrm{LH}$, and $\mathrm{SH}$, and infer $\partial_y (vm) $ as the residual.
+
+    \subsection{Idealized climate models}\label{subsec:models}
+    We use two idealized climate models to understand the seasonal changes in energy balance regimes. At intermediate complexity, we examine seasonal changes in the ECHAM6 slab ocean aquaplanet model \citep{stevens2013}, hereafter referred to as AQUA. AQUA simulations are configured with a seasonal cycle, no ocean heat transport, modern greenhouse gas concentrations, and with or without thermodynamic sea ice following \cite{shaw2020}. In order to explore the seasonal variation in energy balance regimes, we vary the mixed layer depth in AQUA from 3 to 50 m following previous work \citep{donohoe2014, barpanda2020}. A monthly climatology is obtained by averaging the last 20 years of the 40 year simulation except for the 3 m configuration, where the last 5 years of a 15 year simulation are averaged due to the faster equilibration. Consistent with the reanalysis products and the CMIP5 simulations, we compute $R_1$ using the monthly $\partial_t m$, $R_a$, $\mathrm{LH}$, and $\mathrm{SH}$, and infer $\partial_y (vm) $ as the residual.
+
+    At the simple end, we use the EBM of \cite{rose2017}. The EBM is an equation for the zonal mean surface temperature:
+    \begin{equation}
+      \rho c_w d \; \partial_t T_s = aQ - (A+BT_s)  + \frac{D}{\cos\phi}\partial_\phi\left( \partial_\phi T_s \; \cos\phi \right)\, ,
+    \end{equation}
+    where $\rho$ is the density of water, $c_w$ is the specific heat capacity of liquid water, $d$ is the mixed layer depth, $T_s$ is the zonal mean surface temperature, $a$ is the co-albedo, $Q$ is insolation, $A+BT_s$ is outgoing longwave radiation where $A$ and $B$ are constant coefficients, $\phi$ is latitude, and $D$ is the diffusivity, which is assumed to be a constant. We set $A=-410$ Wm$^{-2}$, $B=2.33$ Wm$^{-2}$K$^{-1}$, $D=0.90$ Wm$^{-2}$K$^{-1}$, and $a=0.72$, which are obtained from best fits to AQUA configured with a 25 m mixed layer depth and without sea ice. Best fits of $A$ and $B$ are obtained by taking the least squares linear regression of the zonal mean $\mathrm{OLR}$ and $T_s$. The best fit of $D$ is obtained similarly by taking the least squares linear regression of $\partial_y (vm)$ and $\frac{1}{\cos\phi}\partial_\phi \left(\partial_\phi T_s \; \cos\phi \right)$ for latitudes poleward of $25^\circ$. Lastly, $a$ is computed as the globally-averaged diagnosed planetary co-albedo.
+
+\section{Energy balance regimes in reanalysis data} \label{sec:diagnostics}
+    \subsection{Annual mean energy balance regimes}
+    In the annual mean, the RCE regime, defined by $R_1 \le 0.1$, extends from the deep tropics to $\approx 40^\circ$ (black line overlapping orange region in Fig.~\ref{fig:rea-r1-ann}a). The free tropospheric lapse rate, defined as the vertically-averaged lapse rate from $\sigma=0.7$ to 0.3, closely follows $R_1$ (compare orange and black lines in Fig.~\ref{fig:rea-r1-ann}a) and deviates $-3$\% to $+13$\% from a moist adiabat where $R_1 \le 0.1$.
+
+    The RAE regime, defined by $R_1 \ge 0.9$, occurs poleward of $\approx 80^\circ$N and $\approx 70^\circ$S in the annual mean (black line overlapping blue region in Fig.~\ref{fig:rea-r1-ann}b). The reanalysis spread in the high latitudes is large in both hemispheres due to high uncertainty in the estimation of surface turbulent fluxes \citep{tastula2013,graham2019}. The largest values of $R_1$ are found over Antarctica whereas $R_1$ is close to the RCAE threshold in the Arctic. Consistently, the region where $R_1\ge 0.9$ exhibits $>100\%$ deviation from a moist adiabat indicating a surface inversion (blue line in Fig.~\ref{fig:rea-r1-ann}b).
+
+    Lastly, the RCAE regime, defined by $0.1 < R_1 < 0.9$, occurs between $40$--$80^\circ$N and $40$--$70^\circ$S in the annual mean (black line overlapping the white region in Fig.~\ref{fig:rea-r1-ann}a). The free tropospheric lapse rate in the region where $0.1 < R_1 < 0.9$ deviates $+13$\% to $+35$\% from a moist adiabat.
+
+    \subsection{Seasonality of energy balance regimes} \label{subsec:seasonality}
+    The seasonality of $R_1$ is weak in the Southern Hemisphere, such that the latitudinal extent of RCE (equatorward of $40^\circ$S), RAE (poleward of $70^\circ$S), and RCAE regimes (between $40$--$70^\circ$S) is largely the same throughout the year (Fig.~\ref{fig:rea-r1-dev}a). Consistently, both the seasonality of free tropospheric lapse rate deviation (Fig.~\ref{fig:rea-r1-dev}b) and the boundary layer lapse rate deviation in the high latitudes (Fig.~\ref{fig:rea-r1-dev}c) exhibit weak seasonality in the Southern Hemisphere.
+
+    In the Northern Hemisphere, the RCE regime occurs yearround equatorward of $40^\circ$N and expands poleward to $70^\circ$N during June (region equatorward of the thick orange contour in Fig.~\ref{fig:rea-r1-dev}a). The seasonality of the free tropospheric lapse rate deviation from a moist adiabat similiarly expands poleward during summertime (e.g., see the 15\% deviation contour in Fig.~\ref{fig:rea-r1-dev}b). However, there is a phase shift between the seasonality of energy balance and lapse rate regimes. In particular, the Northern midlatitudes are in an RCE regime from April to July, while the lapse rate is within $13$\% of a moist adiabat from June to September (compare solid black and orange lines in Fig.~\ref{fig:rea-r1-ga-temporal}a). This lag is associated with the seasonality of atmospheric storage. When atmospheric storage is excluded from $R_1$, there is closer agreement in the phase of the energy balance and lapse rate seasonality (compare dashed black and orange lines in Fig.~\ref{fig:rea-r1-ga-temporal}a).
+
+    The Northern Hemisphere RAE regime occurs poleward of $80^\circ$N with the exception of May and June (region poleward of the thick blue contour in Fig.~\ref{fig:rea-r1-dev}a). Consistently, the boundary layer stability decreases during May and June (Fig.~\ref{fig:rea-r1-dev}c), but relatively low static stability persists through September despite high values of $R_1$ (compare solid black and blue lines in Fig.~\ref{fig:rea-r1-ga-temporal}b). The atmospheric storage term again plays an important role in the seasonal atmospheric MSE budget (compare solid and dashed black lines in Fig.~\ref{fig:rea-r1-ga-temporal}b). However, unlike in the midlatitudes, the discrepancy in the timing of the energy balance and lapse rate regimes in the high latitudes cannot be directly related to the seasonality of atmospheric storage (compare dashed black and blue lines in Fig.~\ref{fig:rea-r1-ga-temporal}b).
+
+    \subsection{Decomposition of seasonal energy balance regime transitions}
+    In order to diagnose the physical mechanism responsible for the seasonal regime transitions in the Northern Hemisphere, we decompose the seasonality of $R_1$ as follows:
+    \begin{equation}\label{eq:r1-dev}
+      \Delta R_1 = \overline{R_1}\left( \frac{\Delta(\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}}  - \frac{\Delta R_a }{\overline{R_a}}\right) + \mathrm{Residual} \, ,
+    \end{equation}
+    where $\Delta(\cdot)$ is the deviation from the annual mean and $\overline{(\cdot)}$ is the annual mean. The dynamic component (first term on the right hand side of equation~\ref{eq:r1-dev}) quantifies the importance of advection plus atmospheric storage, and the radiative component (second term on the right hand side of equation~\ref{eq:r1-dev}) quantifies the importance of radiative cooling. Lastly, the residual quantifies the importance of nonlinear interactions.
+
+    The RCAE to RCE regime transition in the Northern midlatitudes (where the solid black line intersects the orange region in Fig.~\ref{fig:rea-r1-decomp-mid}a) closely follows the dynamic component (compare black and red lines in Fig.~\ref{fig:rea-r1-decomp-mid}a) whereas the other terms are small (gray and dash-dot line in Fig.~\ref{fig:rea-r1-decomp-mid}a). The RCE regime corresponds to the time when advection plus atmospheric storage are small (sum of black and red lines in Fig.~\ref{fig:rea-r1-decomp-mid}b). In the Southern Hemisphere, the dynamic and radiative components are of similar magnitude and partially compensate, leading to relatively small seasonality in $R_1$ (Fig.~\ref{fig:rea-r1-decomp-mid}c). The radiative components are similar between the two hemispheres (compare gray lines in Fig.~\ref{fig:rea-r1-decomp-mid}a and \ref{fig:rea-r1-decomp-mid}c). Thus, there is no midlatitude regime transition to RCE in the Southern Hemisphere because the dynamic component is small, which is consistent with the small seasonality of advection plus storage (black and red lines in Fig.~\ref{fig:rea-r1-decomp-mid}d).
+
+    The RAE to RCAE regime transition in the Northern high latitudes is a small residual of the dynamic and radiative components (Fig.~\ref{fig:rea-r1-decomp-pole}a). The small residual is associated with an increase in latent heat flux of up to 11 Wm$^{-2}$ during May and June (blue line, Fig.~\ref{fig:rea-r1-decomp-pole}b). In the Southern high latitudes, the dynamic and radiative components also largely cancel, but there is no regime transition. The Southern high latitudes remain in RAE yearround consistent with a smaller summertime latent heat flux (2 Wm$^{-2}$, blue line in Fig.~\ref{fig:rea-r1-decomp-pole}d) and a larger annual mean $R_1$ ($\overline{R_1}=1.36$). The larger annual mean $R_1$ is associated with smaller radiative cooling and a persistent downward sensible heat flux (gray and orange lines in Fig.~\ref{fig:rea-r1-decomp-pole}d).
+    
+    While the results above focused on the reanalysis mean, similar seasonality is also found in the CMIP5 historical simulations (Fig.~B1--B6). In particular, CMIP5 models capture the regime transition in the Northern midlatitudes and its connection to the large seasonality of advection plus storage (Fig.~B5). CMIP5 models also capture the regime transition in the Northern high latitudes and its connection to a summertime increase in latent heat flux (Fig.~B6). Some small differences between the reanalysis and CMIP5 mean are discussed in Appendix~B.
+
+\section{Testing hypotheses to explain seasonal regime transitions using idealized climate models} \label{sec:hypo}
+  \subsection{Midlatitude regime transition} \label{subsec:mld}
+  Previous studies have found that surface heat capacity controls the seasonality of various climate phenomena, such as surface temperature \citep{donohoe2014}, Intertropical Convergence Zone \citep{bordoni2008}, and storm track intensity and position \citep{barpanda2020}, due to its effect on the seasonality of surface energy fluxes. Thus, we hypothesize that surface heat capacity controls the existence of midlatitude energy transfer regime transitions. In order to connect the seasonality of $R_1$ to surface heat capacity, we begin by rewriting the atmospheric MSE budget in terms of fluxes at the top of the atmosphere ($F_\mathrm{TOA}$) and the surface ($F_\mathrm{SFC}$) following \cite{barpanda2020}:
+  \begin{equation}\label{eq:mse-toasfc}
+    \Delta\left(\partial_t m + \partial_y (vm) \right) = \Delta F_{\mathrm{TOA}} - \Delta F_{\mathrm{SFC}} \, .
+  \end{equation}
+  We can write the seasonality of surface fluxes using the surface energy budget of a mixed layer ocean:
+  \begin{equation}
+    \Delta F_{\mathrm{SFC}} = \rho c_{w} d \Delta\left(\partial_t T_{s}\right) + \Delta ( \partial_y F_{O}) \approx \rho c_{w} d \Delta\left(\partial_t T_{s}\right) \, ,
+  \end{equation}
+  where $\rho$ is the density of water, $c_w$ is the specific heat capacity of liquid water, $d$ is the mixed layer depth, and $\Delta(\partial_y F_O)$ is the seasonality of meridional ocean heat flux divergence, which we neglect because it is small \citep{roberts2017}. Finally, we divide by $\overline{R_a}$, which yields an equation for the seasonality of $R_1$:
+  \begin{equation}\label{eq:mse-toasfc-approx}
+    \Delta R_1 \approx \frac{\Delta\left(\partial_t m + \partial_y (vm) \right)}{\overline{R_a}} = \frac{1}{\overline{R_a}} \left(\Delta F_{\mathrm{TOA}} - \rho c_{w} d \Delta\left(\partial_t T_{s}\right)\right) \, , 
+  \end{equation}
+  where we assumed that the radiative component is negligible (c.f. Fig.~\ref{fig:rea-r1-decomp-mid}a). In order to close equation~(\ref{eq:mse-toasfc-approx}), which depends on the unknown surface temperature tendency, we make use of the EBM (see Section~\ref{sec:methods}\ref{subsec:models} and Appendix~C for more details). Following the EBM, we can write equation~(\ref{eq:mse-toasfc-approx}) as
+  \begin{equation} \label{eq:r1-linear4}
+    \Delta R_{1} = \frac{Q^{*}}{\overline{R_{a}}}\frac{2D}{(B+2D)^{2}+(\rho c_w d \omega)^{2}}\left[(B+2D)\cos(\omega t)+\rho c_w d \omega \sin(\omega t)\right] \, ,
+  \end{equation}
+  where $Q^*$ is the seasonal amplitude of insolation and $\omega=2\pi$ yr$^{-1}$. According to equation~(\ref{eq:r1-linear4}), the amplitude of $\Delta R_1$ decreases as the mixed layer depth $d$ increases if all else is equal. 
+
+  The dependence of $\Delta R_1$ on mixed layer depth in AQUA is qualitatively consistent with the EBM prediction (compare stars to solid black line in Fig.~\ref{fig:amp-r1-echam}a). While $\Delta R_1$ is less sensitive to the mixed layer depth in the EBM than in AQUA at very small mixed layer depths, it captures the seasonal amplitude of surface temperature (Fig.~\ref{fig:amp-r1-echam}b). The midlatitude regime transition from RCAE to RCE in the EBM occurs for $d \le 16$ m and in AQUA occurs for $d \le 20$ m (intersection of the line and stars with the orange region in Fig.~\ref{fig:amp-r1-echam}a).
+
+  When AQUA is configured with a mixed layer depth of 15 m, the amplitude of the \(R_{1}\) seasonality closely resembles the Northern midlatitudes (compare Fig.~\ref{fig:echam-rce}a and Fig.~\ref{fig:rea-r1-decomp-mid}a). However, the regime transition in AQUA with a 15 m mixed layer depth lags that in reanalysis data. This phase lag can be partly rectified by choosing a smaller (3 m) mixed layer depth, but this comes at the expense of amplifying the seasonality by a factor of three (not shown). The regime transition in AQUA is associated with a large seasonality of advection plus atmospheric storage consistent with the Northern midlatitudes in reanalysis data (compare Fig.~\ref{fig:echam-rce}b to \ref{fig:rea-r1-decomp-mid}b). 
+  
+  Consistent with the EBM prediction, when AQUA is configured a 40 m mixed layer depth, \(\Delta R_{1}\) closely resembles the Southern midlatitudes; namely, there is no regime transition (compare Fig.~\ref{fig:echam-rce}c and Fig.~\ref{fig:rea-r1-decomp-mid}c). The persistence of the RCAE regime throughout the seasonal cycle in the 40~m aquaplanet simulation can be attributed to the weak seasonality of advection plus atmospheric storage, consistent with the results for the Southern midlatitudes in reanalysis data (compare Fig.~\ref{fig:echam-rce}d and \ref{fig:rea-r1-decomp-mid}d).
+
+  \subsection{High latitude regime transition} \label{subsec:ice}
+  The existence of a high latitude regime transition in the Northern Hemisphere is associated with a large summertime latent heat flux and a small annual mean $R_1$ compared to the Southern Hemisphere (compare blue lines in Fig.~\ref{fig:rea-r1-decomp-pole}b,d and horizontal black lines in Fig.~\ref{fig:rea-r1-decomp-pole}a,c). The polar regions on Earth are fundamentally different in that the Northern Hemisphere has a polar ocean whereas the Southern Hemisphere has a polar continent. Given these differences, we quantify the importance of the following mechanisms on the high latitude energy balance seasonality: 1) sea ice in the Arctic and 2) topography in the Antarctic.
+  
+  In the Arctic, surface latent heat flux is strongly affected by the presence of sea ice, which reduces the albedo and modulates heat exchange between the ocean and atmosphere \citep{andreas1979, maykut1982}. We therefore expect sea ice to play a key role in the seasonality of energy balance regimes in the Northern high latitudes. We test the importance of sea ice using mechanism denial experiments where AQUA is configured with and without thermodynamic sea ice (Section~\ref{sec:methods}\ref{subsec:models}).
+  
+  When AQUA is configured with a 40 m mixed layer depth without sea ice, the high latitudes are in RCAE yearround and there is no regime transition to RAE (black line does not intersect blue region in Fig.~\ref{fig:echam-rae}a). Consistent with a state of RCAE yearround, there is no surface inversion (blue line does not intersect blue region in Fig.~\ref{fig:echam-rae}a). The RCAE regime in the ice-free AQUA simulation is associated with latent heat flux greater than $10$ Wm$^{-2}$ yearround (Fig.~\ref{fig:echam-rae}c).
+  
+  When AQUA is configured with a 40 m mixed layer depth with sea ice, the high latitudes undergo a regime transition from RCAE to RAE (black line intersects the blue region in Fig.~\ref{fig:echam-rae}b). The boundary layer lapse rate deviation shows that an inversion exists when the high latitudes are in RAE but disappears when the high latitudes are in RCAE (blue line overlapping the white region in Fig.~\ref{fig:echam-rae}b). Furthermore, the latent heat flux seasonality with sea ice is consistent with small values during winter and an increase during summer (Fig.~\ref{fig:echam-rae}d). Thus, AQUA configured with sea ice captures the observed energy balance and lapse rate regime seasonality of the Northern high latitudes (compare Fig.~\ref{fig:echam-rae}b to \ref{fig:rea-r1-ga-temporal}b and \ref{fig:echam-rae}d to \ref{fig:rea-r1-decomp-pole}b).
+
+  In the Antarctic, the annual mean value of $R_1$ is larger than the Arctic and there is no regime transition from RAE to RCAE. In the presence of Antarctic topography, the atmosphere is optically thinner, so that we expect atmospheric radiative cooling to be weaker, and thus $R_1=\frac{\partial_t m + \partial_y (vm)}{R_a}$ to be larger. We therefore investigate the impact of Antarctic topography on the seasonality of energy balance regimes using mechanism denial experiments. In particular, we use the CESM simulations configured with and without (flattened) Antarctic topography by \cite{hahn2020}.
+
+  The control CESM simulation with Antarctic topography captures the seasonality of $R_1$ in the reanalyses and CMIP5 historical runs. In particular, the Northern high latitudes undergo a RAE to RCAE regime transition in June (solid line intersects the white region in Fig.~\ref{fig:hahn-aa}a) while the Southern high latitudes remain in RAE yearround (dashed line remains in the blue region in Fig.~\ref{fig:hahn-aa}a).
+
+  Without Antarctic topography, $\overline{R_1}$ decreases from 1.30 to 1.12 in the Southern high latitudes (compare Fig.~\ref{fig:hahn-aa}a to \ref{fig:hahn-aa}b). However, because topography does not significantly affect summertime $R_1$, the Southern high latitudes without Antarctic topography continue to remain in RAE yearround (dashed line remains in the blue region in Fig.~\ref{fig:hahn-aa}b). In both configurations of CESM, Antarctic latent heat flux remains small (below 5 Wm$^{-2}$, compare dashed and solid lines in Fig.~\ref{fig:hahn-aa}c,d). Thus, while Antarctic topography partially explains the large hemispheric asymmetry in annual mean $R_1$, it does not significantly affect the seasonality of energy balance regimes in the Antarctic.
+
+\section{Summary and Discussion}\label{sec:conclusion}
+\subsection{Summary}
+We quantified when and where energy balance regimes are observed and their connection to lapse rates for Earth's modern climate. We used the vertically-integrated MSE budget to define a nondimensional number $R_1=\frac{\partial_t m + \partial_y (vm)}{R_a}$ that quantifies regions of RCE ($R_1\le0.1$), RAE ($R_1\ge0.9$), and RCAE ($0.1<R_1<0.9$). In the annual mean, the RCE regime occurs equatorward of $40^\circ$, where the free tropospheric lapse rate deviates less than 13\% from a moist adiabat. The RAE regime occurs poleward of $80^\circ$N and $70^\circ$S consistent with where surface inversions occur. Lastly, the RCAE regime occurs between $40$--$70^\circ$S and $40$--$80^\circ$N, where the free tropospheric lapse rate deviates 13\% to 35\% from a moist adiabat.
+
+Energy balance and lapse rate regimes exhibit weak seasonality in the Southern Hemisphere. In the Northern Hemisphere, regime transitions occur from RCAE to RCE in the midlatitudes and from RAE to RCAE in the high latitudes. The lapse rate also shows seasonal regime transitions in the Northern mid and high latitudes, but there is a phase shift relative to the energy balance regime transition by 1 to 3 months. In the Northern midlatitudes, this phase shift is associated with the seasonality of atmospheric storage.
+
+A linear decomposition of the $R_1$ seasonality showed that the regime transition in the Northern Hemisphere midlatitudes is consistent with the large seasonality of advection plus atmospheric storage. We hypothesized using an EBM that surface heat capacity controls the amplitude of advection plus storage and thus the seasonal regime transition in the Northern midlatitudes. The hypothesis was confirmed by varying the mixed layer depth in aquaplanet simulations. As predicted by the EBM, aquaplanet simulations show that the seasonality of $R_1$ increases as the mixed layer depth decreases. The midlatitude regime transition occurs for mixed layer depths less than 20 m in the aquaplanet. The importance of surface heat capacity on the seasonal amplitude of advection plus storage in the midlatitudes is consistent with \cite{barpanda2020}.
+
+To understand the seasonality of energy balance regimes in the high latitudes, we tested the importance of sea ice for a polar ocean (Arctic) and topography for a polar continent (Antarctica) using mechanism denial experiments. In an aquaplanet with thermodynamic sea ice, the high latitudes undergo a regime transition from RAE to RCAE and the aquaplanet captures the seasonality of the Northern high latitudes. However, without sea ice, the aquaplanet remained in RCAE yearround confirming the importance of sea ice. Using the CESM experiments conducted by \cite{hahn2020}, we found that the influence of Antarctic topography is confined to winter, and as a result the Southern high latitudes remain in RAE yearround regardless of the presence of Antarctic topography.
+
+\subsection{Discussion}
+Our findings are consistent with \cite{jakob2019}, who found that the tropics are near a state of RCE in the annual mean over a sufficiently large spatial average (achieved here through taking the zonal mean). \cite{jakob2019} use the DSE budget to define RCE and primarily focus on the implications of the validity of RCE in the context of CRM configurations and convective aggregation in the tropics. Our work focuses on the nondimensional MSE budget, which has the advantage that it can be used as a more general criterion for defining energy balance regimes outside the tropics and in climates different from modern Earth.
+
+The energy balance regimes defined here were based on the vertically-integrated MSE budget. The vertically-integrated budget is useful but it may have limitations when the vertical structure of advection, atmospheric storage, and radiation are important. For example, the discrepancy between the seasonality of energy balance and lapse rate regimes in the Northern high latitudes may be related to different vertical structures of advection and atmospheric storage. Extending the RAE model of \cite{cronin2016} to explicitly include atmospheric storage would be helpful for understanding the discrepancy. 
+
+While the mechanism denial experiments involving sea ice were successful for understanding the seasonality of energy balance regimes in the Northern high latitudes, experiments involving topography were not successful in the Southern high latitudes. Future work should focus on the importance of alternative mechanisms such as the surface boundary condition (continent vs ocean) and clouds.
+
+The framework we introduced for quantifying energy balance regimes can be used to explore many interesting areas for future work. First, the framework can be extended to study the zonal structure of energy balance regimes. Second, the framework can be used to understand the importance of sea ice on RAE and polar amplification in response to CO$_2$ through its control on the albedo and lapse rate feedback \citep{feldl2020}. Finally, the framework can be applied to past and future climates to understand the potential for energy balance regime transitions through time. Previous studies suggest that high latitudes during warm epochs, such as the Eocene, may have been close to RCE \citep{abbot2008a} whereas RAE was more widespread during Snowball Earth \citep{pierrehumbert2005}. These are all exciting areas for future work.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ACKNOWLEDGMENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\acknowledgments
+The authors acknowledge support from the National Science Foundation (AGS-2033467). We acknowledge the University of Chicago Research Computing Center for providing the computational resources used to carry out this work. We thank Lily Hahn for making the output of their CESM simulations publically available.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DATA AVAILABILITY STATEMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%
+\datastatement
+Data supporting this study are available through Knowledge@UChicago (\url{INSERT_DOI_HERE}). Additionally, ERA5 data are available through ECMWF (\url{https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era5}). MERRA2 data are available through NASA-GMAO (\url{https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/}). JRA55 data are available through DIAS (\url{https://jra.kishou.go.jp/JRA-55/index_en.html}). CMIP5 data are available through ESGF (\url{https://esgf-node.llnl.gov/projects/esgf-llnl/}). 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% APPENDIXES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Use \appendix if there is only one appendix.
+%\appendix
+
+% Use \appendix[A], \appendix[B], if you have multiple appendixes.
+% \appendix[A]
+
+%% Appendix title is necessary! For appendix title:
+%\appendixtitle{}
+
+%%% Appendix section numbering (note, skip \section and begin with \subsection)
+% \subsection{First primary heading}
+
+% \subsubsection{First secondary heading}
+
+% \paragraph{First tertiary heading}
+
+%% Important!
+%\appendcaption{<appendix letter and number>}{<caption>} 
+%must be used for figures and tables in appendixes, e.g.,
+%
+%\begin{figure}
+%\noindent\includegraphics[width=19pc,angle=0]{figure01.pdf}\\
+%\appendcaption{A1}{Caption here.}
+%\end{figure}
+%
+% All appendix figures/tables should be placed in order AFTER the main figures/tables, i.e., tables, appendix tables, figures, appendix figures.
+
+\appendix[A]
+\appendixtitle{Lapse rate deviation from the moist adiabat}
+We use a centered finite difference of monthly pressure level temperature and geopotential data to compute the lapse rate and convert to sigma coordinates by masking out the data below surface pressure and taking a cubic spline interpolation. We perform this conversion for every latitude and longitude grid point. 
+
+Following \cite{stone1979}, we define the deviation of the lapse rate from the moist adiabatic lapse rate as the fractional difference:
+  \begin{equation}
+    \delta_{c} = \frac{\Gamma_{m}-\Gamma}{\Gamma_{m}}
+  \end{equation}
+where $\Gamma$ is the actual lapse rate in the reanalysis or GCM and $\Gamma_m$ is the moist adiabatic lapse rate as defined in equation~(3) in \cite{stone1979}.
+
+\appendix[B]
+\appendixtitle{Differences between the CMIP5 historical multimodel mean and the reanalysis mean}
+In the reanalysis mean, there is a location of anomalously stable stratification between $\sigma=0.9$ to 0.7 for $R_1=0$ (Fig.~\ref{fig:rea-binned-r1}). This leads to a nonmonotonic relationship between the lapse rate deviation and $R_1$ in the viscinity of $\sigma=0.8$. In comparison, the lower tropospheric stability does not show a similarly pronounced peak and the lapse rate deviation is monotonic with respect to $R_1$ for the CMIP5 multimodel mean (Fig.~B1).
+
+In the reanalysis mean, there is a clear hemispheric asymmetry in the high latitude $R_1$ seasonality (compare Fig.~\ref{fig:rea-r1-decomp-pole}a and \ref{fig:rea-r1-decomp-pole}c). In addition, there is a corresponding asymmetry in the seasonality of the boundary layer lapse rate, where the lapse rate deviation in the Northern high latitudes indicates that the inversion vanishes during summertime whereas the inversion persists yearround in the Southern high latitudes (Fig.~\ref{fig:rea-r1-dev}c). The asymmetry differs somewhat in the CMIP5 multimodel mean. Notably, $R_1$ exhibits stronger seasonality in the Southern Hemisphere and approaches the margin of the RCAE regime during summertime (compare Fig.~B6c and \ref{fig:rea-r1-decomp-pole}c). Consistent with an energy balance state on the margin of RCAE, the inversion vanishes in the Southern high latitudes during summertime (Fig.~B3c).
+
+\appendix[C]
+\appendixtitle{Deriving an analytical expression for $\Delta R_1$ as a function of mixed layer depth}
+Following the \cite{rose2017} EBM, we write the seasonality of TOA and SFC fluxes as a Fourier-Legendre series. Here, we only consider the first harmonic as it is an order of magnitude larger than the second harmonic in the midlatitudes:
+    \begin{itemize}
+      \item $\Delta F_{\mathrm{TOA}} \approx a\Delta Q - B\Delta T_{s}$, where $a\Delta Q = Q^{*}\cos(\omega t)$. $\omega=2\pi$ yr$^{-1}$, $Q^{*}=as_{11}Q_{g}P_{1}(\phi)$ is the amplitude of net TOA shortwave radiation, $s_{11}=-2\sin{\beta}$ where $\beta$ is the obliquity, $P_1(\phi) = \sin\phi$, and $Q_{g}=340$ Wm$^{-2}$. 
+      \item $\Delta T_{s} = T_{s}^{*}\cos(\omega t - \Phi)$, where $T_{s}^{*}$ is the amplitude of surface temperature seasonality and $\Phi$ is the phase shift of $\Delta T_{s}$ relative to $\Delta Q$. $T_{s}^{*}=Q^{*}\left[(B+2D)^{2}+(\rho c_w d \omega)^{2}\right]^{-1/2}$ and $\Phi=\arctan\left(\frac{\rho c_w d \omega}{B+2D}\right)$ (see \cite{rose2017} for the derivation of the analytical expression of surface temperature).
+    \end{itemize}
+  Using the results above, we can write equation~(\ref{eq:mse-toasfc-approx}) as
+  \begin{equation} \label{eq:r1-linear3}
+    \Delta R_{1} = \frac{1}{\overline{R_{a}}}\left(Q^{*}\cos(\omega t) -BT^{*}\cos(\omega t - \Phi)+\rho c_{w} d \omega T_{s}^{*}\sin(\omega t - \Phi) \right) \, .
+  \end{equation}
+  Substituting in $T_{s}^{*}$ and $\Phi$ and simplifying, we obtain
+  \begin{equation} \label{eq:r1-linear4-deriv}
+    \Delta R_{1} = \frac{Q^{*}}{\overline{R_{a}}}\frac{2D}{(B+2D)^{2}+(\rho c_w d \omega)^{2}}\left[(B+2D)\cos(\omega t)+\rho c_w d \omega \sin(\omega t)\right] \, .
+  \end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% REFERENCES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Make your BibTeX bibliography by using these commands:
+\bibliographystyle{ametsoc2014}
+\bibliography{references}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TABLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Enter tables at the end of the document, before figures.
+%%
+%
+%\begin{table}[t]
+%\caption{This is a sample table caption and table layout.  Enter as many tables as
+%  necessary at the end of your manuscript. Table from Lorenz (1963).}\label{t1}
+%\begin{center}
+%\begin{tabular}{ccccrrcrc}
+%\hline\hline
+%$N$ & $X$ & $Y$ & $Z$\\
+%\hline
+% 0000 & 0000 & 0010 & 0000 \\
+% 0005 & 0004 & 0012 & 0000 \\
+% 0010 & 0009 & 0020 & 0000 \\
+% 0015 & 0016 & 0036 & 0002 \\
+% 0020 & 0030 & 0066 & 0007 \\
+% 0025 & 0054 & 0115 & 0024 \\
+%\hline
+%\end{tabular}
+%\end{center}
+%\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FIGURES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Enter figures at the end of the document, after tables.
+%%
+%
+%\begin{figure}[t]
+%  \noindent\includegraphics[width=19pc,angle=0]{figure01.pdf}\\
+%  \caption{Enter the caption for your figure here.  Repeat as
+%  necessary for each of your figures. Figure from \protect\cite{Knutti2008}.}\label{f1}
+%\end{figure}
+
+\begin{figure}
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/ga_frac_binned_r1/ga_frac_binned_r1_rea.pdf}\\
+  \caption{The reanalysis mean percent deviation of the zonal mean, annual mean lapse rate from the moist adiabatic lapse rate binned by $R_{1}$ (bin widths are 0.1). Thick blue and green lines correspond to $R_1=0.9$ and $R_1=0.1$, respectively. A 100\% deviation from the moist adiabat denotes an isothermal atmosphere and hence marks the threshold for an inversion.}
+  \label{fig:rea-binned-r1}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1z_ann/r1z_ann_rea.pdf}\\
+  \caption{(a) The reanalysis mean, zonal mean, annual mean structure of $R_1$ (black line, left axis) and the vertically-averaged free tropospheric ($\sigma=0.7$ to 0.3) lapse rate deviation from the moist adiabatic lapse rate (orange line, right axis). Orange, white, and blue regions indicate RCE, RCAE, and RAE, respectively. (b) The reanalysis mean, zonal mean, annual mean structure of $R_1$ (black line, left axis) and the vertically-averaged boundary layer ($\sigma=1$ to 0.9) lapse rate deviation from the moist adiabatic lapse rate (blue line, right axis). The shading over the lines indicate the range across the reanalyses.}
+  \label{fig:rea-r1-ann}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \noindent\includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_dev/r1_dev_rea.pdf}\\
+  \caption{(a) The reanalysis mean seasonality of $R_{1}$ (contour interval is 0.1). The thick orange contour indicates the RCE/RCAE boundary ($R_1=0.1$) and the thick blue contour indicates the RAE/RCAE boundary ($R_1 = 0.9$). (b) The reanalysis mean spatio-temporal structure of the free tropospheric (vertically averaged from $\sigma=0.7$ to 0.3) lapse rate deviation from a moist adiabat (contour interval is 5\%). (c) The reanalysis mean spatio-temporal structure of the boundary layer (vertically averaged from $\sigma=1$ to 0.9) lapse rate deviation from the moist adiabatic lapse rate (contour interval is 20\%).}
+  \label{fig:rea-r1-dev}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_ga_temporal/r1_ga_temporal_rea.pdf}\\
+  \caption{The reanalysis mean seasonality of $R_1$ with (solid black) and without (dashed black) atmospheric storage is compared to the lapse rate seasonality in the free troposphere (orange line) and near the surface (blue line) for the Northern Hemisphere (a) midlatitudes ($40$--$60^\circ$N) and (b) high latitudes ($80$--$90^\circ$N). The shading over the lines indicate the range across the reanalyses. The orange and blue regions indicate RCE and RAE regimes, respectively.}
+  \label{fig:rea-r1-ga-temporal}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_mid/r1_decomp_mid_rea.pdf}\\
+  \caption{The reanalysis mean seasonality of $R_{1}$ in the midlatitudes ($40$--$60^{\circ}$, black lines, left axis) and its deviation from the annual mean, $\Delta R_1$ (right axis), are shown for the (a) Northern and (c) Southern Hemisphere. The orange shading indicates the RCE regime. $\Delta R_1$ is decomposed into the dynamic (red line) and radiative (gray line) components according to equation~(\ref{eq:r1-dev}). The seasonality of the MSE budget terms in the midlatitudes are shown for the (b) Northern and (d) Southern Hemisphere. The shading over the lines indicate the range across the reanalyses.}
+  \label{fig:rea-r1-decomp-mid}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_pole/r1_decomp_pole_rea.pdf}\\
+  \caption{Same as Fig.~\ref{fig:rea-r1-decomp-mid} but averaged over the high latitudes ($80$--$90^{\circ}$).}
+  \label{fig:rea-r1-decomp-pole}
+\end{figure}
+
+\begin{figure}
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/amp_echam.pdf}\\
+  \caption{(a) $R_1$ seasonality measured by the minimum value of $R_1$ and (b) surface temperature amplitude (half the difference of maximum and minimum temperatures) predicted by the EBM (solid black line) and simulated by AQUA (stars). The orange region denotes the RCE regime.}
+  \label{fig:amp-r1-echam}
+\end{figure}
+
+\begin{figure}[t]
+    \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_mid/r1_decomp_mid_echamslab.pdf}\\
+    \caption{Same as Fig.~\ref{fig:rea-r1-decomp-mid} but for AQUA with (a,b) 15 m and (c,d) 40 m mixed layer depth.}
+\label{fig:echam-rce}
+\end{figure}
+
+\begin{figure}[t]
+    \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_pole/r1_decomp_pole_echamslab.pdf}\\
+    \caption{Seasonality of $R_1$ (black line, left axis) and boundary layer lapse rate deviation from a moist adiabat (blue line, right axis) in AQUA simulations with a 40 m mixed layer depth (a) without and (b) with sea ice. Latent heat flux evolution (c) without and (d) with sea ice.}
+    \label{fig:echam-rae}
+\end{figure}
+
+\begin{figure}[t]
+    \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/hahn/hahn_aa.pdf}\\
+    \caption{Seasonality of $R_1$ in the CESM simulations performed by \cite{hahn2020} in the Northern (solid line) and Southern (dotted line) high latitudes for the (a) control simulation (with Antarctic topography) and (b) flattened Antarctic topography simulation. (c,d) A similar comparison across the two CESM simulations are shown for latent heat flux. The Southern Hemisphere seasonality is shifted by 6 months to facilitate comparison across the hemispheres.}
+    \label{fig:hahn-aa}
+\end{figure}
+
+% APPENDIX FIGURES 
+
+\begin{table}[t]
+  \appendcaption{B1}{List of the 41 models that comprise the CMIP5 multimodel mean of the historical run.}
+\begin{center}
+  \renewcommand{\arraystretch}{1.0}
+  \begin{tabular}{ l }
+    Models          \\%& Ensemble run \\
+    \hline
+    ACCESS1-0       \\%& r1i1p1 \\
+    ACCESS1-3       \\%& r1i1p1 \\
+    bcc-csm1-1      \\%& r1i1p1 \\
+    bcc-csm1-1-m    \\%& r1i1p1 \\
+    BNU-ESM         \\%& r1i1p1 \\
+    CanESM2         \\%& r1i1p1 \\
+    CCSM4           \\%& r1i1p1 \\
+    CESM1-BGC       \\%& r1i1p1 \\
+    CESM1-CAM5      \\%& r1i1p1 \\
+    CESM1-WACCM     \\%& r1i1p1 \\
+    CMCC-CESM       \\%& r1i1p1 \\
+    CMCC-CM         \\%& r1i1p1 \\
+    CNRM-CM5        \\%& r1i1p1 \\
+    CNRM-CM5-2      \\%& r1i1p1 \\
+    CSIRO-Mk3-6-0   \\%& r1i1p1 \\
+    FGOALS-g2       \\%& r1i1p1 \\
+    FGOALS-s2       \\%& r1i1p1 \\
+    GFDL-CM3        \\%& r1i1p1 \\
+    GFDL-ESM2G      \\%& r1i1p1 \\
+    GFDL-ESM2M      \\%& r1i1p1 \\
+    GISS-E2-H       \\%& r1i1p1 \\
+    GISS-E2-H-CC    \\%& r1i1p1 \\
+    GISS-E2-R       \\%& r1i1p1 \\
+    GISS-E2-R-CC    \\%& r1i1p1 \\
+    HadCM3          \\%& r1i1p1 \\
+    HadGEM2-CC      \\%& r1i1p1 \\
+    HadGEM2-ES      \\%& r1i1p1 \\
+    inmcm4          \\%& r1i1p1 \\
+    IPSL-CM5A-LR    \\%& r1i1p1 \\
+    IPSL-CM5A-MR    \\%& r1i1p1 \\
+    IPSL-CM5B-LR    \\%& r1i1p1 \\
+    MIROC5          \\%& r1i1p1 \\
+    MIROC-ESM       \\%& r1i1p1 \\
+    MIROC-ESM-CHEM  \\%& r1i1p1 \\
+    MPI-ESM-LR      \\%& r1i1p1 \\
+    MPI-ESM-MR      \\%& r1i1p1 \\
+    MPI-ESM-P       \\%& r1i1p1 \\
+    MRI-CGCM3       \\%& r1i1p1 \\
+    MRI-ESM1        \\%& r1i1p1 \\
+    NorESM1-M       \\%& r1i1p1 \\
+    NorESM1-ME      \\%& r1i1p1 
+
+  \end{tabular}
+\end{center}
+\end{table}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/ga_frac_binned_r1/ga_frac_binned_r1_cmip5hist.pdf}\\
+  \appendcaption{B1}{Same as Fig.~\ref{fig:rea-binned-r1} but for the CMIP5 historical multimodel mean.}
+  \label{fig:cmip5-binned-r1}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1z_ann/r1z_ann_cmip5hist.pdf}\\
+  \appendcaption{B2}{Same as Fig.~\ref{fig:rea-r1-ann} but for the CMIP5 historical multimodel mean. The shading indicates the interquartile range.}
+  \label{fig:cmip5hist-r1-ann}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \noindent\includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_dev/r1_dev_cmip5hist.pdf}\\
+  \appendcaption{B3}{Same as Fig.~\ref{fig:rea-r1-dev} but for the CMIP5 historical multimodel mean.}
+  \label{fig:cmip5hist-r1-dev}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_ga_temporal/r1_ga_temporal_cmip5hist.pdf}\\
+  \appendcaption{B4}{Same as Fig.~\ref{fig:rea-r1-ga-temporal} but for the CMIP5 historical multimodel mean. The shading indicates the interquartile range.}
+  \label{fig:cmip5hist-r1-ga-temporal}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_mid/r1_decomp_mid_cmip5hist.pdf}\\
+  \appendcaption{B5}{Same as Fig.~\ref{fig:rea-r1-decomp-mid} but for the CMIP5 historical multimodel mean. The shading indicates the interquartile range.}
+  \label{fig:cmip5hist-r1-decomp-mid}
+\end{figure}
+
+\begin{figure}[t]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_pole/r1_decomp_pole_cmip5hist.pdf}\\
+  \appendcaption{B6}{Same as Fig.~\ref{fig:rea-r1-decomp-pole} but for the CMIP5 historical multimodel mean. The shading indicates the interquartile range.}
+  \label{fig:cmip5hist-r1-decomp-pole}
+\end{figure}
+
+\end{document}

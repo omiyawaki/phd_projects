@@ -24,10 +24,10 @@ file_aht = Dataset(path_aht, 'r')
 # read data
 vmmmc = file_vmmmc.variables['vmmmc'][:] # (mon x lat)
 vmse = file_vmse.variables['vmse'][:] # (mon x lat)
-vE = file_aht.variables['vE'][:] # (mon x lat)
+aht = file_aht.variables['aht'][:] # (mon x lat)
 
 # compute transient eddy transport as residual
-vm_te = vE - vmmmc - vmse
+vm_te = aht - vmmmc - vmse
 
 # save file as netCDF
 file_vmte = Dataset(path_vmte, "w", format='NETCDF4_CLASSIC')

@@ -50,15 +50,15 @@ par.clim = par.gcm.clim;
 
 make_grid(type, par);
 % choose_mmm_raw_2d(type, par);
-% choose_mmm_lat_mon_lev(type, par); % make mmm of mon x lat x lev data
+choose_mmm_lat_mon_lev(type, par); % make mmm of mon x lat x lev data
 % choose_mmm_lat_mon(type, par); % make mmm of mon x lat data
 % choose_mmm_lon_lat(type, par); % make mmm of lon x lat data
 % choose_mmm_lat(type, par); % make mmm of lat data
 % choose_mmm_mon(type, par); % make mmm of lat data
 for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
     for i=1:length(par.si_up_list); par.si_up = par.si_up_list(i);
-        choose_mmm_lat_mon_bl(type, par);
-        choose_mmm_lat_bl(type, par);
+        % choose_mmm_lat_mon_bl(type, par);
+        % choose_mmm_lat_bl(type, par);
     end
 end
 
@@ -93,13 +93,16 @@ function choose_mmm_lat_mon_lev(type, par)
     % mmm_ta_mon_lat(type, par);
     % mmm_tai_mon_lat(type, par);
     % mmm_ta_pl_mon_lat(type, par);
-    % mmm_ma_mon_lat(type, par);
-    % mmm_ga_diff_mon_lat(type, par);
-    % mmm_ga_frac_mon_lat(type, par);
-    % mmm_gad_frac_mon_lat(type, par);
 
-    mmm_ga_frac_midlatitude(type, par);
-    mmm_ga_frac_polar(type, par);
+    % mmm_dtempsi_mon_lat(type, par);
+
+    % mmm_ma_mon_lat(type, par);
+    mmm_ga_diff_mon_lat(type, par);
+    mmm_ga_frac_mon_lat(type, par);
+    mmm_gad_frac_mon_lat(type, par);
+
+    % mmm_ga_frac_midlatitude(type, par);
+    % mmm_ga_frac_polar(type, par);
 end
 
 function choose_mmm_lat_mon(type, par)

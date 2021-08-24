@@ -4,9 +4,10 @@
 # load python environment
 module unload python
 module load python
-source activate netcdf
+source activate p003
 
-declare -a models=("rp000172" "rp000086" "rp000034" "rp000141" "rp000133" "rp000145" "rp000131" "rp000147" "rp000135" "rp000149" "rp000046" "rp000134") # list of GCM models to process
+# declare -a models=("rp000172" "rp000086" "rp000034" "rp000141" "rp000133" "rp000145" "rp000131" "rp000147" "rp000135" "rp000149" "rp000046" "rp000134") # list of GCM models to process
+declare -a models=("rp000126" "rp000148" "rp000146" "rp000130" "rp000144" "rp000132" "rp000140" "rp000124") # list of GCM models to process
 declare -a clim="historical" # climate name
 declare -a freq="mon" # compute mse tendency using daily or monthly data?
 

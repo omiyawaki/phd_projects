@@ -76,7 +76,10 @@ def translate_varname(varnames_in, **kwargs):
         'lsp' : 'prl', # ERA
 
         # SEA ICE CONCENTRATION
-        'sic' : 'sic' # CMIP
+        'sic' : 'sic', # CMIP
+        
+        # CO2 MASS
+        'co2mass' : 'co2mass', # CMIP
     }
 
     # if input is a list of variables, output as list of variables

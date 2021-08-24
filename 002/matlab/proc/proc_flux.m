@@ -70,8 +70,12 @@ function proc_flux(type, par)
 
     load(sprintf('%s/tend.mat', prefix)) % read surface turbulent flux data
     flux.tend = permute(tend.tendmon, [2 1 3]);
-    if contains(par.model, 'GISS')
-        flux.tend = interp1(grid.dim3.lat_zg, flux.tend, lat, 'linear');
+    if strcmp(type, 'gcm')
+        if contains(par.model, 'GISS')
+            flux.tend = interp1(grid.dim3.lat_zg, flux.tend, lat, 'linear');
+        else
+            flux.tend = interp1(grid.dim3.lat, flux.tend, lat, 'linear');
+        end
     else
         flux.tend = interp1(grid.dim3.lat, flux.tend, lat, 'linear');
     end

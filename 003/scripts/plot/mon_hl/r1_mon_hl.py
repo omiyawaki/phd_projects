@@ -220,8 +220,8 @@ def r1_mon_hl(sim, **kwargs):
         sax.set_ylim(vmin['prfrac'],vmax['prfrac'])
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(AutoMinorLocator())
-        ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
-        sax.set_ylim(sax.get_ylim()[::-1]) # invert r1 axis
+        # ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
+        # sax.set_ylim(sax.get_ylim()[::-1]) # invert r1 axis
 
     elif plotover == 'pr':
         ############################################
@@ -309,7 +309,7 @@ def r1_mon_hl(sim, **kwargs):
         ###########################################
         plotname = '%s.%s' % (plotname, plotover)
 
-        if isinstance(model, str):
+        if isinstance(model, str) or model is None:
             [r1_dc, grid, datadir, plotdir, modelstr] = load_r1_dc(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span) 
         else:
             [r1_dc, grid, datadir, plotdir, modelstr, r1_dc_mmm] = load_r1_dc(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span) 
@@ -326,16 +326,18 @@ def r1_mon_hl(sim, **kwargs):
         # AVERAGE R1 COMPONENTS ONLY AT HIGH LATITUDES
         ############################################
         r1_dc_hl = {}
-        r1_dc_mmm_hl = {}
         for varname in r1_dc:
             r1_dc_hl[varname] = lat_mean(r1_dc[varname], grid, lat_int, dim=1)
 
-            r1_dc_mmm_hl[varname] = {}
-            for stat in r1_dc_mmm[varname]:
-                r1_dc_mmm_hl[varname][stat] = lat_mean(r1_dc_mmm[varname][stat], grid, lat_int, dim=1)
+        if not (isinstance(model, str) or model is None):
+            r1_dc_mmm_hl = {}
+            for varname in r1_dc_mmm:
+                r1_dc_mmm_hl[varname] = {}
+                for stat in r1_dc_mmm[varname]:
+                    r1_dc_mmm_hl[varname][stat] = lat_mean(r1_dc_mmm[varname][stat], grid, lat_int, dim=1)
 
         sax = ax.twinx()
-        if not isinstance(model, str):
+        if not (isinstance(model, str) or model is None):
             sax.fill_between(time, r1_dc_mmm_hl['dr1']['prc25'], r1_dc_mmm_hl['dr1']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
             sax.fill_between(time, r1_dc_mmm_hl['dyn']['prc25'], r1_dc_mmm_hl['dyn']['prc75'], facecolor='maroon', alpha=0.2, edgecolor=None)
             sax.fill_between(time, r1_dc_mmm_hl['rad']['prc25'], r1_dc_mmm_hl['rad']['prc75'], facecolor='tab:gray', alpha=0.3, edgecolor=None)

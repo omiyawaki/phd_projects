@@ -16,10 +16,19 @@ par.era5.yr_span = '1980_2005'; % spanning years for ERA5
 par.era5c.yr_span = par.era5.yr_span; % spanning years for ERA5
 par.merra2c.yr_span = '1980_2005'; % spanning years for MERRA2
 par.jra55.yr_span = '1980_2005'; % spanning years for JRA-55
-par.gcm.yr_span = '198001-200512'; % number of years that I am considering in the GCM climatology
+% par.gcm.yr_span = '198001-200512'; % number of years that I am considering in the GCM climatology
 % par.gcm.yr_span = 30; % number of years that I am considering in the GCM climatology
 % par.echam_clims = par.echam.noice_mld; %{'echr0001'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
-par.echam_clims = {'rp000134'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
+% par.echam_clims = {'rp000126'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
+par.echam_clims = {            "rp000126",... % 50 m
+                                 "rp000148",... % 45 m
+                                 "rp000134",... % 40 m
+                                 "rp000146",... % 35 m
+                                 "rp000130",... % 30 m
+                                 "rp000144",... % 25 m
+                                 "rp000132",... % 20 m
+                                 "rp000140",... % 15 m
+                                 "rp000124"};   % 10 m
 % par.hahn_clims = {'Control1850'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 par.hahn_clims = {'Flat1850', 'Control1850'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 par.ceres.yr_span = '200003-201802'; % spanning years for CERES data
@@ -40,10 +49,10 @@ par.frz = 0;
 par.cpd = 1005.7; par.Rd = 287; par.Rv = 461; par.L = 2.501e6; par.g = 9.81; par.a = 6357e3; par.eps = par.Rd/par.Rv;
 
 % call functions
-par.rea_models = {'jra55'};
+par.rea_models = {'era5c'};
 % par.rea_models = {'era5c', 'merra2c', 'jra55'};
 for k=1:length(par.rea_models); type=par.rea_models{k};
-    run_func(type, par);
+    % run_func(type, par);
 end
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
     % type='echam';
@@ -51,9 +60,9 @@ for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
     % run_func(type, par);
 end
 for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
-    % type='hahn';
-    % disp(par.hahn.clim)
-    % run_func(type, par);
+    type='hahn';
+    disp(par.hahn.clim)
+    run_func(type, par);
 end
 for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
     % type='gcm';
@@ -65,15 +74,16 @@ function run_func(type, par)
     % read_grid(type, 'ymonmean', par)
     % read_srfc(type, 'ymonmean', par) % other surface variables, e.g. 2-m temperature, surface pressure
     % read_sfcWind(type, 'ymonmean', par) % other surface variables, e.g. 2-m temperature, surface pressure
-    read_hus_ml0(type, 'ymonmean', par) % other surface variables, e.g. 2-m temperature, surface pressure
+    % read_hus_ml0(type, 'ymonmean', par) % other surface variables, e.g. 2-m temperature, surface pressure
     % read_tend(type, 'ymonmean', par) % mse tendency
     % make_tempsi(type, par) % convert temp from plev to sigma
+    % make_dtempsi(type, par) % take temperature difference (e.g., rcp85 - historical)
     % make_zgsi(type, 'ymonmean', par) % convert zg from plev to sigma
     % make_psi(type, par) % compute plev in si coords
     % read_lfrac(type, par) % land fraction (%)
     % read_sice(type, par) % sea ice cover (1)
     % read_siced(type, par) % sea ice cover (1)
-    % read_albedo(type, par) % surface albedo (1)
+    read_albedo(type, par) % surface albedo (1)
     
     % read_rad(type, 'mon', par) % radiation fluxes
     % read_hydro(type, 'mon', par) % hydrological variables, e.g. precip, evap

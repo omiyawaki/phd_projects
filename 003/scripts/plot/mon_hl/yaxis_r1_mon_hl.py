@@ -12,10 +12,10 @@ def yaxis_r1_mon_hl(sim, **kwargs):
             vmin['r1'] = 0.5
             vmax['r1'] = 1.2
         else:
-            vmin['r1'] = 0.8
+            vmin['r1'] = 0.7
             vmax['r1'] = 1.05
 
-        vmin['prfrac'] = 80
+        vmin['prfrac'] = 70
         vmax['prfrac'] = 105
     else:
         if latbnd[0] > 0: # NH
@@ -63,8 +63,10 @@ def yaxis_r1_mon_hl(sim, **kwargs):
                 vmin['prc'] = -0.1
                 vmax['prc'] = 0.4
             elif timemean == 'ymonmean-30':
-                vmin['r1'] = 0.5
-                vmax['r1'] = 1.4
+                # vmin['r1'] = 0.5
+                # vmax['r1'] = 1.4
+                vmin['r1'] = 0.7
+                vmax['r1'] = 1.2
                 vmin['sic'] = -40
                 vmax['sic'] = 100
                 vmin['ga_dev'] = -200

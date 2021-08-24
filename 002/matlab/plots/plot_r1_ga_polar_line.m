@@ -177,7 +177,7 @@ function plot_r1_ga_midlatitude_line(type, par)
                         else
                             plot(1:12, circshift(ga_frac_lat.(land), shiftby), '-', 'color', par.blue);
                         end
-                        ylabel(sprintf('$\\left\\langle(\\Gamma_m - \\Gamma)/\\Gamma_m\\right\\rangle_{%g}^{%g}$ (\\%%)', par.si_bl, par.si_up));
+                        ylabel(sprintf('$\\left\\langle(\\Gamma_m - \\Gamma)/\\Gamma_m\\right\\rangle_{%g}^{%g}$ (\\%%)', 1.0, par.si_bl));
                         set(gca, 'fontsize', par.fs, 'xlim', [1 12], 'xtick', [1:12], 'xticklabel', monlabel, 'yminortick', 'on', 'ylim', [-100 700]) 
                         ax.YAxis(2).Color = par.blue;
 

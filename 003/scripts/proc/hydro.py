@@ -40,9 +40,7 @@ def save_hydro(sim, **kwargs):
         varnames = ['pr', 'prc', 'evspsbl']
 
     # load all variables
-    print(varnames)
     for varname in varnames:
-        print(varname)
         file[varname] = filenames_raw(sim, varname, model=model, timemean=timemean, yr_span=yr_span)
 
         if loaded_grid == 0:

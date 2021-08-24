@@ -20,14 +20,12 @@ OLR = np.empty_like(tau0s)
 for i in tqdm(range(len(tau0s))):
     _, _, invstr[i], OLR[i] = model(tau0s[i], b, beta, Fs, Fa, plev, ps, n)
     
-print(OLR)
-sys.exit()
-
 fig, ax = plt.subplots()
 ax.axhline(0, color='k', linewidth=0.5)
 ax.plot(tau0s, invstr)
 ax.set_xlabel('$\\tau_0$ (unitless)')
-ax.set_ylabel('$T(\\tau_0) - T_s$')
+ax.set_ylabel('$T(\\tau_0) - T_s$ (K)')
+plt.savefig('./inv_t0.pdf', format='pdf', dpi=300)
 plt.show()
 plt.close()
 

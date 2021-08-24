@@ -2,13 +2,6 @@ function read_albedo(type, par)
 % read sea ice depth
     if strcmp(type, 'echam')
 
-        % file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/BOT_%s_0020_39.nc', par.echam.clim, par.echam.clim));
-        % fullpath=sprintf('%s/%s', file.folder, file.name);
-        % alb=double(ncread(fullpath, 'albedo'));
-        % newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/echam/%s', par.echam.clim);
-        % if ~exist(newdir, 'dir'); mkdir(newdir); end
-        % filename='alb.mat';
-        % save(sprintf('%s/%s', newdir, filename), 'alb');
         if contains(par.echam.clim, 'rp000')
             file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/BOT_%s_0020_39.nc', par.echam.clim, par.echam.clim));
         else
@@ -23,12 +16,29 @@ function read_albedo(type, par)
 
     elseif any(strcmp(type, {'era5', 'era5c', 'erai'}))
 
-        % file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/albedo/%s_albedo_%s', type, type, par.type.yr_span));
-        % fullpath=sprintf('%s/%s', file.folder, file.name);
-        % alb=double(ncread(fullpath, 'fal'));
-        % newdir=sprintf('/project2/tas1/miyawaki/projects/002/data/read/echam/%s', par.echam.clim);
         albedo = double(ncread(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/%s/albedo/%s_albedo_%s.ymonmean.nc', type, type, par.(type).yr_span), 'fal'));
         save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/albedo.mat', type, par.(type).yr_span), 'albedo');
+
+    elseif strcmp(type, 'hahn')
+        fprefix = make_hahn_fprefix(par);
+
+        % net SW surface
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/hahn/lapserateclima/%s.%s.nc', fprefix, 'FSNS')); 
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        fsns=double(ncread(fullpath, 'varmo'));
+        
+        % downward SW surface
+        file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/hahn/lapserateclima/%s.%s.nc', fprefix, 'FSDS')); 
+        fullpath=sprintf('%s/%s', file.folder, file.name);
+        fsds=double(ncread(fullpath, 'varmo'));
+        
+        % compute upward SW surface
+        fsus = fsds - fsns;
+
+        % compute surface albedo
+        albedo = fsus./fsds;
+
+        save(sprintf('/project2/tas1/miyawaki/projects/002/data/read/hahn/%s/albedo.mat', par.hahn.clim), 'albedo');
 
     % else
     %     if any(strcmp(type, {'era5', 'era5c', 'erai'}))

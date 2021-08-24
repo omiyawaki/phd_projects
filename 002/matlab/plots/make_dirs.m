@@ -36,6 +36,9 @@ function make_dirs(type, par)
             if ~exist(sprintf('%s/ga_frac_binned_r1/%s/%s', plotdir, fw, land), 'dir')
                 mkdir(sprintf('%s/ga_frac_binned_r1/%s/%s', plotdir, fw, land));
             end
+            if ~exist(sprintf('%s/dtempsi_binned_r1/%s/%s', plotdir, fw, land), 'dir')
+                mkdir(sprintf('%s/dtempsi_binned_r1/%s/%s', plotdir, fw, land));
+            end
             if ~exist(sprintf('%s/eptlr_binned_r1/%s/%s', plotdir, fw, land), 'dir')
                 mkdir(sprintf('%s/eptlr_binned_r1/%s/%s', plotdir, fw, land));
             end

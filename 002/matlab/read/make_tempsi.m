@@ -5,7 +5,7 @@ function make_tempml(type, par)
 
     tmp = load(sprintf('%s/grid.mat', prefix)); grid=tmp.grid; clear tmp; % read grid data
     load(sprintf('%s/srfc.mat', prefix)); % load surface data
-    
+
     % create surface mask
     [ps_vert, pa] = make_surfmask_vars(grid, type, srfc);
     sm = nan(size(ta_orig));
