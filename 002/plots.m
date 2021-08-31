@@ -12,9 +12,13 @@ figure_params
 %% set parameters
 % lat grid type
 if 1
+
 % par.echam_clims = {'rp000135', 'rp000134'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+
 % par.echam_clims = {'rp000134', 'rp000135'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+
 par.echam_clims = {'rp000144'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+
 % par.echam_clims = {"rp000046",... % 50 m
 %                        "rp000149",... % 45 m
 %                        "rp000135",... % 40 m
@@ -36,6 +40,7 @@ par.echam_clims = {'rp000144'}; % par.echam.all_mld; % par.echam.sel; % par.echa
 %                                  "rp000132",... % 20 m
 %                                  "rp000140",... % 15 m
 %                                  "rp000124"};   % 10 m
+
 % par.echam_clims = par.echam.noice_mld; % {'echr0001'}; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 par.hahn_clims = {'Flat1850', 'Control1850'}; % Control1850, Flat1850, Control2xCO2, Flat2xCO2
 par.rea.yr_span = '1980_2005';
@@ -98,25 +103,25 @@ end
 % plot_rad_lon_lat(par)
 % plot_tediv_lat(par)
 
-type = 'era5c'; par.lat_interp = 'native';
+% type = 'era5c'; par.lat_interp = 'native';
 % type = 'rea'; par.lat_interp = '1.00';
 % choose_plots(type, par);
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-    % type='echam';
-    % par.lat_interp = 'native';
-    % disp(par.echam.clim)
-    % choose_plots(type, par);
-end
-for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
-    type='hahn';
+    type='echam';
     par.lat_interp = 'native';
-    disp(par.hahn.clim)
+    disp(par.echam.clim)
     choose_plots(type, par);
 end
+for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
+    % type='hahn';
+    % par.lat_interp = 'native';
+    % disp(par.hahn.clim)
+    % choose_plots(type, par);
+end
 for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
-     % type = 'gcm';
-     % disp(par.model)
-     % choose_plots(type, par);
+    %  type = 'gcm';
+    %  disp(par.model)
+    %  choose_plots(type, par);
 end
 
 % sweep through various boundary layer heights
@@ -169,8 +174,17 @@ end
 
 function choose_plots(type, par)
     % plot_ga_zon_select(type, par) % plot temperature profiles at specific latitudes
+    % plot_dtempsi_zon_select(type, par) % plot temperature responses binned by R1
+
     % plot_ga_frac_binned_r1(type, par) % plot lapse rate profiles binned by R1
     % plot_dtempsi_binned_r1(type, par) % plot temperature responses binned by R1
+
+    % plot_dtempsi_binned_r1_lat(type, par) % plot temperature responses binned by R1
+    % plot_dtempsi_binned_r1_mid(type, par) % plot temperature responses binned by R1
+    % plot_dtempsi_binned_r1_polar(type, par) % plot temperature responses binned by R1
+
+    % plot_ceff_mid(type, par) % plot temperature responses binned by R1
+    % plot_ceff_polar(type, par) % plot temperature responses binned by R1
 
     % plot_dmse_midlatitude_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_dmse_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
@@ -187,8 +201,9 @@ function choose_plots(type, par)
 
     % plot_alb(type, par) % surface albedo
     % plot_alb_comp(type, par) % surface albedo
-    % plot_alb_mld(type, par) % surface albedo
-    plot_alb_hemi(type, par) % surface albedo
+    plot_alb_mld(type, par) % surface albedo
+    plot_alb_mld_noice(type, par) % surface albedo
+    % plot_alb_hemi(type, par) % surface albedo
     % plot_sice(type, par) % sea ice depth
     % plot_sice_rea(type, par) % sea ice depth
     % plot_siced(type, par) % sea ice depth
@@ -215,7 +230,7 @@ function choose_plots_ep(type, par)
     % plot_ga_frac_polar(type, par)
 
     % plot_dr1_midlatitude_line(type, par) % plot decomposition of R1 in mon at specific latitudes
-    % plot_dr1_polar_line(type, par) % plot decomposition of R1 in mon at specific latitudes
+    plot_dr1_polar_line(type, par) % plot decomposition of R1 in mon at specific latitudes
 
     % plot_dlh_polar_asymline_basic(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
 
@@ -226,5 +241,5 @@ function choose_plots_ep(type, par)
     % plot_dr1_polar_line_repl(type, par) % plot decomposition of R1 in mon at specific latitudes
     % plot_dr1_polar_line_topocomp(type, par) % plot decomposition of R1 in mon at specific latitudes
 
-    plot_hahn_comp(type, par) % plot decomposition of R1 in mon at specific latitudes
+    % plot_hahn_comp(type, par) % plot decomposition of R1 in mon at specific latitudes
 end % select which ep-functions to run at a time

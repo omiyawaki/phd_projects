@@ -35,7 +35,7 @@ par.gcm_models = {'mmm'}; % CMIP multimodel mean
 % %                  'MPI-ESM-LR', 'MPI-ESM-MR', 'MPI-ESM-P',...
 % %                  'MRI-CGCM3', 'MRI-ESM1', 'NorESM1-M', 'NorESM1-ME'};
 
-% RCP85
+% % RCP85
 % par.gcm.clim = 'rcp85'; % choose either piControl, historical, or abrupt4xCO2
 % par.gcm.yr_span = '207001-209912'; % number of years that I am considering in the GCM climatology
 % par.lat_interp = 'native'; % native: native model grid, don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid

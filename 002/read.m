@@ -20,15 +20,29 @@ par.jra55.yr_span = '1980_2005'; % spanning years for JRA-55
 % par.gcm.yr_span = 30; % number of years that I am considering in the GCM climatology
 % par.echam_clims = par.echam.noice_mld; %{'echr0001'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 % par.echam_clims = {'rp000126'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
-par.echam_clims = {            "rp000126",... % 50 m
-                                 "rp000148",... % 45 m
-                                 "rp000134",... % 40 m
-                                 "rp000146",... % 35 m
-                                 "rp000130",... % 30 m
-                                 "rp000144",... % 25 m
-                                 "rp000132",... % 20 m
-                                 "rp000140",... % 15 m
-                                 "rp000124"};   % 10 m
+
+% par.echam_clims = {            "rp000126",... % 50 m
+%                                  "rp000148",... % 45 m
+%                                  "rp000134",... % 40 m
+%                                  "rp000146",... % 35 m
+%                                  "rp000130",... % 30 m
+%                                  "rp000144",... % 25 m
+%                                  "rp000132",... % 20 m
+%                                  "rp000140",... % 15 m
+%                                  "rp000124"};   % 10 m
+
+par.echam_clims = {"rp000046",... % 50 m
+                       "rp000149",... % 45 m
+                       "rp000135",... % 40 m
+                       "rp000147",... % 35 m
+                       "rp000131",... % 30 m
+                       "rp000145",... % 25 m
+                       "rp000133",... % 20 m
+                       "rp000141",... % 15 m
+                       "rp000034",... % 10 m
+                       "rp000086",... % 5 m
+                       "rp000172"}; % 3 m
+
 % par.hahn_clims = {'Control1850'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 par.hahn_clims = {'Flat1850', 'Control1850'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 par.ceres.yr_span = '200003-201802'; % spanning years for CERES data
@@ -55,14 +69,14 @@ for k=1:length(par.rea_models); type=par.rea_models{k};
     % run_func(type, par);
 end
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-    % type='echam';
-    % disp(par.echam.clim)
-    % run_func(type, par);
+    type='echam';
+    disp(par.echam.clim)
+    run_func(type, par);
 end
 for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
-    type='hahn';
-    disp(par.hahn.clim)
-    run_func(type, par);
+    % type='hahn';
+    % disp(par.hahn.clim)
+    % run_func(type, par);
 end
 for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
     % type='gcm';

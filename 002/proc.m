@@ -95,9 +95,9 @@ for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
     % choose_proc(type, par);
 end
 for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-    % type = 'gcm';
-    % disp(par.model)
-    % choose_proc(type, par)
+    type = 'gcm';
+    disp(par.model)
+    choose_proc(type, par)
 end
 
 for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
@@ -108,9 +108,9 @@ for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
             % choose_proc_si_bl(type, par)
         end
         for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
-            type='echam';
-            disp(par.echam.clim)
-            choose_proc_si_bl(type, par);
+            % type='echam';
+            % disp(par.echam.clim)
+            % choose_proc_si_bl(type, par);
         end
         for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
             % type='hahn';
@@ -144,18 +144,18 @@ function choose_proc(type, par)
     % proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
     % proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
     % proc_temp_pl_mon_lat(type, par) % calculate mon x lat temperature profiles
-    % make_tai(type, par) % calculate interpolated temperature profile in p coordinates with 2 m temp insert in lon x lat x mon
+    make_tai(type, par) % calculate interpolated temperature profile in p coordinates with 2 m temp insert in lon x lat x mon
     % proc_tai_mon_lat(type, par) % calculate mon x lat temperature profiles
     % make_masi(type, par) % calculate moist adiabats at every lon x lat x mon
     % proc_ma_mon_lat(type, par) % calculate mon x lat moist adiabats
-    % make_dtdzsi(type, par) % calculate model lapse rate and interpolate to sigma coordinates
+    make_dtdzsi(type, par) % calculate model lapse rate and interpolate to sigma coordinates
     % make_dtdzsi_alt(type, par) % calculate model lapse rate and interpolate to sigma coordinates
-    % make_malrsi(type, par) % calculate moist adiabatic lapse rate of model temperature sigma coordinates
+    make_malrsi(type, par) % calculate moist adiabatic lapse rate of model temperature sigma coordinates
     % save_mask(type, par) % save land and ocean masks once (faster than creating mask every time I need it)
 
-    % proc_ga_malr_mon_lat(type, par) % calculate mon x lat MALR profiles
-    % proc_ga_frac_mon_lat(type, par) % calculate mon x lat lapse rate deviation from a MALR profiles
-    proc_dtempsi_mon_lat(type, par) % calculate mon x lat temperature response profiles
+    proc_ga_malr_mon_lat(type, par) % calculate mon x lat MALR profiles
+    proc_ga_frac_mon_lat(type, par) % calculate mon x lat lapse rate deviation from a MALR profiles
+    % proc_dtempsi_mon_lat(type, par) % calculate mon x lat temperature response profiles
     % proc_gad_frac_mon_lat(type, par) % calculate mon x lat lapse rate deviation from a DALR profiles
 
     % proc_thetaeq_mon_lat(type, par) % calculate mon x lat equivalent potential temperature profiles

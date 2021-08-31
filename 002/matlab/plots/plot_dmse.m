@@ -42,7 +42,7 @@ function plot_dmse(ra_lat, res_lat, lh_lat, sh_lat, tend_lat, leg, ymin, ymax, t
     figure(); clf; hold all; box on;
     line([1 12], [0 0], 'linewidth', 0.5, 'color', 'k');
     ra=plot([1:12],  circshift(ra_lat, par.shiftby, 2), 'color', 0.5*[1 1 1]);
-    tend=plot([1:12],  circshift(tend_lat, par.shiftby, 2), 'color', 'k');
+    tend=plot([1:12],  circshift(tend_lat, par.shiftby, 2), '--', 'color', par.maroon);
     res=plot([1:12], circshift(res_lat,par.shiftby,2), 'color', par.maroon);
     if strcmp(fw, 'ceresrad')
         stf=plot([1:12], circshift(lh_lat,par.shiftby,2), '--', 'color', par.blue);
