@@ -18,9 +18,9 @@ function proc_flux(type, par)
 
     load(sprintf('%s/grid.mat', prefix)) % read grid data
     load(sprintf('%s/rad.mat', prefix)) % read radiation data
-    load(sprintf('%s/hydro.mat', prefix)) % read hydrology data
+    % load(sprintf('%s/hydro.mat', prefix)) % read hydrology data
     load(sprintf('%s/stf.mat', prefix)) % read surface turbulent flux data
-    % load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
+    load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
 
     if strcmp(par.lat_interp, 'std')
         lat = par.lat_std;
@@ -57,16 +57,20 @@ function proc_flux(type, par)
         flux.(fname) = interp1(grid.dim2.lat, flux.(fname), lat, 'linear');
         flux.(fname) = permute(flux.(fname), [2 1 3]);
     end
-    for fn = hydro_vars; fname = fn{1}; % interpolate to std lat
-        flux.(fname) = permute(hydro.(fname), [2 1 3]);
-        flux.(fname) = interp1(grid.dim2.lat, flux.(fname), lat, 'linear');
-        flux.(fname) = permute(flux.(fname), [2 1 3]);
-    end
+
+    % for fn = hydro_vars; fname = fn{1}; % interpolate to std lat
+    %     flux.(fname) = permute(hydro.(fname), [2 1 3]);
+    %     flux.(fname) = interp1(grid.dim2.lat, flux.(fname), lat, 'linear');
+    %     flux.(fname) = permute(flux.(fname), [2 1 3]);
+    % end
+
     for fn = stf_vars; fname = fn{1}; % interpolate to std lat
         flux.(fname) = permute(stf.(fname), [2 1 3]);
         flux.(fname) = interp1(grid.dim2.lat, flux.(fname), lat, 'linear');
         flux.(fname) = permute(flux.(fname), [2 1 3]);
     end
+
+            %%%%%%%%%% UNDO BELOW FOR TEND %%%%%%%%%%
 
     load(sprintf('%s/tend.mat', prefix)) % read surface turbulent flux data
     flux.tend = permute(tend.tendmon, [2 1 3]);
@@ -80,6 +84,9 @@ function proc_flux(type, par)
         flux.tend = interp1(grid.dim3.lat, flux.tend, lat, 'linear');
     end
     flux.tend = permute(flux.tend, [2 1 3]);
+
+            %%%%%%%%%% UNDO ABOVE FOR TEND %%%%%%%%%%
+
     % flux.qL = permute(tend.lat, [2 1 3]);
     % flux.qL = interp1(grid.dim2.lat, flux.qL, lat, 'linear');
     % flux.qL = permute(flux.qL, [2 1 3]);
@@ -110,19 +117,19 @@ function proc_flux(type, par)
         % compute surface turbulent fluxes directly from INTP data
         % multiply by negative to define flux from surface to atmosphere as positive
         flux.stf.mse = -( flux.sshf + flux.slhf ); flux.stf.mse2 = flux.stf.mse;
-        flux.stf.dse = par.L*(flux.cp+flux.lsp) - flux.sshf;
+        % flux.stf.dse = par.L*(flux.cp+flux.lsp) - flux.sshf;
     elseif any(strcmp(type, {'merra2', 'merra2c'}))
         flux.stf.mse = flux.HFLUX + flux.EFLUX;
-        flux.stf.dse = par.L*flux.PRECTOT + flux.HFLUX;
+        % flux.stf.dse = par.L*flux.PRECTOT + flux.HFLUX;
     elseif strcmp(type, 'hahn')
         flux.stf.mse = flux.LHFLX + flux.SHFLX;
-        flux.stf.dse = par.L*(flux.PRECC+flux.PRECL+flux.PRECSC+flux.PRECSL) + flux.SHFLX;
+        % flux.stf.dse = par.L*(flux.PRECC+flux.PRECL+flux.PRECSC+flux.PRECSL) + flux.SHFLX;
     elseif any(strcmp(type, {'gcm', 'jra55'}))
         flux.stf.mse = flux.hfls + flux.hfss; flux.stf.mse2 = flux.stf.mse;
-        flux.stf.dse = par.L*flux.pr + flux.hfss;
+        % flux.stf.dse = par.L*flux.pr + flux.hfss;
     elseif strcmp(type, 'echam')
         flux.stf.mse = -(flux.ahfl + flux.ahfs); flux.stf.mse2 = flux.stf.mse;
-        flux.stf.dse = par.L*(flux.aprc+flux.aprl) - flux.ahfs;
+        % flux.stf.dse = par.L*(flux.aprc+flux.aprl) - flux.ahfs;
     end
     flux.stf.mse_old = flux.stf.mse;
     flux.stf.mse_lat = flux.stf.mse;
@@ -130,7 +137,7 @@ function proc_flux(type, par)
     flux.stf.mse_sc = flux.stf.mse;
     flux.stf.mse_ac_ra = flux.stf.mse;
     flux.stf.mse_sc_ra = flux.stf.mse;
-    flux.stf.dse_old = flux.stf.dse;
+    % flux.stf.dse_old = flux.stf.dse;
 
     f_vec = assign_fw(type, par);
     for f = f_vec; fw = f{1};
@@ -175,9 +182,15 @@ function proc_flux(type, par)
 
         if any(strcmp(fw, {'mse_old', 'dse_old'}))
             flux.res.(fw) = flux.ra.(fw) + flux.stf.(fw); % infer MSE tendency and flux divergence as residuals
+
+            %%%%%%%%%% UNDO BELOW FOR TEND %%%%%%%%%%
+
             if any(strcmp(type, {'era5', 'era5c', 'erai'}))
                 flux.divfm = flux.ra.mse_old + flux.stf.mse_old - flux.tend; % infer MSE tendency and flux divergence as residuals
             end
+
+            %%%%%%%%%% UNDO ABOVE FOR TEND %%%%%%%%%%
+
         elseif any(strcmp(fw, {'mse', 'mse_ac', 'mse_sc', 'mse_ac_ra', 'mse_sc_ra', 'dse'}))
             flux.res.(fw) = flux.ra.(fw) + flux.stf.(fw) - flux.tend; % infer MSE tendency and flux divergence as residuals
         elseif any(strcmp(fw, {'mse_lat'}))

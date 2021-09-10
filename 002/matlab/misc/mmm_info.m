@@ -15,8 +15,8 @@
 %                  'MRI-CGCM3', 'NorESM1-M'};
 
 % HISTORICAL
-par.gcm.clim = 'historical'; % choose either piControl, historical, or abrupt4xCO2
-par.lat_interp = 'native'; % native: native model grid, don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
+% par.gcm.clim = 'historical'; % choose either piControl, historical, or abrupt4xCO2
+% par.lat_interp = 'native'; % native: native model grid, don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
 %par.gcm_models = {'MPI-ESM-LR'};
 
 % par.gcm_models = {'ACCESS1-0', 'ACCESS1-3',... % GCM model names
@@ -36,6 +36,9 @@ par.lat_interp = 'native'; % native: native model grid, don: Donohoe grid, ERA: 
 
 % subset with RCP85
 
+% rcp8.5
+par.gcm.clim = 'rcp85'; % choose either piControl, historical, or abrupt4xCO2
+par.lat_interp = 'native'; % native: native model grid, don: Donohoe grid, ERA: native ERA grid, std: defined high resolution grid
 par.gcm_models = {'ACCESS1-0', 'ACCESS1-3',... % GCM model names
                  'bcc-csm1-1', 'bcc-csm1-1-m',...
                  'BNU-ESM', 'CanESM2', 'CCSM4',...

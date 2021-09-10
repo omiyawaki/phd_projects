@@ -73,6 +73,8 @@ function make_dirs(type, par)
             for f = fw_vec; fw = f{1};
                 if ~exist(sprintf('%s/flux/%s/%s/%s', plotdir, fw, land, time), 'dir')
                     mkdir(sprintf('%s/flux/%s/%s/%s', plotdir, fw, land, time));
+                elseif ~exist(sprintf('%s/dflux/%s/%s/%s', plotdir, fw, land, time), 'dir')
+                    mkdir(sprintf('%s/dflux/%s/%s/%s', plotdir, fw, land, time));
                 end
                 if ~exist(sprintf('%s/flux-comp/%s/%s/%s', plotdir, fw, land, time), 'dir')
                     mkdir(sprintf('%s/flux-comp/%s/%s/%s', plotdir, fw, land, time));
@@ -87,7 +89,7 @@ function make_dirs(type, par)
         end
     end
 
-    for vn = {'sice', 'olr_ts', 'divfm_lapt', 'va', 'trop', 'alb', 'sol', 'ps','tas', 'ts', 'sn', 'sftlf', 'legends', 'tend'}; varname = vn{1};
+    for vn = {'sice', 'olr_ts', 'divfm_lapt', 'va', 'trop', 'mid_mld', 'r1_lo', 'alb', 'sol', 'ps','tas', 'ts', 'sn', 'sftlf', 'legends', 'tend'}; varname = vn{1};
         if ~exist(sprintf('%s/%s', plotdir, varname), 'dir')
             mkdir(sprintf('%s/%s', plotdir, varname));
         end

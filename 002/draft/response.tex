@@ -19,7 +19,7 @@
 \section*{Editor}
 I could imagine a comparison of the vertical structure of the warming response in some climate change simulations with your RCE/RAE index, indicating that this index, defined in a control climate, provides a useful guide to the vertical structure of the warming response geographically and seasonally.  I realize this is a substantial request, and I do not require it, but I think it would make for a more important paper.  You hint at this application, but do not discuss it systematically.  In any case, I would like to see more discussion of what this kind of categorization is useful for in the introduction, to help readers understand your motivation. 
 
-\textbf{We now demonstrate the link between climatological $R_1$ and the vertical temperature response based on CMIP5 RCP8.5 simulations (see Section 5). In addition, we further discuss the usefulness of quantifying energy balance regimes in the introduction, including its use in bridging results across the model hierarchy (lines 65--67), quantifying the spatial extent where our understanding of climate relies heavily on RCE simulations and theories (lines 70--72), and its association with the vertical structure of the temperature response to CO$_2$ changes (lines 84--85). }
+\textbf{We now demonstrate the link between climatological $R_1$ and the vertical temperature response based on CMIP5 RCP8.5 simulations (see Section 5, Fig.~12, 13, 14, and 15). In addition, we expanded our discussion of why quantifying the energy balance regimes is useful in the introduction (lines 71--99). }
 
 Also, the abstract uses the term “lapse rate regimes” that was not clear to me until I read the paper.  Perhaps you could quickly mention the lapse rate features that you are talking about (surface inversion, moist adiabat, mixed) to define this term.
 
@@ -28,35 +28,41 @@ Also, the abstract uses the term “lapse rate regimes” that was not clear to 
 \section*{Reviewer 1}
 A decomposition is presented to diagnose the mechanisms responsible for the seasonal regime transitions (Section 3c, Figure 5-6). Since this is a decomposition of the seasonality of $R_1$, which does not explicitly include surface turbulent fluxes (Eqn. 5), it is not entirely clear to me how to relate all of the terms in the MSE budget back to the decomposition. As I understand the findings, in the northern midlatitudes, the seasonality of $R_1$ is dominated by the dynamic component, which includes both advection and storage. In the other cases (southern midlatitudes, high latitudes of both polar regions), the seasonality of $R_1$ is due to strong compensation between dynamic and radiative components. However, an increase in latent heat flux is also invoked to explain the presence of the regime transition in the high northern latitudes. How are the authors able to say the surface turbulent heat fluxes matter more than the seasonality of advection for the transition from RAE to RCAE?
 
-\textbf{We now explicitly show how the seasonality of $R_1$ is directly related to that of surface turbulent fluxes (see lines 227--233). Rewriting the decomposition in terms of surface turbulent fluxes in this way is equivalent to decomposing the seasonality of $R_2$ (see Equation~3).}
+\textbf{The dynamic and radiative components in equation~(5) are connected to the surface turbulent fluxes via the MSE budget (equation~1). We now explicitly show how the seasonality of $R_1$ is related to that of surface turbulent fluxes (see lines 227--233, equations~6--7). }
 
 I was also confused by the usage of ``residual'' both to refer to the $\Delta R_1$ term reflecting a strong compensation between two other terms and the actual residual of the decomposition (dash-dot line in Figure 6) (L212-214).
 
-\textbf{We removed this usage of the term ``residual'' in our rewritten paragraph (lines 227--237).}
+\textbf{We apologize for the confusion. We now refer to opposing behavior of the radiative and dynamic components and only refer to the residual in the context of nonlinearities of the decomposition (lines 227--237).}
 
 It would be helpful from a presentation standpoint if the colors didn't have different meanings on the left and right panels of Figures 5 and 6 (e.g., black is the deviation from annual mean $R_1$ on the left but storage on the right).
 
-\textbf{The MSE tendency line in panels b and d of Fig.~5, 6, 8, B5, and B6 is now same as MSE flux divergence to be consistent with the included terms in the dynamic component of $\Delta R1$ (panels a and c).}
+\textbf{The MSE tendency line in panels b and d of Fig.~5, 6, 8, B5, and B6 is now same as MSE flux divergence to be consistent with the included terms in the dynamic component of $\Delta R_1$ (panels a and c).}
 
 An open question from Section 3b is the inability of storage to explain the discrepancy in timing of energy balance and lapse rate regimes in the Northern Hemisphere high latitudes (L191-193). Does Figure 6 provide any additional insights? Later in the manuscript, it is notable that the aquaplanet simulations with thermodynamic ice in Figure 9 show no such discrepancy. Is there any sensitivity in the relative timing of these regimes to the mixed layer depth?
 
-{\color{red}\textbf{Following the reviewer's suggestion, I looked at the seasonality of $R_1$ and the boundary layer lapse rate deviation for varied mixed layer depths (Fig.~\ref{fig:r1-hl-mld}). Interestingly, a discrepancy similar to that found in reanalyses and GCMs also emerges in the aquaplanet for mixed layer depths greater than 45 m. TO DO: see if I can better understand why the discrepancy is a function of mixed layer depth, and what controls the transition that exists between 40 and 45 m.}}
+\textbf{Yes, there is sensitivity in the relative timing of the regimes to the mixed layer depth. We added a figure to demonstrate this (Fig.~10a,c) and discuss it in the text (see lines 333--336).}
 
 The aquaplanet simulations provide a nice demonstration of the role of surface heat capacity on the existence of midlatitude energy balance regime transitions. As noted in the text, the regime transition in AQUA lags that in the reanalysis data. I would find an elaboration on why this might be the case to be helpful.
 
-\textbf{Considering that aquaplanet simulations with zonally homogeneous mixed layer depth can either reproduce the amplitude or phase of $R_1$ in reanalyses but not both, we now suggest that introducing zonal asymmetries in the surface heat capacity may be necessary to reproduce the reanalysis $R_1$ (see lines 277--278).}
+\textbf{We noted in the original manuscript that the timing of the regime transition depends on mixed layer depth (lines 278--280). In particular, the regime transition occurs earlier for a shallow (3 m) depth compared to a deeper depth (15 m). However, the amplitude of $\Delta R_1$ in the 3 m AQUA simulation is three times larger than those in the reanalyses. We now demonstrate this in the new Fig.~8 and hypothesize that the discrepancy between the amplitude of $\Delta R_1$ between AQUA and reanalyses may reflect the zonally asymmetric surface heat capacity in the Northern Hemisphere midlatitudes (see lines 280--282). We also discuss the importance of studying zonal asymmetries for future work (see lines 376--378).}
 
 I could imagine that idealized simulations with zonal variations in surface heat capacity (e.g., Voigt et al. 2016, JAMES, doi:10.1002/2016MS000748) might enable a better agreement between the aquaplanet simulations and reanalysis, though to be clear I do not think that additional simulations are necessary for this paper to be publishable in Journal of Climate.
 
-\textbf{As the zonally varying land configuration in TRACMIP only spans from 30$^\circ$N/S, these simulations cannot be used to test the hypothesis that a zonally varying surface heat capacity in the midlatitudes can more accurately reproduce the phase and amplitude of $R_1$ in the reanalyses. However, we agree that this is an important hypothesis to test as part of future work and added this in the discussion (lines 376--378).}
+\textbf{Thank you for the suggestion. We looked into the TRACMIP simulations. Unfortunately, they only involve zonal variations in surface heat capacity in the tropics ($30^\circ$S--$30^\circ$N). Thus, they cannot be used to understand the signal we see in the midlatitudes. However, we agree that this is an important hypothesis to test as part of future work and added this in the discussion (lines 376--378).}
 
 The discussion of the flattened topography is somewhat brief. I appreciate the authors sharing their null result. It is also interesting that the wintertime $R_1$ is strongly affected by the removal of topography. Does the decomposition of Eqn. 5 applied to the CESM simulation confirm whether this comes purely from an increase in radiative cooling or if there are additional dynamical adjustments?
 
-\textbf{We added the results of applying the decomposition of $R_1$ (Equation~5) on the effect of removing topography on $R_1$ (see lines 326--333 and Fig.~S1 and S2). The increase in MSE flux convergence into a flat Antarctica opposes the enhanced radiative cooling. The radiative component is stronger than the dynamic component for most months, which leads to the net reduction in $R_1$.}
+\textbf{Decomposing the difference in $R_1$ between the simulation with and without Antarctic topography following Equation~(5) shows that there is a large compensation between the radiative and dynamic components (Fig.~\ref{fig:hahn-decomp} below). This reflects the two competing effects of removing topography on $R_1$: 1) radiative cooling increases (a larger negative quantity) due to the optically thicker atmosphere, which acts to decrease $R_1$ (gray line in Fig.~\ref{fig:hahn-decomp}), and 2) MSE flux convergence increases, which acts to increase $R_1$ (red line in Fig.~\ref{fig:hahn-decomp}). The radiative effect dominates over the compensating dynamic effect with the exception of December and January. We agree with reviewer 1 on the value of sharing null results but decided not to include additional results shown in Fig.~\ref{fig:hahn-decomp} below based on the comments we received from reviewer 3.}
+
+\begin{figure}[!h]
+  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/hahn/Control1850/native/dr1/mse_old/lo/0_poleward_of_lat_-80/0_mon_decompr1z_hahn_comp.png}
+  \caption{The difference in $R_1$ (black) and its decomposition into radiative (gray) and dynamic (red) components between the CESM simulations performed by \citep{hahn2020} for the flattened Antarctic topography simulation and the control simulation (with Antarctic).}
+  \label{fig:hahn-decomp}
+\end{figure}
 
 Fig. 2 - I didn't notice the shading to indicate multi-reanalysis spread at first. Consider darkening (or lightening the background colors that indicate energy balance regime).
 
-{\color{red}\textbf{TO DO: change colors of shading}}
+\textbf{We modified the colors to improve the visibility of the multi-reanalysis spread (see Fig.~2 and B2).}
 
 L172-174 ``... the seasonality of the ... exhibit weak seasonality ...'' $\rightarrow$ ``... the seasonality of the ... are weak ...''
 
@@ -84,69 +90,75 @@ L279 - If horizontal black lines in Fig. 6a,c are the annual mean $R_1$, that sh
 
 Fig. 9 - The right y-axis should be evaluated from 0.9 to 1.0 rather than 0.3 to 0.9 for the boundary layer lapse rate deviation.
 
-{\color{red}\textbf{TO DO: fix the y axis labels}}
+\textbf{The y-axis label now shows the correct vertical bounds (see Fig.~9).}
 
 L290-292 - Related to the second major comment above, I don't think the aquaplanet simulation with sea ice entirely captures the observed energy balance and lapse rate regimes, though it is certainly an improvement over the case without ice.
 
-{\color{red}\textbf{TO DO: consider showing the 45 m simulation, which partially reproduces the discrepancy between $R_1$ and the boundary layer lapse rate deviation.}}
+\textbf{We removed this statement and now discuss how the AQUA experiments with ice differ from the reanalyses (lines 334--339).}
 
 \section*{Reviewer 3}
 
 Figure 9 shows that the seasonality of high-latitude $R_1$ depends critically on the presence of sea ice. But, to my mind, sea ice has two important but physically distinct features: high albedo and low heat capacity. Could the authors tease out the relative roles of each in producing seasonal $R_1$ variations? Perhaps simulations in which sea ice has the same albedo as ocean water would help.
 
-{\color{red}\textbf{I modified the ECHAM source code to set the sea ice albedo to be the same as the open sea albedo ($\alpha=0.07$). However, I am running into a problem compiling the model into a binary. The compiling issue is not due to my modifications of the source code because the same error occurs when I compile the unmodified source code.\\ \newline An alternative way to tease out the role of albedo and surface heat capacity is to consider the existing aquaplanet experiments configured without sea ice for shallow mixed layer depths. A high latitude regime transition occurs if the mixed layer depth is less than 10 m (Fig.~\ref{fig:r1-hl-mld-noice}), suggesting that the smaller heat capacity of ice may be a plausible contributor to the observed regime transition. However, it's not convincing that heat capacity is the dominant mechanism because 1) RAE without sea ice only occurs during late winter/early spring whereas Northern Hemisphere high latitude RAE is found most of the year in reanalyses and CMIP5 simulations, and 2) the amplitude of $\Delta R_1$ is significantly larger for the 3 and 5 m aquaplanets than in reanalyses and CMIP5 simulations.}}
+\textbf{Thank you for the suggestion. We investigated the relative importance of albedo and surface heat capacity by 
+varying the mixed layer depth in AQUA configured without sea ice. This allows us to test whether the seasonality of $R_1$ varies with surface heat capacity while holding the albedo fixed at $\alpha=0.3$. A regime transition occurs for a shallow mixed layer depth (5 m) even in the absence of sea ice (Fig.~10b), suggesting that a high albedo is not necessary for the existence of a regime transition. We added a discussion of the sensitivity of high latitude $R_1$ in AQUA to varying mixed layer depths (lines 344--349).}
 
 Following on to the above, it would be helpful to have a little bit more detail about the sea ice simulation. For instance, how are sea-ice depth and area fraction determined? How do these quantities, averaged over the high-latitudes, evolve seasonally? Etc.
 
-{\color{red}\textbf{TO DO: add more details about the sea ice simulations.}}
+\textbf{The sea ice implementation is the standard thermodynamic sea ice module in ECHAM6, which is represented as a single, motionless slab \citep{giorgetta2013}. We now provide a reference where the sea ice documentation is detailed (lines 153--154). The seasonal evolution of sea ice fraction and depth are shown in Fig.~2 below.}
+
+\begin{figure}[!h]
+    \centering
+    \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_pole/r1_decomp_pole_echamslab_ice_prop.pdf}
+    \caption{Seasonality of high latitude ($80^\circ$--$90^\circ$) (a) sea ice fraction and (b) sea ice depth for various mixed layer depths in AQUA with sea ice.}
+    \label{fig:echam-sice}
+\end{figure}
 
 The discussion of Antarctic topography and lack of seasonality of Antarctic $R_1$ felt a bit unsatisfying, as the former might not be a reader's first guess for explaining the latter. A more obvious candidate would be the land ice boundary condition which imposes a constant high albedo. (The authors acknowledge all this in the discussion.) If the authors could explore this further, perhaps using imposed sea ice fractions and albedo to bridge the gap between simulated land ice and sea ice, that might help. If not, the authors might consider omitting the flattened Antarctica results, and simply leave the understanding of constant Antarctic $R_1$ to future work.
 
-{\color{red}\textbf{TO DO: imposing sea ice fractions might be difficult, but we could increase the albedo of sea ice to make it more similar to land ice and see if this leads to yearround RAE.}}
+\textbf{We tested the hypothesis that a constant high albedo is responsible for the lack of a regime transition over Antarctica using the 25 m AQUA configured with ice. In this configuration, surface albedo remains constant ($\alpha\approx0.8$, see solid line in Fig.~\ref{fig:echam-alb-ice}a below) but undergoes a high latitude regime transition (solid line in Fig.~\ref{fig:echam-alb-ice}). This suggests that neither topography nor the seasonality of albedo alone can explain the lack of a regime transition over Antarctica. While we understand reviewer 3's thought of omitting these results from the manuscript, we agree with reviewer 1 on the value of sharing null results because it can guide the direction of future work.}
+
+\begin{figure}[!h]
+    \centering
+    \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/r1_mld_hl/echam25m_era5/r1_alb_25m.pdf}
+    % \noindent\includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000144/native/alb/albedo_mon_era5c.png}
+    % \noindent\includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000144/native/alb/albedo_mon_icemld.png}\\
+    % \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000144/native/alb/icemld_all_legend.png}\\
+    \caption{(a) Seasonality of high latitude ($80^\circ$--$90^\circ$) surface albedo for 25 m AQUA with sea ice (solid) and over Antarctica in ERA5 (dashed). (b) Similar, but for $R_1$.}
+    \label{fig:echam-alb-ice}
+\end{figure}
 
 line 34, `sum of radiative fluxes': Isn't radiative cooling the difference of the net TOA and surface fluxes?
 
-{\color{red}\textbf{This is simply a matter of which direction the fluxes are defined to be positive. It is the sum if fluxes are defined positive into the atmosphere (positive down at TOA, positive up at surface). It is the difference if fluxes are defined positive in a direction consistently at both TOA and surface. TO DO: see if one convention is more commonly used than the other to decide but in any case be more explicit about this in the text so as to avoid confusion.}}
+\textbf{Thank you for catching this error. We corrected this in the text (line 35).}
 
 line 92, 'sign definite in the zonal mean': Isn't radiative cooling sign definite column-by-column, not just in the zonal mean?
 
-{\color{red}\textbf{This is true. It's more appropriate to specify that $R_a$ is sign definite in the modern climate, because the atmosphere can be radiatively heated in a very cold Snowball climate.}}
+\textbf{Indeed, radiative cooling is sign definite column-by-column. We modified line 106--107 to specify that $R_a$ is sign definite in the modern climate because the atmosphere can be radiatively heated in a very cold climate such as in Snowball Earth.}
 
 lines 220--225: It is good that the authors took the trouble of analysing CMIP5 data in addition to reanalysis. But this analysis, which requires six figures, also seems only incidental to the main storyline of the paper. The author might, at their discretion, consider moving this content to a supplement.
 
-{\color{red}\textbf{Consider creating a document with supplementary materials.}}
+\textbf{As we now include results showing the connection between the temperature response to climate change and $R_1$ using CMIP5 data, we prefer to keep these figures in the appendix.}
 
 lines 248--253: I assume that this discussion, and the associated Figure~7, concern $R_1$ *averaged over mid-latitudes*? I could not find a specification of this.
 
-{\color{red}\textbf{TO DO: clarify that the EBM results are indeed averaged over the midlatitudes.}}
+\textbf{We now specify that the results presented in Fig.~7 are averaged over the midlatitudes (see Fig.~7 caption).}
 
 lines 294--295: The connection between atmospheric depth and radiative cooling was made explicit in \cite{jeevanjee2018}.
 
-{\color{red}\textbf{TO DO: cite their paper}}
+\textbf{Thank you for pointing us to this paper. We now cite \cite{jeevanjee2018} to support our expectation of the influence of Antarctic topography on $R_1$ (line 321).}
 
 Fig.~1: The color of the lines corresponding to $R_1=0.9$ and $R_1=0.1$ are different from those in the other figures. Would be nice if these could be the same. Also, might help to label the RAE and RCE thresholds in the colorbar and/or the figure itself.
 
-{\color{red}\textbf{TO DO: change color scheme to be consistent}}
+\textbf{We changed the colors to be consistent with the other figures and added labels for the RCE and RAE thresholds on the colorbar (see Fig.~1 and B1).}
 
 Fig.~2: Might be useful here, and elsewhere, to directly label the shaded regions as RAE, RCAE, and RCE.
 
-{\color{red}\textbf{TO DO: add labels}}
+\textbf{We now label the shaded regions as RAE, RCAE, and RCE (see Fig.~2 and B2).}
 
 Fig.~7a: I felt that this is a key figure, in that it supports the key insight that a seasonal transition from RCAE to RCE requires a relatively low heat capacity. This insight is suitably emphasized in the abstract, but I felt the main text in lines 248--253 didn't do it justice.
 
-{\color{red}\textbf{TO DO: revise text to put more emphasis on the important part of our result}}
-
-\begin{figure}[t]
-  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/r1_mld_hl/echam_icemld/dr1_all.pdf}
-  \caption{The seasonality of Northern Hemisphere high latitude (80--90$^\circ$N) $R_1$ (black line, left axis) and the boundary layer lapse rate deviation from a moist adiabat (blue line, right axis) in AQUA with ice for mixed layer depths ranging from (a) 25 m to (f) 50 m.}
-  \label{fig:r1-hl-mld}
-\end{figure}
-
-\begin{figure}[t]
-  \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/r1_mld_hl/echam_noicemld/dr1_ga_all_noice.pdf}
-  \caption{The seasonality of Northern Hemisphere high latitude (80--90$^\circ$N) $R_1$ (black line, left axis) in AQUA without ice for mixed layer depths ranging from (a) 3 m to (f) 25 m.}
-  \label{fig:r1-hl-mld-noice}
-\end{figure}
+\textbf{We rewrote this paragraph (lines 289--296) to put more emphasis on the result that a low surface heat capacity is required for the midlatitude regime transition.}
 
 
 \bibliographystyle{apalike}

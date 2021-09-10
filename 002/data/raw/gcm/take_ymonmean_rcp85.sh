@@ -2,11 +2,12 @@
 set -euo pipefail
 
 # declare -a vars_gcm=("va" "zg" "wap" "ta" "hur" "ps" "hurs" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "rldscs" "rlutcs" "rsdscs" "rsuscs" "rsutcs" "hfls" "hfss" "pr" "prc" "evspsbl" "vas") # list of GCM variables that we want to process
+declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
 # declare -a vars_gcm=("sfcWind") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "ta" "zg" "hur") # list of GCM variables that we want to process
 # declare -a vars_gcm=("tas" "ts") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "tas" "ta" "zg" "ts" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "evspsbl") # list of GCM variables that we want to process
-declare -a vars_gcm=("hurs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("hurs") # list of GCM variables that we want to process
 declare -a realm=("atmos")
 #declare -a models=$(cd /project2/tas1/ockham/data9/tas/CMIP5_RAW && ls -d */) # list of GCM models to process
 declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/rcp85/ && ls -d */)

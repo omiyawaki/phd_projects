@@ -25,8 +25,7 @@ function proc_dr1_polar_line(type, par)
 
         savename = sprintf('%s/dr1_poleward_of_lat_%g.mat', prefix_proc, par.lat_bound);
 
-        % for l = {'lo', 'l', 'o'}; land = l{1};
-        for l = {'lo'}; land = l{1};
+        for l = par.land_list; land = l{1};
             if strcmp(land, 'lo'); land_text = 'L+O';
             elseif strcmp(land, 'l'); land_text = 'L';
             elseif strcmp(land, 'o'); land_text = 'O';

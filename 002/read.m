@@ -21,27 +21,27 @@ par.jra55.yr_span = '1980_2005'; % spanning years for JRA-55
 % par.echam_clims = par.echam.noice_mld; %{'echr0001'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 % par.echam_clims = {'rp000126'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 
-% par.echam_clims = {            "rp000126",... % 50 m
-%                                  "rp000148",... % 45 m
-%                                  "rp000134",... % 40 m
-%                                  "rp000146",... % 35 m
-%                                  "rp000130",... % 30 m
-%                                  "rp000144",... % 25 m
-%                                  "rp000132",... % 20 m
-%                                  "rp000140",... % 15 m
-%                                  "rp000124"};   % 10 m
+par.echam_clims = {            "rp000126",... % 50 m
+                                 "rp000148",... % 45 m
+                                 "rp000134",... % 40 m
+                                 "rp000146",... % 35 m
+                                 "rp000130",... % 30 m
+                                 "rp000144",... % 25 m
+                                 "rp000132",... % 20 m
+                                 "rp000140",... % 15 m
+                                 "rp000124"};   % 10 m
 
-par.echam_clims = {"rp000046",... % 50 m
-                       "rp000149",... % 45 m
-                       "rp000135",... % 40 m
-                       "rp000147",... % 35 m
-                       "rp000131",... % 30 m
-                       "rp000145",... % 25 m
-                       "rp000133",... % 20 m
-                       "rp000141",... % 15 m
-                       "rp000034",... % 10 m
-                       "rp000086",... % 5 m
-                       "rp000172"}; % 3 m
+% par.echam_clims = {"rp000046",... % 50 m
+%                        "rp000149",... % 45 m
+%                        "rp000135",... % 40 m
+%                        "rp000147",... % 35 m
+%                        "rp000131",... % 30 m
+%                        "rp000145",... % 25 m
+%                        "rp000133",... % 20 m
+%                        "rp000141",... % 15 m
+%                        "rp000034",... % 10 m
+%                        "rp000086",... % 5 m
+%                        "rp000172"}; % 3 m
 
 % par.hahn_clims = {'Control1850'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
 par.hahn_clims = {'Flat1850', 'Control1850'}; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), echr0001 (AMIP), echr0023 (AMIP no elevation), or rp000*** (various mixed layer depth and with/without sea ice)
@@ -95,13 +95,13 @@ function run_func(type, par)
     % make_zgsi(type, 'ymonmean', par) % convert zg from plev to sigma
     % make_psi(type, par) % compute plev in si coords
     % read_lfrac(type, par) % land fraction (%)
-    % read_sice(type, par) % sea ice cover (1)
-    % read_siced(type, par) % sea ice cover (1)
-    read_albedo(type, par) % surface albedo (1)
+    read_sice(type, par) % sea ice cover (1)
+    read_siced(type, par) % sea ice depth (m)
+    % read_albedo(type, par) % surface albedo (1)
     
-    % read_rad(type, 'mon', par) % radiation fluxes
+    % read_rad(type, 'ymonmean', par) % radiation fluxes
     % read_hydro(type, 'mon', par) % hydrological variables, e.g. precip, evap
-    % read_stf(type, 'mon', par) % surface turbulent fluxes
+    % read_stf(type, 'ymonmean', par) % surface turbulent fluxes
     % read_srfc(type, 'mon', par) % other surface variables, e.g. 2-m temperature, surface pressure
 
     % read_radcs(type, 'ymonmean', par) % clear sky radiation fluxes

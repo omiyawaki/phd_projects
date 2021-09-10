@@ -26,10 +26,10 @@ function plot_alb_mld_noice(type, par)
     %                                  "rp000172"}; % 3 m
 
     par.echam_clims = {            "rp000046",... % 50 m
+                                    "rp000135",... % 40 m
                                      "rp000145",... % 25 m
-                                     "rp000034",... % 10 m
-                                     "rp000086",... % 5 m
-                                     "rp000172"}; % 3 m
+                                    "rp000141",... % 15 m
+                                    "rp000086"}; % 5 m
                              
     [~, ~, ~, lat, ~] = load_flux(type, par);
 
@@ -48,6 +48,8 @@ function plot_alb_mld_noice(type, par)
         tmp=load(sprintf('%s/grid.mat', prefix)); grid=tmp.grid; clear tmp; % read grid data
         tmp=load(sprintf('%s/albedo.mat', prefix)); albedo=tmp.albedo; clear tmp; % read clear sky albedoedo data
         tmp=load(sprintf('%s/flux_z.mat', prefix_proc)); flux=tmp.flux_z; clear tmp; % read clear sky albedoedo data
+        tmp=load(sprintf('%s/si_bl_0.9/ga_malr_bl_diff_poleward_of_lat_80.mat', prefix_proc));
+        ga_frac_aa.(clim)=tmp.ga_frac_lat.lo; clear tmp; % read boundary layer lapse rate deviation 
 
         r1 = flux.lo.res.mse_old./flux.lo.ra.mse_old;
         albedo = squeeze(nanmean(albedo,1)); % zonal mean
@@ -62,26 +64,52 @@ function plot_alb_mld_noice(type, par)
 
     end                                    
 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % mon x lat of albedoow depth
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     figure(); clf; hold all; box on;
     % cmp = colCog(20);
     for i = 1:n_clims; clim=par.echam_clims{i};
-        leg(i)=plot(1:12, circshift(albedo_aa.(clim),shiftby), '-', 'color', 1/2*(1/2+i/n_clims)*[1 1 1]);
+        % leg(i)=plot(1:12, circshift(albedo_aa.(clim),shiftby), '-', 'color', 1/2*(1/2+i/n_clims)*[1 1 1]);
+        leg(i)=plot(1:12, circshift(albedo_aa.(clim),shiftby), '-');
     end
     ylabel('Surface albedo (unitless)');
     title('ECHAM w/o ice')
-    legend(leg, '50 m', '25 m', '10 m', '5 m', '3 m', 'location', 'southwest')
+    legend(leg, '50 m', '40 m', '25 m', '15 m', '5 m', 'location', 'southwest')
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [0 1], 'yminortick', 'on', 'tickdir', 'out');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     print(sprintf('%s/alb/albedo_mon_noicemld', plotdir), '-dpng', '-r300');
     close;
     
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % LR deviation seasonality overlay
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    figure(); clf; hold all; box on;
+    % cmp = colCog(20);
+    invmin=100;
+    ylim_lo =-100;
+    ylim_up =500;
+    vertices = [1 invmin; 12 invmin; 12 ylim_up; 1 ylim_up];
+    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
+    for i = 1:n_clims; clim=par.echam_clims{i};
+        leg(i)=plot(1:12, circshift(ga_frac_aa.(clim),shiftby), '-');
+    end
+    ylabel('$\left\langle(\Gamma_m - \Gamma)/\Gamma_m\right\rangle_{1.0}^{0.9}$ (\%)');
+    title('ECHAM w/o ice')
+    % legend(leg, '50 m', '40 m', '25 m', 'location', 'southwest')
+    set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
+    print(sprintf('%s/alb/gafrac_mon_noicemld', plotdir), '-dpng', '-r300');
+    close;
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % mon x lat of r1
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     figure(); clf; hold all; box on;
     rcemax=0.1;
     raemin=0.9;
-    ylim_lo =-0.8;
-    ylim_up =1.5;
+    ylim_lo =0.1;
+    ylim_up =1.3;
     vertices = [1 raemin; 12 raemin; 12 ylim_up; 1 ylim_up];
     patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
     vertices = [1 ylim_lo; 12 ylim_lo ;12 rcemax; 1 rcemax];
@@ -94,10 +122,20 @@ function plot_alb_mld_noice(type, par)
     end
     ylabel('$R_1$ (unitless)');
     title('ECHAM w/o ice')
-    legend(leg, '50 m', '25 m', '10 m', '5 m', '3 m', 'location', 'southwest')
+    % legend(leg, '50 m', '40 m', '25 m', '15 m', '5 m', 'location', 'eastoutside')
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     print(sprintf('%s/alb/r1_mon_noicemld', plotdir), '-dpng', '-r300');
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % leg only
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    axis off;
+    axis([100 101 100 101])
+    title('');
+    legend(flip(leg), '5 m', '15 m', '25 m', '40 m', '50 m', 'location', 'northwest', 'numcolumns', 5, 'orientation', 'horizontal');
+    set(gcf, 'paperunits', 'inches', 'paperposition', [0 0 6.2 0.5])
+    print(sprintf('%s/alb/mld_legend', plotdir), '-dpng', '-r300');
     close;
 
 end

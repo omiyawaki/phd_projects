@@ -63,12 +63,13 @@ par.si_up_list = [0.3]; % sigma level for upper boundary of vertical average for
 % par.si_up_list = [0.1 0.2 0.3 0.4]; % sigma level for upper boundary of vertical average for close to moist adiabatic
 % par.era.fw = {'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt', 'div79'};
 % par.era.fw = {'div79', 'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt'};
-par.land_list = {'lo'};
+par.land_list = {'lo', 'l', 'o'};
 par.era.fw = {'mse', 'mse_old'};
 % par.era.fw = {'mse_old'};
 par.jra55.fw = {'mse', 'mse_old'};
 par.merra2c.fw = {'mse', 'mse_old'};
-par.gcm.fw = {'mse', 'mse_old'};
+% par.gcm.fw = {'mse', 'mse_old'};
+par.gcm.fw = {'mse_old'};
 par.echam.fw = {'mse', 'mse_old'};
 par.hahn.fw = {'mse_old'};
 par.cpd = 1005.7; par.cpv = 1870; par.cpl = 4186; par.cpi = 2108; par.Rd = 287; par.Rv = 461; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3; par.eps = 0.622; % common constants, all in SI units for brevity
@@ -82,7 +83,7 @@ end
 % par.rea_models = {'era5c'};
 par.rea_models = {'era5c', 'merra2c', 'jra55'};
 for k=1:length(par.rea_models); type = par.rea_models{k};
-    % choose_proc(type, par)
+    choose_proc(type, par)
 end
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
     % type='echam';
@@ -95,9 +96,9 @@ for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
     % choose_proc(type, par);
 end
 for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-    type = 'gcm';
-    disp(par.model)
-    choose_proc(type, par)
+    % type = 'gcm';
+    % disp(par.model)
+    % choose_proc(type, par)
 end
 
 for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
@@ -141,20 +142,21 @@ for i=1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
 end
 
 function choose_proc(type, par)
+    % save_mask(type, par) % save land and ocean masks once (faster than creating mask every time I need it)
     % proc_flux(type, par) % calculate energy fluxes in the vertically-integrated MSE budget using ERA-Interim data
+
     % proc_temp_mon_lat(type, par) % calculate mon x lat temperature profiles
     % proc_temp_pl_mon_lat(type, par) % calculate mon x lat temperature profiles
-    make_tai(type, par) % calculate interpolated temperature profile in p coordinates with 2 m temp insert in lon x lat x mon
+    % make_tai(type, par) % calculate interpolated temperature profile in p coordinates with 2 m temp insert in lon x lat x mon
     % proc_tai_mon_lat(type, par) % calculate mon x lat temperature profiles
     % make_masi(type, par) % calculate moist adiabats at every lon x lat x mon
     % proc_ma_mon_lat(type, par) % calculate mon x lat moist adiabats
-    make_dtdzsi(type, par) % calculate model lapse rate and interpolate to sigma coordinates
+    % make_dtdzsi(type, par) % calculate model lapse rate and interpolate to sigma coordinates
     % make_dtdzsi_alt(type, par) % calculate model lapse rate and interpolate to sigma coordinates
-    make_malrsi(type, par) % calculate moist adiabatic lapse rate of model temperature sigma coordinates
-    % save_mask(type, par) % save land and ocean masks once (faster than creating mask every time I need it)
+    % make_malrsi(type, par) % calculate moist adiabatic lapse rate of model temperature sigma coordinates
 
-    proc_ga_malr_mon_lat(type, par) % calculate mon x lat MALR profiles
-    proc_ga_frac_mon_lat(type, par) % calculate mon x lat lapse rate deviation from a MALR profiles
+    % proc_ga_malr_mon_lat(type, par) % calculate mon x lat MALR profiles
+    % proc_ga_frac_mon_lat(type, par) % calculate mon x lat lapse rate deviation from a MALR profiles
     % proc_dtempsi_mon_lat(type, par) % calculate mon x lat temperature response profiles
     % proc_gad_frac_mon_lat(type, par) % calculate mon x lat lapse rate deviation from a DALR profiles
 
@@ -171,8 +173,8 @@ function choose_proc(type, par)
     
     % proc_dmse_midlatitude_line(type, par);
     % proc_dmse_polar_line(type, par);
-    % proc_dr1_midlatitude_line(type, par);
-    % proc_dr1_polar_line(type, par);
+    proc_dr1_midlatitude_line(type, par);
+    proc_dr1_polar_line(type, par);
 
     % proc_ga_frac_midlatitude(type, par);
     % proc_ga_frac_polar(type, par);
