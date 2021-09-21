@@ -29,6 +29,7 @@ function plot_alb_mld_noice(type, par)
                                     "rp000135",... % 40 m
                                      "rp000145",... % 25 m
                                     "rp000141",... % 15 m
+                                     "rp000034",... % 10 m
                                     "rp000086"}; % 5 m
                              
     [~, ~, ~, lat, ~] = load_flux(type, par);
@@ -74,8 +75,8 @@ function plot_alb_mld_noice(type, par)
         leg(i)=plot(1:12, circshift(albedo_aa.(clim),shiftby), '-');
     end
     ylabel('Surface albedo (unitless)');
-    title('ECHAM w/o ice')
-    legend(leg, '50 m', '40 m', '25 m', '15 m', '5 m', 'location', 'southwest')
+    title('AQUA w/o ice')
+    legend(leg, '50 m', '40 m', '25 m', '15 m', '10 m', '5 m', 'location', 'southwest')
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [0 1], 'yminortick', 'on', 'tickdir', 'out');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     print(sprintf('%s/alb/albedo_mon_noicemld', plotdir), '-dpng', '-r300');
@@ -90,12 +91,12 @@ function plot_alb_mld_noice(type, par)
     ylim_lo =-100;
     ylim_up =500;
     vertices = [1 invmin; 12 invmin; 12 ylim_up; 1 ylim_up];
-    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
+    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.3);
     for i = 1:n_clims; clim=par.echam_clims{i};
         leg(i)=plot(1:12, circshift(ga_frac_aa.(clim),shiftby), '-');
     end
     ylabel('$\left\langle(\Gamma_m - \Gamma)/\Gamma_m\right\rangle_{1.0}^{0.9}$ (\%)');
-    title('ECHAM w/o ice')
+    title('AQUA w/o ice')
     % legend(leg, '50 m', '40 m', '25 m', 'location', 'southwest')
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
@@ -111,9 +112,9 @@ function plot_alb_mld_noice(type, par)
     ylim_lo =0.1;
     ylim_up =1.3;
     vertices = [1 raemin; 12 raemin; 12 ylim_up; 1 ylim_up];
-    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.5);
+    patch(vertices(:,1), vertices(:,2), par.blue, 'edgecolor', 'none', 'facealpha', 0.3);
     vertices = [1 ylim_lo; 12 ylim_lo ;12 rcemax; 1 rcemax];
-    patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.5);
+    patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.3);
     % for i = 1:n_clims; clim=par.echam_clims{i};
     %     leg(i)=plot(1:12, circshift(r1_aa.(clim),shiftby), '-', 'color', 1/2*(1/2+i/n_clims)*[1 1 1]);
     % end
@@ -121,7 +122,7 @@ function plot_alb_mld_noice(type, par)
         leg(i)=plot(1:12, circshift(r1_aa.(clim),shiftby), '-');
     end
     ylabel('$R_1$ (unitless)');
-    title('ECHAM w/o ice')
+    title('AQUA w/o ice')
     % legend(leg, '50 m', '40 m', '25 m', '15 m', '5 m', 'location', 'eastoutside')
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
@@ -133,8 +134,9 @@ function plot_alb_mld_noice(type, par)
     axis off;
     axis([100 101 100 101])
     title('');
-    legend(flip(leg), '5 m', '15 m', '25 m', '40 m', '50 m', 'location', 'northwest', 'numcolumns', 5, 'orientation', 'horizontal');
-    set(gcf, 'paperunits', 'inches', 'paperposition', [0 0 6.2 0.5])
+    legend(flip(leg), '5 m', '10 m', '15 m', '25 m', '40 m', '50 m', 'location', 'northwest', 'numcolumns', 6, 'orientation', 'horizontal');
+    % set(gcf, 'paperunits', 'inches', 'paperposition', [0 0 6.2 0.5])
+    set(gcf, 'paperunits', 'inches', 'paperposition', [0 0 7 0.5])
     print(sprintf('%s/alb/mld_legend', plotdir), '-dpng', '-r300');
     close;
 

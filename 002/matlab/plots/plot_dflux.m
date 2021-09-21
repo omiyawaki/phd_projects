@@ -14,6 +14,22 @@ function plot_dflux(type, par)
     plotdir = make_plotdir(type, par);
 
     load(sprintf('%s/grid.mat', prefix)); % read grid data
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Load temperature response amplification
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    load(sprintf('%s/dtempsi_mon_lat.mat', prefix_proc)); % load lat x mon RCAE_ALT data
+
+    dtemp = permute(dtempsi.lo, [3 1 2]);
+    dtemp_u = squeeze(interp1(grid.dim3.si, dtemp, 0.3)); % upper trop dtemp
+    dtemp_l = squeeze(interp1(grid.dim3.si, dtemp, 1)); % lower trop dtemp
+    dtemp_r = dtemp_u./dtemp_l; % upper to lower temperature response ratio
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Load R1 info
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     tmp=load(sprintf('%s/flux_z.mat', prefix_proc)); flux_z1 = tmp.flux_z; lat = tmp.lat; clear tmp; % load lat x mon RCAE data
     tmp=load(sprintf('%s/flux_t.mat', prefix_proc)); flux_t1 = tmp.flux_t; clear tmp; % load lat x lon RCAE data
     % load(sprintf('%s/%s/ga_malr_diff_si_mon_lat.mat', prefix_proc, par.lat_interp)); ga_malr_diff_orig = ga_malr_diff; clear ga_diff;
@@ -201,35 +217,104 @@ function plot_dflux(type, par)
                 % end
                 close;
 
-                % R1z lat x mon dependence of RCE and RAE
-                if ~strcmp(fw, 'mse_old')
-                    var_text = '$\\Delta R_1^*$';
-                else
-                    var_text = '$\\Delta R_1$';
-                end
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % (TEMPR OVERLAY) R1z lat x mon dependence of RCE and RAE
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 figure(); clf; hold all; box on;
-                cmp = colCog(10);
-                colormap(flipud(cmp));
-                contourf(mesh_lat, mesh_mon, flux_z2.(land).res.(fw)./flux_z2.(land).ra.(fw) - flux_z1.(land).res.(fw)./flux_z1.(land).ra.(fw), par.ga*[1 1], 'edgecolor', 'none');
-                % contourf(mesh_lat, mesh_mon, flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), par.ep*[1 1], 'edgecolor', 'none');
-                contour(mesh_lat, mesh_mon, flux_z2.(land).res.(fw)./flux_z2.(land).ra.(fw) - flux_z1.(land).res.(fw)./flux_z1.(land).ra.(fw), [-1:0.1:1], 'linecolor', 'k');
-                % contour(mesh_lat, mesh_mon,  flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [0 0], 'color', 0.75*[1 1 1]);
-                % contour(mesh_lat, mesh_mon,  flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), par.ep*[1 1], 'linecolor', par.orange, 'linewidth', 1.5);
-                % contour(mesh_lat, mesh_mon,  flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), par.ga*[1 1], 'linecolor', par.cyan, 'linewidth', 1.5);
-                % [C, h] = contour(mesh_lat, mesh_mon, flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [par.ep par.ga], 'linecolor', 'w', 'linewidth', 0.25);
-                % clabel(C, h, 'fontsize', 6, 'interpreter', 'latex', 'color', 'k');
-                % make_title_type(type, partitle);
-                title('CMIP5 RCP8.5$-$historical');
-                % caxis([-1 1]);
-                % cb = colorbar('limits', [-1 1], 'ytick', [-1:0.2:1], 'location', 'eastoutside');
-                % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-                % ylabel(cb, sprintf('%s (unitless)', var_text));
+                cmp = colCog(40);
+                colormap(cmp);
+                contourf(mesh_lat, mesh_mon, dtemp_r, -0.5:0.1:4, 'linecolor', 'none');
+                [C,h]=contour(mesh_lat, mesh_mon, dtemp_r, -0.5:0.5:4, '-w', 'linewidth', 0.1);
+                % contour(mesh_lat, mesh_mon, dtemp_r, [0 0], 'color', 0.75*[1 1 1]);
+
+                contour(mesh_lat, mesh_mon, flux_z2.(land).res.(fw)./flux_z2.(land).ra.(fw) - flux_z1.(land).res.(fw)./flux_z1.(land).ra.(fw), [0:0.025:0.1], 'linecolor', 'k', 'linewidth', 0.3);
+                contour(mesh_lat, mesh_mon, flux_z2.(land).res.(fw)./flux_z2.(land).ra.(fw) - flux_z1.(land).res.(fw)./flux_z1.(land).ra.(fw), [-0.1:0.025:0], 'linestyle', '--', 'linecolor', 'k', 'linewidth', 0.3);
+                contour(mesh_lat, mesh_mon,  flux_z1.(land).res.(fw)./flux_z1.(land).ra.(fw), par.ep*[1 1], 'linecolor', par.orange, 'linewidth', 2);
+                contour(mesh_lat, mesh_mon,  flux_z1.(land).res.(fw)./flux_z1.(land).ra.(fw), par.ga*[1 1], 'linecolor', par.blue, 'linewidth', 2);
+
+                contour(mesh_lat, mesh_mon,  flux_z2.(land).res.(fw)./flux_z2.(land).ra.(fw), par.ep*[1 1], 'linestyle', '--', 'linecolor', par.orange, 'linewidth', 2);
+                contour(mesh_lat, mesh_mon,  flux_z2.(land).res.(fw)./flux_z2.(land).ra.(fw), par.ga*[1 1], 'linestyle', '--', 'linecolor', par.blue, 'linewidth', 2);
+
+                clabel(C, h, 0:0.5:4, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
+                caxis([-1 3]);
                 ylabel('Latitude (deg)');
-                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos);
+                make_title_type(type, partitle);
+                cb = colorbar('limits', [0 3], 'ytick', [0:0.2:3], 'location', 'eastoutside');
+                cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+                ylabel(cb, sprintf('$\\Delta T_{0.3}/\\Delta T_{1.0}$ (unitless)'));
+                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide);
                 set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/dflux/%s/%s/0_r1z_mon_lat_alt', plotdir, fw, land), '-dpng', '-r300');
+                folder = sprintf('%s/dtempr/%s/', plotdir, land);
+                if ~exist(folder, 'dir')
+                    mkdir(folder)
+                end
+                print(sprintf('%s/dflux/%s/%s/0_r1z_mon_lat_overlay', plotdir, fw, land), '-dpng', '-r300');
+                data = [mesh_lat(:) mesh_mon(:) r1z(:) ];
+                save(sprintf('%s/dflux/%s/%s/0_r1z_mon_lat_overlay.dat', plotdir, fw, land), 'data', '-ASCII')
                 close;
 
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % (TEMPR OVERLAY ALT) R1z lat x mon dependence of RCE and RAE
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                figure(); clf; hold all; box on;
+                cmp = colCog(40);
+                colormap(cmp);
+                contourf(mesh_lat, mesh_mon, dtemp_r, -0.5:0.1:4, 'linecolor', 'none');
+                [C,h]=contour(mesh_lat, mesh_mon, dtemp_r, -0.5:0.5:4, '-w', 'linewidth', 0.1);
+                % contour(mesh_lat, mesh_mon, dtemp_r, [0 0], 'color', 0.75*[1 1 1]);
+
+                contour(mesh_lat, mesh_mon,  flux_z1.(land).res.(fw)./flux_z1.(land).ra.(fw), par.ep*[1 1], 'linecolor', par.orange, 'linewidth', 2);
+                contour(mesh_lat, mesh_mon,  flux_z1.(land).res.(fw)./flux_z1.(land).ra.(fw), par.ga*[1 1], 'linecolor', par.blue, 'linewidth', 2);
+
+                contour(mesh_lat, mesh_mon,  flux_z2.(land).res.(fw)./flux_z2.(land).ra.(fw), par.ep*[1 1], 'linestyle', '--', 'linecolor', par.orange, 'linewidth', 2);
+                contour(mesh_lat, mesh_mon,  flux_z2.(land).res.(fw)./flux_z2.(land).ra.(fw), par.ga*[1 1], 'linestyle', '--', 'linecolor', par.blue, 'linewidth', 2);
+
+                clabel(C, h, 0:0.5:4, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
+                caxis([-1 3]);
+                ylabel('Latitude (deg)');
+                make_title_type(type, partitle);
+                cb = colorbar('limits', [0 3], 'ytick', [0:0.2:3], 'location', 'eastoutside');
+                cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+                ylabel(cb, sprintf('$\\Delta T_{0.3}/\\Delta T_{1.0}$ (unitless)'));
+                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide);
+                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                folder = sprintf('%s/dtempr/%s/', plotdir, land);
+                if ~exist(folder, 'dir')
+                    mkdir(folder)
+                end
+                print(sprintf('%s/dflux/%s/%s/0_r1z_mon_lat_overlay_alt', plotdir, fw, land), '-dpng', '-r300');
+                data = [mesh_lat(:) mesh_mon(:) r1z(:) ];
+                save(sprintf('%s/dflux/%s/%s/0_r1z_mon_lat_overlay_alt.dat', plotdir, fw, land), 'data', '-ASCII')
+                close;
+
+                % if ~any(strcmp(fw, {'mse_old', 'dse_old'}))
+                %     var_text = '$\Delta R_1^*$';
+                % else
+                %     var_text = '$\Delta R_1$';
+                % end
+                % figure(); clf; hold all; box on;
+                % cmp = colCog(20);
+                % colormap(flipud(cmp));
+                % r1z = flux_z2.(land).res.(fw)./flux_z2.(land).ra.(fw) - flux_z1.(land).res.(fw)./flux_z1.(land).ra.(fw);
+                % contourf(mesh_lat, mesh_mon, r1z, [-0.5:0.01:0.5], 'linecolor', 'w', 'linewidth', 0.1);
+                % contour(mesh_lat, mesh_mon, flux_z2.(land).res.(fw)./flux_z2.(land).ra.(fw) - flux_z1.(land).res.(fw)./flux_z1.(land).ra.(fw), [0 0], 'color', 0.75*[1 1 1]);
+                % [C, h] = contour(mesh_lat, mesh_mon, flux_z2.(land).res.(fw)./flux_z2.(land).ra.(fw) - flux_z1.(land).res.(fw)./flux_z1.(land).ra.(fw), [-0.1:0.05:0.1], 'linecolor', 'w', 'linewidth', 0.1);
+                % contour(mesh_lat, mesh_mon, flux_z2.(land).res.(fw)./flux_z2.(land).ra.(fw) - flux_z1.(land).res.(fw)./flux_z1.(land).ra.(fw), [-0.1:0.01:0.1], 'color', 'w', 'linewidth', 0.1);
+                % % [C, h] = contour(mesh_lat, mesh_mon, flux_z.(land).res.(fw)./flux_z.(land).ra.(fw), [par.ep par.ga], 'linecolor', 'w', 'linewidth', 0.25);
+                % clabel(C, h, 'fontsize', 6, 'interpreter', 'latex', 'color', 0.75*[1 1 1]);
+                % % make_title_type(type, partitle);
+                % title('CMIP5 RCP8.5$-$historical');
+                % caxis([-0.1 0.1]);
+                % cb = colorbar('limits', [-0.1 0.1], 'ytick', [-0.1:0.02:0.1], 'location', 'eastoutside');
+                % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+                % ylabel(cb, sprintf('%s (unitless)', var_text));
+                % ylabel('Latitude (deg)');
+                % set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
+                % set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                % % if par.make_tikz
+                % %     matlab2tikz(sprintf('%s/flux/%s/%s/0_r1z_mon_lat.tex', plotdir, fw, land));
+                % % end
+                % close;
 
             end % if hist-pi
 

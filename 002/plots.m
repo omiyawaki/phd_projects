@@ -75,7 +75,7 @@ par.r1_bins_hl = [0.8-0.025/2:0.025:1.5+0.025/2]; % bins for sorting temperature
 % par.era.fw = {'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt', 'div79'};
 % par.era.fw = {'div79', 'mse', 'dse', 'db13', 'db13s', 'db13t', 'div', 'divt'};
 % par.era.fw = {'ceresrad'};
-par.land_list = {'lo', 'l', 'o'};
+par.land_list = {'lo'};
 % par.rea.fw = {'mse', 'mse_old'};
 par.rea.fw = {'mse', 'mse_old'};
 par.era.fw = {'mse', 'mse_old'};
@@ -104,9 +104,9 @@ end
 % plot_rad_lon_lat(par)
 % plot_tediv_lat(par)
 
-type = 'era5c'; par.lat_interp = 'native';
+% type = 'era5c'; par.lat_interp = 'native';
 % type = 'rea'; par.lat_interp = '1.00';
-choose_plots(type, par);
+% choose_plots(type, par);
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
     % type='echam';
     % par.lat_interp = 'native';
@@ -167,9 +167,9 @@ for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
         % choose_plots_ep(type, par);
     end
     for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-        % type = 'gcm';
-        % disp(par.model)
-        % choose_plots_ep(type, par)
+        type = 'gcm';
+        disp(par.model)
+        choose_plots_ep(type, par)
     end
 end
 
@@ -178,7 +178,7 @@ function choose_plots(type, par)
     % plot_dtempsi_zon_select(type, par) % plot temperature responses binned by R1
 
     % plot_ga_frac_binned_r1(type, par) % plot lapse rate profiles binned by R1
-    % plot_dtempsi_binned_r1(type, par) % plot temperature responses binned by R1
+    plot_dtempsi_binned_r1(type, par) % plot temperature responses binned by R1
 
     % plot_dtempsi_binned_r1_lat(type, par) % plot temperature responses binned by R1
     % plot_dtempsi_binned_r1_mid(type, par) % plot temperature responses binned by R1
@@ -202,7 +202,7 @@ function choose_plots(type, par)
 
     % plot_r1_mid_mld(type, par) % overlay r1 from multiple mld's
 
-    plot_r1_land_ocean(type, par) % decompose r1 into land and ocean domains
+    % plot_r1_land_ocean(type, par) % decompose r1 into land and ocean domains
 
     % plot_alb(type, par) % surface albedo
     % plot_alb_comp(type, par) % surface albedo
@@ -230,7 +230,7 @@ function choose_plots_ep(type, par)
     % plot_energy_lat_future(type, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
     % plot_r1z_lat(type, par); % compare r1 line plot with ERA5
     % plot_flux(type, par) % plot various energy fluxes in mon x lat and lon x lat space
-    % plot_dflux(type, par) % plot various energy fluxes in mon x lat and lon x lat space
+    plot_dflux(type, par) % plot various energy fluxes in mon x lat and lon x lat space
 
     % plot_flux_comp(type, par) % plot various energy fluxes in mon x lat and lon x lat space
 
@@ -239,7 +239,7 @@ function choose_plots_ep(type, par)
     % plot_ga_frac_midlatitude(type, par)
     % plot_ga_frac_polar(type, par)
 
-    plot_dr1_midlatitude_line(type, par) % plot decomposition of R1 in mon at specific latitudes
+    % plot_dr1_midlatitude_line(type, par) % plot decomposition of R1 in mon at specific latitudes
     % plot_dr1_polar_line(type, par) % plot decomposition of R1 in mon at specific latitudes
 
     % plot_dlh_polar_asymline_basic(type, par) % plot decomposition of R1 in mon x lat and lon x lat space

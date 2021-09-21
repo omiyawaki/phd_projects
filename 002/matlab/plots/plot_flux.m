@@ -51,22 +51,31 @@ function plot_flux(type, par)
             close;
 
             if any(strcmp(type, {'era5', 'era5c', 'erai', 'merra2c', 'jra55', 'gcm'}))
-                var_text = '$\partial_t h$';
-                figure(); clf; hold all; box on;
-                cmp = colCog(100);
-                colormap(cmp);
-                contourf(mesh_lat, mesh_mon, flux_z.(land).tend, [-300 -50:1:50 300], 'linecolor', 'w', 'linewidth', 0.1);
-                contour(mesh_lat, mesh_mon, flux_z.(land).tend, [0 0], 'color', 0.75*[1 1 1]);
-                make_title_type(type, par);
-                caxis([-50 50]);
-                cb = colorbar('limits', [-50 50], 'ytick', [-50:10:50], 'location', 'eastoutside');
-                cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-                ylabel(cb, sprintf('%s (Wm$^{-2}$)', var_text));
-                ylabel('Latitude (deg)');
-                set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
-                set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-                print(sprintf('%s/flux/%s/%s/0_tend_mon_lat', plotdir, fw, land), '-dpng', '-r300');
-                close;
+
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % UNCOMMENT FOR TEND
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+                % var_text = '$\partial_t h$';
+                % figure(); clf; hold all; box on;
+                % cmp = colCog(100);
+                % colormap(cmp);
+                % contourf(mesh_lat, mesh_mon, flux_z.(land).tend, [-300 -50:1:50 300], 'linecolor', 'w', 'linewidth', 0.1);
+                % contour(mesh_lat, mesh_mon, flux_z.(land).tend, [0 0], 'color', 0.75*[1 1 1]);
+                % make_title_type(type, par);
+                % caxis([-50 50]);
+                % cb = colorbar('limits', [-50 50], 'ytick', [-50:10:50], 'location', 'eastoutside');
+                % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+                % ylabel(cb, sprintf('%s (Wm$^{-2}$)', var_text));
+                % ylabel('Latitude (deg)');
+                % set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_verywide);
+                % set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', par.monlabelnh, 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                % print(sprintf('%s/flux/%s/%s/0_tend_mon_lat', plotdir, fw, land), '-dpng', '-r300');
+                % close;
+
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % UNCOMMENT FOR TEND
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
                 % var_text = '$\nabla \cdot F_m$';
                 % figure(); clf; hold all; box on;
@@ -384,26 +393,34 @@ function plot_flux(type, par)
                         % print(sprintf('%s/flux/%s/%s/%s/divfm_lat_lon', plotdir, fw, land, time), '-dpng', '-r300');
                         % close;
 
-                        var_text = '$\partial_t h$ (Wm$^{-2}$)';
-                        figure(); clf; hold all;
-                        cmp = colCog(20);
-                        colormap(cmp);
-                        contourf(mesh_ll_lat, mesh_ll_lon, flux_t.(land).(time).tend', [-50:5:50], 'linecolor', 'none');
-                        caxis([-50 50]);
-                        cb = colorbar('limits', [-50 50], 'ytick', [-50:10:50], 'location', 'eastoutside');
-                        cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
-                        ylabel(cb, var_text);
-                        % if strcmp(type, 'gcm') & ~any(strcmp(par.gcm.clim, {'hist-pi'})) & ~contains(par.model, 'mmm')
-                        %     contour(mesh_ll_lat_2d, mesh_ll_lon_2d, sftlf', 0.5*[1 1], 'w', 'linewidth', 1);
-                        %     contour(mesh_ll_lat_2d, mesh_ll_lon_2d, sftlf', 0.5*[1 1], 'k');
-                        % else
-                            contour(par.landlon+180, par.landlat, par.land, [1 1], 'k');
-                        % end
-                        make_title_type_time(type, time, par);
-                        xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
-                        set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
-                        print(sprintf('%s/flux/%s/%s/%s/tend_lat_lon', plotdir, fw, land, time), '-dpng', '-r300');
-                        close;
+                        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                        % UNCOMMENT FOR TEND
+                        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+                        % var_text = '$\partial_t h$ (Wm$^{-2}$)';
+                        % figure(); clf; hold all;
+                        % cmp = colCog(20);
+                        % colormap(cmp);
+                        % contourf(mesh_ll_lat, mesh_ll_lon, flux_t.(land).(time).tend', [-50:5:50], 'linecolor', 'none');
+                        % caxis([-50 50]);
+                        % cb = colorbar('limits', [-50 50], 'ytick', [-50:10:50], 'location', 'eastoutside');
+                        % cb.TickLabelInterpreter = 'latex'; cb.Label.Interpreter = 'latex';
+                        % ylabel(cb, var_text);
+                        % % if strcmp(type, 'gcm') & ~any(strcmp(par.gcm.clim, {'hist-pi'})) & ~contains(par.model, 'mmm')
+                        % %     contour(mesh_ll_lat_2d, mesh_ll_lon_2d, sftlf', 0.5*[1 1], 'w', 'linewidth', 1);
+                        % %     contour(mesh_ll_lat_2d, mesh_ll_lon_2d, sftlf', 0.5*[1 1], 'k');
+                        % % else
+                        %     contour(par.landlon+180, par.landlat, par.land, [1 1], 'k');
+                        % % end
+                        % make_title_type_time(type, time, par);
+                        % xlabel('Longitude (deg)'); ylabel('Latitude (deg)');
+                        % set(gca, 'xlim', [0 360], 'xtick', [0:60:360], 'ylim', [-90 90], 'ytick', [-90:30:90], 'yminortick', 'on', 'tickdir', 'out');
+                        % print(sprintf('%s/flux/%s/%s/%s/tend_lat_lon', plotdir, fw, land, time), '-dpng', '-r300');
+                        % close;
+
+                        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                        % UNCOMMENT FOR TEND
+                        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
                     end
 

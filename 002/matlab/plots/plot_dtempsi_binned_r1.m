@@ -52,7 +52,7 @@ function plot_dtempsi_binned_r1(type, par)
 
             figure(); clf; hold all; box on;
             line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
-            cmp = flip(parula(length(par.r1_bins)-1));
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
             for bin = 1:length(par.r1_bins)-1
                 vavg_dev = nanmean(interp1(grid.dim3.si, dta_si_area(bin,:), linspace(si_bl, si_up, 101)));
                 disp(sprintf('For R1 = %g, the vertically integrated lapse rate deviation from MALR is %g%%.', 1/2*(par.r1_bins(bin)+par.r1_bins(bin+1)), vavg_dev))
@@ -73,6 +73,7 @@ function plot_dtempsi_binned_r1(type, par)
             xlabel('$\Delta T$ (K)'); ylabel('$\sigma$ (unitless)');
             axis('tight');
             caxis([min(par.r1_bins) max(par.r1_bins)]);
+            colormap(coolwarm(length(par.r1_bins)-1));
             c = colorbar('ticks', [min(par.r1_bins):0.2:max(par.r1_bins)], 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
             % c = colorbar('ticks', linspace(0,1,ceil(length(par.r1_bins)/2)+1), 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
             ylabel(c, '$R_1$ (unitless)', 'interpreter', 'latex');
@@ -91,7 +92,7 @@ function plot_dtempsi_binned_r1(type, par)
 
             figure(); clf; hold all; box on;
             line([1 1], [0 1], 'color', 'k', 'linewidth', 0.5);
-            cmp = flip(parula(length(par.r1_bins)-1));
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
             for bin = 1:length(par.r1_bins)-1
                 vavg_dev = nanmean(interp1(grid.dim3.si, dta_si_area(bin,:), linspace(si_bl, si_up, 101)));
                 disp(sprintf('For R1 = %g, the vertically integrated lapse rate deviation from MALR is %g%%.', 1/2*(par.r1_bins(bin)+par.r1_bins(bin+1)), vavg_dev))
@@ -132,7 +133,7 @@ function plot_dtempsi_binned_r1(type, par)
             figure(); clf; hold all; box on;
             line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
             line(20*[1 1], [0 1], 'linestyle', '--', 'color', 'k', 'linewidth', 0.5);
-            cmp = flip(parula(length(par.r1_bins)-1));
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
             for bin = 1:length(par.r1_bins)-1
                 vavg_dev = nanmean(interp1(grid.dim3.si, dta_si_area(bin,:), linspace(si_bl, si_up, 101)));
                 disp(sprintf('For R1 = %g, the vertically integrated lapse rate deviation from MALR is %g%%.', 1/2*(par.r1_bins(bin)+par.r1_bins(bin+1)), vavg_dev))
@@ -177,7 +178,7 @@ function plot_dtempsi_binned_r1(type, par)
             [~,idx01]=min(abs(par.r1_bins-0.05));
             figure(); clf; hold all; box on;
             line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
-            cmp = flip(parula(length(par.r1_bins)-1));
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
             for bin = 1:length(par.r1_bins)-1
                 if bin==idx09 | bin==idx01
                     plot(dta_si_area(bin,:), grid.dim3.si, 'k', 'color', cmp(bin,:), 'linewidth', 1.5);
@@ -197,7 +198,7 @@ function plot_dtempsi_binned_r1(type, par)
 
             figure(); clf; hold all; box on;
             axis off
-            cmp = flip(parula(length(par.r1_bins)-1));
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
             c = colorbar('ticks', linspace(0,1,ceil(length(par.r1_bins)/2)+1), 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse', 'location', 'north');
             ylabel(c, '$R_1$ (unitless)', 'interpreter', 'latex');
             set(gcf, 'paperunits', 'inches', 'paperposition', [0 0 18/3 2/3]) 
@@ -205,7 +206,7 @@ function plot_dtempsi_binned_r1(type, par)
             close;
 
             figure(); clf; hold all; box on;
-            cmp = flip(parula(length(par.r1_bins)-1));
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
             for bin = idx09-1:idx09+1
                 plot(dta_si_area(bin,:), grid.dim3.si, 'k', 'color', cmp(bin,:));
             end
@@ -225,7 +226,7 @@ function plot_dtempsi_binned_r1(type, par)
             close;
 
             figure(); clf; hold all; box on;
-            cmp = flip(parula(length(par.r1_bins)-1));
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
             plot(dta_si_area(idx02,:), grid.dim3.si, 'color', cmp(idx02,:));
             % for bin = idx02-1:idx02+1
             %     plot(dta_si_area(bin,:), grid.dim3.si, 'color', cmp(bin,:));
