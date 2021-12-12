@@ -1,14 +1,14 @@
 #!/bin/sh
 
 models=("MPI-ESM-LR")
-# varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
-varnames=("prc")
-sim="rcp85"
+varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
+# varnames=("prc")
+sim="piControl"
 freq="Amon"
 ens="r1i1p1"
-yr_span="200601-230012"
+yr_span="280001-284912"
 
-n_yr="295"
+n_yr="50"
 n_myr_begin="30"
 
 tstep_begin=$((1 + 12 * ($n_yr - $n_myr_begin)))

@@ -3,6 +3,11 @@ def translate_varname(varnames_in, **kwargs):
 
     # key are nonstandard names, value is the standard name
     trans_dict = {
+        # DYNAMICS
+        'divaht': 'divaht',
+        'divse': 'divse',
+        'divte': 'divte',
+
         # RADIATION
         # ECHAM
         'srad0': 'srad0',
@@ -42,6 +47,12 @@ def translate_varname(varnames_in, **kwargs):
         'ta' : 'ta', # CMIP
         't' : 'ta', # ERA
 
+        # SPECIFIC HUMIDITY
+        'hus' : 'hus', # CMIP
+
+        # RELATIVE HUMIDITY
+        'hur' : 'hur', # CMIP
+
         # GEOPOTENTIAL HEIGHT
         'zg' : 'zg', # CMIP
         'z' : 'zg', # ERA
@@ -68,9 +79,24 @@ def translate_varname(varnames_in, **kwargs):
         # PRECIPITATION
         'pr' : 'pr', # CMIP
         
+        # EVAPORATION
+        'evspsbl' : 'evspsbl', # CMIP
+        
         # CONVECTIVE PRECIP
         'prc' : 'prc', # CMIP
         'cp' : 'prc', # ERA
+
+        # PRECIPITABLE WATER
+        'prw' : 'prw', # CMIP
+
+        # total cloud fraction
+        'clt' : 'clt', # CMIP
+
+        # condensed water path
+        'clwvi' : 'clwvi', # CMIP
+
+        # condensed ice path
+        'clivi' : 'clivi', # CMIP
         
         # LARGE-SCALE PRECIP
         'lsp' : 'prl', # ERA
@@ -131,6 +157,9 @@ def translate_varcat(varnames_in, **kwargs):
         'cp' : 'hydro',
         'lsp' : 'hydro',
         'e' : 'hydro',
+
+        # SEA ICE
+        # ERA
     }
 
     # if input is a list of variables, output as list of variables

@@ -4,6 +4,7 @@ sys.path.append('/project2/tas1/miyawaki/projects/003/scripts')
 from misc.translate import translate_varname
 from misc.dirnames import get_datadir
 from misc.filenames import *
+from misc import par
 import numpy as np
 import pickle
 from netCDF4 import Dataset
@@ -34,9 +35,9 @@ def save_r1(sim, **kwargs):
     if sim == 'echam':
         varnames = ['trad0', 'srad0', 'trads', 'srads', 'ahfl', 'ahfs']
     elif sim == 'era5':
-        varnames = ['ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf']
+        varnames = ['ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf', 'cp', 'lsp']
     else:
-        varnames = ['rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss']
+        varnames = ['rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr']
 
     # load all variables required to compute R1
     for varname in varnames:
@@ -56,10 +57,12 @@ def save_r1(sim, **kwargs):
         flux['ra'] = flux['trad0'] + flux['srad0'] - flux['trads'] - flux['srads'] 
         flux['hfls'] = -flux['hfls']
         flux['hfss'] = -flux['hfss']
+        flux['pr'] = flux['prc'] + flux['prl']
     else:
         flux['ra'] = flux['rsdt'] - flux['rsut'] - flux['rlut'] + flux['rsus'] - flux['rsds'] + flux['rlus'] - flux['rlds']
 
     flux['stg_adv'] = flux['ra'] + flux['hfls'] + flux['hfss']
+    flux['stg_adv_dse'] = flux['ra'] + par.Lv*flux['pr'] + flux['hfss']
 
     if zonmean:
         for fluxname in flux:

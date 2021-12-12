@@ -2,10 +2,10 @@
 # set -euo pipefail
 
 sims=("echr0001/")
-varnames=("vmmmc" "vmse" "vmte")
-# varnames=("tend")
+# varnames=("vmmmc" "vmse" "vmte")
+varnames=("mse")
 freq="6h"
-lev="ml"
+lev="pl"
 yr_begin="1030"
 yr_end="1030"
 
@@ -22,7 +22,7 @@ for sim in ${sims[@]}; do
         for yr in $(seq $yr_begin $yr_end); do
             echo ${yr}
 
-            common=${varname}_${freq}_ml_${sim}_${yr}
+            common=${varname}_${freq}_${lev}_${sim}_${yr}
 
             cd ${cwd}/${sim}
 

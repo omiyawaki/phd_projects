@@ -2,7 +2,7 @@ import sys
 sys.path.append('/project2/tas1/miyawaki/projects/003/scripts')
 from misc.dirnames import get_datadir, get_plotdir
 from misc.filenames import filenames_raw
-from misc.translate_varname import translate_varname
+from misc.translate import translate_varname
 from proc.r1 import save_r1
 from plot.titles import make_title_sim_time
 import os
@@ -18,18 +18,23 @@ import tikzplotlib
 # yr_span = '103'
 # varname = 'sic'
 
+sim = 'historical'
+model = 'MPI-ESM-LR'
+yr_span = '186001-200512'
+varname = 'sic'
+
 # sim = 'rcp85'
 # model = 'MPI-ESM-LR'
 # yr_span = '200601-230012'
 # varname = 'sic'
 
-sim = 'echam'
-model = 'rp000140'
-yr_span = '0001_0039'
-varname = 'friac'
+# sim = 'echam'
+# model = 'rp000140'
+# yr_span = '0001_0039'
+# varname = 'friac'
 
 zonmean = '.zonmean' # zonal mean?
-timemean = '.djfmean' # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
+timemean = 'ymonmean-30' # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
 categ = 'mon_lat'
 
 try_load = 0 # try to load data if available; otherwise, compute R1

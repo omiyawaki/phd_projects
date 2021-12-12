@@ -3,7 +3,7 @@
 
 sims=("echr0001/")
 freq="6h"
-lev="ml"
+lev="pl"
 yr_begin="1030"
 mn_begin="01"
 yr_end="1030"
@@ -21,6 +21,7 @@ for sim in ${sims[@]}; do
             echo ${yr}-${mon}
     
             common=${freq}_${lev}_${sim}_${yr}${mon}
+            common_bot=${freq}_${sim}_${yr}${mon}
 
             cd ${cwd}/${sim}
 
@@ -28,11 +29,12 @@ for sim in ${sims[@]}; do
                 echo "tend was already created. Skipping..."
             else
                 full_atm=/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/${sim}/ATM_${common}.nc
+                full_bot=/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/${sim}/BOT_${common_bot}.nc
                 full_mse=${cwd}/${sim}/mse_${common}.nc
                 full_tend=${cwd}/${sim}/tend_${common}.nc
 
-                # srun --partition=tas1 --time=6:00:00 --exclusive --pty python ${cwd}/make_tend.py ${full_atm} ${full_mse} ${full_tend}
-                python ${cwd}/make_tend.py ${full_atm} ${full_mse} ${full_tend}
+                # srun --partition=tas1 --time=6:00:00 --exclusive --pty python ${cwd}/make_tend.py ${full_atm} ${full_bot} ${full_mse} ${full_tend}
+                python ${cwd}/make_tend.py ${full_atm} ${full_bot} ${full_mse} ${full_tend}
             fi
 
         done

@@ -12,15 +12,18 @@ cpd = 1005.7; Rd = 287; Rv = 461; L = 2.501e6; g = 9.81; a = 6357e3; eps = Rd/Rv
 
 # paths to ps and mse files
 path_atm = sys.argv[1]
-path_mse = sys.argv[2]
-path_tend = sys.argv[3]
+path_bot = sys.argv[2]
+path_mse = sys.argv[3]
+path_tend = sys.argv[4]
 
 # open files
 file_atm = Dataset(path_atm, 'r')
+file_bot = Dataset(path_bot, 'r')
 file_mse = Dataset(path_mse, 'r')
 
 # read data
-ps = file_atm.variables['aps'][:] # (time x lat x lon)
+# ps = file_atm.variables['aps'][:] # (time x lat x lon)
+ps = file_bot.variables['aps'][:] # (time x lat x lon)
 mse = file_mse.variables['mse'][:] # (time x lev x lat x lon)
 lat = file_atm.variables['lat'][:] # (lat)
 hyam = file_atm.variables['hyam'][:] # (lev)

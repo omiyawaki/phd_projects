@@ -1,0 +1,105 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{Research notes}
+\date{October 13, 2021}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+My plan for the fall quarter is to work on the following three items in parallel:
+
+\section*{Arctic energy balance regime transitions in response to global warming}
+\begin{itemize}
+    \item Our investigation of the warming response in the second paper provides a good motivation to investigate the projected Arctic energy balance regime changes with warming: i.e., energy balance regimes in the modern climate are not sufficient to understand the vertical structure of the warming response in the Arctic (Fig.~\ref{fig:dtempr-r1-mon-lat}). Rather, we must consider the change in $R_1$.
+    \item Our previous work on the change in Arctic $R_1$ focused on the wintertime transition, but it is now clear that energy balance regimes change in the summer (RAE begins earlier in the summer) and fall (RAE begins to disappear) as well. Thus, it would be fitting to expand our investigation of Arctic regime changes to cover the entire seasonal cycle.
+    \item \cite{payne2015} provide a useful starting point for understanding the seasonality of the vertical structure of the warming response in the Arctic. The warming response in RAE will be amplified in the upper troposphere only if the advective forcing (increase in MSE flux convergence with warming) dominates over the radiative and surface forcing. Indeed, amplified upper tropospheric warming in the Arctic summer corresponds to the time when the decrease in $R_1$ associated with an increase in MSE flux convergence is large (compare red filled contours in Fig.~\ref{fig:dtempr-r1-mon-lat} with blue filled contours in Fig.~\ref{fig:dyn-mon-lat}). The seasonality of upper troposphere amplified warming does not exactly correspond to the seasonality where the dynamic change in $R_1$ is positive. This is expected, because the criteria for upper troposphere amplified warming is not that the dynamic change in $R_1$ is positive, but rather that it dominates over the radiative and surface forcings. Thus, the next step is to quantitatively express this criteria (e.g., the ratio of the dynamic to radiative component of $\Delta R_1$).
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/dflux/mse_old/lo/0_r1z_mon_lat_overlay_alt}.png}
+    \caption{The ratio of the CMIP5 multimodel mean temperature response to increased CO$_2$ in the upper troposphere ($\sigma=0.3$) and the surface ($\sigma=1.0$) are shown as filled contours (contour interval is 0.1) for the CMIP5 multimodel mean. The RCE/RCAE boundary is shown as a thick orange contour and the RAE/RCAE boundary is shown as a thick blue contour (solid for historical, dashed for RCP8.5).}
+    \label{fig:dtempr-r1-mon-lat}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/dflux/mse_old/lo/0_dyn_mon_lat}.png}
+    \caption{The dynamical component of the projected end-of-century change in $R_1$.}
+    \label{fig:dyn-mon-lat}
+\end{figure}
+
+
+\section*{AGU poster: Surface Heat Capacity Controls the Existence of Summertime Radiative Convective Equilibrium in the Midlatitudes}
+
+\begin{itemize}
+    \item I will be giving a poster presentation on the midlatitude energy balance regime transition at this year's AGU meeting.
+    \item Most of the results I will present will be based on the results we show in the resubmitted paper.
+    \item There are two new results that I think would be fitting to include in the poster:
+        \begin{enumerate}
+            \item The discrepancy in the timing of the energy balance regime transition and the warming response is associated with atmospheric energy storage.
+                \begin{itemize}
+                    \item We can demonstrate the influence of atmospheric storage on the seasonality of $R_1$ by using an alternative definition of $R_1=(\partial_y(vm))/R_a$, as in Fig.~4 in our submitted manuscript.
+                    \item When this alternative $R_1$ is used, the timing of the energy balance regime transition agrees well with the warming response (Fig.~\ref{fig:dtempr-r1-alt-mon-lat}). The caveat is that a different threshold for RCE must be used ($R_1^*=\epsilon=0.3$).
+                \end{itemize}
+            \item The summertime RCE regime transition occurs over land. The seasonality of $R_1$ over the ocean opposes that over land.
+                \begin{itemize}
+                    \item We decompose the seasonality of $R_1$ into the contribution over land and over ocean (each component is weighted by the land and ocean area fraction). The summertime RCE regime transition is clearly a signal that occurs over land (green line in Fig.~\ref{fig:lo-decomp}). The contribution over the ocean (blue line in Fig.~\ref{fig:lo-decomp}) opposes that over land.
+                    \item The seasonality of $R_1$ over land closely resembles that in the 5~m AQUA simulation (compare solid and dashed green lines in Fig.~\ref{fig:land-aqua}). However, there is a one month phase shift (the 5~m AQUA lags the seasonality in the MPI-ESM-LR GCM).
+                    \item The seasonality of $R_1$ over the ocean cannot be captured by a slab ocean aquaplanet. Two mechanisms not represented in the aquaplanet come to mind: 1) zonal atmospheric heat transport and 2) ocean heat transport. I hypothesize that 1) leads to a wintertime (summertime) zonal MSE flux divergence (convergence) in the atmosphere over the ocean, which is consistent with a wintertime (summertime) decrease (increase) in $R_1$ (this is consistent with the blue line in Fig.~\ref{fig:lo-decomp}). The role of 2) may be more minor, but I hypothesize that it enhances the effect of 1), especially along the western boundary current during winter, when the atmosphere is strongly heated from the warm SST.
+                \end{itemize}
+        \end{enumerate}
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/dflux/mse/lo/0_r1z_mon_lat_overlay_alt}.png}
+    \caption{Same as Fig.~\ref{fig:dtempr-r1-mon-lat} but the contour lines of the RCE (thick orange contour) and RAE (thick blue contour) boundary are drawn according to the alternative definition of $R_1^*=\partial_y(vm)/R_a$. Note that the threshold of RCE has been modified to $R_1^*=\epsilon=0.3$.}
+    \label{fig:dtempr-r1-alt-mon-lat}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/gcm/MPI-ESM-LR/historical/198001-200512/native/r1_lo/r1_mon_mid}.png}
+    \caption{Seasonality of midlatitude ($40^\circ$--$60^\circ$) $R_1$ (solid black) decomposed into the seasonality over land (green), ocean (blue), and the residual (dash-dot black).}
+    \label{fig:lo-decomp}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/gcm/MPI-ESM-LR/historical/198001-200512/native/r1_lo/r1_mon_mid_landcomp_aqua}.png}
+    \caption{Seasonality of midlatitude ($40^\circ$--$60^\circ$) $R_1$ over land (solid green) compared to the 5~m AQUA simulation without sea ice (dashed green).}
+    \label{fig:land-aqua}
+\end{figure}
+
+\section*{Postdoc project idea: Are tropical RCE theories useful for understanding the response of the summertime Northern Hemisphere midlatitudes to global warming?}
+
+\begin{itemize}
+    \item Our understanding of the response of tropical precipitation, clouds, and circulation to global warming are based on models that assume RCE \citep{romps2011,popke2013,pendergrass2016,merlis2019}.
+    \item RCE as defined by $R_1$ suggests that the Northern Hemisphere midlatitudes during summertime exhibits the same energy balance regime as the tropics.
+    \item This raises the question, how well do explanations of the global warming response developed under the assumption of RCE for the tropics apply for the NH midlatitudes during summertime?
+    \item Midlatitude and tropical convection are known to be different \citep{xu2000}:
+        \begin{itemize}
+            \item moisture content of the atmosphere (tropics is wetter)
+            \item vertical shear (strong upper level shear in midlatitudes)
+            \item depth of the subcloud layer (deeper in the midlatitudes and varies through the diurnal cycle)
+            \item convective instability/inhibition (stronger inhibition in the midlatitudes leads to stronger instability, larger build up of CAPE) 
+            \item strength of temperature and moisture advection (larger in the midlatitudes)
+        \end{itemize}
+    \item The above differences arise from two key differences in tropical vs midlatitude convection: 1) surface boundary condition (maritime convection in tropics vs continental convection in midlatitudes) and 2) Rossby radius of deformation (larger in the tropics). The latter is important for the weak temperature gradient approximation, which has been shown to be satisfied in the tropics \citep{pierrehumbert1995}.
+    \item While midlatitude and tropical convection are known to be different on subdaily timescales \citep[e.g., in the context of parameterizing convection in GCMs][]{zhang2002, xie2002, zhang2003}, it is not clear at what spatio-temporal scale the differences begin to break down. For example, \cite{stone1979} show that for zonal and seasonal scales, the NH midlatitude temperature profile is in the moist adiabatic regime, consistent with RCE. 
+    \item Thus, the goal of the proposed project is to first identify the spatio-temporal scales that satisfy RCE in the NH midlatitudes following \cite{jakob2019}. 
+    \item Second, we will investigate the mechanism that is responsible for the difference between RCE in the tropics vs midlatitudes. A diagnostic analysis may be performed for investigating the role of the surface boundary condition by comparing regions of tropical RCE over land (e.g., Africa and South America) and the midlatitudes. This analysis can be complemented by designing climate model experiments where the surface boundary is modified (e.g., varying the surface wetness parameter as in \cite{cronin2019} and \cite{fan2021}) in GCMs and CRMs.
+    \item The outcome of this work is a better understanding of the applicability of RCE in the NH midlatitude summer. For the small spatial and temporal scales in which midlatitude RCE differs from tropical RCE, we aim to identify the simplest model configuration that can be used to study the NH midlatitudes during summer.
+\end{itemize}
+
+\bibliographystyle{apalike}
+\bibliography{./references.bib}
+
+\end{document}

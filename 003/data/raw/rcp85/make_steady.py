@@ -56,6 +56,13 @@ ps_za = np.mean(ps, axis=(0,2))
 
 ps_a_tile = np.tile(ps_a, [ps.shape[0], 1, 1])
 
+# remove subsurface data
+pa = np.transpose(np.tile(plev, [ps.shape[0], ps.shape[1], ps.shape[2], 1]), [0,3,1,2])
+subsurf = pa > np.transpose(np.tile(ps, [len(plev),1,1,1]),[1,0,2,3])
+
+va[subsurf] = np.nan
+mse[subsurf] = np.nan
+
 # take zonal mean
 va_z = np.nanmean(va, axis=3)
 vas_z = np.nanmean(vas, axis=2)
@@ -65,8 +72,8 @@ mses_z = np.nanmean(mses, axis=2)
 # compute stationary eddy transport
 vms_mmc = vas_z * mses_z
 vm_mmc = va_z * mse_z
-vms_se = np.squeeze(np.mean((vas - vas_z[...,np.newaxis]) * (mses - mses_z[...,np.newaxis]), axis=2))
-vm_se = np.squeeze(np.mean((va - va_z[...,np.newaxis]) * (mse - mse_z[...,np.newaxis]), axis=3))
+vms_se = np.squeeze(np.nanmean((vas - vas_z[...,np.newaxis]) * (mses - mses_z[...,np.newaxis]), axis=2))
+vm_se = np.squeeze(np.nanmean((va - va_z[...,np.newaxis]) * (mse - mse_z[...,np.newaxis]), axis=3))
 
 # take meridional derivative
 rlat = np.radians(lat3d)

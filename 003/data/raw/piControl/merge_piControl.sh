@@ -3,9 +3,10 @@ set -euo pipefail
 
 # declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
-declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "tas" "ta" "zg" "ts" "hus" "huss") # list of GCM variables that we want to process
-# declare -a vars_gcm=("vas") # list of GCM variables that we want to process
+# declare -a vars_gcm=("va" "vas" "ta" "tas" "hus" "zg") # list of GCM variables that we want to process
+declare -a vars_gcm=("ta" "tas" "hus" "zg") # list of GCM variables that we want to process
 # declare -a vars_gcm=("prc") # list of GCM variables that we want to process
 declare -a realm=("atmos")
 declare -a clim="piControl" # climate name
@@ -27,7 +28,7 @@ declare -a skip_models="CESM1-WACCM/ CanAM4/ CanCM4/ CESM1-CAM5-1-FV2/ CNRM-CM5-
 # declare -a skip_models="bcc-csm1-1/ bcc-csm1-1-m/ CCSM4/ CESM1-BGC/ CESM1-WACCM/ FGOALS-g2/ NorESM1-M/ NorESM1-ME/ CanAM4/ CanCM4/ CMCC-CMS/ CESM1-CAM5-1-FV2/ EC-EARTH/ FIO-ESM/ HadGEM2-A/ HadGEM2-AO/ GFDL-HIRAM-C180/ GFDL-HIRAM-C360/ MRI-AGCM3-2H/ MRI-AGCM3-2S/ NICAM-09/"
 
 cwd=$(pwd) # save current working directory
-cd /project2/tas1/ockham/data9/tas/CMIP5_RAW # switch to directory with raw data
+cd /project2/tas1/ockham/data14/tas/CMIP5_RAW # switch to directory with raw data
 rwd=$(pwd) # save raw data directory
 
 # for dirs in */; do # loop through all the models

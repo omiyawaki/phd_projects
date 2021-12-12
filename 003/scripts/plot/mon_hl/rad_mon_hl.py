@@ -159,38 +159,9 @@ def rad_mon_hl(sim, **kwargs):
     plotname = remove_repdots('%s/radcs_lwsw_dev_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean))
     fig, ax = plt.subplots()
     ax.axhline(0, color='k', linewidth=0.5)
-    lp_ra = ax.plot(time, rad_dev_hl['ra'], color='tab:gray', label='$\Delta R_a$')
-    lp_ra_lw = ax.plot(time, rad_dev_hl['lw'], color='tab:green', label='$\Delta R_a$')
-    lp_ra_sw = ax.plot(time, rad_dev_hl['sw'], color='yellow', label='$\Delta R_a$')
-    make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
-    ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
-    if 'ymonmean' in timemean:
-        ax.set_xticks(np.arange(0,12,1))
-        ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
-    else:
-        ax.set_xlabel('Time (yr)')
-    ax.set_ylabel('$\Delta$ Energy flux (Wm$^{-2}$)')
-    ax.xaxis.set_minor_locator(MultipleLocator(10))
-    ax.yaxis.set_minor_locator(AutoMinorLocator())
-    ax.set_xlim(yr_base,yr_base+rad_dev_hl['ra'].shape[0]-1)
-    ax.set_ylim(vmin_dev,vmax_dev)
-    if legend:
-        ax.legend()
-    plt.tight_layout()
-    plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
-    if viewplt:
-        plt.show()
-    plt.close()
-
-    ############################################
-    # PLOT (SW/LW DECOMP OF CLEAR SKY RAD, DEVIATION FROM INITIAL)
-    ############################################
-    plotname = remove_repdots('%s/radcs_lwsw_dev_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean))
-    fig, ax = plt.subplots()
-    ax.axhline(0, color='k', linewidth=0.5)
-    lp_ra_cs = ax.plot(time, rad_dev_hl['ra_cs'], '--', color='tab:gray', label='$\Delta R_a$')
-    lp_ra_cs_lw = ax.plot(time, rad_dev_hl['lw_cs'], '--', color='tab:green', label='$\Delta R_a$')
-    lp_ra_cs_sw = ax.plot(time, rad_dev_hl['sw_cs'], '--', color='yellow', label='$\Delta R_a$')
+    lp_ra = ax.plot(time, rad_dev_hl['ra'], '-', color='tab:gray', label='$\Delta R_a$')
+    lp_ra_lw = ax.plot(time, rad_dev_hl['lw'], '-', color='tab:green', label='$\Delta LW$')
+    lp_ra_sw = ax.plot(time, rad_dev_hl['sw'], '-', color='yellow', label='$\Delta SW$')
     make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:
@@ -218,7 +189,8 @@ def rad_mon_hl(sim, **kwargs):
     fig, ax = plt.subplots()
     ax.axhline(0, color='k', linewidth=0.5)
     lp_ra = ax.plot(time, rad_dev_hl['ra'], '-', color='tab:gray', label='$\Delta R_a$')
-    lp_ra_cs_lw = ax.plot(time, rad_dev_hl['lw_cs'], '--', color='tab:green', label='$\Delta \mathrm{LW}_{cs}$')
+    lp_ra_cld_lw = ax.plot(time, rad_dev_hl['lw'] - rad_dev_hl['lw_cs'], ':', color='tab:green', label='$\Delta \mathrm{LW}_{cloud}$')
+    lp_ra_cs_lw = ax.plot(time, rad_dev_hl['lw_cs'], '--', color='tab:green', label='$\Delta \mathrm{LW}_{clear}$')
     make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:

@@ -150,7 +150,7 @@ def make_ga_dev(sim, **kwargs):
             # compute lapse rate
             ga = make_ga(sim, ga_indata, model=model, vertcoord=vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
 
-            pickle.dump(ga, open(remove_repdots('%s/ga.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'))
+            pickle.dump(ga, open(remove_repdots('%s/ga.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'), protocol=4)
 
             ga_indata = None
 
@@ -238,6 +238,19 @@ def make_ga_m(sim, ga_m_indata, **kwargs):
     ps = ga_m_indata['ps']['ps']
     si = ga_m_indata['ta']['grid']['lev']
 
+    # interpolate 2d data to 3d grid if not the same
+    print(ps.shape)
+    lat3d = ga_m['grid']['lat']
+    lat2d = ga_m_indata['ps']['grid']['lat']
+    # fill mask with nans
+    lat3d = lat3d.filled(np.nan)
+    lat2d = lat2d.filled(np.nan)
+    ps = ps.filled(np.nan)
+    if not np.array_equal(lat2d,lat3d):
+        f_ps = interpolate.interp1d(lat2d, ps, axis=1, fill_value='extrapolate')
+        ps = f_ps(lat3d)
+    print(ps.shape)
+
     ps3d = np.tile(ps, (si.size,1,1,1))
     ps3d = np.transpose(ps3d,(1,0,2,3))
     si3d = np.tile(si, (ta.shape[0],ta.shape[2],ta.shape[3],1))
@@ -297,7 +310,8 @@ def make_ga(sim, ga_indata, **kwargs):
 
     end_time(t0)
 
-    pickle.dump(ga, open(remove_repdots('%s/ga.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'))
+    pickle.dump(ga, open(remove_repdots('%s/ga.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'), protocol=4)
+# note on above: protocol=4 is necessary to save large pickled files
 
     return ga
 

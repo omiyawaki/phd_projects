@@ -8,8 +8,12 @@ from misc.means import *
 from misc import par
 from proc.r1 import save_r1
 from proc.rad import save_rad
+from proc.dyn import save_dyn
 from proc.hydro import save_hydro
+from proc.cl_in import save_cl_in
 from proc.co2 import save_co2
+from proc.seaice import save_seaice
+from proc.ga import make_ga_dev_vint
 import pickle
 
 def load_var(sim, varname, **kwargs):
@@ -243,6 +247,71 @@ def load_flux(sim, categ, **kwargs):
         
         return flux, grid, datadir, plotdir, modelstr, flux_mmm
 
+def load_cl_in(sim, categ, **kwargs):
+
+    zonmean = kwargs.get('zonmean', 'zonmean') # zonal mean?
+    timemean = kwargs.get('timemean', '') # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
+    domain = kwargs.get('domain', '')
+    try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
+    viewplt = kwargs.get('viewplt', 0) # view plot? (plt.show)
+    model = kwargs.get('model')
+    yr_span = kwargs.get('yr_span')
+
+    if isinstance(model, str): # single model
+        modelstr = model
+
+        # load data and plot directories
+        datadir = get_datadir(sim, model=model, yr_span=yr_span)
+        plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
+
+        # location of pickled R1 data
+        cl_in_file = remove_repdots('%s/cl_in.%s.%s.pickle' % (datadir, zonmean, timemean))
+
+        if not (os.path.isfile(cl_in_file) and try_load):
+            save_cl_in(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
+
+        [cl_in, grid] = pickle.load(open(cl_in_file, 'rb'))
+
+        return cl_in, grid, datadir, plotdir, modelstr
+
+    else: # multi-model mean
+        modellist = model
+        model = 'mmm'
+        modelstr = 'CMIP5 mean'
+        plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
+
+        grid0 = {}
+        grid0['lon'] = par.lon360
+        grid0['lat'] = par.lat180
+        grid0['lev'] = par.p50
+        grid = kwargs.get('gridstd', grid0)
+
+        cl_inlist = [ [] for _ in range(len(modellist)) ]
+        gridlist = [ [] for _ in range(len(modellist)) ]
+        for i in range(len(modellist)):
+            modelname = modellist[i]
+            # load data and plot directories
+            datadir = get_datadir(sim, model=modelname, yr_span=yr_span)
+
+            # location of pickled R1 data
+            cl_in_file = remove_repdots('%s/cl_in.%s.%s.pickle' % (datadir, zonmean, timemean))
+
+            if not (os.path.isfile(cl_in_file) and try_load):
+                save_cl_in(sim, model=modelname, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
+
+            [cl_inlist[i], gridlist[i]] = pickle.load(open(cl_in_file, 'rb'))
+        
+        cl_in_mmm = {}
+        cl_in = {}
+        for varname in cl_inlist[0]:
+            varnamelist = [ [] for _ in range(len(modellist)) ]
+            for i in range(len(modellist)):
+                varnamelist[i] = cl_inlist[i][varname]
+            cl_in_mmm[varname] = mmm_mon_lat_lev(varnamelist, gridlist, grid)
+            cl_in[varname] = cl_in_mmm[varname]['mmm']
+        
+        return cl_in, grid, datadir, plotdir, modelstr, cl_in_mmm
+
 def load_rad(sim, categ, **kwargs):
 
     zonmean = kwargs.get('zonmean', 'zonmean') # zonal mean?
@@ -425,4 +494,197 @@ def load_co2(sim, categ, **kwargs):
             co2[varname] = co2_mmm[varname]['mmm']
         
         return co2, datadir, plotdir, modelstr, co2_mmm
+    
+def load_seaice(sim, categ, **kwargs):
+
+    zonmean = kwargs.get('zonmean', 'zonmean') # zonal mean?
+    timemean = kwargs.get('timemean', '') # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
+    domain = kwargs.get('domain', '')
+    try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
+    viewplt = kwargs.get('viewplt', 0) # view plot? (plt.show)
+    model = kwargs.get('model')
+    yr_span = kwargs.get('yr_span')
+
+    if isinstance(model, str) or model is None: # single model
+        modelstr = model
+
+        # load data and plot directories
+        datadir = get_datadir(sim, model=model, yr_span=yr_span)
+        plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
+
+        # location of pickled R1 data
+        seaice_file = remove_repdots('%s/seaice.%s.%s.pickle' % (datadir, zonmean, timemean))
+
+        if not (os.path.isfile(seaice_file) and try_load):
+            save_seaice(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
+
+        [seaice, grid] = pickle.load(open(seaice_file, 'rb'))
+
+        return seaice, grid, datadir, plotdir, modelstr
+
+    else: # multi-model mean
+        modellist = model
+        model = 'mmm'
+        modelstr = 'CMIP5 mean'
+        plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
+
+        grid0 = {}
+        grid0['lon'] = par.lon360
+        grid0['lat'] = par.lat180
+        grid = kwargs.get('gridstd', grid0)
+
+        seaicelist = [ [] for _ in range(len(modellist)) ]
+        gridlist = [ [] for _ in range(len(modellist)) ]
+        for i in range(len(modellist)):
+            modelname = modellist[i]
+            # load data and plot directories
+            datadir = get_datadir(sim, model=modelname, yr_span=yr_span)
+
+            # location of pickled R1 data
+            seaice_file = remove_repdots('%s/seaice.%s.%s.pickle' % (datadir, zonmean, timemean))
+
+            if not (os.path.isfile(seaice_file) and try_load):
+                save_seaice(sim, model=modelname, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
+
+            [seaicelist[i], gridlist[i]] = pickle.load(open(seaice_file, 'rb'))
+        
+        seaice_mmm = {}
+        seaice = {}
+        for varname in seaicelist[0]:
+            varnamelist = [ [] for _ in range(len(modellist)) ]
+            for i in range(len(modellist)):
+                filledvar = seaicelist[i][varname].filled(0)
+                varnamelist[i] = filledvar
+            seaice_mmm[varname] = mmm_mon_lat(varnamelist, gridlist, grid)
+            seaice[varname] = seaice_mmm[varname]['mmm']
+        
+        return seaice, grid, datadir, plotdir, modelstr, seaice_mmm
+
+def load_dyn(sim, categ, **kwargs):
+
+    zonmean = kwargs.get('zonmean', 'zonmean') # zonal mean?
+    timemean = kwargs.get('timemean', '') # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
+    domain = kwargs.get('domain', '')
+    try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
+    viewplt = kwargs.get('viewplt', 0) # view plot? (plt.show)
+    model = kwargs.get('model')
+    yr_span = kwargs.get('yr_span')
+
+    if isinstance(model, str) or model is None: # single model
+        modelstr = model
+
+        # load data and plot directories
+        datadir = get_datadir(sim, model=model, yr_span=yr_span)
+        plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
+
+        # location of pickled R1 data
+        dyn_file = remove_repdots('%s/dyn.%s.%s.pickle' % (datadir, zonmean, timemean))
+
+        if not (os.path.isfile(dyn_file) and try_load):
+            save_dyn(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
+
+        [dyn, grid] = pickle.load(open(dyn_file, 'rb'))
+
+        return dyn, grid, datadir, plotdir, modelstr
+
+    else: # multi-model mean
+        modellist = model
+        model = 'mmm'
+        modelstr = 'CMIP5 mean'
+        plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
+
+        grid0 = {}
+        grid0['lat'] = par.lat180
+        grid = kwargs.get('gridstd', grid0)
+
+        dynlist = [ [] for _ in range(len(modellist)) ]
+        gridlist = [ [] for _ in range(len(modellist)) ]
+        for i in range(len(modellist)):
+            modelname = modellist[i]
+            # load data and plot directories
+            datadir = get_datadir(sim, model=modelname, yr_span=yr_span)
+
+            # location of pickled R1 data
+            dyn_file = remove_repdots('%s/dyn.%s.%s.pickle' % (datadir, zonmean, timemean))
+
+            if not (os.path.isfile(dyn_file) and try_load):
+                save_dyn(sim, model=modelname, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
+
+            [dynlist[i], gridlist[i]] = pickle.load(open(dyn_file, 'rb'))
+        
+        dyn_mmm = {}
+        dyn = {}
+        for varname in dynlist[0]:
+            varnamelist = [ [] for _ in range(len(modellist)) ]
+            for i in range(len(modellist)):
+                varnamelist[i] = dynlist[i][varname]
+            dyn_mmm[varname] = mmm_mon_lat(varnamelist, gridlist, grid)
+            dyn[varname] = dyn_mmm[varname]['mmm']
+        
+        return dyn, grid, datadir, plotdir, modelstr, dyn_mmm
+    
+def load_ga(sim, categ, vertbnd, vertcoord, **kwargs):
+
+    zonmean = kwargs.get('zonmean', 'zonmean') # zonal mean?
+    timemean = kwargs.get('timemean', '') # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
+    domain = kwargs.get('domain', '')
+    try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
+    viewplt = kwargs.get('viewplt', 0) # view plot? (plt.show)
+    model = kwargs.get('model')
+    yr_span = kwargs.get('yr_span')
+
+    if isinstance(model, str) or model is None: # single model
+        modelstr = model
+
+        # load data and plot directories
+        datadir = get_datadir(sim, model=model, yr_span=yr_span)
+        plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
+
+        # location of pickled R1 data
+        ga_file = remove_repdots('%s/ga_dev_vint.%g.%g.%s.%s.%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean))
+
+        if not (os.path.isfile(ga_file) and try_load):
+            make_ga_dev_vint(sim, vertbnd, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
+
+        [ga, grid] = pickle.load(open(ga_file, 'rb'))
+
+        return ga, grid, datadir, plotdir, modelstr
+
+    else: # multi-model mean
+        modellist = model
+        model = 'mmm'
+        modelstr = 'CMIP5 mean'
+        plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
+
+        grid0 = {}
+        grid0['lat'] = par.lat180
+        grid0['lon'] = par.lon360
+        grid = kwargs.get('gridstd', grid0)
+
+        galist = [ [] for _ in range(len(modellist)) ]
+        for i in range(len(modellist)):
+            modelname = modellist[i]
+            # load data and plot directories
+            datadir = get_datadir(sim, model=modelname, yr_span=yr_span)
+
+            # location of pickled R1 data
+            ga_file = remove_repdots('%s/ga_dev_vint.%g.%g.%s.%s.%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean))
+
+            if not (os.path.isfile(ga_file) and try_load):
+                make_ga_dev_vint(sim, vertbnd, model=modelname, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
+
+            galist[i] = pickle.load(open(ga_file, 'rb'))
+        
+        ga_mmm = {}
+        ga = {}
+        varnamelist = [ [] for _ in range(len(modellist)) ]
+        gridlist = [ [] for _ in range(len(modellist)) ]
+        for i in range(len(modellist)):
+            varnamelist[i] = np.nanmean(galist[i]['ga_dev_vint'],2)
+            gridlist[i] = galist[i]['grid']
+        ga_mmm['ga_dev_vint'] = mmm_mon_lat(varnamelist, gridlist, grid)
+        ga['ga_dev_vint'] = ga_mmm['ga_dev_vint']['mmm']
+        ga['grid'] = grid
+        
+        return ga, grid, datadir, plotdir, modelstr, ga_mmm
     

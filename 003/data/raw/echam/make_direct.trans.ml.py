@@ -79,7 +79,8 @@ mse_zdt = mse_zt - mse_z
 vm_toc = np.nanmean(va_zdt * mse_zdt, axis=(0))
 
 # combine TOC with TE
-vm_te = vm_te + vm_toc
+# vm_te = vm_te + vm_toc
+vm_te = vm_te
 
 rlat = np.radians(lat)
 clat = np.cos(rlat)

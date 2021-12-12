@@ -1,0 +1,134 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{Outline: The trajectory toward the emergence of a new hydrological cycle regime in the Arctic}
+\date{November 3, 2021}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+\section*{Introduction}
+\begin{itemize}
+    \item The Arctic is expected to undergo large and rapid changes associated with sea ice melt in response to anthropogenic increases in CO$_2$ \citep{dai2019, feldl2020}.
+    \begin{itemize}
+        \item Largest surface warming is projected in the Arctic \citep[Arctic Amplification, e.g.][]{manabe1975, held1993a}, especially during wintertime \citep{lu2009}
+        \item Large fractional increase in precipitation \citep{bintanja2014,siler2018,pithan2021}
+    \end{itemize}
+
+\item While the literature on Arctic Amplification of the surface temperature response is extensive, the amplification of the precipitation response in the Arctic has received less attention. 
+\item The Arctic precipitation response has until recently been investigated through the moisture budget \citep{bintanja2014,siler2018}. Increased wintertime precipitation has been shown to be of local (enhanced evaporation) rather than remote (enhanced moisture flux convergence) origin \citep[see Fig.~2b in][]{bintanja2014}, where the increase in wintertime evaporation is associated with sea ice loss.
+\item Recently, \cite{pithan2021} proposed an alternative perspective on the Arctic precipitation response based on the dry static energy budget. They find that wintertime precipitation in the Arctic is contrained by the sensitivity of radiative cooling to warming \cite[see Fig.~2b in][]{pithan2021}. This is similar to the argument that constrains the global-mean precipiation sensitivity to $\approx2$~\%~K$^{-1}$.
+\item While wintertime Arctic precipitation indeed closely follows radiative cooling up to the end of the century (compare blue and gray lines in Fig.~\ref{fig:pj21-dse}), the radiative cooling constraint breaks down thereafter.
+\item Here, we seek to:
+    \begin{enumerate}
+        \item understand what sets the sensitivity of radiative cooling to warming
+        \item identify why the precipitation increase is not constrained by radiative cooling beyond year 2100 
+    \end{enumerate}
+
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% change in P from the DSE budget perspective
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/flux_dse_prpers_pj21_dev_mon_hl.80.90.djfmean}.pdf}
+    \caption{The evolution of wintertime (DJF) DSE energy fluxes in the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+    \label{fig:pj21-dse}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{What controls the sensitivity of radiative cooling to warming?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+    \item In MPI-ESM-LR, the stronger radiative cooling is predominantly associated with clear-sky longwave cooling, suggesting that enhanced optical thickness from increased CO$_2$ and/or water vapor dominants the $R_a$ response (Fig.~\ref{fig:ra-lwcs}).
+    \item Thus, a simple single column model (e.g., Climlab) may be useful for understanding the sensitivity of the radiative cooling rate to warming. 
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/rad_lwcs_dev_mon_hl.80.90.djfmean}.pdf}
+    \caption{The wintertime (DJF) radiative cooling (gray) and the clear-sky longwave radiative cooling component (green) for the extended RCP8.5 run of MPI-ESM-LR.}
+    \label{fig:ra-lwcs}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Is the breakdown of the radiative cooling constraint associated with the wintertime Arctic energy balance regime transition?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+    \item The timing of when the radiative constraint breaks down is closely related to when wintertime convective precipitation begins to emerge in the Arctic (Fig.~\ref{fig:pr}).
+    \item The emergence of convection in the Arctic thus appears to play an important role on the breakdown of the radiative cooling constraint on the hydrological sensitivity.
+    \item While the DSE budget is useful for understanding how total precipitation is energetically in balance with DSE storage, advection, radiative cooling, and sensible heating, it is unclear how the DSE framework can separate the contributions of precipitation due to convective and large-scale motions.
+    \item Energy balance regimes defined using the MSE budget, on the other hand, has been shown to be useful for identifying where the lapse rate is convectively adjusted.
+    \item The fraction of convective precipitation is a monotonic and linear function of energy balance regimes as defined by $R_1$ in the current climatology (Fig.~\ref{fig:r1-prfrac-clim}). Thus, $R_1$ is also a useful metric for understanding the change in fraction of convective precipitation.
+    \item The increase in the fraction of convective precipitation in the Arctic closely follows the change in $R_1$ (Fig.~\ref{fig:r1-prfrac}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Transient evolution of precipitation decomposed into large scale and convective
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/pr_mon_hl.80.90.djfmean}.pdf}
+    \caption{The evolution of wintertime (DJF) total (black), convective (orange), and large-scale (blue) precipitation in the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+    \label{fig:pr}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% R1 and precipitation fraction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/historical/mmm/186001-200512/bin_r1/prfrac.dist.ymonmean-30}.pdf}
+    \caption{The zonal mean convective precipitation fraction binned by $R_1$ (bin widths are 0.1) in the CMIP5 multimodel mean of the historical run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+    \label{fig:r1-prfrac-clim}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% R1 and precipitation fraction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.prfrac}.pdf}
+    \caption{The evolution of wintertime (DJF) $R_1$ (black, left axis) and precipitation fraction (blue, right axis) in the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+    \label{fig:r1-prfrac}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Energy balance regime transition
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.9\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean}.pdf}
+%    \caption{The evolution of wintertime (DJF) $R_1$ in the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+%    \label{fig:r1}
+%\end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.allseas}.pdf}
+%     \caption{The fall (SON), winter (DJF), spring (MAM), and summer (JJA) evolution of the 20-year rolling average of $R_1$ for the extended RCP8.5 run in MPI-ESM-LR.}
+%     \label{fig:r1-mon-hl-allseas}
+% \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% R1 and sea ice
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.9\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.sic}.pdf}
+%    \caption{The evolution of wintertime (DJF) $R_1$ (black, left axis) and the sea ice area fraction (blue, right axis) in the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+%    \label{fig:r1-sice}
+%\end{figure}
+
+
+\end{itemize}
+
+\bibliographystyle{apalike}
+\bibliography{../../../002/draft/references.bib}
+
+\end{document}

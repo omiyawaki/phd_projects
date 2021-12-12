@@ -33,11 +33,16 @@ def save_hydro(sim, **kwargs):
 
     # variable names
     if sim == 'echam':
-        varnames = ['thydro0', 'shydro0', 'thydros', 'shydros', 'ahfl', 'ahfs']
+        print('todo: fix variable names')
+        # fix variable names below
+        # varnames = ['thydro0', 'shydro0', 'thydros', 'shydros', 'ahfl', 'ahfs']
     elif sim == 'era5':
         varnames = ['cp', 'lsp', 'e']
     else:
-        varnames = ['pr', 'prc', 'evspsbl']
+        # varnames = ['pr', 'prc']
+        # varnames = ['pr', 'prc', 'evspsbl']
+        varnames = ['pr', 'prc', 'clwvi', 'clivi']
+        # varnames = ['pr', 'prc', 'evspsbl', 'prw']
 
     # load all variables
     for varname in varnames:
@@ -50,18 +55,24 @@ def save_hydro(sim, **kwargs):
             loaded_grid = 1
 
         hydro[translate_varname(varname)] = np.squeeze(file[varname].variables[varname][:])
-        if sim == 'era5': # convert m accumulated over a day to mm/d
-            hydro[translate_varname(varname)] = hydro[translate_varname(varname)]*1e3
-        else: # convert kg m**-2 s**-1 to mm/d
-            hydro[translate_varname(varname)] = hydro[translate_varname(varname)]/86400
+        if ( ('pr' in translate_varname(varname)) or (translate_varname(varname) == 'evspsbl') ) and not (translate_varname(varname) == 'prw'):
+            if sim == 'era5': # convert m accumulated over a day to mm/d
+                hydro[translate_varname(varname)] = hydro[translate_varname(varname)]*1e3
+            else: # convert kg m**-2 s**-1 to mm/d
+                hydro[translate_varname(varname)] = hydro[translate_varname(varname)]*86400
 
     if sim == 'era5':
         hydro['pr'] = hydro['prc'] + hydro['prl']
     else:
         hydro['prl'] = hydro['pr'] - hydro['prc']
 
+    # define convective precipitation fraction
+    hydro['prfrac'] = hydro['prc'] / hydro['pr']
+    if (hydro['prfrac'] > 1).any():
+        hydro['prfrac'][hydro['prfrac'] > 1] = np.nan
+
     if zonmean:
         for hydroname in hydro:
-            hydro[hydroname] = np.mean(hydro[hydroname], 2)
+            hydro[hydroname] = np.nanmean(hydro[hydroname], 2)
     
     pickle.dump([hydro, grid], open(remove_repdots('%s/hydro.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))

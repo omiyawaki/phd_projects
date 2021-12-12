@@ -1,0 +1,33 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\usepackage{cmbright}
+
+\begin{document}
+
+\begin{figure}
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % fall, winter, and spring
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \begin{subfigure}[t]{0.03\textwidth}
+    \textbf{\small{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.90\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/historical/mmm/186001-200512/bin_r1/prfrac.scat.0.90.ymonmean-30}.pdf}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.03\textwidth}
+    \textbf{\small{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.90\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/historical/mmm/186001-200512/bin_r1/prfrac.scat.80.90.ymonmean-30}.pdf}
+  \end{subfigure}
+
+\end{figure}
+
+\end{document}

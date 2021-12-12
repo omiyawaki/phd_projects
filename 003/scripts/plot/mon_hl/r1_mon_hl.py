@@ -34,7 +34,8 @@ def r1_mon_hl(sim, **kwargs):
     legend = kwargs.get('legend', 0)
     if plotover == 'ga_dev':
         vertcoord = kwargs.get('vertcoord', 'si') # vertical coordinate (si for sigma, pa for pressure, z for height)
-        vertbnd = kwargs.get('vertbnd', (0.7, 0.3)) # sigma bounds of vertical integral
+        # vertbnd = kwargs.get('vertbnd', (0.7, 0.3)) # sigma bounds of vertical integral
+        vertbnd = kwargs.get('vertbnd', (1.0, 0.9)) # sigma bounds of vertical integral
 
     lat_int = np.arange(latbnd[0], latbnd[1], latstep)
 
@@ -77,11 +78,47 @@ def r1_mon_hl(sim, **kwargs):
     # LOAD DATA
     ##################################
     if isinstance(model, str) or model is None:
-        [r1, grid, datadir, plotdir, modelstr] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
+        if timemean == 'allseas':
+            djf = {}; mam = {}; jja = {}; son = {};
+            [djf_r1, djf_grid, djf_datadir, plotdir, modelstr] = load_r1(sim, categ, zonmean=zonmean, timemean='djfmean', try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
+            [mam_r1, mam_grid, mam_datadir, plotdir, modelstr] = load_r1(sim, categ, zonmean=zonmean, timemean='mammean', try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
+            [jja_r1, jja_grid, jja_datadir, plotdir, modelstr] = load_r1(sim, categ, zonmean=zonmean, timemean='jjamean', try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
+            [son_r1, son_grid, son_datadir, plotdir, modelstr] = load_r1(sim, categ, zonmean=zonmean, timemean='sonmean', try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
+        else:
+            [r1, grid, datadir, plotdir, modelstr] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
     else:
-        [r1, grid, datadir, plotdir, modelstr, r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
+        if timemean == 'allseas':
+            djf = {}; mam = {}; jja = {}; son = {};
+            [djf_r1, djf_grid, djf_datadir, plotdir, modelstr, djf_r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean='djfmean', try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
+            [mam_r1, mam_grid, mam_datadir, plotdir, modelstr, mam_r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean='mammean', try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
+            [jja_r1, jja_grid, jja_datadir, plotdir, modelstr, jja_r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean='jjamean', try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
+            [son_r1, son_grid, son_datadir, plotdir, modelstr, son_r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean='sonmean', try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
+        else:
+            [r1, grid, datadir, plotdir, modelstr, r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
 
-    if 'pr' in plotover:
+    if 'sic' in plotover:
+        if isinstance(model, str) or model is None:
+            [seaice, grid, datadir, plotdir, modelstr] = load_seaice(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+        else:
+            [seaice, grid, datadir, plotdir, modelstr, seaice_mmm] = load_seaice(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+
+        if refclim == 'hist-30':
+            sim_ref = 'historical'
+            timemean_ref = 'ymonmean-30'
+            yr_span_ref = '186001-200512'
+            if isinstance(model, str):
+                [seaice_ref, _, _, _, _] = load_seaice(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
+            else:
+                [seaice_ref, _, _, _, _, seaice_ref_mmm] = load_seaice(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
+            
+            if timemean == 'djfmean':
+                for seaicename in seaice_ref:
+                    seaice_ref[seaicename] = np.mean(np.roll(seaice_ref[seaicename],1,axis=0)[0:3], 0)
+            elif timemean == 'jjamean':
+                for seaicename in seaice_ref:
+                    seaice_ref[seaicename] = np.mean(seaice_ref[seaicename][5:8], 0)
+
+    if 'pr' in plotover or 'cl' in plotover:
         if isinstance(model, str) or model is None:
             [hydro, grid, datadir, plotdir, modelstr] = load_hydro(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
         else:
@@ -103,15 +140,61 @@ def r1_mon_hl(sim, **kwargs):
                 for hydroname in hydro_ref:
                     hydro_ref[hydroname] = np.mean(hydro_ref[hydroname][5:8], 0)
 
+    if plotover == 'ga_dev':
+        if isinstance(model, str) or model is None:
+            [ga, grid, datadir, plotdir, modelstr] = load_ga(sim, categ, vertbnd,vertcoord, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+        else:
+            [ga, grid, datadir, plotdir, modelstr, ga_mmm] = load_ga(sim, categ, vertbnd, vertcoord, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+
+        if refclim == 'hist-30':
+            sim_ref = 'historical'
+            timemean_ref = 'ymonmean-30'
+            yr_span_ref = '186001-200512'
+            if isinstance(model, str):
+                [ga_ref, _, _, _, _] = load_ga(sim_ref, categ, vertbnd, vertcoord, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
+            else:
+                [ga_ref, _, _, _, _, ga_ref_mmm] = load_ga(sim_ref, categ, vertbnd, vertcoord, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
+            
+            if timemean == 'djfmean':
+                for ganame in ga_ref:
+                    ga_ref[ganame] = np.mean(np.roll(ga_ref[ganame],1,axis=0)[0:3], 0)
+            elif timemean == 'jjamean':
+                for ganame in ga_ref:
+                    ga_ref[ganame] = np.mean(ga_ref[ganame][5:8], 0)
+
     ############################################
     # AVERAGE R1 ONLY AT HIGH LATITUDES
     ############################################
-    r1_hl = lat_mean(r1, grid, lat_int, dim=1)
+    if timemean == 'allseas':
+        djf_r1_hl = lat_mean(djf_r1, djf_grid, lat_int, dim=1)
+        mam_r1_hl = lat_mean(mam_r1, mam_grid, lat_int, dim=1)
+        jja_r1_hl = lat_mean(jja_r1, jja_grid, lat_int, dim=1)
+        son_r1_hl = lat_mean(son_r1, son_grid, lat_int, dim=1)
 
-    rolling_mean = 0; # smooth data using a rolling mean? (units: yr)
-    r1_filt = uniform_filter(r1, [rolling_mean,0]) # apply rolling mean
+        rolling_mean = 20; # smooth data using a rolling mean? (units: yr)
+        djf_r1_hl = uniform_filter(djf_r1_hl, rolling_mean) # apply rolling mean
+        mam_r1_hl = uniform_filter(mam_r1_hl, rolling_mean) # apply rolling mean
+        jja_r1_hl = uniform_filter(jja_r1_hl, rolling_mean) # apply rolling mean
+        son_r1_hl = uniform_filter(son_r1_hl, rolling_mean) # apply rolling mean
 
-    time = yr_base + np.arange(r1_hl.shape[0]) # create time vector
+        r1_hl = djf_r1_hl
+
+        djf_time = yr_base + np.arange(djf_r1_hl.shape[0]) # create time vector
+        mam_time = yr_base + np.arange(mam_r1_hl.shape[0]) # create time vector
+        jja_time = yr_base + np.arange(jja_r1_hl.shape[0]) # create time vector
+        son_time = yr_base + np.arange(son_r1_hl.shape[0]) # create time vector
+    else:
+        if not ( isinstance(model, str) or (model is None) ):
+            r1_hl_mmm = dict()
+            for i in r1_mmm:
+                r1_hl_mmm[i] = lat_mean(r1_mmm[i], grid, lat_int, dim=1)
+
+        r1_hl = lat_mean(r1, grid, lat_int, dim=1)
+
+        rolling_mean = 0; # smooth data using a rolling mean? (units: yr)
+        r1_filt = uniform_filter(r1, [rolling_mean,0]) # apply rolling mean
+
+        time = yr_base + np.arange(r1_hl.shape[0]) # create time vector
 
     ############################################
     # COMPUTE REGRESSION
@@ -119,6 +202,12 @@ def r1_mon_hl(sim, **kwargs):
     if 'ymonmean' not in timemean and sim == 'era5':
         A = np.vstack([time, np.ones(len(time))]).T
         m, c = np.linalg.lstsq(A, r1_hl, rcond=None)[0]
+
+    ############################################
+    # COMPUTE FIRST and LAST 30 YR AVGs (for yaxis settings)
+    ############################################
+    r1_f30 = np.mean(r1_hl[:30])
+    r1_l30 = np.mean(r1_hl[-30:])
 
     ############################################
     # PLOT
@@ -130,7 +219,17 @@ def r1_mon_hl(sim, **kwargs):
     # rae = patches.Rectangle((0,0.9),r1_hl.shape[0],vmax_r1-0.9, alpha=0.5)
     rae = patches.Rectangle((yr_base,0.9),yr_base + r1_hl.shape[0],vmax['r1']-0.9, alpha=0.5)
     ax.add_patch(rae)
-    lp_r1 = ax.plot(time, r1_hl, color='black')
+    if timemean == 'allseas':
+        lp_djf_r1 = ax.plot(djf_time, djf_r1_hl, color='navy', label='DJF')
+        lp_mam_r1 = ax.plot(mam_time, mam_r1_hl, color='maroon', label='MAM')
+        lp_jja_r1 = ax.plot(jja_time, jja_r1_hl, color='green', label='JJA')
+        lp_son_r1 = ax.plot(son_time, son_r1_hl, color='orange', label='SON')
+        ax.legend()
+    else:
+        if not ( isinstance(model, str) or (model is None) ):
+            spr_r1 = ax.fill_between(time, r1_hl_mmm['prc25'], r1_hl_mmm['prc75'], facecolor='black', alpha=0.2, edgecolor=None)
+
+        lp_r1 = ax.plot(time, r1_hl, color='black')
     if 'ymonmean' not in timemean and sim == 'era5':
         # lp_trend = ax.plot(time, m*time + c, '--k', label='%g decade$^{-1}$' % (m*10))
         lp_trend = ax.plot(time, m*time + c, '--k', label='$R_1$ trend$ = %.1f$ %% decade$^{-1}$' % (m/np.nanmean(r1_hl) *1e3))
@@ -154,25 +253,31 @@ def r1_mon_hl(sim, **kwargs):
         ###########################################
         plotname = '%s.%s' % (plotname, plotover)
 
-        sic_file = filenames_raw(sim, 'sic', model=model, timemean=timemean, yr_span=yr_span)
-        if not zonmean:
-            sic = sic_file.variables['sic'][:]
-        else:
-            sic = np.mean(np.squeeze(sic_file.variables['sic'][:]),2)
+        sic_hl_mmm = dict()
+        if not ( isinstance(model, str) or (model is None) ):
+            for i in seaice_mmm['sic']:
+                sic_hl_mmm[i] = lat_mean(seaice_mmm['sic'][i], grid, lat_int, dim=1)
 
-        if sim == 'longrun':
-            sic = 100*sic
+        sic_hl = lat_mean(seaice['sic'], grid, lat_int, dim=1)
 
-        sic_hl = lat_mean(sic, grid, lat_int, dim=1)
+        # first and last 30 years
+        sic_f30 = np.mean(sic_hl[:30])
+        sic_l30 = np.mean(sic_hl[-30:])
+        m_axis = (sic_l30 - sic_f30)/(r1_l30 - r1_f30)
+        vmax_alg = sic_f30 + m_axis*( vmax['r1'] - r1_f30 )
+        vmin_alg = sic_l30 + m_axis*( vmin['r1'] - r1_l30 )
 
         sax = ax.twinx()
         if timemean == 'jjamean':
             sax.plot(time, 100-sic_hl, color='tab:blue')
             sax.set_ylabel('Ocean fraction (%)', color='tab:blue')
         else:
+            if not (isinstance(model, str) or model is None):
+                sax.fill_between(time, sic_hl_mmm['prc25'], sic_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
             sax.plot(time, sic_hl, color='tab:blue')
             sax.set_ylabel('Sea ice fraction (%)', color='tab:blue')
-        sax.set_ylim(vmin['sic'],vmax['sic'])
+        # sax.set_ylim(vmin['sic'],vmax['sic'])
+        sax.set_ylim(vmin_alg,vmax_alg)
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(MultipleLocator(5))
 
@@ -180,13 +285,14 @@ def r1_mon_hl(sim, **kwargs):
         ############################################
         # COMPARE WITH LAPSE RATE DEVIATION
         ###########################################
-        from proc.ga import make_ga_dev_vint
+        # from proc.ga import make_ga_dev_vint
 
         plotname = '%s.%s.%g.%g' % (plotname, plotover, vertbnd[0], vertbnd[1])
 
-        ga_dev_vint = make_ga_dev_vint(sim, vertbnd, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
+        # ga_dev_vint = make_ga_dev_vint(sim, vertbnd, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
 
-        ga_dev_vint_hl = lat_mean(ga_dev_vint['ga_dev_vint'], ga_dev_vint['grid'], lat_int, dim=1)
+        # ga_dev_vint_hl = lat_mean(ga_dev_vint['ga_dev_vint'], ga_dev_vint['grid'], lat_int, dim=1)
+        ga_dev_vint_hl = lat_mean(ga['ga_dev_vint'], ga['grid'], lat_int, dim=1)
 
         sax = ax.twinx()
         sax.plot(time, ga_dev_vint_hl, color='tab:blue')
@@ -200,11 +306,29 @@ def r1_mon_hl(sim, **kwargs):
         # COMPARE WITH FRACTION OF LARGE SCALE PRECIPITATION
         ###########################################
         plotname = '%s.%s' % (plotname, plotover)
-        
+
         hydro_ref_hl = {}
 
         # take mean in high latitudes
-        prfrac_hl = lat_mean(100*hydro['prl']/hydro['pr'], grid, lat_int, dim=1)
+        pr_hl_mmm = dict()
+        prl_hl_mmm = dict()
+        prc_hl_mmm = dict()
+        prfrac_hl_mmm = dict()
+        if not ( isinstance(model, str) or (model is None) ):
+            for i in hydro_mmm['pr']:
+                pr_hl_mmm[i] = lat_mean(hydro_mmm['pr'][i], grid, lat_int, dim=1)
+                prl_hl_mmm[i] = lat_mean(hydro_mmm['prl'][i], grid, lat_int, dim=1)
+                prc_hl_mmm[i] = lat_mean(hydro_mmm['prc'][i], grid, lat_int, dim=1)
+                prfrac_hl_mmm[i] = lat_mean(hydro_mmm['prc'][i]/hydro_mmm['pr'][i], grid, lat_int, dim=1)
+
+        prfrac_hl = lat_mean(hydro['prc']/hydro['pr'], grid, lat_int, dim=1)
+
+        # first and last 30 years
+        prfrac_f30 = np.mean(prfrac_hl[:30])
+        prfrac_l30 = np.mean(prfrac_hl[-30:])
+        m_axis = (prfrac_l30 - prfrac_f30)/(r1_l30 - r1_f30)
+        vmin_alg = prfrac_f30 + m_axis*( vmax['r1'] - r1_f30 )
+        vmax_alg = prfrac_l30 + m_axis*( vmin['r1'] - r1_l30 )
 
         # compute trends
         if 'ymonmean' not in timemean and sim == 'era5':
@@ -212,15 +336,18 @@ def r1_mon_hl(sim, **kwargs):
             m, c = np.linalg.lstsq(A, prfrac_hl, rcond=None)[0]
 
         sax = ax.twinx()
+        if not ( isinstance(model, str) or (model is None) ):
+            sax.fill_between(time, prfrac_hl_mmm['prc25'], prfrac_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, prfrac_hl, color='tab:blue')
         if 'ymonmean' not in timemean and sim == 'era5':
             # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
-            sax.plot(time, m*time + c, '--', color='tab:blue', label='$P_l/P$ trend$ = %.1f$ %% decade$^{-1}$' % (m*10))
-        sax.set_ylabel(r'$P_l/P$ (%)', color='tab:blue')
-        sax.set_ylim(vmin['prfrac'],vmax['prfrac'])
+            sax.plot(time, m*time + c, '--', color='tab:blue', label='$P_c/P$ trend$ = %.1f$ %% decade$^{-1}$' % (m*10))
+        sax.set_ylabel(r'$P_c/P$ (unitless)', color='tab:blue')
+        # sax.set_ylim(vmin['prfrac'],vmax['prfrac'])
+        sax.set_ylim(vmin_alg,vmax_alg)
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(AutoMinorLocator())
-        # ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
+        ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
         # sax.set_ylim(sax.get_ylim()[::-1]) # invert r1 axis
 
     elif plotover == 'pr':
@@ -259,6 +386,11 @@ def r1_mon_hl(sim, **kwargs):
         hydro_ref_hl = {}
 
         # take mean in high latitudes
+        prc_hl_mmm = dict()
+        if not ( isinstance(model, str) or (model is None) ):
+            for i in hydro_mmm['prc']:
+                prc_hl_mmm[i] = lat_mean(hydro_mmm['prc'][i], grid, lat_int, dim=1)
+
         prc_hl = lat_mean(hydro['prc'], grid, lat_int, dim=1)
 
         # compute trends
@@ -267,6 +399,8 @@ def r1_mon_hl(sim, **kwargs):
             m, c = np.linalg.lstsq(A, prc_hl, rcond=None)[0]
 
         sax = ax.twinx()
+        if not ( isinstance(model, str) or (model is None) ):
+            spr_r1 = sax.fill_between(time, prc_hl_mmm['prc25'], prc_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, prc_hl, color='tab:blue')
         if 'ymonmean' not in timemean and sim == 'era5':
             # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
@@ -301,6 +435,108 @@ def r1_mon_hl(sim, **kwargs):
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(AutoMinorLocator())
 
+        ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
+
+    elif plotover == 'clt':
+        ############################################
+        # COMPARE WITH TOTAL CLOUD FRACTION
+        ###########################################
+        plotname = '%s.%s' % (plotname, plotover)
+        
+        hydro_ref_hl = {}
+
+        # take mean in high latitudes
+        clt_hl_mmm = dict()
+        if not ( isinstance(model, str) or (model is None) ):
+            for i in hydro_mmm['clt']:
+                clt_hl_mmm[i] = lat_mean(hydro_mmm['clt'][i], grid, lat_int, dim=1)
+
+        clt_hl = lat_mean(hydro['clt'], grid, lat_int, dim=1)
+
+        # compute trends
+        if 'ymonmean' not in timemean and sim == 'era5':
+            A = np.vstack([time, np.ones(len(time))]).T
+            m, c = np.linalg.lstsq(A, clt_hl, rcond=None)[0]
+
+        sax = ax.twinx()
+        if not ( isinstance(model, str) or (model is None) ):
+            spr_r1 = sax.fill_between(time, clt_hl_mmm['prc25'], clt_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+        sax.plot(time, clt_hl, color='tab:blue')
+        if 'ymonmean' not in timemean and sim == 'era5':
+            # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
+            sax.plot(time, m*time + c, '--', color='tab:blue', label='$P_c$ trend$ = %.1f$ %% decade$^{-1}$' % (m/np.nanmean(clt_hl)*1e3))
+        sax.set_ylabel(r'Cloud fraction (%)', color='tab:blue')
+        sax.set_ylim(vmin['clt'],vmax['clt'])
+        sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
+        sax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
+
+    elif plotover == 'clwvi':
+        ############################################
+        # COMPARE WITH CLOUD WATER VAPOR (WATER AND ICE)
+        ###########################################
+        plotname = '%s.%s' % (plotname, plotover)
+        
+        hydro_ref_hl = {}
+
+        # take mean in high latitudes
+        clwvi_hl_mmm = dict()
+        if not ( isinstance(model, str) or (model is None) ):
+            for i in hydro_mmm['clwvi']:
+                clwvi_hl_mmm[i] = lat_mean(hydro_mmm['clwvi'][i], grid, lat_int, dim=1)
+
+        clwvi_hl = lat_mean(hydro['clwvi'], grid, lat_int, dim=1)
+
+        # compute trends
+        if 'ymonmean' not in timemean and sim == 'era5':
+            A = np.vstack([time, np.ones(len(time))]).T
+            m, c = np.linalg.lstsq(A, clwvi_hl, rcond=None)[0]
+
+        sax = ax.twinx()
+        if not ( isinstance(model, str) or (model is None) ):
+            spr_r1 = sax.fill_between(time, clwvi_hl_mmm['prc25'], clwvi_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+        sax.plot(time, clwvi_hl, color='tab:blue')
+        if 'ymonmean' not in timemean and sim == 'era5':
+            # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
+            sax.plot(time, m*time + c, '--', color='tab:blue', label='$P_c$ trend$ = %.1f$ %% decade$^{-1}$' % (m/np.nanmean(clwvi_hl)*1e3))
+        sax.set_ylabel(r'Condensed water path (kg m$^{-2}$)', color='tab:blue')
+        sax.set_ylim(vmin['clwvi'],vmax['clwvi'])
+        sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
+        sax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
+
+    elif plotover == 'clivi':
+        ############################################
+        # COMPARE WITH CLOUD WATER VAPOR (ICE ONLY)
+        ###########################################
+        plotname = '%s.%s' % (plotname, plotover)
+        
+        hydro_ref_hl = {}
+
+        # take mean in high latitudes
+        clivi_hl_mmm = dict()
+        if not ( isinstance(model, str) or (model is None) ):
+            for i in hydro_mmm['clivi']:
+                clivi_hl_mmm[i] = lat_mean(hydro_mmm['clivi'][i], grid, lat_int, dim=1)
+
+        clivi_hl = lat_mean(hydro['clivi'], grid, lat_int, dim=1)
+
+        # compute trends
+        if 'ymonmean' not in timemean and sim == 'era5':
+            A = np.vstack([time, np.ones(len(time))]).T
+            m, c = np.linalg.lstsq(A, clivi_hl, rcond=None)[0]
+
+        sax = ax.twinx()
+        if not ( isinstance(model, str) or (model is None) ):
+            spr_r1 = sax.fill_between(time, clivi_hl_mmm['prc25'], clivi_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+        sax.plot(time, clivi_hl, color='tab:blue')
+        if 'ymonmean' not in timemean and sim == 'era5':
+            # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
+            sax.plot(time, m*time + c, '--', color='tab:blue', label='$P_c$ trend$ = %.1f$ %% decade$^{-1}$' % (m/np.nanmean(clivi_hl)*1e3))
+        sax.set_ylabel(r'Condensed ice path (kg m$^{-2}$)', color='tab:blue')
+        sax.set_ylim(vmin['clivi'],vmax['clivi'])
+        sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
+        sax.yaxis.set_minor_locator(AutoMinorLocator())
         ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
 
     elif plotover == 'decomp':
@@ -338,7 +574,7 @@ def r1_mon_hl(sim, **kwargs):
 
         sax = ax.twinx()
         if not (isinstance(model, str) or model is None):
-            sax.fill_between(time, r1_dc_mmm_hl['dr1']['prc25'], r1_dc_mmm_hl['dr1']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
+            # sax.fill_between(time, r1_dc_mmm_hl['dr1']['prc25'], r1_dc_mmm_hl['dr1']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
             sax.fill_between(time, r1_dc_mmm_hl['dyn']['prc25'], r1_dc_mmm_hl['dyn']['prc75'], facecolor='maroon', alpha=0.2, edgecolor=None)
             sax.fill_between(time, r1_dc_mmm_hl['rad']['prc25'], r1_dc_mmm_hl['rad']['prc75'], facecolor='tab:gray', alpha=0.3, edgecolor=None)
             sax.fill_between(time, r1_dc_mmm_hl['res']['prc25'], r1_dc_mmm_hl['res']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
@@ -354,6 +590,7 @@ def r1_mon_hl(sim, **kwargs):
     if legend and sim == 'era5':
         fig.legend(loc='upper right', bbox_to_anchor=(1,1), bbox_transform=ax.transAxes)
 
+    fig.set_size_inches(5, 4)
     plt.tight_layout()
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
 

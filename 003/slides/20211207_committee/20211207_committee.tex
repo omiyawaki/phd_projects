@@ -1,0 +1,698 @@
+\documentclass{beamer}
+
+\usepackage{graphicx}
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage[export]{adjustbox}
+\usepackage{natbib}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usepackage{amsmath,amsfonts,amssymb,bm}
+\usepackage{scalefnt}
+\usepackage{enumitem}
+
+\title{Committee Meeting}
+\author{Osamu Miyawaki}
+\date{December 2, 2021}
+
+\begin{document}
+
+{\setbeamertemplate{footline}{}\setbeamertemplate{headline}{}\frame{\titlepage}}
+\addtocounter{framenumber}{-1}
+
+\frame{\frametitle{Thesis work accomplished thus far}%\framesubtitle{\insertsubsection}
+    \begin{itemize}[label={\checkmark}]
+        \setlength\itemsep{2em}
+        \item<1-> \textbf{Project 1:} Quantifying Key Mechanisms That Contribute to the Deviation of the Tropical Warming Profile From a Moist Adiabat (Miyawaki et al. 2020, GRL)
+        \item<1-> \textbf{Project 2:} Quantifying energy balance regimes in the modern climate, their link to lapse rate regimes, and their response to warming (Miyawaki et al. 2021, J. Clim. in press)
+    \end{itemize}
+}
+
+\frame{\frametitle{Key addition to project 2: relationship between climatological energy balance regimes and the temperature response}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \vskip 0pt
+        \input{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/dtempsi_binned_r1/mse_old/lo/dtempsi_r1_all.tuned.tex}
+    \end{figure}
+}
+
+\frame{\frametitle{Previously I proposed possible research ideas on energy balance regime transitions through climate change}%\framesubtitle{\insertsubsection}
+    % !!!! annotate these figures
+    % LEFT PANEL
+    % point to Arctic regime transition
+    % point to SH ocean regime transition (sort of, moreso just an increase in R1)
+    % RIGHT PANEL
+    % label as snowball 
+    \begin{figure}
+        \hspace{-0.1\textwidth}
+        \begin{subfigure}[t]{0.49\textwidth}
+            \includegraphics[height=0.85\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_lat/r1_mon_lat.djfmean}.pdf}
+        \end{subfigure}
+        \hspace{0.05\textwidth}
+        \begin{subfigure}[t]{0.49\textwidth}
+            \includegraphics[height=0.85\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/echam/rp000140/0001_0039/mon_lat/r1_mon_lat.yearmean}.pdf}
+        \end{subfigure}
+    \end{figure}
+}
+
+\frame{\frametitle{Third project focuses on the Arctic regime transition}%\framesubtitle{\insertsubsection}
+    \begin{itemize}[label={\checkmark}]
+        \setlength\itemsep{0.5em}
+        \item<1-> \textbf{Project 1:} Quantifying Key Mechanisms That Contribute to the Deviation of the Tropical Warming Profile From a Moist Adiabat (Miyawaki et al. 2020, GRL)
+        \item<1-> \textbf{Project 2:} Quantifying energy balance regimes in the modern climate, their link to lapse rate regimes, and their response to warming (Miyawaki et al. 2021, J. Clim. in press)
+    \end{itemize}
+    \begin{itemize}
+        \setlength\itemsep{0.5em}
+        \item<1-> \textbf{Project 3:} The trajectory toward a new winter energy balance regime in the Arctic (Miyawaki et al. 2021, in prep)
+        \item<2-> \textbf{Updated thesis title:} Energy balance and lapse rate regimes in the modern climate and their response to warming
+            % for reference the title I proposed in my prospectus was "Investigating temperature regime transitions between Snowball and Hothouse climates"
+    \end{itemize}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THIRD PROJECT PROGRESS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{\frametitle{Understanding the transient response of $R_1$ has implications for the vertical temperature and hydrological cycle response}%\framesubtitle{\insertsubsection}
+    % since R1 (and energy balance regimes) are associated with lapse rate and precipitation type, understanding the mechanisms that control the rate of R1 change can inform us about the transient response of the vertical temperature response and changes to the hydrological cycle
+    \begin{figure}
+        \centering
+        \hspace{-0.1\textwidth}
+        \begin{subfigure}[t]{0.49\textwidth}
+            \includegraphics[height=0.85\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.ga_dev.1.0.9}.pdf}
+        \end{subfigure}
+        \hspace{0.05\textwidth}
+        \begin{subfigure}[t]{0.49\textwidth}
+            \includegraphics[height=0.85\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.prfrac}.pdf}
+        \end{subfigure}
+    \end{figure}
+}
+
+\frame{\frametitle{A linear decomposition of $R_1$ shows two phases of the response: 1) radiative-driven and 2) dynamically-driven phase}%\framesubtitle{\insertsubsection}
+    % a small dynamical component doesn't preclude changing dynamics -- e.g., there could still be enhanced latent heat flux convergence into the arctic
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.7\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.decomp}.pdf}
+    \end{figure}
+}
+
+\frame{\frametitle{The change in radiative cooling $R_a$ is associated with enhanced clear-sky longwave cooling}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.7\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/rad_lwcs_dev_mon_hl.80.90.djfmean}.pdf}
+        % enhanced clear sky radiative cooling are plausibly associated with two mechanisms: 1) the direct CO2 effect (greenhouse effect of CO2) and 2) water vapor feedback and the associated greenhouse effect
+    \end{figure}
+}
+
+\frame{\frametitle{Increase in wintertime moisture is predominantly due to increased evaporation}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.55\textwidth]{bintanja2014.png}
+
+        \hspace*{15pt}\hbox{\scriptsize Source:\thinspace{\scriptsize\itshape \cite{bintanja2014}, Fig.~2b}}
+    \end{figure}
+}
+
+\frame{\frametitle{Since local mechanisms influence the radiatively-driven phase of $\Delta R_1$, we plan to use a single column model to quantify the direct and indirect CO2 effects on $\Delta R_a$}%\framesubtitle{\insertsubsection}
+    % draw box diagram with sea ice, atmos and oceanic heat flux convergence
+    \hspace{-0.2\textwidth}
+    \begin{itemize}
+        \setlength\itemsep{0.35em}
+        \item<1-> Following \cite{abbot2008}, configure SCAM with thermodynamic sea ice and prescribed atmospheric and oceanic heat flux convergence.
+        \item<2-> Apply RCP8.5 CO$_2$ forcing and check if the transient $R_1$ response in SCAM can reproduce the CMIP5 multimodel mean response.
+        \item<3-> Quantify the importance of increased moisture on enhanced radiative cooling by configuring SCAM with specific humidity fixed to the modern climatology.
+        \item<4-> Quantify the importance of non-CC moisture changes on radiative cooling by configuring SCAM with relative humidity fixed to the modern climatology.
+    \end{itemize}
+}
+
+\frame{\frametitle{Two dynamical mechanisms for reduced MSE flux convergence}%\framesubtitle{\insertsubsection}
+    % since R1 (and energy balance regimes) are associated with lapse rate and precipitation type, understanding the mechanisms that control the rate of R1 change can inform us about the transient response of the vertical temperature response and changes to the hydrological cycle
+    \begin{figure}
+        \centering
+        \hspace{-0.1\textwidth}
+        \begin{subfigure}[t]{0.45\textwidth}
+            % \hspace*{15pt}\hbox{\scriptsize Transient Eddies}
+
+            \includegraphics[height=0.6\textwidth]{feldl2020.png}
+
+            \hspace*{15pt}\hbox{\scriptsize Source:\thinspace{\scriptsize\itshape \cite{feldl2020}}, Fig.~5b}
+        \end{subfigure}
+        % \hspace{0.08\textwidth}
+        \begin{subfigure}[t]{0.45\textwidth}
+            \hspace*{15pt}\hbox{\scriptsize Shallow Arctic Monsoon}
+
+            \includegraphics[height=0.75\textwidth]{./burt2016.png}
+
+            \hspace*{15pt}\hbox{\scriptsize Source:\thinspace{\scriptsize\itshape \cite{burt2016}}, Fig.~8e}
+        \end{subfigure}
+    \end{figure}
+}
+
+\frame{\frametitle{Plan is to decompose MSE flux convergence into transient and stationary terms}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.7\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-229912/mon_hl/dyn_dev_mon_hl.80.90.djfmean}.pdf}
+    \end{figure}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% POSTDOC PROJECT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{\frametitle{Theme of postdoc project:\\Consider energy balance regimes beyond the zonal mean}
+    \begin{figure}
+        \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/flux/mse_old/lo/0_r1z_mon_lat.png}
+    \end{figure}
+}
+
+\frame{\frametitle{1. While tropics is in RCE yearround in the zonal mean,\\seasonal RCE regime transitions occur regionally}
+    \begin{figure}
+        \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/era5/1979_2019/lat_lon/categ_lat_lon.ymonmean}.pdf}
+    \end{figure}
+}
+
+\frame{\frametitle{Can $R_1$ be used to define zonally-confined monsoon regions and thus be used to study mechanisms that control the existence of a monsoon?}
+    \begin{minipage}{0.45\textwidth}
+        \begin{figure}
+            \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/era5/1979_2019/lat_lon/categ_lat_lon.ymonmean}.pdf}
+        \end{figure}
+    \end{minipage}
+    \begin{minipage}{0.5\textwidth}
+        \begin{figure}
+            \begin{subfigure}[t]{0.29\textwidth}
+                \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/era5/1979_2019/mon_ll/r1_mon_ll.5.15.0.30.ymonmean.pr}.pdf}
+            \end{subfigure}
+            \begin{subfigure}[t]{0.29\textwidth}
+                \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/era5/1979_2019/mon_ll/r1_mon_ll.10.30.70.100.ymonmean.pr}.pdf}
+            \end{subfigure}
+            \begin{subfigure}[t]{0.29\textwidth}
+                \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/era5/1979_2019/mon_ll/r1_mon_ll.5.20.250.270.ymonmean.pr}.pdf}
+            \end{subfigure}
+
+            \begin{subfigure}[t]{0.29\textwidth}
+                \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/era5/1979_2019/mon_ll/r1_mon_ll.-20.-5.10.50.ymonmean.pr}.pdf}
+            \end{subfigure}
+            \begin{subfigure}[t]{0.29\textwidth}
+                \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/era5/1979_2019/mon_ll/r1_mon_ll.-20.-5.120.150.ymonmean.pr}.pdf}
+            \end{subfigure}
+            \begin{subfigure}[t]{0.29\textwidth}
+                \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/era5/1979_2019/mon_ll/r1_mon_ll.-20.-5.285.315.ymonmean.pr}.pdf}
+            \end{subfigure}
+        \end{figure}
+    \end{minipage}
+}
+
+\frame{\frametitle{2. What are the implications of summertime midlatitude RCE?\\Do tropical RCE theories work in the midlatitudes?}
+    \begin{figure}
+        \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/flux/mse_old/lo/0_r1z_mon_lat.png}
+    \end{figure}
+}
+
+\frame{\frametitle{Example: Warming response of hot days in the midlatitude summer\\is opposite that in the tropics}
+    \begin{minipage}{0.45\textwidth}
+        \begin{figure}
+            \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/000_hotdays/plots/mmm/tas/trop_-20_20/dctas}.pdf}
+        \end{figure}
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+        \begin{figure}
+            \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/000_hotdays/plots/mmm/tas/nhmid_40_60/dctas.jja}.pdf}
+        \end{figure}
+    \end{minipage}
+}
+
+\frame{\frametitle{Goal of the project is to clarify the difference between\\tropical and midlatitude RCE}
+    \begin{itemize}
+        \setlength\itemsep{0.35em}
+        \item<1-> Summertime RCE only occurs over land in the midlatitudes.
+    \end{itemize}
+    \begin{figure}
+        \centering
+        \begin{subfigure}[t]{0.48\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/r1_lo/r1ss_mon_mid.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.48\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/r1_lo/r1_mon_mid_landcomp_aqua.png}
+        \end{subfigure}
+    \end{figure}
+}
+
+\frame{\frametitle{Goal of the project is to clarify the difference between\\tropical and midlatitude RCE}
+    \begin{itemize}
+        \setlength\itemsep{0.35em}
+        \item<1-> Summertime RCE only occurs over land in the midlatitudes.
+        \item<1-> What spatial and temporal scales is RCE valid in the midlatitudes?
+        \item<2-> Is convective quasi-equilibrium valid in the midlatitudes? 
+    \end{itemize}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TIMELINE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{\frametitle{Planned timeline}%\framesubtitle{\insertsubsection}
+    \begin{itemize}
+        \setlength\itemsep{2em}
+        \item<1-> \textbf{Fall 2021:}
+            \begin{itemize}
+                \item Continue submitting postdoc applications
+                \item Continue working on third project
+                \item Present land/ocean results at AGU Fall Meeting
+            \end{itemize}
+        \item<2-> \textbf{Winter 2022:} 
+            \begin{itemize}
+                \item Finalize results for third project
+                \item Draft manuscript for third project and submit to GRL
+                \item Begin synthesizing the projects into a thesis document
+            \end{itemize}
+        \item<3-> \textbf{Spring 2022:}
+            \begin{itemize}
+                \item Revise Arctic regime transition paper
+                \item Get feedback on thesis from committee members
+                \item Draft manuscript for land/ocean seasonality
+                \item Present on third project at AOFD
+                \item Thesis defense toward end of quarter
+            \end{itemize}
+    \end{itemize}
+}
+
+\frame{\frametitle{Planned timeline (continued)}%\framesubtitle{\insertsubsection}
+    \begin{itemize}
+        \item<1-> \textbf{Spring 2022:}
+            \begin{itemize}
+                \item Revise Arctic regime transition paper
+                \item Get feedback on thesis from committee members
+                \item Draft manuscript for land/ocean seasonality
+                \item Present on third project at AOFD
+                \item Thesis defense toward end of quarter
+            \end{itemize}
+        \item<1-> \textbf{Summer 2022:}
+            \begin{itemize}
+                \item Revise land/ocean paper
+                \item Draft manuscript for Southern Ocean regime transition project
+            \end{itemize}
+    \end{itemize}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% REFERENCES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile,allowframebreaks]
+    % In your presentation, remove `\nocite` here and
+    % use `\cite` throughout the presentation.
+
+    \frametitle{References}
+    \scriptsize
+    \bibliographystyle{apalike}
+    \bibliography{../../../002/draft/references}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EXTRAS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\frame{\frametitle{$R_1$ response to anthropogenic climate change in boreal summer (JJA)}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.7\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_lat/r1_mon_lat.jjamean}.pdf}
+    \end{figure}
+}
+
+
+\frame{\frametitle{Decomposition of change in DJF MSE transport (4xCO2 - piControl)}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.5\textwidth]{donohoe2020.png}
+
+        \hspace*{15pt}\hbox{\scriptsize Source:\thinspace{\scriptsize\itshape \cite{donohoe2020}}, Fig.~6b}
+    \end{figure}
+}
+
+\frame{\frametitle{As CO$_2$ increases (RCP8.5), the Northern high latitudes transitions to RCAE in the annual mean}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_lat/r1_mon_lat}.pdf}
+    \end{figure}
+}
+
+\frame{\frametitle{The wintertime regime transition to RAE closely follows sea ice loss}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.sic}.pdf}
+    \end{figure}
+}
+
+\frame{\frametitle{Typical structure of $R_1$ through the seasonal cycle of modern Earth (shown here is the pre-industrial MPI-ESM-LR simulation)}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/longrun/MPIESM12_control/mon_lat/r1_mon_lat.ymonmean-30}.pdf}
+    \end{figure}
+}
+
+\frame{\frametitle{Further increasing CO$_2$ ($32\times$ pre-industrial) leads to expansion of SH RAE, no significant change to RCE}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/longrun/MPIESM12_abrupt32x/mon_lat/r1_mon_lat}.pdf}
+    \end{figure}
+}
+
+\frame{\frametitle{RAE exhibits a complex structure in an equable climate. Why is the Southern Ocean in RAE yearround?}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/longrun/MPIESM12_abrupt32x/mon_lat/r1_mon_lat.ymonmean-30}.pdf}
+    \end{figure}
+}
+
+\frame{\frametitle{Consistent with $R_1$, near-moist adiabatic lapse rates extend to NH midlatitudes during summertime}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(a)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.7\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/flux/mse_old/lo/0_r1z_mon_lat.png}
+        \end{subfigure}
+
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(b)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.7\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/ga_malr_diff/si_bl_0.7/lo/{ga_malr_diff_mon_lat_0.3}.png}
+        \end{subfigure}
+    \end{figure}
+}
+
+\frame{\frametitle{We Taylor expand the seasonality of $R_1$ to diagnose which term in the MSE budget contributes to the hemispheric asymmetry}%\framesubtitle{\insertsubsection}
+    \begin{equation*}
+        \Delta R_1 = \overline{R_1}\left( \frac{\Delta(\partial_t h + \nabla\cdot F_m)}{\overline{\partial_t h + \nabla\cdot F_m}}  - \frac{\Delta R_a }{\overline{R_a}}\right) + \mathsf{Residual} 
+    \end{equation*}
+}
+
+\frame{\frametitle{Hemispheric asymmetry in midlatitude regime transitions is associated with an asymmetry in the dynamic component}%\framesubtitle{\insertsubsection}
+    \centering
+    \begin{figure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(a)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dr1/mse_old/lo/0_midlatitude_lat_-40_to_-60/0_mon_dr1z_decomp_noleg_range.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(b)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr1z_decomp_noleg_range.png}
+        \end{subfigure}
+    \end{figure}
+    \includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures/era5c/1980_2005/native/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr1z_decomp_legonly.png}
+}
+
+\frame{\frametitle{Using the \cite{rose2017} EBM, we predict that the seasonality of $R_1$ decreases as the surface heat capacity increases}%\framesubtitle{\insertsubsection}
+    \begin{align*} \label{eq:r1-linear4}
+        \Delta R_1 &\approx \frac{\Delta\left(\partial_t h + \nabla\cdot F_{m} \right)}{\overline{R_a}} \\
+                   &= \frac{1}{\overline{R_a}} \left(\Delta F_{\mathsf{TOA}} - \rho c_{w} d \Delta\left(\frac{\partial T_{s}}{\partial t}\right)\right) \\
+                   &= \frac{Q^{*}}{\overline{R_{a}}}\frac{2D}{(B+2D)^{2}+(\rho c_w d \omega)^{2}}\left[(B+2D)\cos(\omega t)+\rho c_w d \omega \sin(\omega t)\right]
+    \end{align*}
+}
+
+\frame{\frametitle{Varying the mixed layer depth in a slab ocean aquaplanet simulations confirm the EBM prediction that the regime transition should occur for mixed layer depths $<30$ m}%\framesubtitle{\insertsubsection}
+    \centering
+    \includegraphics[width=0.8\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/amp_r1_echam/amp_r1_echam_echam.png}
+}
+
+\frame{\frametitle{40 m and 15 m aquaplanet simulations reproduce the observed Southern and Northern midlatitudes}%\framesubtitle{\insertsubsection}
+    \centering
+    \begin{figure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(a)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000135/native/dr1/mse_old/lo/0_midlatitude_lat_-40_to_-60/0_mon_dr1z_decomp_noleg.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(b)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000141/native/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr1z_decomp_noleg.png}
+        \end{subfigure}
+
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(c)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dr1/mse_old/lo/0_midlatitude_lat_-40_to_-60/0_mon_dr1z_decomp_noleg_range.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(d)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr1z_decomp_noleg_range.png}
+        \end{subfigure}
+    \end{figure}
+    \includegraphics[width=0.5\textwidth]{/project2/tas1/miyawaki/projects/002/figures/era5c/1980_2005/native/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr1z_decomp_legonly.png}
+}
+
+
+
+\frame{\frametitle{Hemispheric asymmetry in the dynamic component is associated with an asymmetry in the seasonality of MSE advection and storage}%\framesubtitle{\insertsubsection}
+    \centering
+    \begin{figure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(a)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000135/native/dmse/mse_old/lo/0_midlatitude_lat_-40_to_-60/0_mon_dyn__noleg.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(b)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000141/native/dmse/mse_old/lo/0_midlatitude_lat_-40_to_-60/0_mon_dyn__noleg.png}
+        \end{subfigure}
+
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(c)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dmse/mse_old/lo/0_midlatitude_lat_-40_to_-60/0_mon_dyn_.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(d)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dmse/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dyn_.png}
+        \end{subfigure}
+    \end{figure}
+}
+
+\frame{\frametitle{Consistent with $R_1$, boundary layer stability decreases in the NH high latitudes during summertime}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(a)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.7\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/flux/mse_old/lo/0_r1z_mon_lat.png}
+        \end{subfigure}
+
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(b)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.7\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/ga_malr_diff/si_bl_0.9/lo/{ga_malr_bl_diff_mon_lat}.png}
+        \end{subfigure}
+    \end{figure}
+}
+
+\frame{\frametitle{High latitude RAE is connected to two key quantities: the magnitude of latent heat flux and annual mean $R_1$}%\framesubtitle{\insertsubsection}
+    \centering
+    \begin{figure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(a)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dr1/mse_old/lo/0_poleward_of_lat_80/0_mon_dr1z_decomp_noleg_range.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(b)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dmse/mse/lo/0_poleward_of_lat_80/0_mon_mse_noleg_range.png}
+        \end{subfigure}
+
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(c)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dr1/mse_old/lo/0_poleward_of_lat_-80/0_mon_dr1z_decomp_noleg_range.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(d)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dmse/mse/lo/0_poleward_of_lat_-80/0_mon_mse_noleg_range.png}
+        \end{subfigure}
+
+        \begin{subfigure}[t]{0.05\textwidth}
+            \phantom{\textbf{\normalsize{(d)}}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1980_2005/native/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr1z_decomp_legonly.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \hfill
+        \end{subfigure}
+        \begin{subfigure}[t]{0.40\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/legends/0_mon_mse_legonly.png}
+        \end{subfigure}
+    \end{figure}
+
+}
+
+\frame{\frametitle{We investigate the role of two mechanisms on high latitude heat transfer regimes}%\framesubtitle{\insertsubsection}
+    \begin{itemize}
+        \item Arctic sea ice on latent heat flux
+            \begin{itemize}
+                \item By increasing surface albedo, reduces absorbed surface shortwave radiation
+                \item Latent heat flux only permitted via sublimation if surface is not melting
+                \item We set up a mechanism denial experiment by configuring ECHAM6 aquaplanet with and without sea ice
+            \end{itemize}
+        \item Antarctic topography on annual mean $R_1$
+            \begin{itemize}
+                \item By decreasing optical thickness, reduces net radiative cooling
+                \item Weaker radiative cooling corresponds to higher values of $R_1 = \frac{\partial_t h + \nabla\cdot F_m}{R_a}$
+                \item We use the simulations conducted by \cite{hahn2020}, where CESM is configured with and without (flattened) Antarctic orography 
+            \end{itemize}
+    \end{itemize}
+}
+
+\frame{\frametitle{RAE does not exist in an aquaplanet simulation configured without sea ice}%\framesubtitle{\insertsubsection}
+    \centering
+    \begin{figure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(a)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000135/native/dr1/mse_old/lo/0_poleward_of_lat_80/0_mon_dr1z_decomp_noleg.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(b)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000135/native/dmse/mse/lo/0_poleward_of_lat_80/0_mon_mse_noleg.png}
+        \end{subfigure}
+
+        \begin{subfigure}[t]{0.05\textwidth}
+            \phantom{\textbf{\normalsize{(d)}}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1980_2005/native/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr1z_decomp_legonly.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \hfill
+        \end{subfigure}
+        \begin{subfigure}[t]{0.40\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/legends/0_mon_mse_legonly.png}
+        \end{subfigure}
+    \end{figure}
+}
+
+\frame{\frametitle{RAE exists during winter in aquaplanet simulation configured with sea ice, consistent with NH high latitudes}%\framesubtitle{\insertsubsection}
+    \centering
+    \begin{figure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(a)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000134/native/dr1/mse_old/lo/0_poleward_of_lat_80/0_mon_dr1z_decomp_noleg.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(b)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000134/native/dmse/mse/lo/0_poleward_of_lat_80/0_mon_mse_noleg.png}
+        \end{subfigure}
+
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(c)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dr1/mse_old/lo/0_poleward_of_lat_80/0_mon_dr1z_decomp_noleg_range.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(d)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dmse/mse/lo/0_poleward_of_lat_80/0_mon_mse_noleg_range.png}
+        \end{subfigure}
+
+        \begin{subfigure}[t]{0.05\textwidth}
+            \phantom{\textbf{\normalsize{(d)}}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1980_2005/native/dr1/mse_old/lo/0_midlatitude_lat_40_to_60/0_mon_dr1z_decomp_legonly.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \hfill
+        \end{subfigure}
+        \begin{subfigure}[t]{0.40\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/legends/0_mon_mse_legonly.png}
+        \end{subfigure}
+    \end{figure}
+}
+
+
+\frame{\frametitle{Flattening Antarctic topography explains most of the asymmetry in $R_1$, but RAE persists through summer}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(a)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/hahn/Control1850/native/dr1/mse_old/lo/0_poleward_of_lat_80/0_mon_dr1z_decomp_noleg.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(b)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/hahn/Flat1850/native/dr1/mse_old/lo/0_poleward_of_lat_80/0_mon_dr1z_decomp_noleg.png}
+        \end{subfigure}
+
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(c)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/hahn/Control1850/native/dr1/mse_old/lo/0_poleward_of_lat_-80/0_mon_dr1z_decomp_noleg.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(d)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/hahn/Flat1850/native/dr1/mse_old/lo/0_poleward_of_lat_-80/0_mon_dr1z_decomp_noleg.png}
+        \end{subfigure}
+
+    \end{figure}
+}
+
+
+\frame{\frametitle{Seasonality of $\nabla\cdot F_m$}%\framesubtitle{\insertsubsection}
+    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/flux/mse_old/lo/0_div_mon_lat.png}
+}
+
+\frame{\frametitle{Lat-lon structure of $R_1$}%\framesubtitle{\insertsubsection}
+    \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/era5c/1979_2005/native/flux/mse_old/lo/ann/r1_lat_lon.png}
+}
+
+\frame{\frametitle{Seasonality of MSE budget in the midlatitudes}%\framesubtitle{\insertsubsection}
+    \centering
+    \begin{figure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(a)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dmse/mse/lo/0_midlatitude_lat_-40_to_-60/0_mon_mse_noleg_range.png}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.05\textwidth}
+            \textbf{\normalsize{(b)}}
+        \end{subfigure}
+        \begin{subfigure}[t]{0.43\textwidth}
+            \includegraphics[width=\textwidth, valign=t]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/dmse/mse/lo/0_midlatitude_lat_40_to_60/0_mon_mse_noleg_range.png}
+        \end{subfigure}
+    \end{figure}
+    \includegraphics[width=0.6\textwidth]{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/legends/0_mon_mse_legonly.png}
+}
+
+\end{document}

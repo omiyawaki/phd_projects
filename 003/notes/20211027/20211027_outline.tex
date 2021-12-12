@@ -1,0 +1,166 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{Outline: The emergence of a new Arctic regime in response to global warming: the transition from RAE to RCAE}
+\date{October 20, 2021}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+\section*{Introduction}
+\begin{itemize}
+    \item The Arctic is expected to undergo large and rapid changes associated with sea ice melt in response to anthropogenic increases in CO$_2$ \citep{dai2019, feldl2020}.
+    \begin{itemize}
+        \item Largest surface warming is projected in the Arctic \citep[Arctic Amplification, e.g.][]{manabe1975, held1993a}, especially during wintertime \citep{lu2009}
+        \item Large fractional increase in precipitation \citep{bintanja2014,siler2018}
+    \end{itemize}
+    \item As the Arctic warms and sea ice melts, the surface inversion is expected to vanish \citep{bintanja2012} and precipitation type change from snow to rain \citep{bintanja2017}. Due to the large magnitude and rapidity of these changes an ice-free Arctic has been described as the emergence of a new Arctic \citep{serreze2006, landrum2020}.
+    \item While there is a growing consensus on the mechanisms and feedbacks that contribute to surface warming (Arctic Amplification) \citep[e.g.,][]{pithan2014, feldl2020}, there is greater uncertainty in the response of the atmosphere toward the new Arctic regime \citep{screen2018}.
+    \item Of particular interest is the projected emergence of wintertime deep convection over an ice-free Arctic \citep{abbot2008a}. \cite{hankel2021} reported that wintertime convection (measured by convective precipitation) is active over an ice-free Arctic in all but one model in the ensemble of extended RCP8.5 simulations they investigated. 
+    \item In addition, several studies have investigated the importance of atmospheric heat and moisture transport on Arctic Amplification \citep{graversen2006,graversen2008,hwang2011,woods2016}. Understanding the influence of atmospheric heat transport on Arctic Amplification is difficult because of the compensating effects of decreasing dry static energy transport consistent with a weaker meridional temperature gradient \citep{chemke2020} and increasing moisture transport \citep{hwang2011, graversen2016}.
+    \item Here, we 
+    \begin{enumerate}
+        \item use the moist static energy budget and metric $R_1$ to quantify the column energy balance and show that the Arctic undergoes a regime transition from RAE to RCAE from fall through spring
+        \item show that the timing of the regime transition is seasonally dependent (fall transition occurs first, then winter and spring) and is associated with melting sea ice, vanishing surface inversion, surface amplified warming, and a transition to a nonzero fraction of convective precipitation
+        \item show that the response can be categorized into three phases: 1) onset of the RAE/RCAE regime transition, 2) sea ice melt following the regime transition, and 3) perennially ice free stable state.
+        \item Phase 1 is dominated by changes in radiative cooling, and phase 2 is associated with a decrease in MSE flux convergence into the Arctic.
+        \item We show that the increase in radiative cooling associated with phase 1 is predominantly driven by clear-sky longwave cooling. This suggests that the RAE model \citep{cronin2016} may be able to predict its own demise (using the criterion that the surface inversion vanishes) purely through increasing the optical thickness (i.e., isolating the radiative component of $\Delta R_1$),
+        \item quantify the decrease in MSE flux convergence into contributions from the mean meridional circulation, transient eddies, and stationary eddies,
+        \item show that the decrease in MSE flux convergence is dominated by a decrease in transient eddy heat transport,
+        \item further decompose this into DSE and latent energy transport as we expect there to be compensation between the two \citep{feldl2017},
+        \item test whether the change in MSE flux convergence in the Arctic is consistent with a diffusive closure using a moist-diffusive EBM
+    \end{enumerate}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The wintertime Arctic energy balance regime transition}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+    \item CMIP5 multimodel mean of the extended RCP8.5 run (7 models, GISS-E2-H and GISS-E2-R are currently excluded as these are the only models where sea ice does not completely melt in the RCP8.5 run \citep[see ][]{hankel2021}) shows a wintertime regime transition over the Arctic (Fig.~\ref{fig:r1}). %(poleward of ~75$^\circ$N, Fig.~\ref{fig:r1-mon-lat-ext}). Interestingly, the region between 60--70$^\circ$N (dominated by land) remains in RAE.
+    % \item A RAE to RCAE regime transition occurs during fall, winter, and spring (Fig.~\ref{fig:r1-mon-hl-allseas}). The timing of the regime transition is seasonally dependent. The fall RCAE regime transition occurs first (around year 2050), then during spring (2080), then winter (2090). However, the rapid decrease in springtime $R_1$ does not occur until ~2100.
+    % \item The rate of $R_1$ decrease is seasonally dependent. Prior to the RCAE regime transition, the rate of $R_1$ decrease is fastest during winter, slowest during spring, and intermediate during fall. The rate of $R_1$ decrease during spring abruptly increases after the RCAE regime transition, and closely follows the $R_1$ change during winter. It would be interesting to see if we can understand the seasonal dependence of the rate of $R_1$ change by decomposing $\Delta R_1$ into radiative and dynamic components.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Energy balance regime transition
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean}.pdf}
+    \caption{The evolution of wintertime (DJF) $R_1$ in the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+    \label{fig:r1}
+\end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.allseas}.pdf}
+%     \caption{The fall (SON), winter (DJF), spring (MAM), and summer (JJA) evolution of the 20-year rolling average of $R_1$ for the extended RCP8.5 run in MPI-ESM-LR.}
+%     \label{fig:r1-mon-hl-allseas}
+% \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Decomposing the $R_1$ response into dynamic and radiative components}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+    \item To help identify the mechanisms that contribute to the timing of the RCAE regime transition, we decompose $R_1$ into radiative and dynamic components.
+    \item The wintertime $R_1$ evolution closely follows the radiative component until year 2100, when the RCAE regime transition occurs (Fig.~\ref{fig:decomp-ext}). The associated decrease in $R_1$ is consistent with stronger radiative cooling (Fig.~\ref{fig:flux-dev-ext}).
+    % \item In MPI-ESM-LR, the stronger radiative cooling is predominantly associated with clear-sky longwave cooling, suggesting that enhanced optical thickness from increased CO$_2$ and/or water vapor dominates the $R_a$ response (Fig.~\ref{fig:ra-lwcs}).
+    % \item \textbf{TO DO:} Check RH timeseries to see if specific humidity follows or deviates from C-C scaling.
+    % \item Indeed, the RAE model can predict its own demise solely by increasing the surface optical thickness, $\tau_0$ (blue line crosses 0 in Fig.~\ref{fig:rae}). Caveat: the inversion doesn't go away when $\beta=0.2$; a more realistic representation may be to make $\beta$ temperature dependent to reflect the narrowing of the atmospheric window.
+    % \item \textbf{TO DO:} make Fig.~\ref{fig:decomp-ext}, \ref{fig:flux-dev-ext}, and \ref{fig:ra-lwcs} for the fall and spring seasons and for the CMIP5 multimodel mean.
+\end{itemize}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-230012/mon_lat/r1_mon_lat.djfmean}.pdf}
+%     \caption{The wintertime (DJF) time evolution of $R_1$ for the CMIP5 multimodel mean of the extended RCP8.5 runs.}
+%     \label{fig:r1-mon-lat-ext}
+% \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-230012/mon_hl/r1_mon_hl.80.90.djfmean.decomp}.pdf}
+    \caption{The wintertime (DJF) time evolution of $R_1$ decomposed into the dynamic (red) and radiative (gray) components for the CMIP5 multimodel mean of the extended RCP8.5 runs.}
+    \label{fig:decomp-ext}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-230012/mon_hl/flux_dev_mon_hl.80.90.djfmean}.pdf}
+    \caption{The wintertime (DJF) energy flux changes relative to 2006 for the CMIP5 multimodel mean of the extended RCP8.5 runs.}
+    \label{fig:flux-dev-ext}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Sea ice loss controls the existence of the energy balance regime transition}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \item The timing of the regime transition is associated with the timing of sea ice melt (Fig.~\ref{fig:r1-sice}). %For example, the RCAE regime transition occurs earlier in the fall (2050) consistent with the timing of sea ice melt, which occurs earlier in fall compared to winter and spring. The timing of the RCAE regime transition in spring occurs earlier than in winter despite the melting of winter sea ice preceding spring sea ice, because $R_1$ is closer to the RCAE threshold in the modern climate. However, there is still a good agreement between the timing of sea ice melt and the rapid decrease in $R_1$.
+    \item Consider looking at the PAMIP simulations as a way to test the importance of sea ice?
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% R1 and sea ice
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.sic}.pdf}
+    \caption{The evolution of wintertime (DJF) $R_1$ (black, left axis) and the sea ice area fraction (blue, right axis) in the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+    \label{fig:r1-sice}
+\end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/r1_mon_hl/mpi/r1_mon_hl.rcp85.sice.mpi/r1_mon_hl.rcp85.sice.mpi}.pdf}
+%     \caption{The evolution of $R_1$ (black, left axis) and the sea ice area fraction (blue, right axis) in the extended RCP8.5 run of MPI-ESM-LR for (a) fall (SON), (b) winter (DJF), and (c) spring (MAM).}
+%     \label{fig:r1-sice}
+% \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Implications of RCAE in the Arctic
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \item The transition to RCAE is associated with the disappearance of the surface inversion (Fig.~\ref{fig:r1-gadev}) and the emergence of convective precipitation (Fig.~\ref{fig:r1-prfrac}). The near surface lapse rate stabilizes after complete sea ice melt, suggesting that the lower troposphere lapse rate feedback may be weakening after this time \citep[consistent with][]{bintanja2012}. The connection between $R_1$, the lapse rate structure, and precipitation suggests that understanding the mechanisms that control the time evolution of $R_1$ would help us understand the temperature and hydrologic cycle response.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% R1 and lapse rate deviation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.9\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.gadev}.pdf}
+%     \caption{The evolution of wintertime (DJF) $R_1$ (black, left axis) and the lapse rate deviation (blue, right axis) in the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+%     \label{fig:r1-gadev}
+% \end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.djfmean.ga_dev.1.0.9}.pdf}
+    \caption{The evolution of wintertime (DJF) $R_1$ (black, left axis) and the lapse rate deviation (blue, right axis) in the extended RCP8.5 run of MPI-ESM-LR.}
+    \label{fig:r1-gadev}
+\end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=0.9\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/r1_mon_hl/mpi/r1_mon_hl.rcp85.ga_dev.mpi/r1_mon_hl.rcp85.ga_dev.mpi}.pdf}
+%     \caption{The evolution of $R_1$ (black, left axis) and the near surface lapse rate deviation from a moist adiabat (blue, right axis) in the extended RCP8.5 run of MPI-ESM-LR for (a) fall (SON), (b) winter (DJF), and (c) spring (MAM).}
+%     \label{fig:r1-gadev}
+% \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% R1 and precipitation fraction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+    \centering
+    \includegraphics[width=0.9\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.prfrac}.pdf}
+    \caption{The evolution of wintertime (DJF) $R_1$ (black, left axis) and precipitation fraction (blue, right axis) in the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+    \label{fig:r1-prfrac}
+\end{figure}
+
+    \item Decompose the change in MSE flux convergence into 1) mean meridional circulation, stationary eddies, and transient eddies and 2) advected sensible and latent heat flux
+
+\end{itemize}
+
+\bibliographystyle{apalike}
+\bibliography{../../../002/draft/references.bib}
+
+\end{document}

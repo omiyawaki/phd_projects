@@ -32,6 +32,17 @@ def make_title_sim_time_lat(ax, sim, **kwargs):
 
     ax.set_title('%s, %s, $\phi=%g^\circ$ to $%g^\circ$' % (base_title_str(sim, model=model), time_str(timemean), lat1, lat2))
     
+def make_title_sim_time_lat_lon(ax, sim, **kwargs):
+
+    model = kwargs.get('model')
+    timemean = kwargs.get('timemean')
+    lat1 = kwargs.get('lat1')
+    lat2 = kwargs.get('lat2')
+    lon1 = kwargs.get('lon1')
+    lon2 = kwargs.get('lon2')
+
+    ax.set_title('%s, %s\n $\phi=%g^\circ$%s to $%g^\circ$%s, $\lambda=%g^\circ$%s to $%g^\circ$%s' % (base_title_str(sim, model=model), time_str(timemean), abs(lat1), lat_ns(lat1), abs(lat2), lat_ns(lat2), lon1, lon_ew(lon1), lon2, lon_ew(lon2)))
+    
 def base_title_str(sim, **kwargs):
     
     model = kwargs.get('model')
@@ -64,6 +75,8 @@ def base_title_str(sim, **kwargs):
 def time_str(timemean):
     if timemean == 'yearmean' or timemean == '':
         time_str = 'ANN'
+    elif timemean == 'allseas':
+        time_str = 'Seasonal Comparison'
     elif timemean == 'djfmean':
         time_str = 'DJF'
     elif timemean == 'mammean':
@@ -94,3 +107,21 @@ def seas_str(seasmean):
         seas_str = 'ANN'
 
     return seas_str
+
+def lat_ns(lat):
+
+    if lat >= 0:
+        latstr = 'N'
+    else:
+        latstr = 'S'
+
+    return latstr
+
+def lon_ew(lon):
+
+    if lon >= 0:
+        lonstr = 'E'
+    else:
+        lonstr = 'W'
+
+    return lonstr

@@ -1,0 +1,122 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+\usepackage{amsmath,amssymb,amsfonts}
+
+\title{Decomposing $R_1$ into land and ocean contributions}
+\date{October 20, 2021}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+\section*{Derivation 1}
+We begin with the MSE budget:
+\begin{equation}\label{eq:mse}
+    \partial_t m + \nabla\cdot (\mathbf{v}m) = R_a + \mathrm{LH+SH}
+\end{equation}
+For reference, we defined $R_1$ in our manuscript by nondimensionalizing the zonal-mean MSE budget:
+\begin{equation}\label{eq:msez}
+    \underbrace{\frac{[\partial_t m + \nabla\cdot (\mathbf{v}m)]}{[R_a]}}_{R_1} = 1 + \underbrace{\frac{\mathrm{[LH+SH]}}{[R_a]}}_{R_2}
+\end{equation}
+where $[\cdot]$ is the zonal mean. The zonal mean operator can be decomposed into the zonal mean over land ($L$) and ocean ($O$):
+\begin{equation}\label{eq:z}
+    [\cdot] = [\cdot]_L + [\cdot]_O \, ,
+\end{equation}
+where
+\begin{align}\label{eq:loavg}
+    [\cdot]_L &= \frac{1}{2\pi}\int_0^{2\pi} \! f\,(\cdot) \, \mathrm{d}\lambda \\
+    [\cdot]_O &= \frac{1}{2\pi}\int_0^{2\pi} \! (1-f)\,(\cdot) \, \mathrm{d}\lambda 
+\end{align}
+and $f$ is the area fraction of land. Thus, taking the zonal mean of equation~(\ref{eq:mse}) and decomposing into the land and ocean domains yields
+\begin{equation}\label{eq:msezlo}
+    [\partial_t m + \nabla\cdot (\mathbf{v}m)]_L + [\partial_t m + \nabla\cdot (\mathbf{v}m)]_O = [R_a] + [\mathrm{LH+SH}]_L+ [\mathrm{LH+SH}]_O \, ,
+\end{equation}
+where the zonal mean of $R_a$ was not decomposed into separate contributions over land and ocean because the land-ocean contrast of $R_a$ is small compared to advection and surface turbulent fluxes (compare Fig.~\ref{fig:ra-mon-mid} with \ref{fig:div-mon-mid} and \ref{fig:stf-mon-mid}). Then, $R_1$ over land ($R_{1,L}$) and ocean ($R_{1,O}$) may be defined as
+\begin{equation}\label{eq:r1zlo}
+    \underbrace{\frac{[\partial_t m + \nabla\cdot (\mathbf{v}m)]_L}{[R_a]}}_{R_{1,L}} + \underbrace{\frac{[\partial_t m + \nabla\cdot (\mathbf{v}m)]_O}{[R_a]}}_{R_{1,O}} = 1 + \underbrace{\frac{[\mathrm{LH+SH}]_L}{[R_a]}}_{R_{2,L}} + \underbrace{\frac{[\mathrm{LH+SH}]_O}{[R_a]}}_{R_{2,O}}
+\end{equation}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/r1_lo/ra_mon_mid}.png}
+    \caption{The seasonality of the Northern midlatitude (40$^\circ$--60$^\circ$N) $[R_a]$ (black), $[R_a]_L$ (green), and $[R_a]_O$ (blue) for the reanalysis mean.}
+    \label{fig:ra-mon-mid}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/r1_lo/div_mon_mid}.png}
+    \caption{The seasonality of the Northern midlatitude (40$^\circ$--60$^\circ$N) $[\partial_t m + \nabla\cdot(\mathbf{v}m)]$ (black), $[\partial_t m + \nabla\cdot(\mathbf{v}m)]_L$ (green), and $[\partial_t m + \nabla\cdot(\mathbf{v}m)]_O$ (blue) for the reanalysis mean.}
+    \label{fig:div-mon-mid}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/r1_lo/stf_mon_mid}.png}
+    \caption{The seasonality of the Northern midlatitude (40$^\circ$--60$^\circ$N) $[\mathrm{LH+SH}]$ (black), $[\mathrm{LH+SH}]_L$ (green), and $[\mathrm{LH+SH}]_O$ (blue) for the reanalysis mean.}
+    \label{fig:stf-mon-mid}
+\end{figure}
+
+The summertime Northern midlatitude regime transition to RCE occurs over land (green line in Fig.~\ref{fig:r1-mon-mid}). The seasonality of $R_1$ over ocean opposes the seasonality over land (compare blue and green lines in Fig.~\ref{fig:r1-mon-mid}). The residual is negligibly small (black dash-dot line in Fig.~\ref{fig:r1-mon-mid}), consistent with the small land-ocean contrast in $R_a$ (Fig.~\ref{fig:ra-mon-mid}).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/r1_lo/r1_mon_mid}.png}
+    \caption{The seasonality of the Northern midlatitude (40$^\circ$--60$^\circ$N) $R_1$ (solid black), $R_{1,L}$ (green), $R_{1,O}$ (blue), and the residual (dash-dot black) for the reanalysis mean.}
+    \label{fig:r1-mon-mid}
+\end{figure}
+
+\section*{Derivation 2}
+Alternatively, $R_1$ may be defined at every grid point by first nondimensionalizing equation~(\ref{eq:mse}) by $R_a$ and then taking the zonal mean:
+\begin{equation}\label{eq:r1s}
+    \underbrace{\left[\frac{\partial_t m + \nabla\cdot (\mathbf{v}m)}{R_a}\right]}_{R_1^*} = 1 + \underbrace{\left[\frac{\mathrm{LH+SH}}{R_a}\right]}_{R_2^*}
+\end{equation}
+$R_1^*$ differs from $R_1$ in that the former includes the contribution from the covariance of the deviation of advection and radiative cooling from the zonal mean:
+\begin{equation}
+    R_1^* = \left[\frac{\partial_t m + \nabla\cdot(\mathbf{v}m)}{R_a}\right] = \frac{[\partial_t m + \nabla\cdot(\mathbf{v}m)]}{[R_a]} + \left[\frac{(\partial_t m + \nabla\cdot(\mathbf{v}m))^\prime}{(R_a)^\prime}\right] = R_1 + \left[\frac{(\partial_t m + \nabla\cdot(\mathbf{v}m))^\prime}{(R_a)^\prime}\right]
+\end{equation}
+The decomposition into land and ocean domains may be performed similarly for $R_1^*$:
+\begin{equation}\label{eq:r1slo}
+    \underbrace{\left[\frac{\partial_t m + \nabla\cdot (\mathbf{v}m)}{R_a}\right]_L}_{R_{1,L}^*} + \underbrace{\left[\frac{\partial_t m + \nabla\cdot (\mathbf{v}m)}{R_a}\right]_O}_{R_{1,O}^*} = 1 + \underbrace{\left[\frac{\mathrm{LH+SH}}{R_a}\right]_L}_{R_{2,L}^*} + \underbrace{\left[\frac{\mathrm{LH+SH}}{R_a}\right]_O}_{R_{2,O}^*} \, ,
+\end{equation}
+
+The land-ocean decomposition of the alternative definition $R_1^*$ leads to the same qualitative result that the summertime RCE regime transition in the Northern midlatitudes occurs only over land. However, the zonal covariance of advection and radiative cooling leads to a quantitative difference between $R_1$ and $R_1^*$, primarily over land. In particular, the covariance term leads to a larger seasonality in $R_1^*$ due to a smaller summertime $R_1^*$ over land (compare green lines in Fig.~\ref{fig:r1ss-mon-mid} and \ref{fig:r1-mon-mid}).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/r1_lo/r1ss_mon_mid}.png}
+    \caption{The seasonality of the Northern midlatitude (40$^\circ$--60$^\circ$N) $R_1^*$ (solid black), $R_{1,L}^*$ (green), $R_{1,O}^*$ (blue), and the residual (dash-dot black) for the reanalysis mean.}
+    \label{fig:r1ss-mon-mid}
+\end{figure}
+
+The zonal covariance between advection and radiative cooling appears to be associated with topography. For example, the zonal deviation in MSE flux divergence is locally larger in the presence of high topography (e.g., see Tibetan Plateau and the Rocky Mountains in Fig.~\ref{fig:dev-div-lat-lon}), where radiative cooling is weaker (i.e., a smaller negative quantity, see Fig.~\ref{fig:dev-ra-lat-lon}).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/flux/mse_old/lo/jja/dev_div_lat_lon}.png}
+    \caption{The longitudinal and latitudinal structure of summertime (JJA) deviation of atmospheric heat storage plus advection from the zonal mean for the reanalysis mean.}
+    \label{fig:dev-div-lat-lon}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/flux/mse_old/lo/jja/dev_ra_lat_lon}.png}
+    \caption{The longitudinal and latitudinal structure of summertime (JJA) deviation of radiative cooling from the zonal mean for the reanalysis mean.}
+    \label{fig:dev-ra-lat-lon}
+\end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/002/figures/rea/1980_2005/1.00/flux/mse_old/lo/jja/dev_stf_lat_lon}.png}
+%     \caption{The longitudinal and latitudinal structure of summertime (JJA) deviation of surface turbulent fluxes from the zonal mean for the reanalysis mean.}
+%     \label{fig:dev-stf-lat-lon}
+% \end{figure}
+
+% \bibliographystyle{apalike}
+% \bibliography{./references.bib}
+
+\end{document}

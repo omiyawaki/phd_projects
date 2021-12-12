@@ -4,20 +4,36 @@ set -euo pipefail
 # declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
-# declare -a vars_gcm=("ps" "tas" "ta" "zg" "ts" "hus" "huss") # list of GCM variables that we want to process
-declare -a vars_gcm=("evspsbl") # list of GCM variables that we want to process
-# declare -a vars_gcm=("ta") # list of GCM variables that we want to process
+declare -a vars_gcm=("ps" "ta" "zg" "hus") # list of GCM variables that we want to process
+# declare -a vars_gcm=("clt" "clwvi") # list of GCM variables that we want to process
+# declare -a vars_gcm=("ta" "hus" "hur") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "ta" "zg" "hus" "va") # list of GCM variables that we want to process
 declare -a realm=("atmos")
 declare -a clim="historical" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
 declare -a ens="r1i1p1" # ensemble specification 
-declare -a models=$(cd /project2/tas1/ockham/data9/tas/CMIP5_RAW && ls -d */) # list of GCM models to process
-declare -a models=("MPI-ESM-LR/") # list of GCM models to process
-declare -a skip_models="CanAM4/ CanCM4/ CESM1-CAM5-1-FV2/ EC-EARTH/ FIO-ESM/ HadGEM2-A/ HadGEM2-AO/ GFDL-HIRAM-C180/ GFDL-HIRAM-C360/ MRI-AGCM3-2H/ MRI-AGCM3-2S/ NICAM-09/ MPI-ESM-P/"
+# declare -a ens="r0i0p0" # ensemble specification 
+# declare -a models=$(cd /project2/tas1/ockham/data9/tas/CMIP5_RAW && ls -d */) # list of GCM models to process
+# declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "GISS-E2-H/" "GISS-E2-R/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+
+##########################################################
+# SUBSET 1
+##########################################################
+# declare -a models=("HadGEM2-ES/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+declare -a models=("IPSL-CM5A-LR/") # extended RCP runs
 declare -a skip_files=("_eady.nc")
+
+##########################################################
+# SUBSET 2
+##########################################################
+# declare -a models=("bcc-csm1-1/ CNRM-CM5/") # extended RCP runs
+# declare -a models=("CNRM-CM5/") # extended RCP runs
 # declare -a skip_files=("185001-200512.nc _eady.nc")
+
+# declare -a skip_files=("185001-201212.nc _eady.nc")
 # declare -a skip_files=("185001-201212.nc 185001-200512.nc _eady.nc")
+
+declare -a skip_models="inmcm4/ FGOALS-s2/ CanAM4/ CanCM4/ CESM1-CAM5-1-FV2/ EC-EARTH/ FIO-ESM/ HadGEM2-A/ HadGEM2-AO/ GFDL-HIRAM-C180/ GFDL-HIRAM-C360/ MRI-AGCM3-2H/ MRI-AGCM3-2S/ NICAM-09/ MPI-ESM-P/"
 
 out_yr_begin=1850
 out_mn_begin=01
@@ -47,7 +63,7 @@ for dirs in ${models[@]}; do # loop through models
             #     echo "${vars} was already converted. Skipping..."
             # else
                 cd ./${clim}/${realm}/${freq}/${vars}/${ens}/
-                pattern="${vars}_*${dirs%/}*"
+                pattern="${vars}_*${dirs%/}*.nc"
                 files=( $pattern )
                 # remove files that are not original (list of non-original data is contained in variable $delete )
                 for (( i=0; i<${#files[@]}; i++ )); do 
@@ -88,10 +104,31 @@ for dirs in ${models[@]}; do # loop through models
                 # fi
                 fi
 
-                if [ ! $yr_end -eq 2005 ]; then
-                    selmerge="${common}${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}" # write file name with merged time
-                    cdo -O seldate,${out_yr_begin}-${out_mn_begin}-01,${out_yr_end}-${out_mn_end}-31 $cwd/$dirs$merge.nc $cwd/$dirs$selmerge.nc
-                    cdo -O yearmean $cwd/$dirs$selmerge.nc $cwd/$dirs$selmerge.yearmean.nc # combine multiple files into one
+                if [ ! $freq == "fx" ]; then
+                    if [ ! $yr_end -eq 2005 ]; then
+                        selmerge="${common}${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}" # write file name with merged time
+                        cdo -O seldate,${out_yr_begin}-${out_mn_begin}-01,${out_yr_end}-${out_mn_end}-31 $cwd/$dirs$merge.nc $cwd/$dirs$selmerge.nc
+                        cdo -O yearmean $cwd/$dirs$selmerge.nc $cwd/$dirs$selmerge.yearmean.nc # combine multiple files into one
+                    fi
+                fi
+
+                #######################################################################
+                # convert curvilinear to standard lat lon grid for sea ice data
+                #######################################################################
+                if [ ${vars} == "sic" ]; then
+                    ref_file=$(ls ${cwd}/${dirs}tas_*${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}.nc)
+                    sic_file=$(ls ${cwd}/${dirs}sic_*${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}.nc)
+
+                    # rename sic file in original grid
+                    mv ${sic_file} ${sic_file%.nc}.origgrid.nc
+
+                    # first create file containing standard lat-lon grid data (e.g., using tas file)
+                    cdo griddes ${ref_file} > ${cwd}/${dirs}grid_latlon
+                    sed -i "s/generic/lonlat/g" ${cwd}/${dirs}grid_latlon
+
+                    # convert to lat lon
+                    cdo -remapbil,${cwd}/${dirs}grid_latlon ${sic_file%.nc}.origgrid.nc ${sic_file}
+                    
                 fi
 
             cd $rwd/$dirs # go in the model directory

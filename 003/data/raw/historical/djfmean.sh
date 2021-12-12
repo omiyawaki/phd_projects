@@ -1,9 +1,11 @@
 #!/bin/sh
 
-models=("MPI-ESM-LR")
-varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss" "pr" "prc" "evspsbl")
+# models=("MPI-ESM-LR")
+declare -a models=("HadGEM2-ES" "bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
+# varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss" "pr" "prc" "evspsbl")
 # varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" )
 # varnames=("pr" "prc")
+varnames=("clivi")
 sim="historical"
 freq="Amon"
 ens="r1i1p1"

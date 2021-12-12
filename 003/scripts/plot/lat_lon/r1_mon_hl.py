@@ -17,7 +17,7 @@ import matplotlib.patches as patches
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 # import tikzplotlib
 
-def r1_mon_hl(sim, **kwargs):
+def r1_lat_lon(sim, **kwargs):
 
     categ = 'mon_hl'
 

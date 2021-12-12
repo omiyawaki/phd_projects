@@ -1,0 +1,211 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{Outline: The emergence of a new Arctic regime in response to global warming: the transition from RAE to RCAE}
+\date{October 20, 2021}
+\author{Osamu Miyawaki}
+
+\begin{document}
+\maketitle
+
+\section*{Introduction}
+\begin{itemize}
+    \item The Arctic is expected to undergo large and rapid changes associated with sea ice melt in response to anthropogenic increases in CO$_2$ \citep{dai2019, feldl2020}.
+    \begin{itemize}
+        \item Largest surface warming is projected in the Arctic \citep[Arctic Amplification, e.g.][]{manabe1975, held1993a}, especially during wintertime \citep{lu2009}
+        \item Large fractional increase in precipitation \citep{bintanja2014,siler2018}
+    \end{itemize}
+    \item As the Arctic warms and sea ice melts, the surface inversion is expected to vanish \citep{bintanja2012} and precipitation type change from snow to rain \citep{bintanja2017}. Due to the large magnitude and rapidity of these changes an ice-free Arctic has been described as the emergence of a new Arctic \citep{serreze2006, landrum2020}.
+    \item While there is a growing consensus on the mechanisms and feedbacks that contribute to surface warming (Arctic Amplification) \citep[e.g.,][]{pithan2014, feldl2020}, there is greater uncertainty in the response of the atmosphere toward the new Arctic regime \citep{screen2018}.
+    \item Of particular interest is the projected emergence of wintertime deep convection over an ice-free Arctic \citep{abbot2008a}. \cite{hankel2021} reported that wintertime convection (measured by convective precipitation) is active over an ice-free Arctic in all but one model in the ensemble of extended RCP8.5 simulations they investigated. 
+    \item In addition, several studies have investigated the importance of atmospheric heat and moisture transport on Arctic Amplification \citep{graversen2006,graversen2008,hwang2011,woods2016}. Understanding the influence of atmospheric heat transport on Arctic Amplification is difficult because of the compensating effects of decreasing dry static energy transport consistent with a weaker meridional temperature gradient \citep{chemke2020} and increasing moisture transport \citep{hwang2011, graversen2016}.
+    \item Here, we 
+    \begin{enumerate}
+        \item use the moist static energy budget and metric $R_1$ to quantify the column energy balance and show that the Arctic undergoes a regime transition from RAE to RCAE from fall through spring
+        \item show that the timing of the regime transition is seasonally dependent (fall transition occurs first, then winter and spring) and is associated with melting sea ice, vanishing surface inversion, surface amplified warming, and a transition to a nonzero fraction of convective precipitation
+        \item show that the response can be categorized into three phases: 1) onset of the RAE/RCAE regime transition, 2) sea ice melt following the regime transition, and 3) perennially ice free stable state.
+        \item Phase 1 is dominated by changes in radiative cooling, and phase 2 is associated with a decrease in MSE flux convergence into the Arctic.
+        \item We show that the increase in radiative cooling associated with phase 1 is predominantly driven by clear-sky longwave cooling. This suggests that the RAE model \citep{cronin2016} may be able to predict its own demise (using the criterion that the surface inversion vanishes) purely through increasing the optical thickness (i.e., isolating the radiative component of $\Delta R_1$),
+        \item quantify the decrease in MSE flux convergence into contributions from the mean meridional circulation, transient eddies, and stationary eddies,
+        \item show that the decrease in MSE flux convergence is dominated by a decrease in transient eddy heat transport,
+        \item further decompose this into DSE and latent energy transport as we expect there to be compensation between the two \citep{feldl2017},
+        \item test whether the change in MSE flux convergence in the Arctic is consistent with a diffusive closure using a moist-diffusive EBM
+    \end{enumerate}
+\end{itemize}
+
+\section{Transient response of the Arctic energy budget}
+\begin{itemize}
+    % \item CMIP5 multimodel mean of the extended RCP8.5 run (8 models) shows a wintertime regime transition over the Arctic (poleward of ~75$^\circ$N, Fig.~\ref{fig:r1-mon-lat-ext}). Interestingly, the region between 60--70$^\circ$N (dominated by land) remains in RAE.
+    \item A RAE to RCAE regime transition occurs during fall, winter, and spring (Fig.~\ref{fig:r1-mon-hl-allseas}). The timing of the regime transition is seasonally dependent. The fall RCAE regime transition occurs first (around year 2050), then during spring (2080), then winter (2090). However, the rapid decrease in springtime $R_1$ does not occur until ~2100.
+    \item The rate of $R_1$ decrease is seasonally dependent. Prior to the RCAE regime transition, the rate of $R_1$ decrease is fastest during winter, slowest during spring, and intermediate during fall. The rate of $R_1$ decrease during spring abruptly increases after the RCAE regime transition, and closely follows the $R_1$ change during winter. It would be interesting to see if we can understand the seasonal dependence of the rate of $R_1$ change by decomposing $\Delta R_1$ into radiative and dynamic components.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.allseas}.pdf}
+    \caption{The fall (SON), winter (DJF), spring (MAM), and summer (JJA) evolution of the 20-year rolling average of $R_1$ for the extended RCP8.5 run in MPI-ESM-LR.}
+    \label{fig:r1-mon-hl-allseas}
+\end{figure}
+
+    \item The timing of the regime transition is qualitatively associated with the timing of sea ice melt (Fig.~\ref{fig:r1-sice}). For example, the RCAE regime transition occurs earlier in the fall (2050) consistent with the timing of sea ice melt, which occurs earlier in fall compared to winter and spring. The timing of the RCAE regime transition in spring occurs earlier than in winter despite the melting of winter sea ice preceding spring sea ice, because $R_1$ is closer to the RCAE threshold in the modern climate. However, there is still a good agreement between the timing of sea ice melt and the rapid decrease in $R_1$.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/r1_mon_hl/mpi/r1_mon_hl.rcp85.sice.mpi/r1_mon_hl.rcp85.sice.mpi}.pdf}
+    \caption{The evolution of $R_1$ (black, left axis) and the sea ice area fraction (blue, right axis) in the extended RCP8.5 run of MPI-ESM-LR for (a) fall (SON), (b) winter (DJF), and (c) spring (MAM).}
+    \label{fig:r1-sice}
+\end{figure}
+
+    \item The transition to RCAE is associated with the disappearance of the surface inversion (Fig.~\ref{fig:r1-gadev}) and the emergence of convective precipitation (Fig.~\ref{fig:r1-prfrac}). The near surface lapse rate stabilizes after complete sea ice melt, suggesting that the lower troposphere lapse rate feedback may be weakening after this time \citep[consistent with][]{bintanja2012}. The connection between $R_1$, the lapse rate structure, and precipitation suggests that understanding the mechanisms that control the time evolution of $R_1$ would help us understand the temperature and hydrologic cycle response.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/r1_mon_hl/mpi/r1_mon_hl.rcp85.ga_dev.mpi/r1_mon_hl.rcp85.ga_dev.mpi}.pdf}
+    \caption{The evolution of $R_1$ (black, left axis) and the near surface lapse rate deviation from a moist adiabat (blue, right axis) in the extended RCP8.5 run of MPI-ESM-LR for (a) fall (SON), (b) winter (DJF), and (c) spring (MAM).}
+    \label{fig:r1-gadev}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/r1_mon_hl/mpi/r1_mon_hl.rcp85.prfrac.mpi/r1_mon_hl.rcp85.prfrac.mpi}.pdf}
+    \caption{The evolution of $R_1$ (black, left axis) and the fraction of large-scale to total precipitation (blue, right axis) in the extended RCP8.5 run of MPI-ESM-LR for (a) fall (SON), (b) winter (DJF), and (c) spring (MAM).}
+    \label{fig:r1-prfrac}
+\end{figure}
+
+    % \item Can the seasonal cycle of convective precipitation in the current climate constrain the timing of the future regime transition? Unfortunately the modern seasonality of precipitation type and $R_1$ are not in good agreement at least in MPI-ESM-LR (Fig.~\ref{fig:r1-prfrac-meanclim}). However, there is a decent agreement in ERA5 \ref{fig:r1-prfrac-meanclim-era5}, suggesting that the applicability of this analysis may be model-dependent.
+
+    \item \textbf{TO DO}: make Fig.~\ref{fig:r1-mon-hl-allseas}, \ref{fig:r1-sice}, \ref{fig:r1-gadev}, and \ref{fig:r1-prfrac} for the CMIP5 multimodel mean.
+\end{itemize}
+
+\section{$R_1$ and MSE budget decomposition}
+\begin{itemize}
+    \item To help identify the mechanisms that contribute to the timing of the RCAE regime transition, we decompose $R_1$ into radiative and dynamic components.
+    \item The wintertime $R_1$ evolution closely follows the radiative component until year 2100, when the RCAE regime transition occurs (Fig.~\ref{fig:decomp-ext}). The associated decrease in $R_1$ is consistent with stronger radiative cooling (Fig.~\ref{fig:flux-dev-ext}).
+    \item In MPI-ESM-LR, the stronger radiative cooling is predominantly associated with clear-sky longwave cooling, suggesting that enhanced optical thickness from increased CO$_2$ and/or water vapor dominants the $R_a$ response (Fig.~\ref{fig:ra-lwcs}).
+    \item \textbf{TO DO:} Check RH timeseries to see if specific humidity follows or deviates from C-C scaling.
+    \item Indeed, the RAE model can predict its own demise solely by increasing the surface optical thickness, $\tau_0$ (blue line crosses 0 in Fig.~\ref{fig:rae}). Caveat: the inversion doesn't go away when $\beta=0.2$; a more realistic representation may be to make $\beta$ temperature dependent to reflect the narrowing of the atmospheric window.
+    \item \textbf{TO DO:} make Fig.~\ref{fig:decomp-ext}, \ref{fig:flux-dev-ext}, and \ref{fig:ra-lwcs} for the fall and spring seasons and for the CMIP5 multimodel mean.
+\end{itemize}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-230012/mon_lat/r1_mon_lat.djfmean}.pdf}
+%     \caption{The wintertime (DJF) time evolution of $R_1$ for the CMIP5 multimodel mean of the extended RCP8.5 runs.}
+%     \label{fig:r1-mon-lat-ext}
+% \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-230012/mon_hl/r1_mon_hl.80.90.djfmean.decomp}.pdf}
+    \caption{The wintertime (DJF) time evolution of $R_1$ decomposed into the dynamic (red) and radiative (gray) components for the CMIP5 multimodel mean of the extended RCP8.5 runs.}
+    \label{fig:decomp-ext}
+\end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.prfrac}.pdf}
+%     \caption{The wintertime (DJF) time evolution of $R_1$ (black, left axis) and the fraction of large-scale to total precipitation (blue, right axis) in the extended RCP8.5 run of MPI-ESM-LR.}
+%     \label{fig:r1-prfrac}
+% \end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.djfmean.ga_dev.1.0.9}.pdf}
+%     \caption{The wintertime (DJF) time evolution of $R_1$ (black, left axis) and near surface lapse rate deviation from a moist adiabat (blue, right axis) in the extended RCP8.5 run of MPI-ESM-LR.}
+%     \label{fig:r1-gadev}
+% \end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/historical/MPI-ESM-LR/186001-200512/mon_hl/r1_mon_hl.80.90.ymonmean-30.prfrac}.pdf}
+%     \caption{The seasonal evolution of $R_1$ (black, left axis) and the fraction of large-scale to total precipitation (blue, right axis) in the historical run of MPI-ESM-LR.}
+%     \label{fig:r1-prfrac-meanclim}
+% \end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/era5/1979_2019/mon_hl/r1_mon_hl.80.90.ymonmean.prfrac}.pdf}
+%     \caption{The seasonal evolution of $R_1$ (black, left axis) and the fraction of large-scale to total precipitation (blue, right axis) in ERA5.}
+%     \label{fig:r1-prfrac-meanclim-era5}
+% \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-230012/mon_hl/flux_dev_mon_hl.80.90.djfmean}.pdf}
+    \caption{The wintertime (DJF) energy flux changes relative to 2006 for the CMIP5 multimodel mean of the extended RCP8.5 runs.}
+    \label{fig:flux-dev-ext}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/rad_lwcs_dev_mon_hl.80.90.djfmean}.pdf}
+    \caption{The wintertime (DJF) radiative cooling (gray) and the clear-sky longwave radiative cooling component (green) for the extended RCP8.5 run of MPI-ESM-LR.}
+    \label{fig:ra-lwcs}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/scripts/rae/inv_t0}.pdf}
+    \caption{The inversion strength (used as a proxy for existence of RAE) as a function of surface optical depth ($\tau_0$) predicted by the RAE model. Following \cite{cronin2016}, the parameters are set to $p_s=1000$ hPa, $F_s=30$ W m$^{-2}$, $F_a=150$ W m$^{-2}$, $b=1$, $\beta=0$, and $n=2$.}
+    \label{fig:rae}
+\end{figure}
+
+\section{MSE flux divergence decomposition}
+\begin{itemize}
+    \item To decompose MSE flux divergence into contributions from the MMC, SE, and TE, I follow \citep{donohoe2020a} to compute the MSE transports using monthly frequency data. 
+    \item This method involves computing the total atmospheric energy transport as the residual $$F_a = 2\pi a^2\int_{-\pi/2}^{\phi}\cos\phi^\prime (R_a + \mathrm{LH + SH} - \langle\partial_t m\rangle) \mathrm{d}\phi^\prime \, ,$$ mass-conserving MMC transport $[\overline{v}][\overline{m}]$ \citep[following][]{marshall2014}, and SE transport $[\overline{v}^*\overline{m}^*]$ using the commonly available monthly frequency data. Transient eddy transport is then inferred as the residual $$[\overline{v^{*\prime} m^{*\prime}}] = F_a - [\overline{v}][\overline{m}] - [\overline{v^*}\overline{m^*}]$$
+    \item The results I computed for MPI-ESM-LR are generally comparable to those computed for CESM in \cite{donohoe2020a}, except for the noisy feature in the Southern Hemisphere high latitudes (Fig~\ref{fig:vm}). My current suspicion is that my method for calculating surface MSE (I currently evaluate the 3D MSE field at surface pressure by interpolating) is inaccurate. I will try instead computing surface MSE using 2 m temperature, humidity, and surface geopotential.
+    \item To compute the MSE flux divergence, I take the derivative of the energy transported through a latitudinal band ($1/2\pi a^2 cos\phi \partial_\phi(\cdot)$). I perform the derivative using a central finite difference.
+    \item The aforementioned noise issue in the SH high latitudes is compounded after taking the derivative (Fig.~\ref{fig:div}). Possibly because of this issue, there is a significant residual (dashed line), where the three components do not exactly add up to the total MSE flux divergence.
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/lat/vm.ymonmean-30}.pdf}
+    \caption{The annual mean total energy transport (black) decomposed into contributions from the meridional overturning circulation (MOC, green), stationary eddies (blue), and transient eddies (red) averaged over the last 30 years of the extended RCP8.5 run of MPI-ESM-LR.}
+    \label{fig:vm}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/lat/div.ymonmean-30}.pdf}
+    \caption{Similar to Fig.~\ref{fig:vm} but for the energy flux divergences.}
+    \label{fig:div}
+\end{figure}
+
+\subsection{Testing MSE flux divergence computation using 6-hourly ECHAM6 model grid data}
+\begin{itemize}
+    \item The noise present in the transport above is likely associated with the way I handle surface topography. Thus, it would be useful to first compute the transport with model grid data as a reference to which I can compare the transport computed using pressure grid data.
+    \item Currently I obtain the closest agreement between the transports computed using the two different vertical grids when I convert the pressure grid data into sigma coordinates (compare solid and dashed lines in Fig.~\ref{fig:vmmmc} to \ref{fig:vmte}). However, problems still remain, such as the large disagreement in stationary eddy transport around 70 S and 45 N (Fig.~\ref{fig:vmse}) and an anomalous sign change in the transient eddy transport around 70 S (Fig.~\ref{fig:vmte}).
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/data/raw/echam/echr0001/vmmmc}.pdf}
+    \caption{January MSE transport due to the mean meridional circulation computed using model grid data (solid) and pressure grid data (dashed) using ECHAM6 data.}
+    \label{fig:vmmmc}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/data/raw/echam/echr0001/vmse}.pdf}
+    \caption{January MSE transport due to the mean meridional circulation computed using model grid data (solid) and pressure grid data (dashed) using ECHAM6 data.}
+    \label{fig:vmse}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/data/raw/echam/echr0001/vmte}.pdf}
+    \caption{January MSE transport due to the mean meridional circulation computed using model grid data (solid) and pressure grid data (dashed) using ECHAM6 data.}
+    \label{fig:vmte}
+\end{figure}
+
+\section{TO DO: using a moist-diffusive EBM and keeping the diffusivity constant, predict the change in MSE flux convergence using the meridional MSE gradient}
+
+\bibliographystyle{apalike}
+\bibliography{../../../002/draft/references.bib}
+
+\end{document}

@@ -1,9 +1,12 @@
 #!/bin/sh
 
 # declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/historical/ && ls -d */) # list of GCM models to process
-models=("MPI-ESM-LR/")
-# varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
-varnames=("tasi")
+# declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "GISS-E2-H/" "GISS-E2-R/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+declare -a models=("HadGEM2-ES/" "bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+# models=("HadGEM2-ES/")
+varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
+# varnames=("ta")
+# varnames=("ps" "tas" "ta" "zg" "hus")
 sim="historical"
 freq="Amon"
 ens="r1i1p1"
