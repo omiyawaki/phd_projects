@@ -1,0 +1,316 @@
+\documentclass{beamer}
+
+\usepackage{graphicx}
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage[export]{adjustbox}
+\usepackage{xcolor}
+\usepackage{natbib}
+
+\title{Interpreting the vertical structure of global warming using energy balance regimes}
+\author{Osamu Miyawaki}
+\date{Oct. 7, 2021 Group Meeting}
+
+\begin{document}
+
+{\setbeamertemplate{footline}{}\setbeamertemplate{headline}{}\frame{\titlepage}}
+\addtocounter{framenumber}{-1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% introduce figure, note that this structure of warming is used to understand many important climate phenomena
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{\frametitle{The vertical and latitudinal structure of warming is important for many reasons}%\framesubtitle{\insertsubsection}
+    \includegraphics[width=0.8\textwidth]{./vallis-djf.png} \\
+    \begin{center}
+        \tiny{
+            \textit{Source: Fig.~6 from \cite{vallis2015}}
+        }
+    \end{center}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% example 1: tropical storms depend on CAPE (temperature deviation from a moist adiabat)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{\frametitle{The vertical and latitudinal structure of warming is important for many reasons}%\framesubtitle{\insertsubsection}
+    \includegraphics[width=0.8\textwidth]{./vallis-djf.png} \\
+    \begin{center}
+        \tiny{
+            \textit{Source: Fig.~6 from \cite{vallis2015}}
+        }
+    \end{center}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% example 2: midlatitude storms depend on baroclinicity (horizontal and vertical temperature gradients)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{\frametitle{The vertical and latitudinal structure of warming is important for many reasons}%\framesubtitle{\insertsubsection}
+    \includegraphics[width=0.8\textwidth]{./vallis-djf.png} \\
+    \begin{center}
+        \tiny{
+            \textit{Source: Fig.~6 from \cite{vallis2015}}
+        }
+    \end{center}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% example 3: degree of surface warming depends on the vertical structure of warming (lapse rate feedback)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{\frametitle{The vertical and latitudinal structure of warming is important for many reasons}%\framesubtitle{\insertsubsection}
+    \includegraphics[width=0.8\textwidth]{./vallis-djf.png} \\
+    \begin{center}
+        \tiny{
+            \textit{Source: Fig.~6 from \cite{vallis2015}}
+        }
+    \end{center}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% projections of the temperature response like the one just shown are most realistically simulated by state of the art climate models, but their complexity and computational cost makes them difficult tools to use build mechanistic understanding
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{\frametitle{State-of-the-art GCMs provide the most realistic projections of warming but their complexity makes them difficult to understand}%\framesubtitle{\insertsubsection}
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{./gcm.png} \\
+        \tiny{
+            \textit{Source: NOAA (\url{https://celebrating200years.noaa.gov/breakthroughs/climate_model/welcome.html})}
+        }
+    \end{center}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% this is the virtue of using simple models, where the smaller degree of freedom (fewer dimensions, less parameters) allows us to better understand the temperature response by, e.g., testing the sensitivity of the results to different parameters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{\frametitle{Simple models are easier to understand, but their usefulness must be verified with complex models}%\framesubtitle{\insertsubsection}
+    \begin{center}
+        \includegraphics[width=0.75\textwidth]{./payne.png} \\
+        \tiny{
+            \textit{Source: Fig.~1 from \cite{payne2015})}
+        }
+    \end{center}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% it's important, however, to know where and when such simple models are applicable. Otherwise, understanding the simple model may not necessarily translate to understanding the real world
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{\frametitle{Goal: quantify whether simple column models in idealized energy balance regimes are useful for predicting the vertical, latitudinal, and seasonal structure of warming}%\framesubtitle{\insertsubsection}
+    \begin{figure}
+        \centering
+        \begin{subfigure}[t]{0.3\textwidth}
+            \includegraphics[width=\textwidth]{./payne.png} \\
+        \end{subfigure}
+        \hspace{20ex}
+        \begin{subfigure}[t]{0.3\textwidth}
+            \includegraphics[width=\textwidth]{./gcm.png} \\
+        \end{subfigure}
+    \end{figure}
+    %%%%%%%%%%%%%%%%%%%%
+    % draw arrows here to show that we are trying to link the model hierarchy
+    %%%%%%%%%%%%%%%%%%%%
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% I will start by describing what the idealized energy balance regimes are, and the predictions they make about the vertical structure of warming
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{\frametitle{Start by considering the conservation of energy of a latitudinal slice of the atmosphere in the annual mean}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % draw the box representing the atmosphere as a latitudinal cross section
+    %%%%%%%%%%%%%%%%%%%%
+}
+
+\frame{\frametitle{Start by considering the conservation of energy of a latitudinal slice of the atmosphere in the annual mean}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % add sunlight (yellow, SW_toa, SW_sfc) that go through the top and bottom interfaces
+    %%%%%%%%%%%%%%%%%%%%
+}
+
+\frame{\frametitle{Start by considering the conservation of energy of a latitudinal slice of the atmosphere in the annual mean}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % add earthlight (green, LW_toa, LW_sfc) that go through the top and bottom interfaces
+    %%%%%%%%%%%%%%%%%%%%
+}
+
+\frame{\frametitle{Radiation: a net cooling flux (longwave cooling dominates over shortwave heating)}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % show the combined sunlight/earthlight fluxes as radiative fluxes (gray)
+    %%%%%%%%%%%%%%%%%%%%
+}
+
+\frame{\frametitle{Advection: heat flux associated with energy transported by horizontal atmospheric motion}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % add the advective heat flux (red, divergence of energy flux) through the horizontal boundary
+    %%%%%%%%%%%%%%%%%%%%
+}
+
+\frame{\frametitle{Convection: latent heat flux (evaporation) and sensible heat flux}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % add the surface turbulent fluxes (blue and orange) through the bottom boundary
+    %%%%%%%%%%%%%%%%%%%%
+}
+
+\frame{\frametitle{Convection: latent heat flux (evaporation) and sensible heat flux}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % now that all the terms are drawn, show the full equation and color code
+    %%%%%%%%%%%%%%%%%%%%
+}
+
+\frame{\frametitle{1st idealized energy balance regime: Radiative Convective Equilibrium (RCE)}%\framesubtitle{\insertsubsection}
+}
+    %%%%%%%%%%%%%%%%%%%%
+    % in the drawing and equation, make the advective flux literally small
+    % say that this kind of dominant balance can be expressed through a non-dimensional number
+    % the non-dimensional number quantifies the importance of advective heating in balancing the radiative cooling
+% thus, RCE corresponds to R1 <~ 0, or (R1 <= epsilon, where epsilon is a small number)
+    %%%%%%%%%%%%%%%%%%%%
+
+\frame{\frametitle{RCE predicts that the warming response will be amplified aloft due to increased latent heating}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % in the simplest form, warming response in RCE is represented as a moist adiabat
+    % draw a rough sketch of the temperature response as a function of height (z) (makes it easier for demonstrative purposes because the DALR is a constant in height coordinates)
+    %%%%%%%%%%%%%%%%%%%%
+}
+
+\frame{\frametitle{RCE predicts that the warming response will be amplified aloft due to increased latent heating}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % why does it predict this?
+    % a moist adiabat is the temperature profile that considers two processes of an ascending parcel -- expansive cooling and latent heating from condensation
+    % the rate of expansive cooling is not a function of temperature -- in height coordinates, it's a constant, 10 K/km
+    % thus the vertical structure comes solely from an increase in latent heating 
+    % warming amplifies aloft because in the moist adiabat, latent heating is positive-definite; i.e. only considers condensation (not evaporation), so a parcel that has more moisture becomes cumulatively warmer as it rises
+    %%%%%%%%%%%%%%%%%%%%
+}
+
+\frame{\frametitle{2nd idealized energy balance regime: Radiative Advective Equilibrium (RAE)}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % in the drawing and equation, make the surface turbulent fluxes literally small
+    % since advective heating primarily balances radiative cooling in this regime, this corresponds to where R1 >~ 1, or (R1 >= 1-epsilon)
+    %%%%%%%%%%%%%%%%%%%%
+}
+
+\frame[t]{\frametitle{RAE predicts that the warming response will be amplified at the surface (if there is no significant increase in advective heat flux)}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % the warming response in RAE is sensitive to the type of forcing
+    % first show the surface forcing 
+    %%%%%%%%%%%%%%%%%%%%
+    \vspace{0.5 cm}
+    \makebox[5 cm]{\color{red} Surface forcing:} \includegraphics[height=0.1\textwidth, valign=m]{./payne-fs.png} \\
+}
+
+\frame[t]{\frametitle{RAE predicts that the warming response will be amplified at the surface (if there is no significant increase in advective heat flux)}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % the warming response in RAE is sensitive to the type of forcing
+    % first show the surface forcing 
+    %%%%%%%%%%%%%%%%%%%%
+    \vspace{0.5 cm}
+    \makebox[5 cm]{\color{red} Surface forcing:} \includegraphics[height=0.1\textwidth, valign=m]{./payne-fs.png} \\
+    \vspace{1 cm}
+    \makebox[5 cm]{\color{red} Radiative forcing:} \includegraphics[height=0.1\textwidth, valign=m]{./payne-fr.png} \\
+}
+
+\frame[t]{\frametitle{RAE predicts that the warming response will be amplified at the surface (if there is no significant increase in advective heat flux)}%\framesubtitle{\insertsubsection}
+    %%%%%%%%%%%%%%%%%%%%
+    % the warming response in RAE is sensitive to the type of forcing
+    % first show the surface forcing 
+    %%%%%%%%%%%%%%%%%%%%
+    \vspace{0.5 cm}
+    \makebox[5 cm]{\color{red} Surface forcing:} \includegraphics[height=0.1\textwidth, valign=m]{./payne-fs.png} \\
+    \vspace{1 cm}
+    \makebox[5 cm]{\color{red} Radiative forcing:} \includegraphics[height=0.1\textwidth, valign=m]{./payne-fr.png} \\
+    \vspace{1 cm}
+    \makebox[5 cm]{\color{blue} Advective forcing:} \includegraphics[height=0.06\textwidth, valign=m]{./payne-fa.png} \\
+}
+
+\frame{\frametitle{Annual-mean energy balance regimes do not significantly change by the end of the century;\\ thus, we expect RCE and RAE predictions to work}%\framesubtitle{\insertsubsection}
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/energy-flux/lo/ann/mse_old-r1z-rcp.png}
+}
+
+\frame{\frametitle{Annual-mean energy balance regimes do not significantly change by the end of the century;\\ thus, we expect RCE and RAE predictions to work}%\framesubtitle{\insertsubsection}
+    % describe what the axes are, what the different lines represent, and the different shading
+    % note (circle) that there is a slight change in regimes in the NH high latitudes
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/energy-flux/lo/ann/mse_old-r1z-rcp.png}
+}
+
+\frame{\frametitle{In the annual mean,\\ RCE (red lines) exhibit amplified warming aloft,\\ RAE (blue lines) exhibit amplified surface warming}%\framesubtitle{\insertsubsection}
+    % describe the axes, the binning process, and the color
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/gcm/mmm/historical/198001-200512/1.00/dtempsi_binned_r1/mse_old/lo/dtempsi_r1_all.png}
+}
+
+\frame{\frametitle{Seasonally, the vertical structure of the warming response in the tropics and the Southern high latitudes is consistent with modern energy balance regimes }%\framesubtitle{\insertsubsection}
+    % describe what the contours mean
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_dtempr_dev/r1_dtempr_dev.pdf}
+}
+
+\frame{\frametitle{Seasonally, the vertical structure of the warming response in the tropics and the Southern high latitudes is consistent with modern energy balance regimes }%\framesubtitle{\insertsubsection}
+    % highlight the tropics
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_dtempr_dev/r1_dtempr_dev.pdf}
+}
+
+\frame{\frametitle{Seasonally, the vertical structure of the warming response in the tropics and the Southern high latitudes is consistent with modern energy balance regimes }%\framesubtitle{\insertsubsection}
+    % highlight the Southern high latitudes 
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_dtempr_dev/r1_dtempr_dev.pdf}
+}
+
+\frame{\frametitle{Seasonally, the vertical structure of the warming response in the tropics and the Southern high latitudes is consistent with modern energy balance regimes }%\framesubtitle{\insertsubsection}
+    % highlight the NH midlatitudes and discuss the discrepancy in the timing of modern energy balance regimes
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_dtempr_dev/r1_dtempr_dev.pdf}
+}
+
+\frame{\frametitle{Seasonally, the vertical structure of the warming response in the tropics and the Southern high latitudes is consistent with modern energy balance regimes }%\framesubtitle{\insertsubsection}
+    % highlight the NH high latitudes and discuss how there are large changes in the energy balance regime, and how the assumption of surface amplified warming breaks down in the summer
+    \includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_dtempr_dev/r1_dtempr_dev.pdf}
+    % segue into the next section by highlighting the need to understand the change in R1/energy balance regimes to understand the warming response
+    % first focus on the new RCAE regime that appears to emerge in late fall/early winter
+}
+
+\frame{\frametitle{The Arctic wintertime RCAE regime transition coincides with an inversion-free lapse rate regime transition}%\framesubtitle{\insertsubsection}
+    % this suggests that understanding the change in R1 can be useful for interpreting the structure of the wintertime Arctic warming response
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.djfmean.ga_dev.1.0.9}.pdf}
+}
+
+\frame{\frametitle{The RCAE regime transition also coincides with an increase in convective precipitation}%\framesubtitle{\insertsubsection}
+    % this suggests that understanding the change in R1 can be useful for interpreting the structure of the wintertime Arctic warming response
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.djfmean.prfrac}.pdf}
+}
+
+\frame{\frametitle{Surface turbulent fluxes increase, which is balanced by increased radiative cooling and decreased advective heat flux}%\framesubtitle{\insertsubsection}
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/flux_dev_mon_hl.80.90.djfmean}.pdf}
+}
+
+\frame{\frametitle{We Taylor expand the seasonality of $R_1$ to diagnose which term in the MSE budget contributes to the RCAE regime transition}%\framesubtitle{\insertsubsection}
+    \begin{equation*}
+      \Delta R_1 = \overline{R_1}\left( \frac{\Delta(\partial_t h + \nabla\cdot F_m)}{\overline{\partial_t h + \nabla\cdot F_m}}  - \frac{\Delta R_a }{\overline{R_a}}\right) + \mathsf{Residual} 
+    \end{equation*}
+}
+
+\frame{\frametitle{Increased radiative cooling dominantes the transition toward RCAE; afterward, decreased advective heat flux becomes more important}%\framesubtitle{\insertsubsection}
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.djfmean}.pdf}
+}
+
+\frame{\frametitle{Hypothesis: sea ice melt controls the wintertime regime transition toward RCAE}%\framesubtitle{\insertsubsection}
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.djfmean.sic}.pdf}
+}
+
+\frame{\frametitle{Summertime RAE regime transition is dominated by increased advective heat flux}%\framesubtitle{\insertsubsection}
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/MPI-ESM-LR/200601-230012/mon_hl/r1_mon_hl.80.90.jjamean.decomp}.pdf}
+}
+
+\frame{\frametitle{Summary}%\framesubtitle{\insertsubsection}
+    \begin{itemize}
+        \item In the annual mean, energy balance regimes in the modern climate are a useful guide for interpreting the vertical structure of warming
+        \item Similar results apply seasonally in the tropics and the Southern high latitudes
+        \item There is a discrepancy between the timing of energy balance regimes in the modern climate and the warming response that is associated with seasonal atmospheric heat storage
+        \item Understanding the warming response in the Arctic requires understanding the change in energy balance regimes
+    \end{itemize}
+}
+
+
+\begin{frame}[fragile,allowframebreaks]
+  % In your presentation, remove `\nocite` here and
+  % use `\cite` throughout the presentation.
+
+  \frametitle{References}
+  \scriptsize
+  \bibliographystyle{apalike}
+  \bibliography{../../draft/references}
+\end{frame}
+
+
+\end{document}

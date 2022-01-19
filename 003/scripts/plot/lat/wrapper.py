@@ -1,6 +1,7 @@
 from vm_lat import *
 from div_lat import *
 from hydro_lat import *
+from ke_lat import *
 
 ####################################
 ## CMIP5
@@ -9,6 +10,7 @@ from hydro_lat import *
 # sim = 'rcp85'
 # yr_span = '200601-230012'
 
+models = ['IPSL-CM5A-LR']
 sim = 'historical'
 yr_span='186001-200512'
 refclim = 'hist-30'
@@ -23,15 +25,16 @@ refclim = 'hist-30'
 # refclim = 'hist-30'
 # models = ['HadGEM2-ES', 'GISS-E2-H', 'GISS-E2-R', 'bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
 # models = ['HadGEM2-ES', 'bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
-models = ['HadGEM2-ES', 'bcc-csm1-1', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
+# models = ['HadGEM2-ES', 'bcc-csm1-1', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
 # models = ['MPI-ESM-LR']
 
 
-mmm = 1
+# mmm = 1
+mmm = 0
 # sim = 'rcp85'
 timemean = 'ymonmean-30'
 viewplt = 0
-try_load = 1
+try_load = 0
 legend = 1
 
 if mmm:
@@ -42,4 +45,5 @@ else:
 
         # vm_lat(sim, viewplt=viewplt, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, legend=legend)
         # div_lat(sim, viewplt=viewplt, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, legend=legend)
-        hydro_lat(sim, viewplt=viewplt, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, legend=legend)
+        # hydro_lat(sim, viewplt=viewplt, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, legend=legend)
+        ke_lat(sim, viewplt=viewplt, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, legend=legend)

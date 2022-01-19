@@ -48,45 +48,43 @@ def make_ga_dev_vint(sim, vertbnd, **kwargs):
     # location of pickled vertically-integrated lapse rate deviation data
     ga_dev_vint_file = remove_repdots('%s/ga_dev_vint.%g.%g.%s.%s.%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean))
 
-    if not (os.path.isfile(ga_dev_vint_file) and try_load):
+    # if not (os.path.isfile(ga_dev_vint_file) and try_load):
 
-        ga_dev = make_ga_dev(sim, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
+    ga_dev = make_ga_dev(sim, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
 
-        t0 = start_time('Computing vertical integral of lapse rate deviation...')
+    t0 = start_time('Computing vertical integral of lapse rate deviation...')
 
-        f = interpolate.interp1d(ga_dev['grid']['lev'], ga_dev['ga_dev'], axis=1)
+    f = interpolate.interp1d(ga_dev['grid']['lev'], ga_dev['ga_dev'], axis=1)
 
-        # identify which bound is the lower/upper bound
-        if ((vertbnd[0] > vertbnd[1]) and vertcoord in ['si', 'pa'] ):
-            vertbnd_lo = vertbnd[0]
-            vertbnd_up = vertbnd[1]
-        else:
-            vertbnd_lo = vertbnd[1]
-            vertbnd_up = vertbnd[0]
-        # vertically interpolate between the provided bounds
-        ga_dev_itp = f(np.linspace(vertbnd_up,vertbnd_lo,ga_dev['grid']['lev'].size))
-
-        ga_dev_vint = {}
-        ga_dev_vint['grid'] = {}
-        ga_dev_vint['grid']['lon'] = ga_dev['grid']['lon']
-        ga_dev_vint['grid']['lat'] = ga_dev['grid']['lat']
-        ga_dev_vint['ga_dev_vint'] = np.mean(ga_dev_itp, axis=1)
-        ga_dev_itp = None
-
-        # plot_mon_lat_test(ga_dev_vint, 'ga_dev_vint')
-        end_time(t0)
-
-        t0 = start_time('Pickling vertically-integrated lapse rate deviation...')
-
-        pickle.dump(ga_dev_vint, open(remove_repdots('%s/ga_dev_vint.%g.%g.%s.%s.%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean)), 'wb'))
-
-        end_time(t0)
+    # identify which bound is the lower/upper bound
+    if ((vertbnd[0] > vertbnd[1]) and vertcoord in ['si', 'pa'] ):
+        vertbnd_lo = vertbnd[0]
+        vertbnd_up = vertbnd[1]
     else:
-        t0 = start_time('Reading vertically-integrated lapse rate deviation...')
+        vertbnd_lo = vertbnd[1]
+        vertbnd_up = vertbnd[0]
+    # vertically interpolate between the provided bounds
+    ga_dev_itp = f(np.linspace(vertbnd_up,vertbnd_lo,ga_dev['grid']['lev'].size))
 
-        ga_dev_vint = pickle.load(open(ga_dev_vint_file, 'rb'))
+    ga_dev_vint = {}
+    grid = {}
+    grid['lon'] = ga_dev['grid']['lon']
+    grid['lat'] = ga_dev['grid']['lat']
+    # ga_dev_vint['grid'] = {}
+    # ga_dev_vint['grid']['lon'] = ga_dev['grid']['lon']
+    # ga_dev_vint['grid']['lat'] = ga_dev['grid']['lat']
+    ga_dev_vint['ga_dev_vint'] = np.mean(ga_dev_itp, axis=1)
+    ga_dev_itp = None
 
-        end_time(t0)
+    # plot_mon_lat_test(ga_dev_vint, 'ga_dev_vint')
+    end_time(t0)
+
+    # else:
+    #     t0 = start_time('Reading vertically-integrated lapse rate deviation...')
+
+    #     [ga_dev_vint, grid] = pickle.load(open(ga_dev_vint_file, 'rb'))
+
+    #     end_time(t0)
 
     if zonmean:
         t0 = start_time('Computing zonal mean of vertically-integrated lapse rate deviation...')
@@ -94,6 +92,12 @@ def make_ga_dev_vint(sim, vertbnd, **kwargs):
         ga_dev_vint['ga_dev_vint'] = np.mean(ga_dev_vint['ga_dev_vint'],2)
 
         end_time(t0)
+
+    t0 = start_time('Pickling vertically-integrated lapse rate deviation...')
+
+    pickle.dump([ga_dev_vint, grid], open(remove_repdots('%s/ga_dev_vint.%g.%g.%s.%s.%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean)), 'wb'), protocol=4)
+
+    end_time(t0)
 
     return ga_dev_vint
 
@@ -178,7 +182,7 @@ def make_ga_dev(sim, **kwargs):
 
             ga_m = make_ga_m(sim, ga_m_indata, model=model, vertcoord=vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
 
-            pickle.dump(ga_m, open(remove_repdots('%s/ga_m%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'))
+            pickle.dump(ga_m, open(remove_repdots('%s/ga_m%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'), protocol=4)
 
             ga_m_indata = None
 
@@ -197,7 +201,7 @@ def make_ga_dev(sim, **kwargs):
 
         t0 = start_time('Pickling lapse rate deviation...')
 
-        pickle.dump(ga_dev, open(remove_repdots('%s/ga_dev.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'))
+        pickle.dump(ga_dev, open(remove_repdots('%s/ga_dev.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'), protocol=4)
 
         end_time(t0)
 

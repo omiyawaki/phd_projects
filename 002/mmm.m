@@ -1,4 +1,4 @@
-% This script imports all CMIP data and creates the multi-model mean
+
 clc; close all; clear variables;
 
 addpath(genpath('/project2/tas1/miyawaki/matlab'));
@@ -14,7 +14,6 @@ par.erai.yr_span = '1980_2005'; % spanning years for ERA-Interim
 par.era5.yr_span = '1980_2005'; % spanning years for ERA5
 par.jra55.yr_span = '1980_2005'; % spanning years for JRA55
 % par.gcm.yr_span = '198001-200512'; % spanning years for JRA55
-par.gcm.yr_span = '207001-209912'; % spanning years for JRA55
 par.era5c.yr_span = par.era5.yr_span;
 par.merra2c.yr_span = '1980_2005'; % spanning years for MERRA2
 par.outname = 'mmm'; % use mmm for standard multimodel mean (all models available) and mmm_subset where subset=name of climate where you are taking the mmm of the subset of models in common with the subset climate
@@ -30,37 +29,38 @@ par.si = 1e-5*par.pa; % high resolution vertical grid to interpolate to
 % par.si_eval = [0.8 0.85 0.9]; % sigma level for evaluating inversion strength (T(si_eval) - T(surface))
 % par.si_bl_swp = [0.85 0.9 0.95]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
 par.si_eval = [0.9]; % sigma level for evaluating inversion strength (T(si_eval) - T(surface))
-par.si_bl_swp = [0.7 0.8 0.9]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
+par.si_bl_swp = [0.7]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
 par.si_up_list = [0.3]; % sigma level for upper boundary of vertical average for close to moist adiabatic
 % par.si_up_list = [0.1]; % sigma level for upper boundary of vertical average for close to moist adiabatic
 par.z = [0:500:40e3]';
-par.land_list = {'lo'};
+par.land_list = {'lo', 'l', 'o'};
 par.frz = 0;
 par.rea.fw = {'mse', 'mse_old'};
 % par.gcm.fw = {'mse', 'mse_old'};
-par.gcm.fw = {'mse_old'};
+par.gcm.fw = {'mse', 'mse_old'};
 par.cpd = 1005.7; par.cpv = 1870; par.cpl = 4186; par.cpi = 2108; par.Rd = 287; par.Rv = 461; par.g = 9.81; par.L = 2.501e6; par.a = 6357e3; par.eps = 0.622; % common constants, all in SI units for brevity
 end
 
-type = 'gcm';
-par.model_list = par.gcm_models;
-par.clim = par.gcm.clim;
+% type = 'gcm';
+% par.model_list = par.gcm_models;
+% par.clim = par.gcm.clim;
 
-% type = 'rea';
-% par.model_list = {'era5c', 'jra55', 'merra2c'};
-% par.clim = '1980_2005';
+type = 'rea';
+par.model_list = {'era5c', 'jra55', 'merra2c'};
+par.clim = '1980_2005';
 
 make_grid(type, par);
 % choose_mmm_raw_2d(type, par);
 % choose_mmm_lat_mon_lev(type, par); % make mmm of mon x lat x lev data
 % choose_mmm_lat_mon(type, par); % make mmm of mon x lat data
 % choose_mmm_lon_lat(type, par); % make mmm of lon x lat data
-choose_mmm_lat(type, par); % make mmm of lat data
+% choose_mmm_lat(type, par); % make mmm of lat data
 % choose_mmm_mon(type, par); % make mmm of lat data
 for i=1:length(par.si_bl_swp); par.si_bl = par.si_bl_swp(i);
     for i=1:length(par.si_up_list); par.si_up = par.si_up_list(i);
         % choose_mmm_lat_mon_bl(type, par);
         % choose_mmm_lat_bl(type, par);
+        choose_mmm_lon_lat_bl(type, par); % make mmm of lon x lat data
     end
 end
 
@@ -99,11 +99,11 @@ function choose_mmm_lat_mon_lev(type, par)
     % mmm_dtempsi_mon_lat(type, par);
 
     % mmm_ma_mon_lat(type, par);
-    mmm_ga_diff_mon_lat(type, par);
-    mmm_ga_frac_mon_lat(type, par);
-    mmm_gad_frac_mon_lat(type, par);
+    % mmm_ga_diff_mon_lat(type, par);
+    % mmm_ga_frac_mon_lat(type, par);
+    % mmm_gad_frac_mon_lat(type, par);
 
-    % mmm_ga_frac_midlatitude(type, par);
+    mmm_ga_frac_midlatitude(type, par);
     % mmm_ga_frac_polar(type, par);
 end
 
@@ -113,9 +113,9 @@ function choose_mmm_lat_mon(type, par)
 end
 
 function choose_mmm_lat_mon_bl(type, par)
-    mmm_ga_dalr_bl_diff_si_mon_lat(type, par);
+    % mmm_ga_dalr_bl_diff_si_mon_lat(type, par);
     % mmm_ga_malr_bl_diff_si_mon_lat(type, par);
-    % mmm_ga_malr_diff_si_mon_lat(type, par);
+    mmm_ga_malr_diff_si_mon_lat(type, par);
 
     % mmm_ga_malr_diff_midlatitude_line(type, par);
     % mmm_ga_malr_bl_diff_polar_line(type, par);
@@ -125,15 +125,19 @@ function choose_mmm_lon_lat(type, par)
     mmm_flux_t(type, par);
 end
 
+function choose_mmm_lon_lat_bl(type, par)
+    mmm_ga_malr_diff_si_lon_lat(type, par);
+end
+
 function choose_mmm_lat(type, par)
     mmm_flux_zt(type, par);
     % mmm_vh(type, par);
 end
 
 function choose_mmm_lat_bl(type, par)
-    mmm_ga_dalr_bl_diff_si_lat(type, par);
+    % mmm_ga_dalr_bl_diff_si_lat(type, par);
     % mmm_ga_malr_bl_diff_si_lat(type, par);
-    % mmm_ga_malr_diff_si_lat(type, par);
+    mmm_ga_malr_diff_si_lat(type, par);
 end
 
 function choose_mmm_mon(type, par)

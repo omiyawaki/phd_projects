@@ -1,0 +1,122 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{Outline: The trajectory toward the emergence of a new energy balance regime in the Arctic}
+\date{December 2, 2021}
+\author{Osamu Miyawaki, Tiffany A. Shaw, Malte F. Jansen}
+
+\begin{document}
+\maketitle
+
+\section*{Introduction}
+\begin{itemize}
+    \item The Arctic is expected to undergo large and rapid changes associated with sea ice melt in response to anthropogenic increases in CO$_2$ \citep{dai2019, feldl2020}.
+    \begin{itemize}
+        \item Largest surface warming is projected in the Arctic \citep[Arctic Amplification, e.g.][]{manabe1975, held1993a}, especially during wintertime \citep{lu2009}
+        \item Large fractional increase in precipitation \citep{bintanja2014,siler2018,pithan2021}
+    \end{itemize}
+
+    \item As the Arctic warms and sea ice melts, the surface inversion is expected to vanish \citep{bintanja2012} and precipitation type change from snow to rain \citep{bintanja2017}. Due to the large magnitude and rapidity of these changes an ice-free Arctic has been described as the emergence of a new Arctic \citep{serreze2006, landrum2020}.
+    \item While there is a growing consensus on the mechanisms and feedbacks that contribute to surface warming (Arctic Amplification) \citep[e.g.,][]{pithan2014, feldl2020}, there is greater uncertainty in the response of the atmosphere \citep{screen2018}.
+    \item Of particular interest is the projected emergence of wintertime deep convection over an ice-free Arctic \citep{abbot2008a}. \cite{hankel2021} reported that wintertime convection (measured by convective precipitation) is active over an ice-free Arctic in all but one model in the ensemble of extended RCP8.5 simulations they investigated. 
+    \item In addition, several studies have investigated the importance of atmospheric heat and moisture transport on Arctic Amplification \citep{graversen2006,graversen2008,hwang2011,woods2016}. Understanding the influence of atmospheric heat transport on Arctic Amplification is difficult because of the compensating effects of decreasing dry static energy transport consistent with a weaker meridional temperature gradient \citep{chemke2020} and increasing moisture transport \citep{hwang2011, graversen2016}.
+    \item Much of the literature of the atmospheric response to sea ice loss focuses on the equilibrium response. However, the transient response (time evolution) is important, as the abruptness winter sea ice loss \citep{hankel2021} may also suggest an abrupt atmospheric response.
+    \item Here, we 
+    \begin{enumerate}
+        \item investigate the transient response of the Arctic atmosphere to projected Anthropogenic climate change using $R_1$.
+        \item seek to understand the physical mechanisms that contribute to the temporal evolution of the Arctic energy balance regimes
+    \end{enumerate}
+
+\end{itemize}
+
+\begin{itemize}
+    \item quantify the decrease in MSE flux convergence into contributions from the mean meridional circulation, transient eddies, and stationary eddies,
+    \item show that the decrease in MSE flux convergence is dominated by a decrease in transient eddy heat transport,
+    \item further decompose this into DSE and latent energy transport as we expect there to be compensation between the two \citep{feldl2017},
+    \item test whether the change in MSE flux convergence in the Arctic is consistent with a diffusive closure using a moist-diffusive EBM
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The temporal evolution of the Arctic RAE to RCAE regime transition}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+    \item The transient evolution of the Arctic energy balance regime to projected Anthropogenic climate change is quantified using the multi-model mean of 7 CMIP5 extended RCP8.5 runs.
+    \item The extended RCP8.5 run allows us to investigate the transient evolution (as opposed to say the abrupt4xCO2 run) in response to complete wintertime sea ice loss.
+    \item The Arctic atmosphere undergoes a wintertime (DJF) regime transition from RAE to RCAE (Fig.~\ref{fig:r1}a).
+    \item The time evolution of the regime transition coincides closely to sea ice loss (Fig.~\ref{fig:r1}b), the disappearance of the surface inversion (Fig.~\ref{fig:r1}c), and an increase in convective precipitation fraction (Fig.~\ref{fig:r1}d).
+    \item Thus, understanding the temporal evolution of energy balance regimes is useful for understanding the vertical structure of the warming response and the hydrological cycle response in the Arctic.
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/fig_1/fig_1}.pdf}
+    \caption{The evolution of wintertime (DJF) $R_1$ (a--d, black, left axis), sea ice area fraction (b, blue, right axis), near-surface lapse rate deviation from a moist adiabat (c, blue, right axis), and convective precipitation fraction (d, blue, right axis) in the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+    \label{fig:r1}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The radiatively- and dynamically-driven phases of the regime transition}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+    \item We decompose $\Delta R_1$ (where the change is taken relative to the 1975--2005 historical mean) into radiative and dynamic components following \cite{miyawaki2021} to show that the there are two phases to the temporal evolution of $R_1$: 1) the radiatively driven phase prior to the onset of the regime transition, and 2) the dynamically driven phase after the regime transition (Fig~\ref{fig:r1-decomp}a).
+    \item Both phases contribute to a decrease in $R_1$ (moving from the RAE to the RCAE regime).
+    \item The radiatively-driven phase is associated with enhanced (more negative) radiative cooling and negligible changes in the MSE flux divergence (Fig.~\ref{fig:r1-decomp}b).
+    \item The dynamically-driven phase is associated with decreased MSE flux convergence (smaller negative $\partial_y(vm)$) that becomes apparent beyond 2100 (Fig.~\ref{fig:r1-decomp}b), when winter sea ice fraction is less than 50\% (Fig.~\ref{fig:r1}b).
+    \item \textbf{To do}: quantitatively show that the onset of the dynamically-driven phase is linked to sea ice loss, e.g. by plotting the R1 evolution as a function of sea ice fraction on the x-axis (instead of time).
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/fig_2/fig_2}.pdf}
+    \caption{The wintertime (DJF) time evolution of (a) $R_1$ decomposed into the dynamic (red) and radiative (gray) components and (b) energy flux changes (relative to the 1975--2005 historical mean) for the CMIP5 multimodel mean of the extended RCP8.5 runs.}
+    \label{fig:r1-decomp}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{What mechanisms control the radiatively-driven $\Delta R_1$?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+    \item Enhanced radiative cooling is predominantly driven by clear-sky longwave cooling (i.e., change in cloud longwave effect is negligible, Fig.~\ref{fig:ra-lwcs}). (Note that the SW component is 0 here because DJF isduring polar night)
+    \item The physics of enhanced clear-sky radiative cooling with warming can be investigated in a single column model.
+    \item To do: Set up SCAM and see if the transient response of the radiatively-driven $\Delta R_a$ to increased CO2 concentration is consistent with the CMIP5 multimodel mean.
+    \item Using SCAM, investigate the relative importance of increased CO$_2$ (direct effect) and increased water vapor associated with warming (e.g., assuming fixed and varying $\mathrm{RH}$) on the magnitude of the change in clear-sky longwave cooling, 
+    \item Are the results consistent with the existing literature that hypothesize that the enhanced greenhouse effect due to increased moisture (from enhanced latent heat flux associated with sea ice loss) is important \citep{boeke2018,feldl2021}?
+    % \item This suggests that the RAE model \citep{cronin2016} may be able to predict its own demise (using the criterion that the surface inversion vanishes) purely through increasing the optical thickness (i.e., isolating the radiative component of $\Delta R_1$),
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/fig_3/fig_3}.pdf}
+    \caption{The wintertime (DJF) radiative cooling (gray) decomposed into the clear-sky (dashed green) and cloudy-sky (dotted green) longwave (red) and shortwave (blue) components for (a) the CMIP5 multimodel mean of the extended RCP8.5 runs and (b) SCAM.}
+    \label{fig:ra-lwcs}
+\end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/rad_lwcs_dev_mon_hl.80.90.djfmean}.pdf}
+%     \caption{The wintertime (DJF) radiative cooling (gray) and the clear-sky (dashed green) and cloudy-sky (dotted green) longwave radiative cooling component for the CMIP5 multimodel mean of the extended RCP8.5 runs.}
+%     \label{fig:ra-lwcs}
+% \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{What mechanisms control the dynamically-driven $\Delta R_1$?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+    \item As a first step toward understanding the mechanism for the dynamically-driven change in $\Delta R_1$, we decompose the change in MSE flux divergence into stationary and transient components:
+    \begin{equation}
+        \langle \partial_y(vm) \rangle = \langle \partial_y(\overline{v}\,\overline{m}) \rangle + \langle \partial_y(\overline{v^\prime m^\prime}) \rangle
+    \end{equation}
+    \item Is the result consistent with the existing literature that show the change in meridional energy transport in the extratropics is predominantly due to transient eddies \citep{feldl2021}?
+    \item While there are studies that show the change in energy transport, the change in MSE flux divergence has not (to my knowledge) been decomposed in this way.
+        \item To do: Can a moist-diffusive EBM capture the dynamically-driven change in $\Delta R_1$?
+\end{itemize}
+
+
+\bibliographystyle{apalike}
+\bibliography{../../../002/draft/references.bib}
+
+\end{document}

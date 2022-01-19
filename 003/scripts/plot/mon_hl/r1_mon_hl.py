@@ -32,6 +32,7 @@ def r1_mon_hl(sim, **kwargs):
     plotover = kwargs.get('plotover', None) # plot overlay (sic for sea ice, ga_dev for lapse rate deviation, pr for precip, decomp for linear decomposition)?
     refclim = kwargs.get('refclim', 'hist-30') # reference climate from which to compute deviations (init is first time step, hist-30 is the last 30 years of the historical run)
     legend = kwargs.get('legend', 0)
+    spread = kwargs.get('spread', 'prc')
     if plotover == 'ga_dev':
         vertcoord = kwargs.get('vertcoord', 'si') # vertical coordinate (si for sigma, pa for pressure, z for height)
         # vertbnd = kwargs.get('vertbnd', (0.7, 0.3)) # sigma bounds of vertical integral
@@ -142,9 +143,9 @@ def r1_mon_hl(sim, **kwargs):
 
     if plotover == 'ga_dev':
         if isinstance(model, str) or model is None:
-            [ga, grid, datadir, plotdir, modelstr] = load_ga(sim, categ, vertbnd,vertcoord, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+            [ga, grid_ga, datadir, plotdir, modelstr] = load_ga(sim, categ, vertbnd,vertcoord, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
         else:
-            [ga, grid, datadir, plotdir, modelstr, ga_mmm] = load_ga(sim, categ, vertbnd, vertcoord, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+            [ga, grid_ga, datadir, plotdir, modelstr, ga_mmm] = load_ga(sim, categ, vertbnd, vertcoord, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
 
         if refclim == 'hist-30':
             sim_ref = 'historical'
@@ -227,7 +228,10 @@ def r1_mon_hl(sim, **kwargs):
         ax.legend()
     else:
         if not ( isinstance(model, str) or (model is None) ):
-            spr_r1 = ax.fill_between(time, r1_hl_mmm['prc25'], r1_hl_mmm['prc75'], facecolor='black', alpha=0.2, edgecolor=None)
+            if spread == 'prc':
+                spr_r1 = ax.fill_between(time, r1_hl_mmm['prc25'], r1_hl_mmm['prc75'], facecolor='black', alpha=0.2, edgecolor=None)
+            elif spread == 'std':
+                spr_r1 = ax.fill_between(time, r1_hl_mmm['mmm'] - r1_hl_mmm['std'], r1_hl_mmm['mmm'] + r1_hl_mmm['std'], facecolor='black', alpha=0.2, edgecolor=None)
 
         lp_r1 = ax.plot(time, r1_hl, color='black')
     if 'ymonmean' not in timemean and sim == 'era5':
@@ -246,6 +250,8 @@ def r1_mon_hl(sim, **kwargs):
     ax.yaxis.set_minor_locator(MultipleLocator(0.01))
     ax.set_xlim(yr_base,yr_base+r1_hl.shape[0]-1)
     ax.set_ylim(vmin['r1'],vmax['r1'])
+
+    fig.set_size_inches(4, 3)
 
     if plotover == 'sic':
         ############################################
@@ -273,7 +279,10 @@ def r1_mon_hl(sim, **kwargs):
             sax.set_ylabel('Ocean fraction (%)', color='tab:blue')
         else:
             if not (isinstance(model, str) or model is None):
-                sax.fill_between(time, sic_hl_mmm['prc25'], sic_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+                if spread == 'prc':
+                    sax.fill_between(time, sic_hl_mmm['prc25'], sic_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+                elif spread == 'std':
+                    sax.fill_between(time, sic_hl_mmm['mmm']-sic_hl_mmm['std'], sic_hl_mmm['mmm']+sic_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
             sax.plot(time, sic_hl, color='tab:blue')
             sax.set_ylabel('Sea ice fraction (%)', color='tab:blue')
         # sax.set_ylim(vmin['sic'],vmax['sic'])
@@ -292,7 +301,8 @@ def r1_mon_hl(sim, **kwargs):
         # ga_dev_vint = make_ga_dev_vint(sim, vertbnd, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
 
         # ga_dev_vint_hl = lat_mean(ga_dev_vint['ga_dev_vint'], ga_dev_vint['grid'], lat_int, dim=1)
-        ga_dev_vint_hl = lat_mean(ga['ga_dev_vint'], ga['grid'], lat_int, dim=1)
+        print(ga)
+        ga_dev_vint_hl = lat_mean(ga['ga_dev_vint'], grid_ga, lat_int, dim=1)
 
         sax = ax.twinx()
         sax.plot(time, ga_dev_vint_hl, color='tab:blue')
@@ -337,14 +347,19 @@ def r1_mon_hl(sim, **kwargs):
 
         sax = ax.twinx()
         if not ( isinstance(model, str) or (model is None) ):
-            sax.fill_between(time, prfrac_hl_mmm['prc25'], prfrac_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+            if spread == 'prc':
+                sax.fill_between(time, prfrac_hl_mmm['prc25'], prfrac_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+            elif spread == 'std':
+                sax.fill_between(time, prfrac_hl_mmm['mmm']-prfrac_hl_mmm['std'], prfrac_hl_mmm['mmm']+prfrac_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, prfrac_hl, color='tab:blue')
         if 'ymonmean' not in timemean and sim == 'era5':
             # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
             sax.plot(time, m*time + c, '--', color='tab:blue', label='$P_c/P$ trend$ = %.1f$ %% decade$^{-1}$' % (m*10))
         sax.set_ylabel(r'$P_c/P$ (unitless)', color='tab:blue')
-        # sax.set_ylim(vmin['prfrac'],vmax['prfrac'])
-        sax.set_ylim(vmin_alg,vmax_alg)
+        if model == 'IPSL-CM5A-LR':
+            sax.set_ylim(vmin['prfrac'],vmax['prfrac'])
+        else:
+            sax.set_ylim(vmin_alg,vmax_alg)
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(AutoMinorLocator())
         ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
@@ -400,7 +415,10 @@ def r1_mon_hl(sim, **kwargs):
 
         sax = ax.twinx()
         if not ( isinstance(model, str) or (model is None) ):
-            spr_r1 = sax.fill_between(time, prc_hl_mmm['prc25'], prc_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+            if spread == 'prc':
+                spr_r1 = sax.fill_between(time, prc_hl_mmm['prc25'], prc_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+            elif spread == 'std':
+                spr_r1 = sax.fill_between(time, prc_hl_mmm['mmm']-prc_hl_mmm['std'], prc_hl_mmm['mmm']+prc_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, prc_hl, color='tab:blue')
         if 'ymonmean' not in timemean and sim == 'era5':
             # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
@@ -460,7 +478,10 @@ def r1_mon_hl(sim, **kwargs):
 
         sax = ax.twinx()
         if not ( isinstance(model, str) or (model is None) ):
-            spr_r1 = sax.fill_between(time, clt_hl_mmm['prc25'], clt_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+            if spread == 'prc':
+                spr_r1 = sax.fill_between(time, clt_hl_mmm['prc25'], clt_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+            elif spread == 'std':
+                spr_r1 = sax.fill_between(time, clt_hl_mmm['mmm']-clt_hl_mmm['std'], clt_hl_mmm['mmm']+clt_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, clt_hl, color='tab:blue')
         if 'ymonmean' not in timemean and sim == 'era5':
             # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
@@ -494,7 +515,10 @@ def r1_mon_hl(sim, **kwargs):
 
         sax = ax.twinx()
         if not ( isinstance(model, str) or (model is None) ):
-            spr_r1 = sax.fill_between(time, clwvi_hl_mmm['prc25'], clwvi_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+            if spread == 'prc':
+                spr_r1 = sax.fill_between(time, clwvi_hl_mmm['prc25'], clwvi_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+            elif spread == 'std':
+                spr_r1 = sax.fill_between(time, clwvi_hl_mmm['mmm']- clwvi_hl_mmm['std'], clwvi_hl_mmm['mmm']+clwvi_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, clwvi_hl, color='tab:blue')
         if 'ymonmean' not in timemean and sim == 'era5':
             # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
@@ -528,7 +552,10 @@ def r1_mon_hl(sim, **kwargs):
 
         sax = ax.twinx()
         if not ( isinstance(model, str) or (model is None) ):
-            spr_r1 = sax.fill_between(time, clivi_hl_mmm['prc25'], clivi_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+            if spread == 'prc':
+                spr_r1 = sax.fill_between(time, clivi_hl_mmm['prc25'], clivi_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+            elif spread == 'std':
+                spr_r1 = sax.fill_between(time, clivi_hl_mmm['mmm']-clivi_hl_mmm['std'], clivi_hl_mmm['mmm']+clivi_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, clivi_hl, color='tab:blue')
         if 'ymonmean' not in timemean and sim == 'era5':
             # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
@@ -574,23 +601,39 @@ def r1_mon_hl(sim, **kwargs):
 
         sax = ax.twinx()
         if not (isinstance(model, str) or model is None):
-            # sax.fill_between(time, r1_dc_mmm_hl['dr1']['prc25'], r1_dc_mmm_hl['dr1']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
-            sax.fill_between(time, r1_dc_mmm_hl['dyn']['prc25'], r1_dc_mmm_hl['dyn']['prc75'], facecolor='maroon', alpha=0.2, edgecolor=None)
-            sax.fill_between(time, r1_dc_mmm_hl['rad']['prc25'], r1_dc_mmm_hl['rad']['prc75'], facecolor='tab:gray', alpha=0.3, edgecolor=None)
-            sax.fill_between(time, r1_dc_mmm_hl['res']['prc25'], r1_dc_mmm_hl['res']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
+            if spread == 'prc':
+                # sax.fill_between(time, r1_dc_mmm_hl['dr1']['prc25'], r1_dc_mmm_hl['dr1']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
+                sax.fill_between(time, r1_dc_mmm_hl['dyn']['prc25'], r1_dc_mmm_hl['dyn']['prc75'], facecolor='maroon', alpha=0.2, edgecolor=None)
+                sax.fill_between(time, r1_dc_mmm_hl['rad']['prc25'], r1_dc_mmm_hl['rad']['prc75'], facecolor='tab:gray', alpha=0.3, edgecolor=None)
+                sax.fill_between(time, r1_dc_mmm_hl['res']['prc25'], r1_dc_mmm_hl['res']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
+            elif spread == 'std':
+                sax.fill_between(time, r1_dc_mmm_hl['dyn']['mmm']-r1_dc_mmm_hl['dyn']['std'], r1_dc_mmm_hl['dyn']['mmm']+r1_dc_mmm_hl['dyn']['std'], facecolor='maroon', alpha=0.2, edgecolor=None)
+                sax.fill_between(time, r1_dc_mmm_hl['rad']['mmm']-r1_dc_mmm_hl['rad']['std'], r1_dc_mmm_hl['rad']['mmm']+r1_dc_mmm_hl['rad']['std'], facecolor='tab:gray', alpha=0.3, edgecolor=None)
+                sax.fill_between(time, r1_dc_mmm_hl['res']['mmm']-r1_dc_mmm_hl['res']['std'], r1_dc_mmm_hl['res']['mmm']+r1_dc_mmm_hl['res']['std'], facecolor='k', alpha=0.2, edgecolor=None)
         sax.axhline(0, color='k', linewidth=0.5)
+        sax.plot(time, r1_dc_hl['dr1'], color='k', label='$\Delta{R_1}$')
         sax.plot(time, r1_dc_hl['dyn'], color='maroon', label='$\overline{R_1} \dfrac{\Delta (\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}}$')
-        sax.plot(time, r1_dc_hl['rad'], color='lightgray', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$')
         sax.plot(time, r1_dc_hl['res'], '-.k', label='Residual')
+        sax.plot(time, r1_dc_hl['rad'], color='lightgray', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$')
         sax.set_ylabel(r'$\Delta R_1$ (unitless)', color='black')
         sax.set_ylim(vmin['r1']-r1_hl[0],vmax['r1']-r1_hl[0])
         sax.tick_params(axis='y', labelcolor='black', color='black')
         sax.yaxis.set_minor_locator(AutoMinorLocator())
 
+        # add legend
+        sax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.2), ncol=2)
+
+        # cut off excess space on the bottom 
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0 + box.height * 0.1,
+                             box.width, box.height * 0.9])
+
+        # alter figure aspect ratio to accomodate legend
+        fig.set_size_inches(4,3.5)
+
     if legend and sim == 'era5':
         fig.legend(loc='upper right', bbox_to_anchor=(1,1), bbox_transform=ax.transAxes)
 
-    fig.set_size_inches(5, 4)
     plt.tight_layout()
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
 

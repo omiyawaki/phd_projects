@@ -1,4 +1,4 @@
-function make_psi(type, par)
+function make_pasi(type, par)
     prefix = make_prefix(type, par);
     newdir = make_savedir(type, par);
     

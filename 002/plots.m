@@ -58,7 +58,8 @@ par.frz = 0; % consider effects of freezing on moist adiabat, computation of sat
 par.ma_init = 0.95; % 'surf' for initializing with 2 m data, otherwise enter starting sigma level for moist adiabat
 par.pa_eval = 500e2; % pressure level for calculating ma_diff
 % par.si_bl_swp = [0.85 0.9 0.95]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
-par.si_bl_swp = [0.7 0.9]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
+par.si_bl_swp = [0.7]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
+% par.si_bl_swp = [0.7, 0.9]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
 par.si_up_list = [0.3]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
 % par.si_up_list = [0.1]; % sigma level to separate vertical average for close to moist adiabatic and stable surface stratifications
 par.ta_thresh = 6.5; % criteria for temperature difference in K of plotting contour for closeness to moist adiabat
@@ -83,13 +84,13 @@ par.era5c.fw = {'mse', 'mse_old'};
 % par.era5c.fw = {'mse', 'mse_old', 'mse_lat'};
 par.jra55.fw = {'mse', 'mse_old'};
 par.merra2c.fw = {'mse', 'mse_old'};
-par.gcm.fw = {'mse_old'};
+par.gcm.fw = {'mse', 'mse_old'};
 % par.gcm.fw = {'mse', 'mse_old'};
 par.echam.fw = {'mse', 'mse_old'};
 par.hahn.fw = {'mse_old'};
 par.pa = linspace(1000,10,100)*1e2; % high resolution vertical grid to interpolate to
 par.z = [0:500:40e3]';
-par.make_tikz = 0; % save figures as latex tikz files?
+par.make_tikz = 1; % save figures as latex tikz files?
 % set how to close energy budget
 % if == teten, use TETEN data from Donohoe to close energy budget (option for ERA-Interim)
 % if == stf, use SH and LH data from ERA-Interim to close energy budget (option for ERA-Interim)
@@ -105,8 +106,8 @@ end
 % plot_tediv_lat(par)
 
 % type = 'era5c'; par.lat_interp = 'native';
-% type = 'rea'; par.lat_interp = '1.00';
-% choose_plots(type, par);
+type = 'rea'; par.lat_interp = '1.00';
+choose_plots(type, par);
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
     % type='echam';
     % par.lat_interp = 'native';
@@ -120,9 +121,9 @@ for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
     % choose_plots(type, par);
 end
 for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
-    %  type = 'gcm';
-    %  disp(par.model)
-    %  choose_plots(type, par);
+    % type = 'gcm';
+    % disp(par.model)
+    % choose_plots(type, par);
 end
 
 % sweep through various boundary layer heights
@@ -167,9 +168,9 @@ for i = 1:length(par.ep_swp); par.ep = par.ep_swp(i); par.ga = par.ga_swp(i);
         % choose_plots_ep(type, par);
     end
     for k=1:length(par.gcm_models); par.model = par.gcm_models{k};
-        type = 'gcm';
-        disp(par.model)
-        choose_plots_ep(type, par)
+        % type = 'gcm';
+        % disp(par.model)
+        % choose_plots_ep(type, par)
     end
 end
 
@@ -178,7 +179,7 @@ function choose_plots(type, par)
     % plot_dtempsi_zon_select(type, par) % plot temperature responses binned by R1
 
     % plot_ga_frac_binned_r1(type, par) % plot lapse rate profiles binned by R1
-    plot_dtempsi_binned_r1(type, par) % plot temperature responses binned by R1
+    % plot_dtempsi_binned_r1(type, par) % plot temperature responses binned by R1
 
     % plot_dtempsi_binned_r1_lat(type, par) % plot temperature responses binned by R1
     % plot_dtempsi_binned_r1_mid(type, par) % plot temperature responses binned by R1
@@ -200,9 +201,10 @@ function choose_plots(type, par)
     % plot_srfc_polar_line(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
     % plot_srfc_polar_line_asym(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
 
+    % plot_flux_land_ocean(type, par) % decompose energy fluxes into land and ocean domains
+    plot_r1_land_ocean(type, par) % decompose r1 into land and ocean domains
+    
     % plot_r1_mid_mld(type, par) % overlay r1 from multiple mld's
-
-    % plot_r1_land_ocean(type, par) % decompose r1 into land and ocean domains
 
     % plot_alb(type, par) % surface albedo
     % plot_alb_comp(type, par) % surface albedo
@@ -220,17 +222,22 @@ function choose_plots_si_bl(type, par)
     % plot_ga_malr_diff_mon_lat(type, par) % plot ga diff
     % plot_ga_malr_diff_lon_lat(type, par) % plot ga diff
 
+    % plot_dma_diff_mon_lat(type, par) % plot ga diff
+
     % plot_r1_ga_lat_line(type, par) % plot ga diff
+    %
+    plot_ga_land_ocean(type, par) % decompose ga into land and ocean domains
+    plot_ga_lat_lon(type, par) % look at lat lon structure of ga
 
     % plot_r1_ga_midlatitude_line(type, par) % plot R1 and lapse rate deviation together at specific latitudes
-    plot_r1_ga_polar_line(type, par) % plot R1 and lapse rate deviation together at specific latitudes
+    % plot_r1_ga_polar_line(type, par) % plot R1 and lapse rate deviation together at specific latitudes
 end
 function choose_plots_ep(type, par)
     % plot_energy_lat(type, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
     % plot_energy_lat_future(type, par); % plot all energy fluxes vs latitude a la Fig. 6.1 in Hartmann (2016)
     % plot_r1z_lat(type, par); % compare r1 line plot with ERA5
-    % plot_flux(type, par) % plot various energy fluxes in mon x lat and lon x lat space
-    plot_dflux(type, par) % plot various energy fluxes in mon x lat and lon x lat space
+    plot_flux(type, par) % plot various energy fluxes in mon x lat and lon x lat space
+    % plot_dflux(type, par) % plot various energy fluxes in mon x lat and lon x lat space
 
     % plot_flux_comp(type, par) % plot various energy fluxes in mon x lat and lon x lat space
 
@@ -252,4 +259,5 @@ function choose_plots_ep(type, par)
     % plot_dr1_polar_line_topocomp(type, par) % plot decomposition of R1 in mon at specific latitudes
 
     % plot_hahn_comp(type, par) % plot decomposition of R1 in mon at specific latitudes
+    % plot_dr1_decomp_rcp85(type, par) % plot decomposition of R1 in mon at specific latitudes
 end % select which ep-functions to run at a time

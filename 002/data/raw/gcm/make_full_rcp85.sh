@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# declare -a vars_gcm=("ps" "ta" "zg" "hus" "tas" "huss") # list of GCM variables that we want to process
-declare -a vars_gcm=("ta" "zg" "hus") # list of GCM variables that we want to process
-# declare -a vars_gcm=("hus") # list of GCM variables that we want to process
-# declare -a vars_gcm=("zg") # list of GCM variables that we want to process
+declare -a vars_gcm=("ps" "ta" "zg" "hus" "tas" "huss") # list of GCM variables that we want to process
+# declare -a vars_gcm=("ps" "tas" "huss") # list of GCM variables that we want to process
+# declare -a vars_gcm=("ta" "zg" "hus") # list of GCM variables that we want to process
+# declare -a vars_gcm=("ps") # list of GCM variables that we want to process
 #declare -a models=$(cd /project2/tas1/ockham/data9/tas/CMIP5_RAW && ls -d */) # list of GCM models to process
 declare -a clim="rcp85" # climate name
 
@@ -12,8 +12,8 @@ declare -a clim="rcp85" # climate name
 # MODEL SUBSET 1
 ###########################################################
 # declare -a models="bcc-csm1-1/"
-declare -a models="bcc-csm1-1-m/" # 2D VARS ONLY!!! (for 3D use subset 1.1)
-declare -a skip_files=("1-209912_eady.nc _eady.nc")
+# declare -a models="bcc-csm1-1-m/" # 2D VARS ONLY!!! (for 3D use subset 1.1)
+# declare -a skip_files=("1-209912_eady.nc _eady.nc")
 
 ###########################################################
 # MODEL SUBSET 1.1 
@@ -24,9 +24,9 @@ declare -a skip_files=("1-209912_eady.nc _eady.nc")
 ###########################################################
 # MODEL SUBSET 2
 ###########################################################
-# declare -a models="ACCESS1-0/"
+declare -a models="MRI-ESM1/"
 # declare -a models="ACCESS1-0/ ACCESS1-3/ BNU-ESM/ CanESM2/ CCSM4/ CESM1-BGC/ CESM1-CAM5/ CSIRO-Mk3-6-0/ GFDL-CM3/ FGOALS-g2/ inmcm4/ IPSL-CM5A-MR/ IPSL-CM5B-LR/ MIROC5/ MIROC-ESM/ MIROC-ESM-CHEM/ MPI-ESM-LR/ MPI-ESM-MR/ MRI-CGCM3/ MRI-ESM1/ NorESM1-M/ NorESM1-ME/"
-# declare -a skip_files=("200501-209912.nc 200501-210012.nc 200601-209912.nc _eady.nc")
+declare -a skip_files=("200501-209912.nc 200501-210012.nc 200601-209912.nc _eady.nc")
 
 ###########################################################
 # MODEL SUBSET 3
@@ -56,9 +56,9 @@ for dirs in ${models[@]}; do # loop through models
         for vars in ${vars_gcm[@]}; do
             echo $vars
 
-            if ls $cwd/${dirs}${vars}_*${clim}*12.nc 1> /dev/null 2>&1; then # check if data is already there
-                echo "${vars} was already merged. Skipping..."
-            else
+            # if ls $cwd/${dirs}${vars}_*${clim}*12.nc 1> /dev/null 2>&1; then # check if data is already there
+            #     echo "${vars} was already merged. Skipping..."
+            # else
 
                 cd ./${clim}/atmos/mon/${vars}/r1i1p1/
                 pattern="${vars}_*${dirs%/}*"
@@ -94,7 +94,7 @@ for dirs in ${models[@]}; do # loop through models
                     cdo -O mergetime ${files[@]} $cwd/$dirs$merge.nc # combine multiple files into one
                 fi
 
-            fi
+            # fi
 
             cd $rwd/$dirs # go in the model directory
         done

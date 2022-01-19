@@ -106,6 +106,15 @@ def translate_varname(varnames_in, **kwargs):
         
         # CO2 MASS
         'co2mass' : 'co2mass', # CMIP
+
+        # KINETIC ENERGY
+        'tke': 'tke', # total KE
+        'mke': 'mke', # mean meridional KE
+        'teke': 'teke', # transient eddy KE
+        'seke': 'seke', # stationary eddy KE
+        'eke': 'eke', # eddy KE
+        'reke': 'reke', # eddy KE (inferred)
+        'res': 'res', # residual KE
     }
 
     # if input is a list of variables, output as list of variables

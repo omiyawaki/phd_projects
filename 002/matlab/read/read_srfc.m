@@ -22,7 +22,7 @@ function read_srfc(type, ymonmean, par)
                 end
                 fullpath=sprintf('%s/%s', file.folder, file.name);
                 if exist(fullpath, 'file')
-                    srfc.(var)=double(ncread(fullpath, 'z')); srfc.(var) = srfc.(var)/par.g; % divide by g to get height
+                    srfc.(var)=double(ncread(fullpath, 'zs')); srfc.(var) = srfc.(var)/par.g; % divide by g to get height
                     if strcmp(type, 'erai')
                         srfc.(var)=repmat(srfc.(var), [1 1 12]);
                     end

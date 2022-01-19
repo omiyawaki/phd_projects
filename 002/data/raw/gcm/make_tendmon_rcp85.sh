@@ -4,10 +4,10 @@
 # load python environment
 module unload python
 module load python
-source activate netcdf
+source activate p003
 
 #declare -a models=$(cd /project2/tas1/ockham/data9/tas/CMIP5_RAW && ls -d */) # list of GCM models to process
-declare -a models=("ACCESS1-0/") # list of GCM models to process
+declare -a models=("MRI-ESM1/") # list of GCM models to process
 # declare -a models=("bcc-csm1-1/ bcc-csm1-1-m/ BNU-ESM/ CanESM2/ CCSM4/ CESM1-BGC/ CESM1-CAM5/ CESM1-WACCM/ CMCC-CESM/ CMCC-CM/ CNRM-CM5/ CNRM-CM5-2/ CSIRO-Mk3-6-0/ FGOALS-g2/ FGOALS-s2/ GFDL-CM3/ GFDL-ESM2M/ GFDL-ESM2G/ GISS-E2-H/ GISS-E2-H-CC/ GISS-E2-R/ GISS-E2-R-CC/ HadGEM2-CC/ HadGEME2-ES/ inmcm4/ IPSL-CM5A-LR/ IPSL-CM5A-MR/ IPSL-CM5B-LR/ MIROC5/ MIROC-ESM/ MIROC-ESM-CHEM/ MPI-ESM-LR/ MPI-ESM-MR/ MPI-ESM-P/ MRI-CGCM3/ MRI-ESM1/ NorESM1-M/ NorESM1-ME/") # list of GCM models to process
 declare -a clim="rcp85" # climate name
 declare -a freq="mon" # compute mse tendency using daily or monthly data?
@@ -24,8 +24,8 @@ cwd=$(pwd) # save current working directory
 cd /project2/tas1/ockham/data9/tas/CMIP5_RAW/ # directory with data we will copy from
 rwd=$(pwd) # save raw data directory
 
-for dirs in */; do # loop through all the models
-# for dirs in ${models[@]}; do # loop through models
+# for dirs in */; do # loop through all the models
+for dirs in ${models[@]}; do # loop through models
     case $skip_models in *"$dirs"*)
         :
         ;; 

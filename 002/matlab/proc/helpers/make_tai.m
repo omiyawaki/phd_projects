@@ -15,9 +15,12 @@ function make_tai(type, par)
         file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/gcm/%s/%s_Amon_%s_%s_r1i1p1_%s*.ymonmean.nc', par.model, var, par.model, par.(type).clim, par.(type).yr_span));
         fullpath=sprintf('%s/%s', file.folder, file.name);
         zg_lat = double(ncread(fullpath, 'lat'));
+        zg_lev = double(ncread(fullpath, 'plev'));
         zg = permute(zg, [2 1 3 4]);
         zg = interp1(zg_lat, zg, grid.dim3.lat);
-        zg = permute(zg, [2 1 3 4]);
+        zg = permute(zg, [3 2 1 4]);
+        zg = interp1(zg_lev, zg, grid.dim3.plev);
+        zg = permute(zg, [2 3 1 4]);
     end
 
     % create surface mask

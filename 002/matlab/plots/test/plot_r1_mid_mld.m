@@ -63,12 +63,16 @@ function plot_r1_mid_mld(type, par)
         leg(i)=plot(1:12, circshift(r1_mid.(clim),shiftby), '-');
     end
     ylabel('$R_1$ (unitless)');
-    title('ECHAM w/o ice, Midlatitudes')
+    title('AQUA w/o ice, Midlatitudes')
     % legend(leg, '50 m', '45 m', '40 m', '35 m', '30 m', '25 m', 'location', 'northeast')
-    legend(flip(leg), '3 m', '5 m', '15 m', '25 m', '40 m', '50 m', 'location', 'eastoutside')
+    leg=legend(flip(leg), '3 m', '5 m', '15 m', '25 m', '40 m', '50 m', 'location', 'southeast')
+    leg.ItemTokenSize = [10,10];
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
-    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+    set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     print(sprintf('%s/mid_mld/r1_mon_mld', plotdir), '-dpng', '-r300');
+    if par.make_tikz
+        matlab2tikz(sprintf('%s/mid_mld/r1_mon_mld.tex', plotdir));
+    end
     close;
 
 end

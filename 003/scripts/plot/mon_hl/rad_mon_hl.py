@@ -88,7 +88,7 @@ def rad_mon_hl(sim, **kwargs):
     ##################################
     # LOAD DATA
     ##################################
-    
+
     if isinstance(model, str) or model is None:
         [rad, grid, datadir, plotdir, modelstr] = load_rad(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
     else:
@@ -99,7 +99,7 @@ def rad_mon_hl(sim, **kwargs):
             [rad_ref, _, _, _, _] = load_rad(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
         else:
             [rad_ref, _, _, _, _, rad_ref_mmm] = load_rad(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
-        
+
         if timemean == 'djfmean':
             for radname in rad_ref:
                 rad_ref[radname] = np.mean(np.roll(rad_ref[radname],1,axis=0)[0:3], 0)
@@ -116,7 +116,7 @@ def rad_mon_hl(sim, **kwargs):
     rad_dev_hl = {}
     for radname in rad:
         rad_hl[radname] = lat_mean(rad[radname], grid, lat_int, dim=1)
-        
+
         if refclim == 'init':
             rad_dev_hl[radname] = rad_hl[radname] - rad_hl[radname][0]
         else:
@@ -189,8 +189,10 @@ def rad_mon_hl(sim, **kwargs):
     fig, ax = plt.subplots()
     ax.axhline(0, color='k', linewidth=0.5)
     lp_ra = ax.plot(time, rad_dev_hl['ra'], '-', color='tab:gray', label='$\Delta R_a$')
-    lp_ra_cld_lw = ax.plot(time, rad_dev_hl['lw'] - rad_dev_hl['lw_cs'], ':', color='tab:green', label='$\Delta \mathrm{LW}_{cloud}$')
-    lp_ra_cs_lw = ax.plot(time, rad_dev_hl['lw_cs'], '--', color='tab:green', label='$\Delta \mathrm{LW}_{clear}$')
+    lp_ra_cs_lw = ax.plot(time, rad_dev_hl['lw_cs'], '--', color='tab:red', label='$\Delta \mathrm{LW}_{clear}$')
+    lp_ra_cld_lw = ax.plot(time, rad_dev_hl['lw'] - rad_dev_hl['lw_cs'], ':', color='tab:red', label='$\Delta \mathrm{LW}_{cloud}$')
+    lp_ra_cs_sw = ax.plot(time, rad_dev_hl['sw_cs'], '--', color='tab:blue', label='$\Delta \mathrm{SW}_{clear}$')
+    lp_ra_cld_sw = ax.plot(time, rad_dev_hl['sw'] - rad_dev_hl['sw_cs'], ':', color='tab:blue', label='$\Delta \mathrm{SW}_{cloud}$')
     make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:
@@ -203,10 +205,37 @@ def rad_mon_hl(sim, **kwargs):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax.set_xlim(yr_base,yr_base+rad_dev_hl['ra'].shape[0]-1)
     ax.set_ylim(vmin_dev,vmax_dev)
+    fig.set_size_inches(4,3)
+    plt.tight_layout()
+    # save without legend
+    plt.savefig(remove_repdots('%s.noleg.pdf' % (plotname)), format='pdf', dpi=300)
     if legend:
         ax.legend()
     plt.tight_layout()
+    # save with legend
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+    if viewplt:
+        plt.show()
+    # save with legend outside
+    # add legend
+    legend = ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.3), ncol=5)
+    # cut off excess space on the bottom 
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0 + box.height * 0.05,
+        box.width, box.height * 0.95])
+
+    # alter figure aspect ratio to accomodate legend
+    fig.set_size_inches(6,3)
+    plt.tight_layout()
+    plt.savefig(remove_repdots('%s.legoutside.pdf' % (plotname)), format='pdf', dpi=300)
+    # save legend only
+    expand = [-5,-5,5,5]
+    fi2  = legend.figure
+    fi2.canvas.draw()
+    bbox  = legend.get_window_extent()
+    bbox = bbox.from_extents(*(bbox.extents + np.array(expand)))
+    bbox = bbox.transformed(fi2.dpi_scale_trans.inverted())
+    fi2.savefig(remove_repdots('%s.legonly.pdf' % (plotname)), dpi=300, bbox_inches=bbox)
     if viewplt:
         plt.show()
     plt.close()

@@ -57,8 +57,10 @@ par.gcm.vars.hydro = {'pr', 'evspsbl'}; % radiation variables to read
 par.gcm.vars.stf = {'hfss', 'hfls'}; % surface turbulent flux variables to read
 par.gcm.vars.vert = {'ta'}; % 3d variables to read (removed va)
 par.gcm.vars.srfc = {'ps', 'ts', 'tas', 'hurs', 'zs'}; % surface variables to read
-par.gcm.vars.tend = {'tendmon', 'tend'}; 
-par.gcm.vars.tend_txt = {'tend', 'tend'}; % 3d variables to read (tend = total mse tend, int = internal energy tendency, lat = latent energy tendency, pot = potential energy tendency)
+% par.gcm.vars.tend = {'tendmon', 'tend'}; 
+% par.gcm.vars.tend_txt = {'tend', 'tend'}; % 3d variables to read (tend = total mse tend, int = internal energy tendency, lat = latent energy tendency, pot = potential energy tendency)
+par.gcm.vars.tend = {'tendmon'}; 
+par.gcm.vars.tend_txt = {'tend'}; % 3d variables to read (tend = total mse tend, int = internal energy tendency, lat = latent energy tendency, pot = potential energy tendency)
 par.echam.vars.rad = {'srad0d', 'srads', 'trads', 'srad0', 'trad0', 'tradsu', 'sradsu'}; % radiation variables to read
 par.echam.vars.radcs = {'srafs', 'trafs', 'sraf0', 'traf0'}; % radiation variables to read
 par.echam.vars.hydro = {'aprc', 'aprl', 'evap'}; % radiation variables to read

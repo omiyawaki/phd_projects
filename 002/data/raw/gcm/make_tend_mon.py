@@ -40,9 +40,24 @@ ta = ta.filled(fill_value=np.nan)
 zg = zg.filled(fill_value=np.nan)
 hus = hus.filled(fill_value=np.nan)
 
+print(ta.shape)
+print(zg.shape)
+print(hus.shape)
+
+# check if ta and zg vertical grids are the same and interpolate zg dataif different
+plev3d = file_ta.variables['plev'][:] # (day x lev x lat x lon)
+plev3d_zg = file_zg.variables['plev'][:] # (day x lev x lat x lon)
+if not np.array_equal(plev3d,plev3d_zg):
+    filledplev3d = plev3d.filled(fill_value=np.nan)
+    filledplev3dzg = plev3d_zg.filled(fill_value=np.nan)
+    f = interpolate.interp1d(filledplev3dzg, zg, axis=1, fill_value='extrapolate')
+    zg = f(filledplev3d)
+    f = interpolate.interp1d(filledplev3dzg, hus, axis=1, fill_value='extrapolate')
+    hus = f(filledplev3d)
+
 # check if 2d and 3d lat grids are the same and interpolate 2d data to 3d grid if different
 lat2d = file_ps.variables['lat'][:] # (mon x lat x lon)
-lat3d = file_zg.variables['lat'][:] # (day x lev x lat x lon)
+lat3d = file_ta.variables['lat'][:] # (day x lev x lat x lon)
 lat3d_zg = file_zg.variables['lat'][:] # (day x lev x lat x lon)
 if not np.array_equal(lat2d,lat3d_zg):
     filledps = ps.filled(fill_value=np.nan)
@@ -50,6 +65,7 @@ if not np.array_equal(lat2d,lat3d_zg):
     # filledorog = orog.filled(fill_value=np.nan)
     filledlat2d = lat2d.filled(fill_value=np.nan)
     filledlat3d = lat3d.filled(fill_value=np.nan)
+    filledlat3dzg = lat3d_zg.filled(fill_value=np.nan)
     f = interpolate.interp1d(filledlat2d, filledps, axis=1)
     ps = f(filledlat3d)
     if not np.array_equal(lat3d,lat3d_zg):
@@ -57,6 +73,8 @@ if not np.array_equal(lat2d,lat3d_zg):
         ta = f(filledlat3d)
         f = interpolate.interp1d(filledlat2d, hus, axis=2)
         hus = f(filledlat3d)
+        f = interpolate.interp1d(filledlat3dzg, zg, axis=2, fill_value='extrapolate')
+        zg = f(filledlat3d)
     # f = interpolate.interp1d(filledlat2d, filledtas, axis=1)
     # tas = f(filledlat3d)
     # f = interpolate.interp1d(filledlat2d, filledorog, axis=0)
@@ -99,20 +117,20 @@ file_tend = Dataset(path_tend, "w", format='NETCDF4_CLASSIC')
 # copy attributes from ps file
 file_tend.setncatts(file_ps.__dict__)
 
-# copy dimensions from zg file
-for name, dimension in file_zg.dimensions.items():
+# copy dimensions from ta file
+for name, dimension in file_ta.dimensions.items():
     if any(name in s for s in ['plev']):
         continue
     file_tend.createDimension(name, len(dimension) if not dimension.isunlimited() else None)
  
 # copy all variables except time from ps file
-for name, variable in file_zg.variables.items():
-    if any(name in s for s in ['zg' 'plev' 'plev_bnds']):
+for name, variable in file_ta.variables.items():
+    if any(name in s for s in ['ta' 'plev' 'plev_bnds']):
         continue
     
     x = file_tend.createVariable(name, variable.datatype, variable.dimensions)
-    file_tend[name].setncatts(file_zg[name].__dict__)
-    file_tend[name][:] = file_zg[name][:]
+    file_tend[name].setncatts(file_ta[name].__dict__)
+    file_tend[name][:] = file_ta[name][:]
     
 tend = file_tend.createVariable('tend', 'f4', ("time","lat","lon"))
 tend.units = "W/m^2"

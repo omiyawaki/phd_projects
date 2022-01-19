@@ -7,12 +7,14 @@ module load python
 source activate p003
 
 # declare -a models=("rp000172" "rp000086" "rp000034" "rp000141" "rp000133" "rp000145" "rp000131" "rp000147" "rp000135" "rp000149" "rp000046" "rp000134") # list of GCM models to process
-declare -a models=("rp000126" "rp000148" "rp000146" "rp000130" "rp000144" "rp000132" "rp000140" "rp000124") # list of GCM models to process
+# declare -a models=("rp000126" "rp000148" "rp000146" "rp000130" "rp000144" "rp000132" "rp000140" "rp000124") # list of GCM models to process
+declare -a models=("rp000181") # list of GCM models to process
 declare -a clim="historical" # climate name
 declare -a freq="mon" # compute mse tendency using daily or monthly data?
 
 cwd=$(pwd) # save current working directory
-cd /project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/ # switch to directory with raw data
+# cd /project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/ # switch to directory with raw data
+cd /project2/tas1/echam-aiv_rcc_6.1.00p1/experiments/ # switch to directory with raw data
 rwd=$(pwd) # save raw data directory
 
 # for dirs in */; do # loop through all the models

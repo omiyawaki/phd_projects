@@ -1,13 +1,13 @@
 #!/bin/sh
 
 # declare -a vtypes=("rad" "hydro" "stf" "temp" "srfc" "zg") # variable type
-declare -a vtypes=("albedo")
-yr_start="1980"
+declare -a vtypes=("stf")
+yr_start="2006"
 mon_start="1"
 day_start="1"
-yr_end="2005"
+yr_end="2020"
 mon_end="12"
-day_end="1"
+day_end="31"
 
 cwd=$(pwd)
 
@@ -23,9 +23,9 @@ for vtype in ${vtypes[@]}; do
         cdo seldate,$yr_start-$mon_start-$day_start,$yr_end-$mon_end-$day_end $filename.merge.nc $filename.nc
         rm $filename.merge.nc
 
-        if [[ $vtype != "tend" ]]; then
-            cdo ymonmean $filename.nc $filename.ymonmean.nc
-        fi
+        # if [[ $vtype != "tend" ]]; then
+        #     cdo ymonmean $filename.nc $filename.ymonmean.nc
+        # fi
     fi
 
     cd $cwd

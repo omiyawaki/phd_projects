@@ -1,18 +1,18 @@
 #!/bin/sh
 
 # declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/rcp85/ && ls -d */) # list of GCM models to process
-# models=("IPSL-CM5A-MR/")
-models=("MPI-ESM-LR/")
+models=("IPSL-CM5A-LR/")
+# models=("MPI-ESM-LR/")
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss" "pr" "prc" "evspsbl")
 # varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
 # varnames=("divaht" "divmmc" "divse" "divte")
 # varnames=("aht" "vmmmc" "vmse" "vmte")
 # varnames=("ps" "tas" "ta" "zg")
-varnames=("zg")
+varnames=("eke" "veke")
 sim="rcp85"
 freq="Amon"
 ens="r1i1p1"
-yr_span="200601-230012"
+yr_span="200601-229912"
 
 # save path to current directory
 cwd=$(pwd)

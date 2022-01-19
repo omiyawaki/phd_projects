@@ -136,6 +136,7 @@ def dyn_mon_hl(sim, **kwargs):
     lp_tot = ax.plot(time, dyn_dev_hl['divaht'], color='maroon', label='$\Delta \partial_y(vm)$')
     lp_te = ax.plot(time, dyn_dev_hl['divte'], color='magenta', label='Transient')
     lp_se = ax.plot(time, dyn_dev_hl['divse'], color='cyan', label='Stationary')
+    lp_tot = ax.plot(time, dyn_dev_hl['divaht'], color='maroon')
     make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:
@@ -146,7 +147,7 @@ def dyn_mon_hl(sim, **kwargs):
     ax.set_ylabel('$\Delta$ Energy flux (Wm$^{-2}$)')
     ax.xaxis.set_minor_locator(MultipleLocator(10))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
-    # ax.set_xlim(yr_base,yr_base+dyn_dev_hl['divaht'].shape[0]-1)
+    ax.set_xlim(yr_base,yr_base+dyn_dev_hl['divaht'].shape[0]-1)
     # ax.set_ylim(vmin_dev,vmax_dev)
     if legend:
         ax.legend()

@@ -199,9 +199,19 @@ def flux_mon_hl(sim, **kwargs):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax.set_xlim(yr_base,yr_base+flux_dev_hl['ra'].shape[0]-1)
     ax.set_ylim(vmin_dev,vmax_dev)
-    if legend:
-        ax.legend()
     fig.set_size_inches(5, 4)
+    if legend:
+        # add legend
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.2), ncol=2)
+
+        # cut off excess space on the bottom 
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0 + box.height * 0.075,
+                             box.width, box.height * 0.925])
+
+        # alter figure aspect ratio to accomodate legend
+        fig.set_size_inches(4,3.5)
+
     plt.tight_layout()
     plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
     if viewplt:

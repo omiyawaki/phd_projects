@@ -18,75 +18,58 @@
 \begin{document}
 \maketitle
 
-\textbf{We thank the reviewer for their helpful comments. We revised the manuscript to address many of the concerns and suggestions they raised. Our reponses to their comments are presented in bold. The line numbers referenced in our response correspond to those in our revised manuscript.}
+\textbf{Thank you for your helpful comments. We revised the manuscript to address many of the concerns and suggestions you raised. Our responses to your comments are presented in bold. The line numbers referenced in our response correspond to those in our revised manuscript.}
 
 Figure 9 shows that the seasonality of high-latitude $R_1$ depends critically on the presence of sea ice. But, to my mind, sea ice has two important but physically distinct features: high albedo and low heat capacity. Could the authors tease out the relative roles of each in producing seasonal $R_1$ variations? Perhaps simulations in which sea ice has the same albedo as ocean water would help.
 
-\textbf{We teased out the relative roles of surface heat capacity versus surface albedo as follows. For the surface heat capacity, we varied the mixed layer depth in the aquaplanet without sea ice while fixing the surface albedo to 0.07 (ocean's albedo). The results show that a regime transition occurs during spring equinox for a shallow mixed layer depth (see new Fig.~10c and lines \#REF). In reanalysis data, the regime transition does not occur in March, but rather from May to September. Thus, surface heat capacity alone does not capture the full seasonality of $R_1$ in reanalysis data.}
+\textbf{We investigated the relative roles of surface heat capacity versus surface albedo by varying the mixed layer depth in AQUA experiments with and without ice. Without sea ice, the surface albedo is fixed to the ocean's albedo (0.07) and a seasonal regime transition to RAE only occurs for a shallow (5~m) mixed layer depth (lines~315--318 and Fig.~9a). However, the RAE regime transition in the 5~m AQUA experiment without sea ice occurs from March to May, whereas it occurs from September to April in the reanalysis (Fig.~5c). Thus, the low surface heat capacity effect of sea ice alone cannot account for the occurrence of RAE during fall and winter in the Northern high latitudes.}
 
-\textbf{For the surface albedo, we varied the mixed layer depth in the aquaplanet with sea ice. This leads to a wide range of albedo seasonality (see Fig.~\#REF). For mixed layer depths above 30 m, the $R_1$ seasonality follows the seasonality of surface albedo. However, the 25 m depth shows that $R_1$ can exhibit significant seasonality (i.e., leads to a regime transition) even when the albedo is constant yearround (Fig.~\#REF). Ultimately, the results suggest that both the heat capacity and the albedo effects of sea ice are important. We added a discussion of these points on lines \#REF.}
+\textbf{With sea ice, the RCAE to RAE regime transition occurs for all mixed layer depths, but the timing of the regime transition depends on the mixed layer depth (Fig.~9c). In particular, the occurrence of the RAE regime in fall is associated with different seasonalities in sea ice fraction and depth, and associated differences in surface albedo (Fig.~10). For shallower mixed layer depths (25 to 40~m), the RAE regime occurs during the fall, when the sea ice fraction, depth, and surface albedo are large (Fig.~10). For deeper mixed layer depths (45 and 50~m), the RAE regime does not occur in fall, when the sea ice fraction, depth, and surface albedo are small (Fig.~10). The results suggest both the surface albedo and surface heat capacity effect of sea ice play important roles in setting the seasonality of $R_1$ (lines~330--338). We added a discussion of these points and the need for additional experiments to fully tease out the two effects (lines~460--468).}
 
-\begin{figure}[H]
-    \centering
-    \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_pole/r1_decomp_pole_echamslab_ice_alb.pdf}
-    \caption{\bf Seasonality of high latitude ($80^\circ$--$90^\circ$) (a) surface albedo and (b) $R_1$ for various mixed layer depths in AQUA with sea ice.}
-    \label{fig:echam-alb}
-\end{figure}
+\textbf{We considered the suggestion of running simulations where sea ice has the same albedo as the ocean. However, changing the albedo in this way will change the seasonality of sea ice (and hence effective heat capacity) as well, so this would not allow us to strictly isolate the two effects.}
 
 Following on to the above, it would be helpful to have a little bit more detail about the sea ice simulation. For instance, how are sea-ice depth and area fraction determined? How do these quantities, averaged over the high-latitudes, evolve seasonally? Etc.
 
-\textbf{The sea ice implementation is the standard thermodynamic sea ice module in ECHAM6, which is represented as a single, motionless slab \citep{semtner1976, giorgetta2013}. Sea ice depth ($h$) is determined by considering the accretion and ablation at the bottom interface and sublimation and melting at the surface:}
+\textbf{The thermodynamic sea ice module in ECHAM6 is represented as a single, motionless slab \citep{giorgetta2013}. As documented in the model source code, sea ice depth ($h$) is determined by considering the accretion and ablation at the bottom interface and sublimation and melting at the surface:}
 \begin{equation}
     \frac{\partial h}{\partial t} = \frac{1}{\rho_i L_f} \left(-Q_c - Q_a + Q_o\right) - \frac{E_i}{\rho_i}\, ,
 \end{equation}
-\textbf{where $\rho_i$ is the density of ice, $L_f$ is the latent heat flux of fusion, $Q_c$ is the conductive heat flux through the ice layer, $Q_a$ is the heat flux through the atmosphere interface, $Q_o$ is the heat flux through the ocean interface, and $E_i$ is sublimation of ice. Sea ice area fraction is binary (0\% if sea ice depth is less than 5 cm or 100\% if greater than 5 cm). Partial sea ice coverage is possible when the model output is averaged over a longer (e.g., monthly) time scale. We now provide references where the sea ice documentation is detailed (lines 142--143). The seasonal evolution of sea ice fraction and depth as a function of mixed layer depth are shown in Fig.~\ref{fig:echam-sice} below.}
-
-\begin{figure}[H]
-    \centering
-    \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/final/r1_decomp_pole/r1_decomp_pole_echamslab_ice_prop.pdf}
-    \caption{{\bf Seasonality of high latitude ($80^\circ$--$90^\circ$) (a) sea ice fraction and (b) sea ice depth for various mixed layer depths in AQUA with sea ice.}}
-    \label{fig:echam-sice}
-\end{figure}
+\textbf{where $\rho_i$ is the density of ice, $L_f$ is the latent heat flux of fusion, $Q_c$ is the conductive heat flux through the ice layer, $Q_a$ is the heat flux through the atmosphere interface, $Q_o$ is the heat flux through the ocean interface, and $E_i$ is sublimation of ice. Sea ice area fraction is binary (0\% if sea ice depth is less than 5 cm or 100\% if greater than 5 cm). Partial sea ice coverage is possible when the model output is averaged over a longer (e.g., monthly) time scale. We now provide a reference with more information about the sea ice module (line~149). The seasonal evolution of sea ice fraction and depth as a function of mixed layer depth are now shown in Fig.~10b,c.}
 
 The discussion of Antarctic topography and lack of seasonality of Antarctic $R_1$ felt a bit unsatisfying, as the former might not be a reader's first guess for explaining the latter. A more obvious candidate would be the land ice boundary condition which imposes a constant high albedo. (The authors acknowledge all this in the discussion.) If the authors could explore this further, perhaps using imposed sea ice fractions and albedo to bridge the gap between simulated land ice and sea ice, that might help. If not, the authors might consider omitting the flattened Antarctica results, and simply leave the understanding of constant Antarctic $R_1$ to future work.
 
-\textbf{The 25 m mixed layer depth simulation with sea ice is a useful configuration to test this idea. In this simulation, the albedo is very similar to that over Antarctica (see Fig.~\ref{fig:echam-alb-ice}a). However, the $R_1$ seasonality does not resemble that over Antarctica (Fig.~\ref{fig:echam-alb-ice}b). Thus, the role of Antarctica is more subtle. We now discuss this in the text (lines 317--318).}
+\textbf{We explored your suggestion by considering the evolution of albedo for the aquaplanet simulations with ice and varied mixed layer depths (Fig.~9c). The 25 m mixed layer depth simulation with sea ice is a useful configuration to test the importance of an ice boundary condition that is similar to that over Antarctica (a seasonally invariant high albedo, see Fig.~\ref{fig:echam-alb-ice}a below). However, the $R_1$ seasonality does not resemble that over Antarctica (Fig.~\ref{fig:echam-alb-ice}b below). Thus, the role of Antarctica on $R_1$ is more subtle. We now discuss this in the text (lines~356--360 and 469--474).}
 
 \begin{figure}[!h]
     \centering
     \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures_post/test/r1_mld_hl/echam25m_era5/r1_alb_25m.pdf}
-    % \noindent\includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000144/native/alb/albedo_mon_era5c.png}
-    % \noindent\includegraphics[width=0.7\textwidth]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000144/native/alb/albedo_mon_icemld.png}\\
-    % \noindent\includegraphics[width=\textwidth]{/project2/tas1/miyawaki/projects/002/figures/echam/rp000144/native/alb/icemld_all_legend.png}\\
     \caption{\bf (a) Seasonality of high latitude ($80^\circ$--$90^\circ$) surface albedo for 25 m AQUA with sea ice (solid) and over Antarctica in ERA5 (dashed). (b) Similar, but for $R_1$.}
     \label{fig:echam-alb-ice}
 \end{figure}
 
-\textbf{We considered your suggestion of omitting the flattended Antarctica results carefully. In the end we decided to keep them in part because of reviewer 1's encouragement and also because it would be useful as a guide for future researchers who are interested in expanding on this work.}
-
-% \textbf{While we understand reviewer 3's thought of omitting the flattened topography results from the manuscript, we agree with reviewer 1 on the value of sharing null results because it can be useful for guiding the direction of future work.}
+\textbf{We considered your suggestion of omitting the flattened Antarctica results carefully. In the end we decided to keep them in part because of Reviewer 1's encouragement to share null results and also because it would be useful for future researchers who are interested in understanding energy balance regimes over Antarctica.}
 
 line 34, `sum of radiative fluxes': Isn't radiative cooling the difference of the net TOA and surface fluxes?
 
-\textbf{Thank you for catching this error. We corrected this in the text (lines 34--35).}
+\textbf{Thank you for catching this error. We corrected this in the text (lines~35--36).}
 
 line 92, 'sign definite in the zonal mean': Isn't radiative cooling sign definite column-by-column, not just in the zonal mean?
 
-\textbf{Indeed, radiative cooling is sign definite column-by-column. We modified the text to specify that $R_a$ is sign definite in the modern climate because the atmosphere can be radiatively heated in a very cold climate such as in Snowball Earth (see line 97).}
+\textbf{Indeed, radiative cooling is sign definite column-by-column. We modified the text to specify that $R_a$ is sign definite in the present climate (see line~101). We note that the atmosphere can be radiative heated in a very cold climate, such as a Snowball Earth.}
 
-lines 220--225: It is good that the authors took the trouble of analysing CMIP5 data in addition to reanalysis. But this analysis, which requires six figures, also seems only incidental to the main storyline of the paper. The author might, at their discretion, consider moving this content to a supplement.
+lines~220--225: It is good that the authors took the trouble of analysing CMIP5 data in addition to reanalysis. But this analysis, which requires six figures, also seems only incidental to the main storyline of the paper. The author might, at their discretion, consider moving this content to a supplement.
 
-\textbf{Following the editor's suggestion, we now include results using CMIP5 energy balance regimes in the modern climate and the vertical structure of the warming response. Thus, we prefer to keep these figures in the appendix.}
+\textbf{Following the editor's suggestion, we now include results investigating the connection between CMIP5 energy balance regimes in the present climate and the vertical structure of the warming response. Thus, we prefer to keep the CMIP5 figures in the appendix.}
 
-lines 248--253: I assume that this discussion, and the associated Figure~7, concern $R_1$ *averaged over mid-latitudes*? I could not find a specification of this.
+lines~248--253: I assume that this discussion, and the associated Figure~7, concern $R_1$ *averaged over mid-latitudes*? I could not find a specification of this.
 
 \textbf{We now specify that the results presented in Fig.~7 are averaged over the midlatitudes (see Fig.~7 caption).}
 
-lines 294--295: The connection between atmospheric depth and radiative cooling was made explicit in \cite{jeevanjee2018}.
+lines~294--295: The connection between atmospheric depth and radiative cooling was made explicit in \cite{jeevanjee2018}.
 
-\textbf{Thank you for pointing us to this paper. We now cite \cite{jeevanjee2018} to support our expectation of the influence of Antarctic topography on $R_1$ (line 321).}
+\textbf{Thank you for pointing us to this paper. We now cite \cite{jeevanjee2018} to support our expectation of the influence of Antarctic topography on $R_1$ (line~341).}
 
-Fig.~1: The color of the lines corresponding to $R_1=0.9$ and $R_1=0.1$ are different from those in the other figures. Would be nice if these could be the same. Also, might help to label the RAE and RCE thresholds in the colorbar and/or the figure itself.
+Fig.~1: The color of the lines~corresponding to $R_1=0.9$ and $R_1=0.1$ are different from those in the other figures. Would be nice if these could be the same. Also, might help to label the RAE and RCE thresholds in the colorbar and/or the figure itself.
 
 \textbf{We changed the colors to be consistent with the other figures and added labels for the RCE and RAE thresholds on the colorbar (see Fig.~1 and B1).}
 
@@ -94,9 +77,9 @@ Fig.~2: Might be useful here, and elsewhere, to directly label the shaded region
 
 \textbf{We now label the shaded regions as RAE, RCAE, and RCE (see Fig.~2 and B2).}
 
-Fig.~7a: I felt that this is a key figure, in that it supports the key insight that a seasonal transition from RCAE to RCE requires a relatively low heat capacity. This insight is suitably emphasized in the abstract, but I felt the main text in lines 248--253 didn't do it justice.
+Fig.~7a: I felt that this is a key figure, in that it supports the key insight that a seasonal transition from RCAE to RCE requires a relatively low heat capacity. This insight is suitably emphasized in the abstract, but I felt the main text in lines~248--253 didn't do it justice.
 
-\textbf{We revised the text to put more emphasis on the result that the seasonal transition from RCAE to RCE requires a relatively low surface heat capacity (see lines 266-273).}
+\textbf{We revised the text to put more emphasis on the result that the seasonal transition from RCAE to RCE requires a relatively low surface heat capacity (see lines~271-279).}
 
 
 \bibliographystyle{apalike}

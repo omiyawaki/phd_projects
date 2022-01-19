@@ -92,6 +92,9 @@ function plot_alb_mld(type, par)
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [0 1], 'yminortick', 'on', 'tickdir', 'out');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     print(sprintf('%s/alb/albedo_mon_icemld', plotdir), '-dpng', '-r300');
+    if par.make_tikz
+        matlab2tikz(sprintf('%s/alb/albedo_mon_icemld.tex', plotdir));
+    end
     close;
     clear leg
 
@@ -136,6 +139,9 @@ function plot_alb_mld(type, par)
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     print(sprintf('%s/alb/gafrac_mon_icemld_all', plotdir), '-dpng', '-r300');
+    if par.make_tikz
+        matlab2tikz(sprintf('%s/alb/gafrac_mon_icemld.tex', plotdir));
+    end
     close;
     clear leg
 
@@ -181,6 +187,9 @@ function plot_alb_mld(type, par)
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [0 1], 'yminortick', 'on', 'tickdir', 'out');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     print(sprintf('%s/alb/sice_mon_icemld_all', plotdir), '-dpng', '-r300');
+    if par.make_tikz
+        matlab2tikz(sprintf('%s/alb/sice_mon_icemld_all.tex', plotdir));
+    end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % leg only
@@ -228,6 +237,9 @@ function plot_alb_mld(type, par)
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [0 8], 'yminortick', 'on', 'tickdir', 'out');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     print(sprintf('%s/alb/siced_mon_icemld_all', plotdir), '-dpng', '-r300');
+    if par.make_tikz
+        matlab2tikz(sprintf('%s/alb/siced_mon_icemld_all.tex', plotdir));
+    end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % leg only
@@ -255,6 +267,7 @@ function plot_alb_mld(type, par)
     patch(vertices(:,1), vertices(:,2), par.orange, 'edgecolor', 'none', 'facealpha', 0.3);
     for i = 1:n_clims_all; clim=par.echam_clims_all{i};
         leg(i)=plot(1:12, circshift(r1_aa.(clim),shiftby), '-', 'color', colors{i});
+        disp(sprintf('For %s, Annual mean R1 = %g', par.echam.(clim), nanmean(r1_aa.(clim))));
     end
     ylabel('$R_1$ (unitless)');
     title('AQUA w/ ice')
@@ -263,6 +276,9 @@ function plot_alb_mld(type, par)
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     print(sprintf('%s/alb/r1_mon_icemld_all', plotdir), '-dpng', '-r300');
+    if par.make_tikz
+        matlab2tikz(sprintf('%s/alb/r1_mon_icemld.tex', plotdir));
+    end
     close;
     clear leg
 

@@ -20,7 +20,8 @@ function proc_flux(type, par)
     load(sprintf('%s/rad.mat', prefix)) % read radiation data
     % load(sprintf('%s/hydro.mat', prefix)) % read hydrology data
     load(sprintf('%s/stf.mat', prefix)) % read surface turbulent flux data
-    load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
+    % load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
+    load(sprintf('%s/lfrac.mat', prefix_proc)); % load land and ocean masks
 
     if strcmp(par.lat_interp, 'std')
         lat = par.lat_std;
@@ -75,11 +76,11 @@ function proc_flux(type, par)
     load(sprintf('%s/tend.mat', prefix)) % read surface turbulent flux data
     flux.tend = permute(tend.tendmon, [2 1 3]);
     if strcmp(type, 'gcm')
-        if contains(par.model, 'GISS')
-            flux.tend = interp1(grid.dim3.lat_zg, flux.tend, lat, 'linear');
-        else
+        % if contains(par.model, 'GISS')
+        %     flux.tend = interp1(grid.dim3.lat_zg, flux.tend, lat, 'linear');
+        % else
             flux.tend = interp1(grid.dim3.lat, flux.tend, lat, 'linear');
-        end
+        % end
     else
         flux.tend = interp1(grid.dim3.lat, flux.tend, lat, 'linear');
     end
@@ -265,8 +266,10 @@ function proc_flux(type, par)
     for fn = var_vec; fname = fn{1};
         for l = par.land_list; land = l{1};
             if strcmp(land, 'lo'); flux_n.(land).(fname) = flux.(fname);
-            elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
-            elseif strcmp(land, 'o'); flux_n.(land).(fname) = flux.(fname) .*mask.land;
+            % elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*mask.ocean;
+            % elseif strcmp(land, 'o'); flux_n.(land).(fname) = flux.(fname) .*mask.land;
+            elseif strcmp(land, 'l'); flux_n.(land).(fname) = flux.(fname) .*lfrac;
+            elseif strcmp(land, 'o'); flux_n.(land).(fname) = flux.(fname) .*(1-lfrac);
             end
 
             % take zonal averages
@@ -296,8 +299,10 @@ function proc_flux(type, par)
         for f = f_vec; fw = f{1};
             for l = par.land_list; land = l{1};
                 if strcmp(land, 'lo'); flux_n.(land).(fname).(fw) = flux.(fname).(fw);
-                elseif strcmp(land, 'l'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.ocean;
-                elseif strcmp(land, 'o'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.land;
+                % elseif strcmp(land, 'l'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.ocean;
+                % elseif strcmp(land, 'o'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*mask.land;
+                elseif strcmp(land, 'l'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*lfrac;
+                elseif strcmp(land, 'o'); flux_n.(land).(fname).(fw) = flux.(fname).(fw) .*(1-lfrac);
                 end
 
                 if strcmp(fname, 'res')

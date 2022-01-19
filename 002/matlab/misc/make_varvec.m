@@ -11,10 +11,10 @@ function var_vec = make_varvec(type, fw)
     elseif any(strcmp(type, {'jra55'}))
         var_vec = {'hfls', 'hfss', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
     elseif any(strcmp(type, {'gcm'}))
-        var_vec = {'hfls', 'hfss', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
-        % var_vec = {'hfls', 'hfss', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
+        % var_vec = {'hfls', 'hfss', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc'};
+        var_vec = {'hfls', 'hfss', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
     elseif strcmp(type, 'echam')
-        var_vec = {'ahfl', 'ahfs', 'aprc', 'aprl', 'evap', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
+        var_vec = {'ahfl', 'ahfs', 'lw', 'sw', 'rtoa', 'olr', 'lwsfc', 'swsfc', 'tend'};
     end
 
 end

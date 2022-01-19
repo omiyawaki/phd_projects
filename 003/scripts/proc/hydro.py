@@ -39,9 +39,9 @@ def save_hydro(sim, **kwargs):
     elif sim == 'era5':
         varnames = ['cp', 'lsp', 'e']
     else:
-        # varnames = ['pr', 'prc']
+        varnames = ['pr', 'prc']
         # varnames = ['pr', 'prc', 'evspsbl']
-        varnames = ['pr', 'prc', 'clwvi', 'clivi']
+        # varnames = ['pr', 'prc', 'clwvi', 'clivi']
         # varnames = ['pr', 'prc', 'evspsbl', 'prw']
 
     # load all variables

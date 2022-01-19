@@ -10,7 +10,7 @@ models=("IPSL-CM5A-LR/")
 sim="historical"
 freq="Amon"
 ens="r1i1p1"
-yr_span="185001-200512"
+yr_span="186001-200512"
 
 cwd=$(pwd) # save current working directory
 

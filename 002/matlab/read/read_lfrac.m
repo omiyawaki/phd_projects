@@ -6,6 +6,14 @@ function read_lfrac(type, par)
     elseif strcmp(type, 'gcm')
         if any(strcmp(par.gcm.clim, {'piControl', 'abrupt4xCO2'}))
             file=dir(sprintf('/project2/tas1/CMIP5_piControl/%s/sftlf_*.nc', par.model));
+        elseif any(strcmp(par.gcm.clim, {'historical', 'rcp85'}))
+            if any(strcmp(par.model, {'bcc-csm1-1-m', 'GISS-E2-H-CC', 'GISS-E2-R-CC'}))
+                file=dir(sprintf('/project2/tas1/ockham/data14/tas/CMIP5_RAW/%s/piControl/atmos/fx/sftlf/r0i0p0/sftlf_*.nc', par.model));
+            elseif strcmp(par.model, 'inmcm4')
+                file=dir(sprintf('/project2/tas1/ockham/data9/tas/CMIP5_RAW/%s/rcp85/atmos/fx/sftlf/r0i0p0/sftlf_*.nc', par.model));
+            else
+                file=dir(sprintf('/project2/tas1/ockham/data9/tas/CMIP5_RAW/%s/historical/atmos/fx/sftlf/r0i0p0/sftlf_*.nc', par.model));
+            end
         else
             file=dir(sprintf('/project2/tas1/ockham/data9/tas/CMIP5_RAW/%s/%s/atmos/fx/sftlf/r0i0p0/sftlf_*.nc', par.model, par.(type).clim));
         end

@@ -49,6 +49,8 @@ par.echam.rp000126 = "50 m, w ice";
 par.echam.rp000149 = "45 m, w/o ice";
 par.echam.rp000148 = "45 m, w ice";
 
+par.echam.rp000181 = "42 m, w ice";
+
 par.echam.rp000135 = "40 m, w/o ice";
 par.echam.rp000134 = "40 m, w ice";
 
@@ -76,4 +78,4 @@ par.echam.rp000172 = "3 m, w/o ice";
 
 par.echam.rp000092 = "2 m, w/o ice";
 
-par.echam.exceptions = {'rp000092', 'rp000172'};
+par.echam.exceptions = {'rp000092', 'rp000172', 'rp000181'};

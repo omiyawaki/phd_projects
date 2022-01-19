@@ -71,7 +71,7 @@ function read_hydro(type, ymonmean, par)
     elseif strcmp(type, 'echam')
         hydro_vars=par.echam.vars.hydro;
         for i=1:length(par.echam.vars.hydro); var = par.echam.vars.hydro{i};
-            if contains(par.echam.clim, 'echr000') | any(strcmp(par.echam.clim, 'rp000172'))
+            if contains(par.echam.clim, 'echr000') | any(strcmp(par.echam.clim, par.echam.exceptions))
                 file=dir(sprintf('/project2/tas1/miyawaki/projects/002/data/raw/echam/BOT*_%s_*%s.nc', par.echam.clim, ymm_in));
             else
                 file=dir(sprintf('/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/%s/BOT_%s_0020_39.nc', par.echam.clim, par.echam.clim));

@@ -4,7 +4,7 @@ set -euo pipefail
 # declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
-declare -a vars_gcm=("ps" "ta" "zg" "hus") # list of GCM variables that we want to process
+declare -a vars_gcm=("ps" "tas" "ta" "zg" "hus") # list of GCM variables that we want to process
 # declare -a vars_gcm=("clt" "clwvi") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ta" "hus" "hur") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "ta" "zg" "hus" "va") # list of GCM variables that we want to process
@@ -20,6 +20,7 @@ declare -a ens="r1i1p1" # ensemble specification
 # SUBSET 1
 ##########################################################
 # declare -a models=("HadGEM2-ES/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+# declare -a models=("CNRM-CM5/") # extended RCP runs
 declare -a models=("IPSL-CM5A-LR/") # extended RCP runs
 declare -a skip_files=("_eady.nc")
 
@@ -27,7 +28,7 @@ declare -a skip_files=("_eady.nc")
 # SUBSET 2
 ##########################################################
 # declare -a models=("bcc-csm1-1/ CNRM-CM5/") # extended RCP runs
-# declare -a models=("CNRM-CM5/") # extended RCP runs
+# declare -a models=("bcc-csm1-1/") # extended RCP runs
 # declare -a skip_files=("185001-200512.nc _eady.nc")
 
 # declare -a skip_files=("185001-201212.nc _eady.nc")
@@ -59,9 +60,9 @@ for dirs in ${models[@]}; do # loop through models
         echo $(pwd)
         for vars in ${vars_gcm[@]}; do
             echo $vars
-            # if ls $cwd/${dirs}${vars}_*historical*${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}*.nc 1> /dev/null 2>&1; then # check if data is already there
-            #     echo "${vars} was already converted. Skipping..."
-            # else
+            if ls $cwd/${dirs}${vars}_*historical*${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}*.nc 1> /dev/null 2>&1; then # check if data is already there
+                echo "${vars} was already converted. Skipping..."
+            else
                 cd ./${clim}/${realm}/${freq}/${vars}/${ens}/
                 pattern="${vars}_*${dirs%/}*.nc"
                 files=( $pattern )
@@ -101,16 +102,16 @@ for dirs in ${models[@]}; do # loop through models
                     # cdo mergetime $(ls ${vars}_*) $cwd/$dirs/$merge.nc # combine multiple files into one
                     cdo -O mergetime ${files[@]} $cwd/$dirs$merge.nc # combine multiple files into one
                     cdo -O yearmean $cwd/$dirs$merge.nc $cwd/$dirs$merge.yearmean.nc # combine multiple files into one
-                # fi
+                fi
                 fi
 
-                if [ ! $freq == "fx" ]; then
-                    if [ ! $yr_end -eq 2005 ]; then
-                        selmerge="${common}${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}" # write file name with merged time
-                        cdo -O seldate,${out_yr_begin}-${out_mn_begin}-01,${out_yr_end}-${out_mn_end}-31 $cwd/$dirs$merge.nc $cwd/$dirs$selmerge.nc
-                        cdo -O yearmean $cwd/$dirs$selmerge.nc $cwd/$dirs$selmerge.yearmean.nc # combine multiple files into one
-                    fi
-                fi
+                # if [ ! $freq == "fx" ]; then
+                #     if [ ! $yr_end -eq 2005 ]; then
+                #         selmerge="${common}${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}" # write file name with merged time
+                #         cdo -O seldate,${out_yr_begin}-${out_mn_begin}-01,${out_yr_end}-${out_mn_end}-31 $cwd/$dirs$merge.nc $cwd/$dirs$selmerge.nc
+                #         cdo -O yearmean $cwd/$dirs$selmerge.nc $cwd/$dirs$selmerge.yearmean.nc # combine multiple files into one
+                #     fi
+                # fi
 
                 #######################################################################
                 # convert curvilinear to standard lat lon grid for sea ice data

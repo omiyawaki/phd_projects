@@ -20,7 +20,7 @@ function proc_ga_malr_mon_lat(type, par)
     
     %load(sprintf('%s/pa_si.mat', prefix)); pasi_orig = pa_si; clear pa_si; % read temp in si coordinates
     load(sprintf('%s/srfc.mat', prefix)); % load surface data
-    % load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
+    load(sprintf('%s/masks.mat', prefix_proc)); % load land and ocean masks
 
     if strcmp(par.lat_interp, 'std')
         lat = par.lat_std;
@@ -44,11 +44,11 @@ function proc_ga_malr_mon_lat(type, par)
 
     %pasi_sm.lo = permute(pasi_sm.lo, [1 2 4 3]); % bring plev to last dimension
 
-    % mask_vert.land = repmat(mask.land, [1 1 1 size(ga_diff_sm.lo, 4)]);
-    % mask_vert.ocean = repmat(mask.ocean, [1 1 1 size(ga_diff_sm.lo, 4)]);
+    mask_vert.land = repmat(mask.land, [1 1 1 size(ga_diff_sm.lo, 4)]);
+    mask_vert.ocean = repmat(mask.ocean, [1 1 1 size(ga_diff_sm.lo, 4)]);
 
-    % ga_diff_sm.l = ga_diff_sm.lo .* mask_vert.ocean;
-    % ga_diff_sm.o = ga_diff_sm.lo .* mask_vert.land;
+    ga_diff_sm.l = ga_diff_sm.lo .* mask_vert.ocean;
+    ga_diff_sm.o = ga_diff_sm.lo .* mask_vert.land;
 
     for l = par.land_list; land = l{1}; % over land, over ocean, or both
     % for l = {'lo'}; land = l{1}; % over land, over ocean, or both

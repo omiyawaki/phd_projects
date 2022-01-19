@@ -101,6 +101,9 @@ function plot_alb_mld_noice(type, par)
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     print(sprintf('%s/alb/gafrac_mon_noicemld', plotdir), '-dpng', '-r300');
+    if par.make_tikz
+        matlab2tikz(sprintf('%s/alb/gafrac_mon_noicemld.tex', plotdir));
+    end
     close;
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -120,6 +123,7 @@ function plot_alb_mld_noice(type, par)
     % end
     for i = 1:n_clims; clim=par.echam_clims{i};
         leg(i)=plot(1:12, circshift(r1_aa.(clim),shiftby), '-');
+        disp(sprintf('For %s, Annual mean R1 = %g', par.echam.(clim), nanmean(r1_aa.(clim))));
     end
     ylabel('$R_1$ (unitless)');
     title('AQUA w/o ice')
@@ -127,6 +131,9 @@ function plot_alb_mld_noice(type, par)
     set(gca, 'xlim', [1 12], 'xtick', [1:12], 'xticklabels', monlabel, 'ylim', [ylim_lo ylim_up], 'yminortick', 'on', 'tickdir', 'out');
     set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos)
     print(sprintf('%s/alb/r1_mon_noicemld', plotdir), '-dpng', '-r300');
+    if par.make_tikz
+        matlab2tikz(sprintf('%s/alb/r1_mon_noicemld.tex', plotdir));
+    end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % leg only

@@ -7,6 +7,7 @@ module load python
 
 # declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/rcp85/ && ls -d */) # list of GCM models to process
 models=("MPI-ESM-LR/")
+# models=("IPSL-CM5A-LR/")
 sim="historical"
 freq="Amon"
 ens="r1i1p1"

@@ -20,7 +20,7 @@ def filenames_raw(sim, varname, **kwargs):
         try:
             filename = Dataset(fname[0], 'r')
         except:
-            print('Error: The following file cannot be read: /project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean))
+            print('\nERROR: The following file cannot be read: /project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*_%s.%s.nc\n' % (sim, model, varname, model, sim, yr_span, timemean))
     elif sim == 'longrun':
         filename = Dataset(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_mon_%s_%s.%s.nc' % (sim, model, varname, model, yr_span, timemean)), 'r')
     elif sim == 'echam':
