@@ -20,11 +20,11 @@ Lf = 3.337e5 # latent heat of fusion [J kg**-1] (AMS glossary)
 ###############################################################
 
 # standard plev grid
-p50 = np.linspace(1e3,1e5,50)
+p50 = np.linspace(1e4,1e5,50)
 
 # standard sigma grid
-si50 = np.linspace(1e-2,1,50)
-si100 = np.linspace(1e-2,1,100)
+si50 = np.linspace(1e-1,1,50)
+si100 = np.linspace(1e-1,1,100)
 
 # standard lat/lon grid
 lon360 = np.linspace(0,360,360)

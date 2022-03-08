@@ -42,14 +42,72 @@ function plot_dtempsi_binned_r1(type, par)
 
             end
 
+            [~,idx10]=min(abs(par.r1_bins-0.95));
             [~,idx09]=min(abs(par.r1_bins-0.85));
             [~,idx02]=min(abs(par.r1_bins-0.15));
             [~,idx01]=min(abs(par.r1_bins-0.05));
+            [~,idx00]=min(abs(par.r1_bins+0.05));
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % R1=0 only
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            figure(); clf; hold all; box on;
+            line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
+            plot(dta_si_area(idx00,:), grid.dim3.si, 'k', 'color', cmp(idx00,:), 'linewidth', 0.5);
+            % draw arrow and label as inversion 
+            arrows(105, 0.85, 30, 0, 'Cartesian', [6e-4, 0.1, 0.05, 1e-5]);
+            text(105, 0.8, 'Inversion', 'fontsize', 7);
+            % text(5+dta_si_area(1,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(1),par.r1_bins(2)), 'fontsize',6, 'rodta_sition', -55);
+            % text(-5+dta_si_area(end,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(end-1),par.r1_bins(end)), 'fontsize',6, 'rodta_sition', -55);
+            xlabel('$\Delta T$ (K)'); ylabel('$\sigma$ (unitless)');
+            axis('tight');
+            caxis([min(par.r1_bins) max(par.r1_bins)]);
+            colormap(coolwarm(length(par.r1_bins)-1));
+            c = colorbar('ticks', [min(par.r1_bins):0.2:max(par.r1_bins)], 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
+            % c = colorbar('ticks', linspace(0,1,ceil(length(par.r1_bins)/2)+1), 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
+            ylabel(c, '$R_1$ (unitless)', 'interpreter', 'latex');
+            make_title_type(type, partitle);
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+            set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.3 1], 'xminortick', 'on', 'xlim', [0 10])
+            print(sprintf('%s/dtempsi_binned_r1/%s/%s/dtempsi_r1_add_0.png', plotdir, fw, land), '-dpng', '-r300');
+            if par.make_tikz
+                matlab2tikz(sprintf('%s/dtempsi_binned_r1/%s/%s/dtempsi_r1_add_0.tex', plotdir, fw, land));
+            end
+            close;
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % add R1=1 
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            figure(); clf; hold all; box on;
+            line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
+            plot(dta_si_area(idx00,:), grid.dim3.si, 'k', 'color', cmp(idx00,:), 'linewidth', 0.5);
+            plot(dta_si_area(idx10,:), grid.dim3.si, 'k', 'color', cmp(idx10,:), 'linewidth', 0.5);
+            % draw arrow and label as inversion 
+            arrows(105, 0.85, 30, 0, 'Cartesian', [6e-4, 0.1, 0.05, 1e-5]);
+            text(105, 0.8, 'Inversion', 'fontsize', 7);
+            % text(5+dta_si_area(1,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(1),par.r1_bins(2)), 'fontsize',6, 'rodta_sition', -55);
+            % text(-5+dta_si_area(end,50), grid.dim3.si(50), sprintf('$%g \\le R_1 < %g$',par.r1_bins(end-1),par.r1_bins(end)), 'fontsize',6, 'rodta_sition', -55);
+            xlabel('$\Delta T$ (K)'); ylabel('$\sigma$ (unitless)');
+            axis('tight');
+            caxis([min(par.r1_bins) max(par.r1_bins)]);
+            colormap(coolwarm(length(par.r1_bins)-1));
+            c = colorbar('ticks', [min(par.r1_bins):0.2:max(par.r1_bins)], 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
+            % c = colorbar('ticks', linspace(0,1,ceil(length(par.r1_bins)/2)+1), 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
+            ylabel(c, '$R_1$ (unitless)', 'interpreter', 'latex');
+            make_title_type(type, partitle);
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+            set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.3 1], 'xminortick', 'on', 'xlim', [0 10])
+            print(sprintf('%s/dtempsi_binned_r1/%s/%s/dtempsi_r1_add_1.png', plotdir, fw, land), '-dpng', '-r300');
+            if par.make_tikz
+                matlab2tikz(sprintf('%s/dtempsi_binned_r1/%s/%s/dtempsi_r1_add_1.tex', plotdir, fw, land));
+            end
+            close;
 
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % regular
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
             figure(); clf; hold all; box on;
             line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
             cmp = flip(coolwarm(length(par.r1_bins)-1));

@@ -7,10 +7,10 @@ module load python
 
 # declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/rcp85/ && ls -d */) # list of GCM models to process
 models=("MPI-ESM-LR/")
-sim="rcp85"
+sim="piControl"
 freq="Amon"
 ens="r1i1p1"
-yr_span="200601-200612"
+yr_span="125001-129912"
 
 cwd=$(pwd) # save current working directory
 

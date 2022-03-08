@@ -8,19 +8,19 @@ def filenames_raw(sim, varname, **kwargs):
     model = kwargs.get('model') # name of model
     timemean = kwargs.get('timemean', 'yearmean') # do annual mean? (bool)
     yr_span = kwargs.get('yr_span') # considered span of years
-
-    if sim in ['rcp85', 'historical']:
+    
+    if sim in ['hist+rcp85', 'rcp85', 'historical']:
         if varname in ['orog', 'sftlf']:
             fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*.nc' % (sim, model, varname, model, sim)))
         else:
             try:
-                fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean)))
+                fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_Amon_%s_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean)))
             except:
-                print('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean))
+                print('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_Amon_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean))
         try:
             filename = Dataset(fname[0], 'r')
         except:
-            print('\nERROR: The following file cannot be read: /project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*_%s.%s.nc\n' % (sim, model, varname, model, sim, yr_span, timemean))
+            print('\nERROR: The following file cannot be read: /project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_Amon_%s_%s_*_%s.%s.nc\n' % (sim, model, varname, model, sim, yr_span, timemean))
     elif sim == 'longrun':
         filename = Dataset(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_mon_%s_%s.%s.nc' % (sim, model, varname, model, yr_span, timemean)), 'r')
     elif sim == 'echam':

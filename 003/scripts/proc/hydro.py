@@ -6,6 +6,7 @@ from misc.dirnames import get_datadir
 from misc.filenames import *
 from proc.r1 import save_r1
 import numpy as np
+from scipy.interpolate import interp1d
 import pickle
 from netCDF4 import Dataset
 
@@ -39,7 +40,7 @@ def save_hydro(sim, **kwargs):
     elif sim == 'era5':
         varnames = ['cp', 'lsp', 'e']
     else:
-        varnames = ['pr', 'prc']
+        varnames = ['pr', 'prc', 'prl', 'prfrac', 'evspsbl', 'vhur', 'tas']
         # varnames = ['pr', 'prc', 'evspsbl']
         # varnames = ['pr', 'prc', 'clwvi', 'clivi']
         # varnames = ['pr', 'prc', 'evspsbl', 'prw']
@@ -53,6 +54,9 @@ def save_hydro(sim, **kwargs):
             grid['lat'] = file[varname].variables['lat'][:]
             grid['lon'] = file[varname].variables['lon'][:]
             loaded_grid = 1
+        elif varname == 'vhur':
+            grid['lat3d'] = file[varname].variables['lat'][:]
+            grid['lon3d'] = file[varname].variables['lon'][:]
 
         hydro[translate_varname(varname)] = np.squeeze(file[varname].variables[varname][:])
         if ( ('pr' in translate_varname(varname)) or (translate_varname(varname) == 'evspsbl') ) and not (translate_varname(varname) == 'prw'):
@@ -61,18 +65,23 @@ def save_hydro(sim, **kwargs):
             else: # convert kg m**-2 s**-1 to mm/d
                 hydro[translate_varname(varname)] = hydro[translate_varname(varname)]*86400
 
-    if sim == 'era5':
-        hydro['pr'] = hydro['prc'] + hydro['prl']
-    else:
-        hydro['prl'] = hydro['pr'] - hydro['prc']
+         if ( varname == 'vhur' ) and not (grid['lat'] == grid['lat3d']):
+             vhur_fint = interp1d(grid['lat3d'], hydro['vhur'], axis=1)
+             hydro['vhur'] = vhur_fint(grid['lat'])
 
-    # define convective precipitation fraction
-    hydro['prfrac'] = hydro['prc'] / hydro['pr']
-    if (hydro['prfrac'] > 1).any():
-        hydro['prfrac'][hydro['prfrac'] > 1] = np.nan
+
+    # if sim == 'era5':
+    #     hydro['pr'] = hydro['prc'] + hydro['prl']
+    # else:
+    #     hydro['prl'] = hydro['pr'] - hydro['prc']
+
+    # # define convective precipitation fraction
+    # hydro['prfrac'] = hydro['prc'] / hydro['pr']
+    # if (hydro['prfrac'] > 1).any():
+    #     hydro['prfrac'][hydro['prfrac'] > 1] = np.nan
 
     if zonmean:
         for hydroname in hydro:
             hydro[hydroname] = np.nanmean(hydro[hydroname], 2)
-    
+
     pickle.dump([hydro, grid], open(remove_repdots('%s/hydro.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))

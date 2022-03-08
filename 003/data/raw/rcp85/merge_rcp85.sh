@@ -5,14 +5,14 @@ set -euo pipefail
 # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ta" "hus" "zg") # list of GCM variables that we want to process
-declare -a vars_gcm=("ua" "va") # list of GCM variables that we want to process
+declare -a vars_gcm=("prc") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "tas" "ts" "hurs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("clt" "clwvi") # list of GCM variables that we want to process
 # declare -a vars_gcm=("hus") # list of GCM variables that we want to process
 # declare -a vars_gcm=("tas" "ts") # list of GCM variables that we want to process
 declare -a realm=("atmos")
 declare -a clim="rcp85" # climate name
-declare -a freq="day" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
+declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
 declare -a ens="r1i1p1" # ensemble specification 
 # declare -a ens="r0i0p0" # ensemble specification 
 # declare -a models=("CSIRO-Mk3-6-0/") # extended RCP runs
@@ -39,17 +39,22 @@ declare -a ens="r1i1p1" # ensemble specification
 # MODEL SUBSET 2
 ###########################################################
 # declare -a models="ACCESS1-0/ ACCESS1-3/ BNU-ESM/ CanESM2/ CCSM4/ CNRM-CM5/ CESM1-BGC/ CESM1-CAM5/ CSIRO-Mk3-6-0/ GFDL-CM3/ FGOALS-g2/ inmcm4/ IPSL-CM5A-MR/ IPSL-CM5B-LR/ MIROC5/ MIROC-ESM/ MIROC-ESM-CHEM/ MPI-ESM-LR/ MPI-ESM-MR/ MRI-CGCM3/ MRI-ESM1/ NorESM1-M/ NorESM1-ME/"
-# declare -a models="CCSM4/ CNRM-CM5/ CESM1-BGC/ CESM1-CAM5/ CSIRO-Mk3-6-0/ GFDL-CM3/ FGOALS-g2/ inmcm4/ IPSL-CM5A-MR/ IPSL-CM5B-LR/ MIROC5/ MIROC-ESM/ MIROC-ESM-CHEM/ MPI-ESM-LR/ MPI-ESM-MR/ MRI-CGCM3/ MRI-ESM1/ NorESM1-M/ NorESM1-ME/"
-# declare -a models="MPI-ESM-LR/"
+# declare -a models="CCSM4/ CNRM-CM5/ CSIRO-Mk3-6-0/ MPI-ESM-LR/"
+# declare -a models="CSIRO-Mk3-6-0/"
 # declare -a skip_files=("200501-209912.nc 200501-210012.nc 200601-209912.nc _eady.nc")
 
 ###########################################################
 # MODEL SUBSET 3
 ###########################################################
-# declare -a models="CMCC-CESM/ CMCC-CM/ CMCC-CMS/ GFDL-ESM2G/ GFDL-ESM2M/ GISS-E2-H/ GISS-E2-H-CC/ GISS-E2-R/ GISS-E2-R-CC/ HadGEM2-CC/ HadGEM2-ES/ IPSL-CM5A-LR/"
-declare -a models="IPSL-CM5A-LR/"
-declare -a skip_files=("200601-209912.nc 200601-210012.nc _eady.nc")
+# declare -a models="CMCC-CESM/ CMCC-CM/ CMCC-CMS/ GFDL-ESM2G/ GFDL-ESM2M/ GISS-E2-H/ GISS-E2-H-CC/ GISS-E2-R/ GISS-E2-R-CC/ HadGEM2-CC/ IPSL-CM5A-LR/"
+# declare -a models="IPSL-CM5A-LR/"
+# declare -a skip_files=("200601-209912.nc 200601-210012.nc _eady.nc")
 
+###########################################################
+# MODEL SUBSET 4 
+###########################################################
+declare -a models="HadGEM2-ES/"
+declare -a skip_files=("208012-209912.nc 200601-209912.nc 200601-210012.nc _eady.nc")
 
 ###########################################################
 # These models don't have RCP85 data

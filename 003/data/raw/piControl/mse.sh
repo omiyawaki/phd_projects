@@ -2,11 +2,15 @@
 # set -euo pipefail
 
 # declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/rcp85/ && ls -d */) # list of GCM models to process
-models=("MPI-ESM-LR/")
-sim="rcp85"
+models=("ACCESS1-0/")
+yr_span="075001-079912"
+# models=("CCSM4/")
+# yr_span="125001-129912"
+# models=("MPI-ESM-LR/")
+# yr_span="280001-284912"
+sim="piControl"
 freq="Amon"
 ens="r1i1p1"
-yr_span="200601-230012"
 
 cwd=$(pwd) # save current working directory
 

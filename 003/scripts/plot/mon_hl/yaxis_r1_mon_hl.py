@@ -26,12 +26,16 @@ def yaxis_r1_mon_hl(sim, **kwargs):
                 else:
                     vmin['r1'] = 0.5
                     vmax['r1'] = 1.1
+                vmin['dr1dt'] = -0.3e-2
+                vmax['dr1dt'] = 0.2e-2
                 vmin['sic'] = -60
                 vmax['sic'] = 120
                 # vmin['ga_dev'] = -200
                 # vmax['ga_dev'] = 250
                 vmin['ga_dev'] = -300
                 vmax['ga_dev'] = 300
+                vmin['vhur'] = 50
+                vmax['vhur'] = 80
                 vmin['pr'] = -0.2
                 vmax['pr'] = 2.2
                 vmin['prc'] = -0.2

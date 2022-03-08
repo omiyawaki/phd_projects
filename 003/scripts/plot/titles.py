@@ -51,6 +51,8 @@ def base_title_str(sim, **kwargs):
         base_str = '%s, %s' % ('RCP8.5', model)
     elif sim == 'historical':
         base_str = '%s, %s' % ('historical', model)
+    elif sim == 'hist+rcp85':
+        base_str = '%s, %s' % ('RCP8.5', model)
     elif sim == 'longrun':
         if model == 'MPIESM12_control':
             base_str = 'MPI-ESM-LR piControl'

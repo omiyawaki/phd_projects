@@ -3,8 +3,8 @@ function mmm_srfc(type, par)
 
     % output info
     foldername = make_savedir(type, par);
-    filename = 'srfc';
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.outname, par.clim));
+    filename = 'srfc.mat';
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/%s/grid.mat', type, par.outname, par.clim, par.(type).yr_span));
 
     par.lat_interp = 'native'; % input files will be in native grid
 

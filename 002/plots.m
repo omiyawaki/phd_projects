@@ -17,7 +17,7 @@ if 1
 
 % par.echam_clims = {'rp000134', 'rp000135'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 
-par.echam_clims = {'rp000144'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
+par.echam_clims = {'rp000034', 'rp000086'}; % par.echam.all_mld; % par.echam.sel; % par.echam.all_mld; % choose from 20170908 (snowball), 20170915_2 (modern), or rp000*** (various mixed layer depth and with/without sea ice)
 
 % par.echam_clims = {"rp000046",... % 50 m
 %                        "rp000149",... % 45 m
@@ -78,7 +78,7 @@ par.r1_bins_hl = [0.8-0.025/2:0.025:1.5+0.025/2]; % bins for sorting temperature
 % par.era.fw = {'ceresrad'};
 par.land_list = {'lo'};
 % par.rea.fw = {'mse', 'mse_old'};
-par.rea.fw = {'mse', 'mse_old'};
+par.rea.fw = {'mse_old'};
 par.era.fw = {'mse', 'mse_old'};
 par.era5c.fw = {'mse', 'mse_old'};
 % par.era5c.fw = {'mse', 'mse_old', 'mse_lat'};
@@ -86,11 +86,11 @@ par.jra55.fw = {'mse', 'mse_old'};
 par.merra2c.fw = {'mse', 'mse_old'};
 par.gcm.fw = {'mse', 'mse_old'};
 % par.gcm.fw = {'mse', 'mse_old'};
-par.echam.fw = {'mse', 'mse_old'};
+par.echam.fw = {'mse_old'};
 par.hahn.fw = {'mse_old'};
 par.pa = linspace(1000,10,100)*1e2; % high resolution vertical grid to interpolate to
 par.z = [0:500:40e3]';
-par.make_tikz = 1; % save figures as latex tikz files?
+par.make_tikz = 0; % save figures as latex tikz files?
 % set how to close energy budget
 % if == teten, use TETEN data from Donohoe to close energy budget (option for ERA-Interim)
 % if == stf, use SH and LH data from ERA-Interim to close energy budget (option for ERA-Interim)
@@ -106,8 +106,8 @@ end
 % plot_tediv_lat(par)
 
 % type = 'era5c'; par.lat_interp = 'native';
-type = 'rea'; par.lat_interp = '1.00';
-choose_plots(type, par);
+% type = 'rea'; par.lat_interp = '1.00';
+% choose_plots(type, par);
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
     % type='echam';
     % par.lat_interp = 'native';
@@ -121,9 +121,9 @@ for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
     % choose_plots(type, par);
 end
 for k = 1:length(par.gcm_models); par.model = par.gcm_models{k};
-    % type = 'gcm';
-    % disp(par.model)
-    % choose_plots(type, par);
+    type = 'gcm';
+    disp(par.model)
+    choose_plots(type, par);
 end
 
 % sweep through various boundary layer heights
@@ -202,7 +202,7 @@ function choose_plots(type, par)
     % plot_srfc_polar_line_asym(type, par) % plot decomposition of R1 in mon x lat and lon x lat space
 
     % plot_flux_land_ocean(type, par) % decompose energy fluxes into land and ocean domains
-    plot_r1_land_ocean(type, par) % decompose r1 into land and ocean domains
+    % plot_r1_land_ocean(type, par) % decompose r1 into land and ocean domains
     
     % plot_r1_mid_mld(type, par) % overlay r1 from multiple mld's
 
@@ -215,7 +215,7 @@ function choose_plots(type, par)
     % plot_sice_rea(type, par) % sea ice depth
     % plot_siced(type, par) % sea ice depth
 
-    % plot_dtemp_diff_mon_lat(type, par) % plot mon x lat temperature response (upper / lower tropospheric warming)
+    plot_dtemp_diff_mon_lat(type, par) % plot mon x lat temperature response (upper / lower tropospheric warming)
 
 end % select which functions to run at a time
 function choose_plots_si_bl(type, par)
@@ -226,10 +226,10 @@ function choose_plots_si_bl(type, par)
 
     % plot_r1_ga_lat_line(type, par) % plot ga diff
     %
-    plot_ga_land_ocean(type, par) % decompose ga into land and ocean domains
-    plot_ga_lat_lon(type, par) % look at lat lon structure of ga
+    % plot_ga_land_ocean(type, par) % decompose ga into land and ocean domains
+    % plot_ga_lat_lon(type, par) % look at lat lon structure of ga
 
-    % plot_r1_ga_midlatitude_line(type, par) % plot R1 and lapse rate deviation together at specific latitudes
+    plot_r1_ga_midlatitude_line(type, par) % plot R1 and lapse rate deviation together at specific latitudes
     % plot_r1_ga_polar_line(type, par) % plot R1 and lapse rate deviation together at specific latitudes
 end
 function choose_plots_ep(type, par)

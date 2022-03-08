@@ -1,10 +1,15 @@
 #!/bin/sh
 
-models=("MPIESM12_control")
-varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
-freq="mon"
-n_yr="1237"
+# models=("MPIESM12_piControl")
+# n_yr="1237"
+# n_myr_begin="30"
+
+models=("MPIESM12_abrupt32x")
+n_yr="103"
 n_myr_begin="30"
+# varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
+varnames=("rlutcs" "rsutcs")
+freq="mon"
 
 tstep_begin=$((1 + 12 * ($n_yr - $n_myr_begin)))
 tstep_end=$((12 * $n_yr))

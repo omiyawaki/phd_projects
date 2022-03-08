@@ -2,7 +2,7 @@ function mmm_dtempsi_mon_lat(type, par)
 
     % output info
     foldername = make_savedir_proc(type, par);
-    load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/grid.mat', type, par.outname, par.clim));
+    load(sprintf('/project2/tas1/miyawaki/projects/002/data/read/%s/%s/%s/%s/grid.mat', type, par.outname, par.clim, par.(type).yr_span));
 
     par.lat_interp = 'native';
 

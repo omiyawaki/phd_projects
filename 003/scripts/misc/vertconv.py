@@ -62,8 +62,13 @@ def pa_to_sigma(varname, var_pa, varname_sfc, var_sfc, var_ps, si):
                 idx_atm_local = ~idx_subsrfc[itime,:,ilat,ilon]
                 si_local = (pa/ps[itime,ilat,ilon])[idx_atm_local]
                 vpa_local = (vpa[itime,:,ilat,ilon])[idx_atm_local]
+
                 if len(vsfc.shape)==2: # if surface data is not a function of time, only read using lat and lon indices (e.g. for surface orography)
-                    vsfc_local = vsfc[ilat,ilon]
+                    # vsfc_local = vsfc[ilat,ilon]
+                    
+                    # UPDATE: instead of using orography, extrapolate surface geopotential
+                    vsfc_int = interpolate.interp1d(pa[idx_atm_local], vpa_local, kind='linear', fill_value='extrapolate')
+                    vsfc_local = vsfc_int(ps[itime,ilat,ilon])
                 else:
                     vsfc_local = vsfc[itime,ilat,ilon]
 
@@ -76,10 +81,11 @@ def pa_to_sigma(varname, var_pa, varname_sfc, var_sfc, var_ps, si):
                 vpa_local = np.append(vpa_local, vsfc_local)
 
                 # f = interpolate.interp1d(si_local, vpa_local, kind='cubic')
-                # vsi[itime,:,ilat,ilon] = f(si)
+                f = interpolate.interp1d(si_local, vpa_local, kind='linear')
+                vsi[itime,:,ilat,ilon] = f(si)
 
-                tck = interpolate.splrep(si_local, vpa_local)
-                vsi[itime,:,ilat,ilon] = interpolate.splev(si, tck)
+                # tck = interpolate.splrep(si_local, vpa_local)
+                # vsi[itime,:,ilat,ilon] = interpolate.splev(si, tck)
 
     var_si[varname] = vsi
 

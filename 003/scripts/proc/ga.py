@@ -48,50 +48,52 @@ def make_ga_dev_vint(sim, vertbnd, **kwargs):
     # location of pickled vertically-integrated lapse rate deviation data
     ga_dev_vint_file = remove_repdots('%s/ga_dev_vint.%g.%g.%s.%s.%s.pickle' % (datadir, vertbnd[0], vertbnd[1], vertcoord, zonmean, timemean))
 
-    # if not (os.path.isfile(ga_dev_vint_file) and try_load):
+    if not (os.path.isfile(ga_dev_vint_file) and try_load):
+        ga_dev = make_ga_dev(sim, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
 
-    ga_dev = make_ga_dev(sim, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
+        t0 = start_time('Computing vertical integral of lapse rate deviation...')
 
-    t0 = start_time('Computing vertical integral of lapse rate deviation...')
+        f = interpolate.interp1d(ga_dev['grid']['lev'], ga_dev['ga_dev'], axis=1)
 
-    f = interpolate.interp1d(ga_dev['grid']['lev'], ga_dev['ga_dev'], axis=1)
+        # identify which bound is the lower/upper bound
+        if ((vertbnd[0] > vertbnd[1]) and vertcoord in ['si', 'pa'] ):
+            vertbnd_lo = vertbnd[0]
+            vertbnd_up = vertbnd[1]
+        else:
+            vertbnd_lo = vertbnd[1]
+            vertbnd_up = vertbnd[0]
+        # vertically interpolate between the provided bounds
+        ga_dev_itp = f(np.linspace(vertbnd_up,vertbnd_lo,ga_dev['grid']['lev'].size))
 
-    # identify which bound is the lower/upper bound
-    if ((vertbnd[0] > vertbnd[1]) and vertcoord in ['si', 'pa'] ):
-        vertbnd_lo = vertbnd[0]
-        vertbnd_up = vertbnd[1]
-    else:
-        vertbnd_lo = vertbnd[1]
-        vertbnd_up = vertbnd[0]
-    # vertically interpolate between the provided bounds
-    ga_dev_itp = f(np.linspace(vertbnd_up,vertbnd_lo,ga_dev['grid']['lev'].size))
-
-    ga_dev_vint = {}
-    grid = {}
-    grid['lon'] = ga_dev['grid']['lon']
-    grid['lat'] = ga_dev['grid']['lat']
-    # ga_dev_vint['grid'] = {}
-    # ga_dev_vint['grid']['lon'] = ga_dev['grid']['lon']
-    # ga_dev_vint['grid']['lat'] = ga_dev['grid']['lat']
-    ga_dev_vint['ga_dev_vint'] = np.mean(ga_dev_itp, axis=1)
-    ga_dev_itp = None
-
-    # plot_mon_lat_test(ga_dev_vint, 'ga_dev_vint')
-    end_time(t0)
-
-    # else:
-    #     t0 = start_time('Reading vertically-integrated lapse rate deviation...')
-
-    #     [ga_dev_vint, grid] = pickle.load(open(ga_dev_vint_file, 'rb'))
-
-    #     end_time(t0)
-
-    if zonmean:
-        t0 = start_time('Computing zonal mean of vertically-integrated lapse rate deviation...')
-
-        ga_dev_vint['ga_dev_vint'] = np.mean(ga_dev_vint['ga_dev_vint'],2)
+        ga_dev_vint = {}
+        grid = {}
+        grid['lon'] = ga_dev['grid']['lon']
+        grid['lat'] = ga_dev['grid']['lat']
+        # ga_dev_vint['grid'] = {}
+        # ga_dev_vint['grid']['lon'] = ga_dev['grid']['lon']
+        # ga_dev_vint['grid']['lat'] = ga_dev['grid']['lat']
+        ga_dev_vint['ga_dev_vint'] = np.mean(ga_dev_itp, axis=1)
+        ga_dev_itp = None
 
         end_time(t0)
+
+        if zonmean and (len(ga_dev_vint['ga_dev_vint'].shape) >= 3):
+            t0 = start_time('Computing zonal mean of vertically-integrated lapse rate deviation...')
+
+            print(ga_dev_vint['ga_dev_vint'].shape)
+            ga_dev_vint['ga_dev_vint'] = np.mean(ga_dev_vint['ga_dev_vint'],2)
+
+            end_time(t0)
+
+    else:
+        t0 = start_time('Reading vertically-integrated lapse rate deviation...')
+
+        [ga_dev_vint, grid] = pickle.load(open(ga_dev_vint_file, 'rb'))
+
+        end_time(t0)
+
+    # ## TEST
+    # plot_mon_lat_test(grid, ga_dev_vint, 'ga_dev_vint')
 
     t0 = start_time('Pickling vertically-integrated lapse rate deviation...')
 
@@ -144,6 +146,7 @@ def make_ga_dev(sim, **kwargs):
                     file_vertconv[varname_std] = remove_repdots('%s/%s.%s.%s.%s.pickle' % (datadir, varname, vertcoord, zonmean, timemean))
 
                     if (os.path.isfile(file_vertconv[varname_std]) and try_load): # load pickled data if available
+                    # if 0:
                         ga_indata[varname_std] = (pickle.load(open(file_vertconv[varname_std], 'rb')))
 
                     else: # if not convert and save
@@ -197,8 +200,6 @@ def make_ga_dev(sim, **kwargs):
 
         end_time(t0)
 
-        # plot_lat_si_test(ga_dev, 'ga_dev')
-
         t0 = start_time('Pickling lapse rate deviation...')
 
         pickle.dump(ga_dev, open(remove_repdots('%s/ga_dev.%s.%s.%s.pickle' % (datadir, vertcoord, zonmean, timemean)), 'wb'), protocol=4)
@@ -211,6 +212,9 @@ def make_ga_dev(sim, **kwargs):
         ga_dev = pickle.load(open(ga_dev_file, 'rb'))
 
         end_time(t0)
+
+    # # TEMPTEMP
+    # plot_lat_si_test(ga_dev, 'ga_dev')
 
     return ga_dev
 
@@ -303,6 +307,9 @@ def make_ga(sim, ga_indata, **kwargs):
     ga['ga'] = np.empty_like(ga_indata['ta']['ta'])
     ga['grid'] = ga_indata['ta']['grid']
 
+    # print(ga_indata['ta']['ta'][0,-1,:,0])
+    print(ga_indata['zg']['zg'][0,-1,:,0]-ga_indata['zg']['zg'][0,-2,:,0])
+
     # compute lapse rate using centered finite difference (forward and backward Euler at the boundaries)
     ga['ga'][:,0,:,:] = (ga_indata['ta']['ta'][:,1,:,:]-ga_indata['ta']['ta'][:,0,:,:])/(ga_indata['zg']['zg'][:,1,:,:]-ga_indata['zg']['zg'][:,0,:,:])
 
@@ -368,31 +375,35 @@ def plot_lat_si_test(ga, varname):
 
     [mesh_si, mesh_lat] = np.meshgrid(ga['grid']['lev'], ga['grid']['lat']) # create mesh
 
+    print(ga[varname][0,-1,:,0])
+
     fig, ax = plt.subplots()
-    vmin = -50
-    vmax = 50
-    csf = ax.contourf(mesh_lat, mesh_si, np.transpose(np.squeeze(np.mean(ga[varname],axis=(0,3)))), np.arange(vmin,vmax,1), cmap='RdBu_r', vmin=vmin, vmax=vmax, extend='both')
+    vmin = -200
+    vmax = 200
+    csf = ax.contourf(mesh_lat, mesh_si, np.transpose(np.squeeze(np.nanmean(ga[varname],axis=(0,3)))), np.arange(vmin,vmax,1), cmap='RdBu_r', vmin=vmin, vmax=vmax, extend='both')
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     ax.set_xlabel('Latitude (deg)')
     ax.set_xticks(np.arange(-90,91,30))
     ax.set_ylabel('$\sigma$')
     ax.set_ylim(ax.get_ylim()[::-1])
-    plt.show()
+    # plt.show()
+    plt.savefig('/project2/tas1/miyawaki/projects/003/plot/test.pdf', format='pdf', dpi=300)
 
-def plot_mon_lat_test(ga, varname):
+def plot_mon_lat_test(grid, ga, varname):
     import matplotlib.pyplot as plt
 
     print(ga[varname].shape[0])
 
-    [mesh_lat, mesh_time] = np.meshgrid(ga['grid']['lat'], range(ga[varname].shape[0])) # create mesh
+    [mesh_lat, mesh_time] = np.meshgrid(grid['lat'], range(ga[varname].shape[0])) # create mesh
 
     fig, ax = plt.subplots()
     vmin = -50
     vmax = 50
-    csf = ax.contourf(mesh_time, mesh_lat, np.squeeze(np.mean(ga[varname],axis=2)), np.arange(vmin,vmax,1), cmap='RdBu_r', vmin=vmin, vmax=vmax, extend='both')
+    csf = ax.contourf(mesh_time, mesh_lat, ga[varname], np.arange(vmin,vmax,1), cmap='RdBu_r', vmin=vmin, vmax=vmax, extend='both')
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     ax.set_ylabel('Latitude (deg)')
     ax.set_yticks(np.arange(-90,91,30))
     # ax.set_xlabel('$\sigma$')
     # ax.set_xlim(ax.get_ylim()[::-1])
-    plt.show()
+    # plt.show()
+    plt.savefig('/project2/tas1/miyawaki/projects/003/plot/test.pdf', format='pdf', dpi=300)

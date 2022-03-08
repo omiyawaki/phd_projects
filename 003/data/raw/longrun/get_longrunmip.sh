@@ -2,7 +2,8 @@
 
 models=("MPIESM12_abrupt32x")
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
-varnames=("sic")
+varnames=("rsutcs" "rlutcs")
+# varnames=("sic")
 freq="mon"
 n_yr="103"
 

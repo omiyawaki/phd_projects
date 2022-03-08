@@ -251,7 +251,7 @@ def r1_mon_hl(sim, **kwargs):
     ax.set_xlim(yr_base,yr_base+r1_hl.shape[0]-1)
     ax.set_ylim(vmin['r1'],vmax['r1'])
 
-    fig.set_size_inches(4, 3)
+    fig.set_size_inches(4, 3.5)
 
     if plotover == 'sic':
         ############################################
@@ -301,13 +301,33 @@ def r1_mon_hl(sim, **kwargs):
         # ga_dev_vint = make_ga_dev_vint(sim, vertbnd, model=model, vertcoord = vertcoord, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load)
 
         # ga_dev_vint_hl = lat_mean(ga_dev_vint['ga_dev_vint'], ga_dev_vint['grid'], lat_int, dim=1)
-        print(ga)
+
+        ga_dev_vint_hl_mmm = dict()
+        if not ( isinstance(model, str) or (model is None) ):
+            for i in ga_mmm['ga_dev_vint']:
+                ga_dev_vint_hl_mmm[i] = lat_mean(ga_mmm['ga_dev_vint'][i], grid, lat_int, dim=1)
+
+        print(ga['ga_dev_vint'].shape)
         ga_dev_vint_hl = lat_mean(ga['ga_dev_vint'], grid_ga, lat_int, dim=1)
+        print(ga_dev_vint_hl.shape)
+
+        # first and last 30 years
+        ga_dev_vint_f30 = np.mean(ga_dev_vint_hl[:30])
+        ga_dev_vint_l30 = np.mean(ga_dev_vint_hl[-30:])
+        m_axis = (ga_dev_vint_l30 - ga_dev_vint_f30)/(r1_l30 - r1_f30)
+        vmax_alg = ga_dev_vint_f30 + m_axis*( vmax['r1'] - r1_f30 )
+        vmin_alg = ga_dev_vint_l30 + m_axis*( vmin['r1'] - r1_l30 )
 
         sax = ax.twinx()
+        if not (isinstance(model, str) or model is None):
+            if spread == 'prc':
+                sax.fill_between(time, ga_dev_vint_hl_mmm['prc25'], ga_dev_vint_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+            elif spread == 'std':
+                sax.fill_between(time, ga_dev_vint_hl_mmm['mmm']-ga_dev_vint_hl_mmm['std'], ga_dev_vint_hl_mmm['mmm']+ga_dev_vint_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, ga_dev_vint_hl, color='tab:blue')
         sax.set_ylabel(r'$\langle(\Gamma_m-\Gamma)/\Gamma_m\rangle_{%0.1f}^{%0.1f}$ (%%)' % (vertbnd[0], vertbnd[1]), color='tab:blue')
-        sax.set_ylim(vmin['ga_dev'],vmax['ga_dev'])
+        # sax.set_ylim(vmin['ga_dev'],vmax['ga_dev'])
+        sax.set_ylim(vmin_alg,vmax_alg)
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(MultipleLocator(5))
 

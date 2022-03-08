@@ -37,12 +37,10 @@ def save_dyn(sim, **kwargs):
     elif sim == 'era5':
         varnames = ['ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf']
     else:
-        varnames = ['divaht', 'divte']
+        varnames = ['aht', 'qaht', 'saht', 'vmmmc', 'vqmmc', 'vsmmc', 'vmse', 'vqse', 'vsse', 'vmte', 'vqte', 'vste', 'daht', 'dqaht', 'dsaht', 'dvmmmc', 'dvqmmc', 'dvsmmc', 'dvmse', 'dvqse', 'dvsse', 'dvmte', 'dvqte', 'dvste','aht_sm', 'qaht_sm', 'saht_sm', 'vmmmc_sm', 'vqmmc_sm', 'vsmmc_sm', 'vmse_sm', 'vqse_sm', 'vsse_sm', 'vmte_sm', 'vqte_sm', 'vste_sm', 'daht_sm', 'dqaht_sm', 'dsaht_sm', 'dvmmmc_sm', 'dvqmmc_sm', 'dvsmmc_sm', 'dvmse_sm', 'dvqse_sm', 'dvsse_sm', 'dvmte_sm', 'dvqte_sm', 'dvste_sm']
 
     # load all variables
-    print(varnames)
     for varname in varnames:
-        print(varname)
         file[varname] = filenames_raw(sim, varname, model=model, timemean=timemean, yr_span=yr_span)
 
         if loaded_grid == 0:
@@ -53,9 +51,6 @@ def save_dyn(sim, **kwargs):
         dyn[translate_varname(varname)] = np.squeeze(file[varname].variables[varname][:])
         if sim == 'era5':
             dyn[translate_varname(varname)] = dyn[translate_varname(varname)]/86400
-
-    print(dyn['divaht'].shape)
-    dyn['divse'] = dyn['divaht'] - dyn['divte']
 
     # if zonmean:
     #     for dynname in dyn:

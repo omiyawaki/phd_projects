@@ -9,45 +9,53 @@ from netCDF4 import Dataset,num2date
 # for CMIP
 
 cpd = 1005.7; Rd = 287; Rv = 461; L = 2.501e6; g = 9.81; a = 6357e3; eps = Rd/Rv;
+p0 = 1100.e2 # bottom integral bound [hPa]
+pt = 0. # top integral bound [hPa]
 
 # paths to ps and mse files
 path_ps = sys.argv[1]
 path_mse = sys.argv[2]
-path_tend = sys.argv[3]
+path_beta = sys.argv[3]
+path_tend = sys.argv[4]
 
 # open files
 file_ps = Dataset(path_ps, 'r')
 file_mse = Dataset(path_mse, 'r')
+file_beta = Dataset(path_beta, 'r')
 
 # read data
-ps = file_ps.variables['ps'][:] # (mon x lat x lon)
-mse = file_mse.variables['mse'][:] # (day x lev x lat x lon)
+ps = np.squeeze(file_ps.variables['ps'][:]) # (lat x lon)
+mse = file_mse.variables['mse'][:] # (mon x lev x lat x lon)
+beta = np.squeeze(file_beta.variables['beta'][:]) # (lev x lat x lon)
+
 plev = file_mse.variables['plev'][:]
+plev_half = 1/2 * (plev[1:] + plev[:-1])
+plev_half = np.sort(np.append(plev_half, [pt, p0]))
+plev_full = np.sort(np.concatenate((plev, plev_half)))
+if plev[1]-plev[0]<0:
+    plev_half = plev_half[::-1]
+    plev_full = plev_full[::-1]
+dplev = plev_half[1:] - plev_half[:-1]
 
 # for datasets that fill data below surface as missing data, fill with nans
 mse = mse.filled(fill_value=np.nan)
 
 # check if 2d and 3d lat grids are the same and interpolate 2d data to 3d grid if different
-lat2d = file_ps.variables['lat'][:] # (mon x lat x lon)
-lat3d = file_mse.variables['lat'][:] # (day x lev x lat x lon)
+lat2d = file_ps.variables['lat'][:] 
+lat3d = file_mse.variables['lat'][:] 
 if not np.array_equal(lat2d,lat3d):
     filledps = ps.filled(fill_value=np.nan)
     filledlat2d = lat2d.filled(fill_value=np.nan)
     filledlat3d = lat3d.filled(fill_value=np.nan)
-    f = interpolate.interp1d(filledlat2d, filledps, axis=1)
+    f = interpolate.interp1d(filledlat2d, filledps, axis=0)
     ps = f(filledlat3d)
     filledps = None; f = None;
 
 # replace subsurface data in general with nans (important for computing dhdt near the surface)
-ps3d = np.tile(ps, [plev.size, 1, 1, 1])
-ps3d = np.transpose( ps3d, [1, 0, 2, 3] )
-pa3d = np.tile(plev, [ps.shape[0], ps.shape[1], ps.shape[2], 1])
-pa3d = np.transpose( pa3d, [0, 3, 1, 2] )
-idx_below = pa3d > ps3d
-ps3d = None;
-
-pa3d[idx_below]=np.nan
-mse[idx_below]=np.nan
+ps_tile = np.tile(ps, [mse.shape[0], mse.shape[1], 1, 1])
+pa = np.transpose(np.tile(plev, [mse.shape[0], mse.shape[2], mse.shape[3], 1]), [0,3,1,2])
+subsurf = pa > ps_tile
+mse[subsurf] = np.nan
 
 # take time tendency
 # 3d mse tendency
@@ -58,9 +66,11 @@ dmsedt[-1] = (mse[-1,:,:,:]-mse[-2,:,:,:])/(365*86400/12)
 
 # compute vertical integral
 if plev[1]-plev[0]>0: # if pressure increases with index
-    dvmsedt = 1/g*np.trapz(dmsedt, pa3d, axis=1)
+    # dvmsedt = 1/g*np.trapz(dmsedt, pa3d, axis=1)
+    dvmsedt = 1/g * np.nansum( beta[np.newaxis,...] * dmsedt * dplev[np.newaxis,...,np.newaxis,np.newaxis], axis=1)
 else:
-    dvmsedt = -1/g*np.trapz(dmsedt, pa3d, axis=1)
+    # dvmsedt = -1/g*np.trapz(dmsedt, pa3d, axis=1)
+    dvmsedt = -1/g * np.nansum( beta[np.newaxis,...] * dmsedt * dplev[np.newaxis,...,np.newaxis,np.newaxis], axis=1)
 
 # save file as netCDF
 file_tend = Dataset(path_tend, "w", format='NETCDF4_CLASSIC')
@@ -76,7 +86,7 @@ for name, dimension in file_mse.dimensions.items():
  
 # copy all variables except time from ps file
 for name, variable in file_mse.variables.items():
-    if any(name in s for s in ['mse' 'plev']):
+    if any(name in s for s in ['mse' 'plev', 'plev_bnds']):
         continue
     
     x = file_tend.createVariable(name, variable.datatype, variable.dimensions)

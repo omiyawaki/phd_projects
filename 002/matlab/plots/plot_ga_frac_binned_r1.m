@@ -38,9 +38,131 @@ function plot_ga_frac_binned_r1(type, par)
 
             end
 
+            [~,idx10]=min(abs(par.r1_bins-0.95));
             [~,idx09]=min(abs(par.r1_bins-0.85));
             [~,idx02]=min(abs(par.r1_bins-0.15));
             [~,idx01]=min(abs(par.r1_bins-0.05));
+            [~,idx00]=min(abs(par.r1_bins+0.05));
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % EMPTY
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            figure(); clf; hold all; box on;
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
+            xlabel('$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)'); ylabel('$\sigma$ (unitless)');
+            axis('tight');
+            caxis([min(par.r1_bins) max(par.r1_bins)]);
+            colormap(coolwarm(length(par.r1_bins)-1));
+            c = colorbar('ticks', [min(par.r1_bins):0.2:max(par.r1_bins)], 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
+            ylabel(c, '$R_1$ (unitless)', 'interpreter', 'latex');
+            make_title_type(type, par);
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+            set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.3 1], 'xminortick', 'on', 'xlim', [-50 150])
+            print(sprintf('%s/ga_frac_binned_r1/%s/%s/ga_frac_r1_empty.png', plotdir, fw, land), '-dpng', '-r300');
+            if par.make_tikz
+                matlab2tikz(sprintf('%s/ga_frac_binned_r1/%s/%s/ga_frac_r1_empty.tex', plotdir, fw, land));
+            end
+            close;
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % MA REFERENCE LINE
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            figure(); clf; hold all; box on;
+            line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
+            xlabel('$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)'); ylabel('$\sigma$ (unitless)');
+            axis('tight');
+            caxis([min(par.r1_bins) max(par.r1_bins)]);
+            colormap(coolwarm(length(par.r1_bins)-1));
+            c = colorbar('ticks', [min(par.r1_bins):0.2:max(par.r1_bins)], 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
+            ylabel(c, '$R_1$ (unitless)', 'interpreter', 'latex');
+            make_title_type(type, par);
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+            set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.3 1], 'xminortick', 'on', 'xlim', [-50 150])
+            print(sprintf('%s/ga_frac_binned_r1/%s/%s/ga_frac_r1_add_ma.png', plotdir, fw, land), '-dpng', '-r300');
+            if par.make_tikz
+                matlab2tikz(sprintf('%s/ga_frac_binned_r1/%s/%s/ga_frac_r1_add_ma.tex', plotdir, fw, land));
+            end
+            close;
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ADD R1=0
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            figure(); clf; hold all; box on;
+            line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
+            plot(ga_fr_area(idx00,:), grid.dim3.si, 'k', 'color', cmp(idx00,:), 'linewidth', 0.5);
+            xlabel('$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)'); ylabel('$\sigma$ (unitless)');
+            axis('tight');
+            caxis([min(par.r1_bins) max(par.r1_bins)]);
+            colormap(coolwarm(length(par.r1_bins)-1));
+            c = colorbar('ticks', [min(par.r1_bins):0.2:max(par.r1_bins)], 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
+            ylabel(c, '$R_1$ (unitless)', 'interpreter', 'latex');
+            make_title_type(type, par);
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+            set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.3 1], 'xminortick', 'on', 'xlim', [-50 150])
+            print(sprintf('%s/ga_frac_binned_r1/%s/%s/ga_frac_r1_add_0.png', plotdir, fw, land), '-dpng', '-r300');
+            if par.make_tikz
+                matlab2tikz(sprintf('%s/ga_frac_binned_r1/%s/%s/ga_frac_r1_add_0.tex', plotdir, fw, land));
+            end
+            close;
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ADD INV
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            figure(); clf; hold all; box on;
+            line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
+            line(100*[1 1], [0 1], 'linestyle', '--', 'color', 'k', 'linewidth', 0.5);
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
+            plot(ga_fr_area(idx00,:), grid.dim3.si, 'k', 'color', cmp(idx00,:), 'linewidth', 0.5);
+            % draw arrow and label as inversion 
+            arrows(105, 0.85, 30, 0, 'Cartesian', [6e-4, 0.1, 0.05, 1e-5]);
+            text(105, 0.8, 'Inversion', 'fontsize', 7);
+            xlabel('$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)'); ylabel('$\sigma$ (unitless)');
+            axis('tight');
+            caxis([min(par.r1_bins) max(par.r1_bins)]);
+            colormap(coolwarm(length(par.r1_bins)-1));
+            c = colorbar('ticks', [min(par.r1_bins):0.2:max(par.r1_bins)], 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
+            ylabel(c, '$R_1$ (unitless)', 'interpreter', 'latex');
+            make_title_type(type, par);
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+            set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.3 1], 'xminortick', 'on', 'xlim', [-50 150])
+            print(sprintf('%s/ga_frac_binned_r1/%s/%s/ga_frac_r1_add_inv.png', plotdir, fw, land), '-dpng', '-r300');
+            if par.make_tikz
+                matlab2tikz(sprintf('%s/ga_frac_binned_r1/%s/%s/ga_frac_r1_add_inv.tex', plotdir, fw, land));
+            end
+            close;
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ADD R1=1
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            figure(); clf; hold all; box on;
+            line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
+            line(100*[1 1], [0 1], 'linestyle', '--', 'color', 'k', 'linewidth', 0.5);
+            cmp = flip(coolwarm(length(par.r1_bins)-1));
+            plot(ga_fr_area(idx00,:), grid.dim3.si, 'k', 'color', cmp(idx00,:), 'linewidth', 0.5);
+            plot(ga_fr_area(idx10,:), grid.dim3.si, 'k', 'color', cmp(idx10,:), 'linewidth', 0.5);
+            % draw arrow and label as inversion 
+            arrows(105, 0.85, 30, 0, 'Cartesian', [6e-4, 0.1, 0.05, 1e-5]);
+            text(105, 0.8, 'Inversion', 'fontsize', 7);
+            xlabel('$(\Gamma_m - \Gamma)/\Gamma_m$ (\%)'); ylabel('$\sigma$ (unitless)');
+            axis('tight');
+            caxis([min(par.r1_bins) max(par.r1_bins)]);
+            colormap(coolwarm(length(par.r1_bins)-1));
+            c = colorbar('ticks', [min(par.r1_bins):0.2:max(par.r1_bins)], 'ticklabels', strtrim(cellstr(num2str(flip([-0.6:0.2:1.4])', '%.1f'))'), 'ticklabelinterpreter', 'latex', 'ydir', 'reverse');
+            ylabel(c, '$R_1$ (unitless)', 'interpreter', 'latex');
+            make_title_type(type, par);
+            set(gcf, 'paperunits', 'inches', 'paperposition', par.ppos_wide)
+            set(gca, 'fontsize', par.fs, 'ydir', 'reverse', 'yscale', 'linear', 'ytick', [0:0.1:1], 'ylim', [0.3 1], 'xminortick', 'on', 'xlim', [-50 150])
+            print(sprintf('%s/ga_frac_binned_r1/%s/%s/ga_frac_r1_add_1.png', plotdir, fw, land), '-dpng', '-r300');
+            if par.make_tikz
+                matlab2tikz(sprintf('%s/ga_frac_binned_r1/%s/%s/ga_frac_r1_add_1.tex', plotdir, fw, land));
+            end
+            close;
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % ALL
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             figure(); clf; hold all; box on;
             line([0 0], [0 1], 'color', 'k', 'linewidth', 0.5);
             line(100*[1 1], [0 1], 'linestyle', '--', 'color', 'k', 'linewidth', 0.5);

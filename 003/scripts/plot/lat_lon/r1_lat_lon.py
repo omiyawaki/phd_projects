@@ -117,7 +117,7 @@ def r1_lat_lon(sim, **kwargs):
 
     fig, ax = plt.subplots()
     axc = plt.axes(projection=ccrs.PlateCarree(central_longitude=180))
-    # axc.set_extent([-180, 180, -90, 90], ccrs.PlateCarree())
+    # axc.set_extent([-180, 180, -30, 30], ccrs.PlateCarree())
 
     csf = plt.contourf(mesh_lon, mesh_lat, np.transpose(categ), levels=np.arange(0,n_cats+1,1)-0.5, cmap='Pastel1', transform=ccrs.PlateCarree())
     make_title_sim_time(axc, sim, model=modelstr, timemean=timemean)
@@ -127,7 +127,7 @@ def r1_lat_lon(sim, **kwargs):
     # ax.set_ylabel('Latitude (deg)')
     # ax.yaxis.set_minor_locator(AutoMinorLocator())
     # ax.set_xlim(0,360)
-    # ax.set_ylim(-90,90)
+    # ax.set_ylim(-30,30)
     # ax.set_yticks(np.arange(-90,91,30))
     cbar = plt.colorbar(csf)
     tick_locs = np.arange(n_cats+1)#*(n_cats-1)/n_cats
@@ -163,7 +163,7 @@ def r1_lat_lon(sim, **kwargs):
 
     fig, ax = plt.subplots()
     axc = plt.axes(projection=ccrs.PlateCarree(central_longitude=180))
-    # axc.set_extent([-180, 180, -90, 90], ccrs.PlateCarree())
+    # axc.set_extent([-180, 180, -30, 30], ccrs.PlateCarree())
 
     csf = plt.contourf(mesh_lon, mesh_lat, np.transpose(categ), levels=np.arange(0,n_cats+1,1)-0.5, cmap='Pastel1', transform=ccrs.PlateCarree())
     make_title_sim_time(axc, sim, model=modelstr, timemean=timemean)
@@ -173,7 +173,7 @@ def r1_lat_lon(sim, **kwargs):
     # ax.set_ylabel('Latitude (deg)')
     # ax.yaxis.set_minor_locator(AutoMinorLocator())
     # ax.set_xlim(0,360)
-    # ax.set_ylim(-90,90)
+    # ax.set_ylim(-30,30)
     # ax.set_yticks(np.arange(-90,91,30))
     cbar = plt.colorbar(csf)
     tick_locs = np.arange(n_cats+1)#*(n_cats-1)/n_cats

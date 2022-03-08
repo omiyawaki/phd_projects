@@ -1,10 +1,11 @@
 #!/bin/sh
 
 # models=("MPI-ESM-LR")
-declare -a models=("bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "GISS-E2-H" "GISS-E2-R" "HadGEM2-ES" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
+# declare -a models=("bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "GISS-E2-H" "GISS-E2-R" "HadGEM2-ES" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
+declare -a models=("bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss" "pr" "prc" "sic")
 # varnames=("pr" "prc")
-varnames=("hur")
+varnames=("evspsbl")
 sim="rcp85"
 freq="Amon"
 ens="r1i1p1"
@@ -12,8 +13,8 @@ ens="r1i1p1"
 # yr_span="200601-230012"
 # n_yr="295"
 
-# yr_span="200601-229912"
-# n_yr="294"
+yr_span="200601-229912"
+n_yr="294"
 
 # yr_span="200601-224912"
 # n_yr="244"
@@ -36,8 +37,11 @@ ens="r1i1p1"
 # yr_span_list=("200601-229912" "200601-224912" "200601-219912" "200601-214912" "200601-209912" "200601-204912")
 # n_yr_list=("294" "244" "194" "144" "94" "44")
 
-yr_span_list=("200601-229912" "200601-224912")
-n_yr_list=("294" "244")
+# yr_span_list=("200601-229912" "200601-224912")
+# n_yr_list=("294" "244")
+
+# yr_span_list=("200601-229912")
+# n_yr_list=("294")
 
 n_myr_begin="30"
 
@@ -45,10 +49,10 @@ counter=1
 
 cwd=$(pwd)
 
-for yr_span in ${yr_span_list[@]}; do
-    n_yr=${n_yr_list[$counter]}
-    echo $counter
-    echo $n_yr
+# for yr_span in ${yr_span_list[@]}; do
+#     n_yr=${n_yr_list[$counter]}
+#     echo $counter
+#     echo $n_yr
 
     tstep_begin=$((1 + 12 * ($n_yr - $n_myr_begin)))
     tstep_end=$((12 * $n_yr))
@@ -80,5 +84,5 @@ for yr_span in ${yr_span_list[@]}; do
 
     done # models
 
-    counter=$((counter+1))
-done
+    # counter=$((counter+1))
+# done

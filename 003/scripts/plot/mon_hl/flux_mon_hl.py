@@ -219,6 +219,35 @@ def flux_mon_hl(sim, **kwargs):
     plt.close()
 
     ############################################
+    # PLOT (decompose mse storage and flux convergence)
+    ############################################
+    plotname = remove_repdots('%s/stg_adv_dev_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean))
+    fig, ax = plt.subplots()
+    ax.axhline(0, color='k', linewidth=0.5)
+    lp_tot = ax.plot(time, flux_dev_hl['stg_adv'], color='maroon', label='$\Delta \partial_t(m) + \partial_y(vm)$')
+    lp_stg = ax.plot(time, flux_dev_hl['tend'], ':', color='maroon', label='$\Delta \partial_t(m)$')
+    lp_adv = ax.plot(time, flux_dev_hl['adv'], '--', color='maroon', label='$\Delta \partial_y(vm)$')
+    make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
+    ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
+    if 'ymonmean' in timemean:
+        ax.set_xticks(np.arange(0,12,1))
+        ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
+    else:
+        ax.set_xlabel('Time (yr)')
+    ax.set_ylabel('$\Delta$ Energy flux (Wm$^{-2}$)')
+    ax.xaxis.set_minor_locator(MultipleLocator(10))
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax.set_xlim(yr_base,yr_base+flux_dev_hl['tend'].shape[0]-1)
+    # ax.set_ylim(vmin_dev,vmax_dev)
+    if legend:
+        ax.legend()
+    plt.tight_layout()
+    plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+    if viewplt:
+        plt.show()
+    plt.close()
+
+    ############################################
     # DSE PLOT (DEVIATION FROM INITIAL)
     ############################################
     plotname = remove_repdots('%s/flux_dse_dev_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean))

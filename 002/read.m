@@ -68,7 +68,7 @@ par.cpd = 1005.7; par.Rd = 287; par.Rv = 461; par.L = 2.501e6; par.g = 9.81; par
 % par.rea_models = {'era5c'};
 par.rea_models = {'era5c', 'merra2c', 'jra55'};
 for k=1:length(par.rea_models); type=par.rea_models{k};
-    run_func(type, par);
+    % run_func(type, par);
 end
 for k=1:length(par.echam_clims); par.echam.clim=par.echam_clims{k};
     % type='echam';
@@ -81,13 +81,13 @@ for k=1:length(par.hahn_clims); par.hahn.clim=par.hahn_clims{k};
     % run_func(type, par);
 end
 for k=1:length(par.gcm_models); par.model=par.gcm_models{k};
-    % type='gcm';
-    % disp(par.model)
-    % run_func(type, par);
+    type='gcm';
+    disp(par.model)
+    run_func(type, par);
 end
 
 function run_func(type, par)
-    % read_grid(type, 'ymonmean', par)
+    read_grid(type, 'ymonmean', par)
     read_srfc(type, 'ymonmean', par) % other surface variables, e.g. 2-m temperature, surface pressure
     % read_sfcWind(type, 'ymonmean', par) % other surface variables, e.g. 2-m temperature, surface pressure
     % read_hus_ml0(type, 'ymonmean', par) % other surface variables, e.g. 2-m temperature, surface pressure

@@ -27,7 +27,7 @@ def get_plotdir(sim, **kwargs):
 
 def suffix_str(sim, model, yr_span, **kwargs):
 
-    if sim in ['rcp85', 'historical', 'echam']:
+    if sim in ['hist+rcp85', 'rcp85', 'historical', 'echam']:
        suffix_str = '%s/%s/%s' % (sim, model, yr_span)
     elif sim == 'longrun':
        suffix_str = '%s/%s' % (sim, model)

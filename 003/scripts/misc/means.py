@@ -109,8 +109,8 @@ def mmm_mon_lat_lev(var, grid_in, grid_out, **kwargs):
 
     for i in range(len(var)):
 
-        var_fill = var[i].filled(fill_value=np.nan)
-        var[i] = var_fill
+        # var_fill = var[i].filled(fill_value=np.nan)
+        # var[i] = var_fill
 
         # interpolate to standard lev grid
         var_fint_lev = interp1d(grid_in[i]['lev'], var[i], axis=1, bounds_error=False)

@@ -3,10 +3,64 @@ def translate_varname(varnames_in, **kwargs):
 
     # key are nonstandard names, value is the standard name
     trans_dict = {
+        # MSE storage
+        'tend': 'tend',
+
+        # LARGE SCALE CIRCULATION
+        'ua': 'ua',
+        'va': 'va',
+        'wap': 'wap',
+        'psi': 'psi',
+
         # DYNAMICS
-        'divaht': 'divaht',
-        'divse': 'divse',
-        'divte': 'divte',
+        'aht': 'aht',
+        'vmmmc': 'vmmmc',
+        'vmse': 'vmse',
+        'vmte': 'vmte',
+        'qaht': 'qaht',
+        'vqmmc': 'vqmmc',
+        'vqse': 'vqse',
+        'vqte': 'vqte',
+        'saht': 'saht',
+        'vsmmc': 'vsmmc',
+        'vsse': 'vsse',
+        'vste': 'vste',
+        'daht': 'daht',
+        'dvmmmc': 'dvmmmc',
+        'dvmse': 'dvmse',
+        'dvmte': 'dvmte',
+        'dqaht': 'dqaht',
+        'dvqmmc': 'dvqmmc',
+        'dvqse': 'dvqse',
+        'dvqte': 'dvqte',
+        'dsaht': 'dsaht',
+        'dvsmmc': 'dvsmmc',
+        'dvsse': 'dvsse',
+        'dvste': 'dvste',
+        'aht_sm': 'aht_sm',
+        'vmmmc_sm': 'vmmmc_sm',
+        'vmse_sm': 'vmse_sm',
+        'vmte_sm': 'vmte_sm',
+        'qaht_sm': 'qaht_sm',
+        'vqmmc_sm': 'vqmmc_sm',
+        'vqse_sm': 'vqse_sm',
+        'vqte_sm': 'vqte_sm',
+        'saht_sm': 'saht_sm',
+        'vsmmc_sm': 'vsmmc_sm',
+        'vsse_sm': 'vsse_sm',
+        'vste_sm': 'vste_sm',
+        'daht_sm': 'daht_sm',
+        'dvmmmc_sm': 'dvmmmc_sm',
+        'dvmse_sm': 'dvmse_sm',
+        'dvmte_sm': 'dvmte_sm',
+        'dqaht_sm': 'dqaht_sm',
+        'dvqmmc_sm': 'dvqmmc_sm',
+        'dvqse_sm': 'dvqse_sm',
+        'dvqte_sm': 'dvqte_sm',
+        'dsaht_sm': 'dsaht_sm',
+        'dvsmmc_sm': 'dvsmmc_sm',
+        'dvsse_sm': 'dvsse_sm',
+        'dvste_sm': 'dvste_sm',
 
         # RADIATION
         # ECHAM
@@ -52,6 +106,9 @@ def translate_varname(varnames_in, **kwargs):
 
         # RELATIVE HUMIDITY
         'hur' : 'hur', # CMIP
+
+        # VERTICAL MEAN RELATIVE HUMIDITY
+        'vhur' : 'vhur', # CMIP
 
         # GEOPOTENTIAL HEIGHT
         'zg' : 'zg', # CMIP

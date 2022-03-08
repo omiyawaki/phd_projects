@@ -108,7 +108,8 @@ def pr_mon_hl(sim, **kwargs):
     pr_hl = lat_mean(hydro['pr'], grid, lat_int, dim=1)
     prc_hl = lat_mean(hydro['prc'], grid, lat_int, dim=1)
     prl_hl = lat_mean(hydro['prl'], grid, lat_int, dim=1)
-    prw_hl = lat_mean(hydro['prw'], grid, lat_int, dim=1)
+    # prw_hl = lat_mean(hydro['prw'], grid, lat_int, dim=1)
+    vhur_hl = lat_mean(hydro['vhur'], grid, lat_int, dim=1)
 
     time = yr_base + np.arange(pr_hl.shape[0]) # create time vector
     prfrac_hl = lat_mean(100*hydro['prl']/hydro['pr'], grid, lat_int, dim=1)
@@ -118,20 +119,49 @@ def pr_mon_hl(sim, **kwargs):
         pr_hl_mmm = dict()
         prl_hl_mmm = dict()
         prc_hl_mmm = dict()
-        prw_hl_mmm = dict()
+        # prw_hl_mmm = dict()
         prfrac_hl_mmm = dict()
+        vhur_hl_mmm = dict()
         if not ( isinstance(model, str) or (model is None) ):
             for i in hydro_mmm['pr']:
                 pr_hl_mmm[i] = lat_mean(hydro_mmm['pr'][i], grid, lat_int, dim=1)
                 prl_hl_mmm[i] = lat_mean(hydro_mmm['prl'][i], grid, lat_int, dim=1)
                 prc_hl_mmm[i] = lat_mean(hydro_mmm['prc'][i], grid, lat_int, dim=1)
-                prw_hl_mmm[i] = lat_mean(hydro_mmm['prw'][i], grid, lat_int, dim=1)
+                # prw_hl_mmm[i] = lat_mean(hydro_mmm['prw'][i], grid, lat_int, dim=1)
                 prfrac_hl_mmm[i] = lat_mean(100*hydro_mmm['prl'][i]/hydro_mmm['pr'][i], grid, lat_int, dim=1)
+                vhur_hl_mmm[i] = lat_mean(hydro_mmm['vhur'][i], grid, lat_int, dim=1)
 
     # compute trends
     if 'ymonmean' not in timemean and sim == 'era5':
         A = np.vstack([time, np.ones(len(time))]).T
         m, c = np.linalg.lstsq(A, prfrac_hl, rcond=None)[0]
+
+    ############################################
+    # PLOT VHUR
+    ############################################
+
+    plotname = '%s/vhur_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean)
+
+    fig, ax = plt.subplots()
+    ax.axhline(0, time[0], time[-1], color='k', linewidth=0.5)
+    if not ( isinstance(model, str) or (model is None) ):
+        ax.fill_between(time, vhur_hl_mmm['prc25'], vhur_hl_mmm['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
+    ax.plot(time, vhur_hl, color='k')
+    ax.set_xlim(yr_base,yr_base+vhur_hl.shape[0]-1)
+    ax.set_xlabel('Time (yr)')
+    ax.set_ylabel(r'$\langle \mathrm{RH} \rangle$ (%)')
+    ax.set_ylim(vmin['vhur'],vmax['vhur'])
+    ax.tick_params(axis='y', top=True, right=True)
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+
+    fig.set_size_inches(5, 4)
+    plt.tight_layout()
+    plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+
+    if viewplt:
+        plt.show()
+    plt.close()
 
     ############################################
     # PLOT PR
@@ -168,33 +198,33 @@ def pr_mon_hl(sim, **kwargs):
         plt.show()
     plt.close()
 
-    ############################################
-    # PLOT PRW
-    ############################################
+    #############################################
+    ## PLOT PRW
+    #############################################
 
-    plotname = '%s/prw_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean)
+    #plotname = '%s/prw_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean)
 
-    fig, ax = plt.subplots()
-    ax.axhline(0, time[0], time[-1], color='k', linewidth=0.5)
-    if not ( isinstance(model, str) or (model is None) ):
-        ax.fill_between(time, prw_hl_mmm['prc25'], prw_hl_mmm['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
-    ax.plot(time, prw_hl, color='k', label='Precipitable water')
-    if 'ymonmean' not in timemean and sim == 'era5':
-        # ax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
-        ax.plot(time, m*time + c, '--', color='tab:blue', label='$P_l/P$ trend$ = %.1f$ %% decade$^{-1}$' % (m*10))
-    ax.set_xlim(yr_base,yr_base+pr_hl.shape[0]-1)
-    ax.set_xlabel('Time (yr)')
-    ax.set_ylabel(r'Precipitable water (kg m$^{-2}$)')
-    # ax.set_ylim(vmin['pr'],vmax['pr'])
-    ax.tick_params(axis='y')
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    #fig, ax = plt.subplots()
+    #ax.axhline(0, time[0], time[-1], color='k', linewidth=0.5)
+    #if not ( isinstance(model, str) or (model is None) ):
+    #    ax.fill_between(time, prw_hl_mmm['prc25'], prw_hl_mmm['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
+    #ax.plot(time, prw_hl, color='k', label='Precipitable water')
+    #if 'ymonmean' not in timemean and sim == 'era5':
+    #    # ax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
+    #    ax.plot(time, m*time + c, '--', color='tab:blue', label='$P_l/P$ trend$ = %.1f$ %% decade$^{-1}$' % (m*10))
+    #ax.set_xlim(yr_base,yr_base+pr_hl.shape[0]-1)
+    #ax.set_xlabel('Time (yr)')
+    #ax.set_ylabel(r'Precipitable water (kg m$^{-2}$)')
+    ## ax.set_ylim(vmin['pr'],vmax['pr'])
+    #ax.tick_params(axis='y')
+    #ax.xaxis.set_minor_locator(AutoMinorLocator())
+    #ax.yaxis.set_minor_locator(AutoMinorLocator())
 
-    fig.set_size_inches(5, 4)
-    # plt.legend()
-    plt.tight_layout()
-    plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+    #fig.set_size_inches(5, 4)
+    ## plt.legend()
+    #plt.tight_layout()
+    #plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
 
-    if viewplt:
-        plt.show()
-    plt.close()
+    #if viewplt:
+    #    plt.show()
+    #plt.close()

@@ -46,14 +46,29 @@ rsus = file_rsus.variables['rsus'][:] # (mon x lat x lon)
 hfls = file_hfls.variables['hfls'][:] # (mon x lat x lon)
 hfss = file_hfss.variables['hfss'][:] # (mon x lat x lon)
 tend = file_tend.variables['tend'][:] # (mon x lat x lon)
-lat = file_tend.variables['lat'][:] # (lat)
+
+# infer energy flux divergence plus storage (dps) as the residual
+dps = rsdt - rsut - rlut + rsus - rsds + rlus - rlds + hfls + hfss
+
+# check if 2d and 3d lat grids are the same and interpolate 2d data to 3d grid if different
+lat2d = file_rlut.variables['lat'][:] 
+lat3d = file_tend.variables['lat'][:] 
+if not np.array_equal(lat2d,lat3d):
+    filleddps = dps.filled(fill_value=np.nan)
+    filledlat2d = lat2d.filled(fill_value=np.nan)
+    filledlat3d = lat3d.filled(fill_value=np.nan)
+    f = interpolate.interp1d(filledlat2d, filleddps, axis=1)
+    dps = f(filledlat3d)
+    filleddps = None; f = None;
+
+lat=lat3d
 rlat = np.radians(lat)
 clat = np.cos(rlat)
 
-# infer total energy flux divergence as the residual
-fluxdiv = rsdt - rsut - rlut + rsus - rsds + rlus - rlds + hfls + hfss - tend
+# isolate flux divergence from dps by subtracting the MSE tendency
+fluxdiv = dps - tend
 
-# zonal mean
+# take zonal mean
 fluxdiv_z = np.nanmean(fluxdiv, axis=2)
 
 # subtract global mean
@@ -68,23 +83,21 @@ if lat[1]-lat[0]<0:
 # save file as netCDF
 file_aht = Dataset(path_aht, "w", format='NETCDF4_CLASSIC')
 
-# copy attributes from rlut file
-file_aht.setncatts(file_rlut.__dict__)
+# copy attributes from tend file
+file_aht.setncatts(file_tend.__dict__)
 
-# copy dimensions from rlut file
-for name, dimension in file_rlut.dimensions.items():
-    if any(name in s for s in ['plev']):
-        continue
+# copy dimensions from tend file
+for name, dimension in file_tend.dimensions.items():
     file_aht.createDimension(name, len(dimension) if not dimension.isunlimited() else None)
  
-# copy all variables except time from ps file
-for name, variable in file_rlut.variables.items():
-    if any(name in s for s in ['rlut' 'plev']):
+# copy all variables from tend file
+for name, variable in file_tend.variables.items():
+    if any(name in s for s in ['tend']):
         continue
     
     x = file_aht.createVariable(name, variable.datatype, variable.dimensions)
-    file_aht[name].setncatts(file_rlut[name].__dict__)
-    file_aht[name][:] = file_rlut[name][:]
+    file_aht[name].setncatts(file_tend[name].__dict__)
+    file_aht[name][:] = file_tend[name][:]
     
 vE = file_aht.createVariable('aht', 'f4', ("time","lat"))
 vE.units = "W"

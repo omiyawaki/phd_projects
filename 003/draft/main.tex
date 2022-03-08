@@ -1,0 +1,670 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% AGUJournalTemplate.tex: this template file is for articles formatted with LaTeX
+%
+% This file includes commands and instructions
+% given in the order necessary to produce a final output that will
+% satisfy AGU requirements, including customized APA reference formatting.
+%
+% You may copy this file and give it your
+% article name, and enter your text.
+%
+%
+% Step 1: Set the \documentclass
+%
+%
+
+%% To submit your paper:
+\documentclass[draft]{agujournal2019}
+\usepackage{url} %this package should fix any errors with URLs in refs.
+\usepackage{lineno}
+\usepackage[inline]{trackchanges} %for better track changes. finalnew option will compile document with changes incorporated.
+\usepackage{soul}
+\linenumbers
+%%%%%%%
+% As of 2018 we recommend use of the TrackChanges package to mark revisions.
+% The trackchanges package adds five new LaTeX commands:
+%
+%  \note[editor]{The note}
+%  \annote[editor]{Text to annotate}{The note}
+%  \add[editor]{Text to add}
+%  \remove[editor]{Text to remove}
+%  \change[editor]{Text to remove}{Text to add}
+%
+% complete documentation is here: http://trackchanges.sourceforge.net/
+%%%%%%%
+
+\draftfalse
+
+%% Enter journal name below.
+%% Choose from this list of Journals:
+%
+% JGR: Atmospheres
+% JGR: Biogeosciences
+% JGR: Earth Surface
+% JGR: Oceans
+% JGR: Planets
+% JGR: Solid Earth
+% JGR: Space Physics
+% Global Biogeochemical Cycles
+% Geophysical Research Letters
+% Paleoceanography and Paleoclimatology
+% Radio Science
+% Reviews of Geophysics
+% Tectonics
+% Space Weather
+% Water Resources Research
+% Geochemistry, Geophysics, Geosystems
+% Journal of Advances in Modeling Earth Systems (JAMES)
+% Earth's Future
+% Earth and Space Science
+% Geohealth
+%
+% ie, \journalname{Water Resources Research}
+
+\journalname{Geophysical Research Letters}
+
+
+\begin{document}
+
+%% ------------------------------------------------------------------------ %%
+%  Title
+%
+% (A title should be specific, informative, and brief. Use
+% abbreviations only if they are defined in the abstract. Titles that
+% start with general keywords then specific terms are optimized in
+% searches)
+%
+%% ------------------------------------------------------------------------ %%
+
+% Example: \title{This is a test title}
+
+\title{DRAFT\\The transient emergence of a new wintertime Arctic energy balance regime}
+
+%% ------------------------------------------------------------------------ %%
+%
+%  AUTHORS AND AFFILIATIONS
+%
+%% ------------------------------------------------------------------------ %%
+
+% Authors are individuals who have significantly contributed to the
+% research and preparation of the article. Group authors are allowed, if
+% each author in the group is separately identified in an appendix.)
+
+% List authors by first name or initial followed by last name and
+% separated by commas. Use \affil{} to number affiliations, and
+% \thanks{} for author notes.
+% Additional author notes should be indicated with \thanks{} (for
+% example, for current addresses).
+
+% Example: \authors{A. B. Author\affil{1}\thanks{Current address, Antartica}, B. C. Author\affil{2,3}, and D. E.
+% Author\affil{3,4}\thanks{Also funded by Monsanto.}}
+
+\authors{O. Miyawaki\affil{1}, T. A. Shaw\affil{1}, M. F. Jansen\affil{1}}
+
+
+\affiliation{1}{Department of the Geophysical Sciences, The University of Chicago}
+% \affiliation{2}{Second Affiliation}
+% \affiliation{3}{Third Affiliation}
+% \affiliation{4}{Fourth Affiliation}
+
+%(repeat as many times as is necessary)
+
+%% Corresponding Author:
+% Corresponding author mailing address and e-mail address:
+
+% (include name and email addresses of the corresponding author.  More
+% than one corresponding author is allowed in this LaTeX file and for
+% publication; but only one corresponding author is allowed in our
+% editorial system.)
+
+% Example: \correspondingauthor{First and Last Name}{email@address.edu}
+
+\correspondingauthor{Osamu Miyawaki}{miyawaki@uchicago.edu}
+
+%% Keypoints, final entry on title page.
+
+%  List up to three key points (at least one is required)
+%  Key Points summarize the main points and conclusions of the article
+%  Each must be 100 characters or less with no special characters or punctuation and must be complete sentences
+
+% Example:
+% \begin{keypoints}
+% \item	List up to three key points (at least one is required)
+% \item	Key Points summarize the main points and conclusions of the article
+% \item	Each must be 100 characters or less with no special characters or punctuation and must be complete sentences
+% \end{keypoints}
+
+\begin{keypoints}
+\item The Arctic is projected to undergo a wintertime energy balance regime transition that is associated with contemporaneous sea ice loss, vanishing surface inversion, and emergence of convective activity.
+\item The change in the Arctic energy balance is dominated by enhanced atmospheric radiative cooling prior to the regime transition and a decrease in MSE flux convergence thereafter.
+\item The decrease in MSE flux convergence in the Arctic is consistent with decreased sensible heat transported by transient eddies. 
+\end{keypoints}
+
+%% ------------------------------------------------------------------------ %%
+%
+%  ABSTRACT and PLAIN LANGUAGE SUMMARY
+%
+% A good Abstract will begin with a short description of the problem
+% being addressed, briefly describe the new data or analyses, then
+% briefly states the main conclusion(s) and how they are supported and
+% uncertainties.
+
+% The Plain Language Summary should be written for a broad audience,
+% including journalists and the science-interested public, that will not have 
+% a background in your field.
+%
+% A Plain Language Summary is required in GRL, JGR: Planets, JGR: Biogeosciences,
+% JGR: Oceans, G-Cubed, Reviews of Geophysics, and JAMES.
+% see http://sharingscience.agu.org/creating-plain-language-summary/)
+%
+%% ------------------------------------------------------------------------ %%
+
+%% \begin{abstract} starts the second page
+
+\begin{abstract}
+The energy balance in the Arctic atmosphere today involves atmospheric radiative cooling and advective heating, so-called Radiative Advective Equilibrium (RAE). Here we show that the transient response of Arctic climate change under the RCP8.5 scenario involves the emergence of a new energy balance regime characterized by radiative cooling, convective heating, and advective heating, so-called Radiative Convective Advective Equilibrium (RCAE). The timing of the RAE to RCAE regime transition coincides with wintertime Arctic sea ice melt, the disappearance of a surface inversion, and the emergence of convective precipitation. A transient decomposition of the moist static energy balance shows the regime transition is associated with the following mechanisms: 1) enhanced radiative cooling from 2050 to 2150 and 2) decreased advective heating from 2150 onward. We configure experiments in a single column model with interactive thermodynamic sea ice to quantify the importance of increased CO2 and water vapor for the enhanced radiative cooling response. We decompose the decreased advective heating response and show it is dominated by decreased dry static energy transport by transient eddies consistent with the reduced meridional temperature gradient. The results show that the transient climate change response of the Arctic involves multiple mechanisms, suggesting that historical trends likely do not reveal the full picture of the long-term response.
+\end{abstract}
+
+\section*{Plain Language Summary}
+[ enter your Plain Language Summary here or delete this section]
+
+
+%% ------------------------------------------------------------------------ %%
+%
+%  TEXT
+%
+%% ------------------------------------------------------------------------ %%
+
+%%% Suggested section heads:
+% \section{Introduction}
+%
+% The main text should start with an introduction. Except for short
+% manuscripts (such as comments and replies), the text should be divided
+% into sections, each with its own heading.
+
+% Headings should be sentence fragments and do not begin with a
+% lowercase letter or number. Examples of good headings are:
+
+% \section{Materials and Methods}
+% Here is text on Materials and Methods.
+%
+% \subsection{A descriptive heading about methods}
+% More about Methods.
+%
+% \section{Data} (Or section title might be a descriptive heading about data)
+%
+% \section{Results} (Or section title might be a descriptive heading about the
+% results)
+%
+% \section{Conclusions}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Amplified surface warming of the Arctic, so-called Arctic Amplification, is one of the robust responses to anthropogenic climate change projected by climate models \cite{manabe1975, held1993a, vallis2015}. Arctic Amplification and the associated melting of sea ice is accompanied by significant changes to the Arctic stratification \cite{manabe1975, bintanja2014}, hydrologic cycle \cite{bintanja2017, siler2018, pithan2021}, and atmospheric circulation \cite{deser2010}. Due to the large magnitude and rapidity of these changes, an ice-free Arctic has been described as the emergence of a new Arctic climate regime \cite{serreze2006, landrum2020}.
+
+From the perspective of atmospheric energy balance regimes, the present-day Arctic is characterized by a predominant balance between radiative cooling and advective heating, or Radiative Advective Equilibrium \cite<RAE,>[]{nakamura1988, cronin2016, miyawaki2022}. In its simplest form, RAE analytically predicts the Arctic vertical temperature structure \cite{cronin2016} and its response to anthropogenic climate change \cite{payne2015}. RAE has served as a useful conceptual framework for re-categorizing the mechanisms that control the high latitude lapse rate feedback into local and remote origins \cite{feldl2020}.
+
+The predictions made under the assumption of RAE is expected to hold only where the Arctic remains in RAE in the future \cite{miyawaki2022}. Thus, it is important to quantify if and when the assumption of RAE breaks down in the Arctic in response to anthropogenic climate change.
+
+Past studies show that convection occurs over an ice-free wintertime Arctic, suggesting that the Arctic may undergo an energy balance regime transition from RAE to Radiative Convective Advective Equilibrium (RCAE), where convective heating becomes important. For example, climate model simulations representative of past equable climates have reported the occurence of wintertime deep convection over a warm, ice-free Arctic across the model hierarchy \cite{huber1999, abbot2008, abbot2008a, abbot2009, arnold2014}. More recently, \citeA{hankel2021} reported that convective precipitation is active in the extended Representative Concentration Pathway 8.5 (RCP8.5) simulations of the Coupled Model Intercomparison Project Phase 5 (CMIP5), suggesting that the RAE to RCAE regime transition may occur in the context of future anthropogenic climate change as well. However, we currently do not know precisely when wintertime convection emerges in the Arctic, and thus when the RAE to RCAE regime transition is projected to occur in the Arctic.
+
+Here, we investigate the transient evolution of the wintertime Arctic energy balance regime using the metric $R_1$ that was introduced by \citeA{miyawaki2022}. We show that the transient evolution of $R_1$ is closely related to important climatological features of the Arctic climate such as sea ice fraction, the surface inversion, and precipitation type (Section~\ref{sec:r1}). To better understand the mechanisms that control the transient evolution of $R_1$, we linearly decompose its change into contributions from enhanced radiative cooling and decreased advective heating (Section~\ref{sec:dc}). We configure experiments in a single column model with interactive sea ice thermodynamics to quantify the relative importance of CO2 and water vapor on enhanced radiative cooling (Section~\ref{sec:rap}). To understand the mechanism that contributes to decreased advective heating, we decompose the change in advective heating into contributions from stationary and transient circulations (Section~\ref{sec:adp}). Finally, the results are summarized and discussed (Section~\ref{sec:end}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The temporal evolution of the Arctic RAE to RCAE regime transition}
+\label{sec:r1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We quantify the transient evolution of the wintertime (DJF) Arctic energy balance regime using the metric $R_1$ \cite{miyawaki2022}:
+\begin{equation}
+    R_1 = \frac{[\partial_t m + \nabla\cdot(\mathbf{v}m)]}{[R_a]} = 1-\frac{[\mathrm{LH}] + [\mathrm{SH}]}{[R_a]} \, ,
+\end{equation}
+where $m=c_pT + gz + Lq$ is moist static energy, $\mathbf{v}$ is horizontal wind, $R_a$ is net atmospheric radiative cooling, LH is surface latent heat flux, SH is surface sensible heat flux, and $[\cdot]$ denotes the area-weighted average from $80^\circ$ to $90^\circ$N. Following \cite{miyawaki2022}, RAE is defined as where $R_1 \ge 0.9$, which corresponds to a state of atmospheric energy balance where advective heating is the predominant heat source that balances radiative cooling. We choose $80^\circ$N as the lower bound of the Arctic domain as it corresponds to the equatorward extent of the zonal mean RAE regime in the modern climate \cite<see Fig.~3a in>[]{miyawaki2022}.
+
+We evaluate the transient evolution of $R_1$ using monthly frequency LH, SH, and $R_a$. We focus on the multimodel mean of 7 out of the 9 models that participated in the extended RCP8.5 run of CMIP5. Following \citeA{hankel2021}, we omit the 2 models (GISS-E2-H and GISS-E2-R) that retain wintertime sea ice through the entire extended RCP8.5 run as outliers.
+
+The modern Arctic atmosphere is in the RAE regime during winter and continues to remain in RAE through much of the 21st century (black line is in the blue region in Fig.~\ref{fig:r1}a). However, $R_1$ decreases monotonically in response to anthropogenic forcing (Fig.~\ref{fig:r1}d), which leads to a wintertime RAE to RCAE regime transition around the year 2100 (black line crosses into white region in Fig.~\ref{fig:r1}a).
+
+The time evolution of the RAE to RCAE regime transition coincides closely with sea ice loss (blue line, right axis in Fig.~\ref{fig:r1}a), consistent with previous studies that demonstrated the importance of sea ice on inhibiting surface turbulent fluxes \cite{andreas1979, boeke2018, feldl2020}. By providing moisture and heat to the boundary layer, surface turbulent fluxes destabilize the boundary layer. Thus, the RAE to RCAE regime transition is also marked by the disappearance of the boundary layer surface inversion (lapse rate deviation from a moist adiabat, blue line, decreases below 100\% in Fig.~\ref{fig:r1}b) and the emergence of convective precipitation (blue line in Fig.~\ref{fig:r1}c). Thus, the transient response of $R_1$ is quantitatively connected to sea ice melt and can be useful for understanding the warming and the precipitation response in the Arctic.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/fig_1/fig_1}.pdf}
+    \caption{The evolution of wintertime (DJF) $R_1$ (a--c, black, left axis), sea ice area fraction (a, blue, right axis), near-surface lapse rate deviation from a moist adiabat (b, blue, right axis), convective precipitation fraction (c, blue, right axis), and the time rate of change of $R_1$ (d, black) for the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+    \label{fig:r1}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{The radiatively- and dynamically-driven phases of the regime transition}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:dc}
+
+Having established the usefulness of understanding the transient response of Arctic energy balance regimes, we now turn our attention to understanding the mechanisms that control the rate of change of $R_1$ (Fig.~\ref{fig:r1}d). To this end, we decompose $\Delta R_1(t) = R_1(t) - \overline{R_1}$ (where $\overline{R_1}$ is $R_1$ averaged over the 1975--2005 historical run) into radiative and dynamic components following \citeA{miyawaki2022}:
+
+\begin{equation}
+    \Delta R_1 = \overline{R_1}\left( \underbrace{ \frac{\Delta(\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}} }_{\mathrm{advective}} \; \underbrace{ - \frac{\Delta R_a }{\overline{R_a}} }_{\mathrm{radiative}} \right) + \mathrm{Residual} \, ,
+\end{equation}
+
+to show that the there are three phases to the temporal evolution of $R_1$: 1) the radiative phase prior to the onset of the regime transition, 2) the mixed phase during the regime transition, and 3) the advection phase after the regime transition (Fig~\ref{fig:r1-decomp}a,b).
+
+Both phases contribute to a decrease in $R_1$ (moving from the RAE to the RCAE regime).
+
+The radiative phase is associated with enhanced (more negative) radiative cooling and negligible changes in the MSE flux divergence (Fig.~\ref{fig:r1-decomp}b).
+
+The dynamically-driven phase is associated with decreased MSE flux convergence (smaller negative $\partial_y(vm)$) that becomes apparent beyond 2100 (Fig.~\ref{fig:r1-decomp}b), when winter sea ice fraction is less than 50\% (Fig.~\ref{fig:r1}b).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/fig_2/fig_2}.pdf}
+    \caption{The wintertime (DJF) time evolution of (a) $R_1$ decomposed into the dynamic (red) and radiative (gray) components and (b) energy flux changes (relative to the 1975--2005 historical mean) for the CMIP5 multimodel mean of the extended RCP8.5 runs.}
+    \label{fig:r1-decomp}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{What mechanisms control the radiatively-driven $\Delta R_1$?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:rap}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{What mechanisms control the dynamically-driven $\Delta R_1$?}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:adp}
+\begin{itemize}
+    \item As a first step toward understanding the mechanism for the dynamically-driven change in $\Delta R_1$, we decompose the change in MSE flux divergence into stationary and transient components:
+    \begin{equation}
+        \langle \partial_y(vm) \rangle = \langle \partial_y(\overline{v}\,\overline{m}) \rangle + \langle \partial_y(\overline{v^\prime m^\prime}) \rangle
+    \end{equation}
+    \item Is the result consistent with the existing literature that show the change in meridional energy transport in the extratropics is predominantly due to transient eddies \cite{feldl2021}?
+    \item While there are studies that show the change in energy transport, the change in MSE flux divergence has not (to my knowledge) been decomposed in this way.
+        \item To do: Can a moist-diffusive EBM capture the dynamically-driven change in $\Delta R_1$?
+\end{itemize}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/fig_3/fig_3}.pdf}
+    \caption{The wintertime (DJF) radiative cooling (gray) decomposed into the clear-sky (dashed green) and cloudy-sky (dotted green) longwave (red) and shortwave (blue) components for (a) the CMIP5 multimodel mean of the extended RCP8.5 runs and (b) SCAM.}
+    \label{fig:ra-lwcs}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/fig_4/fig_4}.pdf}
+    \caption{(a) The wintertime (DJF) MSE flux convergence (maroon) decomposed into contributions due to stationary (blue) and transient (red) transport for the CMIP5 multimodel mean of the extended RCP8.5 runs. (b) Change in MSE flux convergence due to stationary and transient transport are further decomposed into change in DSE (dashed) and latent energy (dotted) flux convergence.}
+    \label{fig:dyn-decomp}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary and Discussion}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:end}
+
+%Text here ===>>>
+
+
+%%
+
+%  Numbered lines in equations:
+%  To add line numbers to lines in equations,
+%  \begin{linenomath*}
+%  \begin{equation}
+%  \end{equation}
+%  \end{linenomath*}
+
+
+
+%% Enter Figures and Tables near as possible to where they are first mentioned:
+%
+% DO NOT USE \psfrag or \subfigure commands.
+%
+% Figure captions go below the figure.
+% Table titles go above tables;  other caption information
+%  should be placed in last line of the table, using
+% \multicolumn2l{$^a$ This is a table note.}
+%
+%----------------
+% EXAMPLE FIGURES
+%
+% \begin{figure}
+% \includegraphics{example.png}
+% \caption{caption}
+% \end{figure}
+%
+% Giving latex a width will help it to scale the figure properly. A simple trick is to use \textwidth. Try this if large figures run off the side of the page.
+% \begin{figure}
+% \noindent\includegraphics[width=\textwidth]{anothersample.png}
+%\caption{caption}
+%\label{pngfiguresample}
+%\end{figure}
+%
+%
+% If you get an error about an unknown bounding box, try specifying the width and height of the figure with the natwidth and natheight options. This is common when trying to add a PDF figure without pdflatex.
+% \begin{figure}
+% \noindent\includegraphics[natwidth=800px,natheight=600px]{samplefigure.pdf}
+%\caption{caption}
+%\label{pdffiguresample}
+%\end{figure}
+%
+%
+% PDFLatex does not seem to be able to process EPS figures. You may want to try the epstopdf package.
+%
+
+%
+% ---------------
+% EXAMPLE TABLE
+%
+% \begin{table}
+% \caption{Time of the Transition Between Phase 1 and Phase 2$^{a}$}
+% \centering
+% \begin{tabular}{l c}
+% \hline
+%  Run  & Time (min)  \\
+% \hline
+%   $l1$  & 260   \\
+%   $l2$  & 300   \\
+%   $l3$  & 340   \\
+%   $h1$  & 270   \\
+%   $h2$  & 250   \\
+%   $h3$  & 380   \\
+%   $r1$  & 370   \\
+%   $r2$  & 390   \\
+% \hline
+% \multicolumn{2}{l}{$^{a}$Footnote text here.}
+% \end{tabular}
+% \end{table}
+
+%% SIDEWAYS FIGURE and TABLE
+% AGU prefers the use of {sidewaystable} over {landscapetable} as it causes fewer problems.
+%
+% \begin{sidewaysfigure}
+% \includegraphics[width=20pc]{figsamp}
+% \caption{caption here}
+% \label{newfig}
+% \end{sidewaysfigure}
+%
+%  \begin{sidewaystable}
+%  \caption{Caption here}
+% \label{tab:signif_gap_clos}
+%  \begin{tabular}{ccc}
+% one&two&three\\
+% four&five&six
+%  \end{tabular}
+%  \end{sidewaystable}
+
+%% If using numbered lines, please surround equations with \begin{linenomath*}...\end{linenomath*}
+%\begin{linenomath*}
+%\begin{equation}
+%y|{f} \sim g(m, \sigma),
+%\end{equation}
+%\end{linenomath*}
+
+%%% End of body of article
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Optional Appendix goes here
+%
+% The \appendix command resets counters and redefines section heads
+%
+% After typing \appendix
+%
+%\section{Here Is Appendix Title}
+% will show
+% A: Here Is Appendix Title
+%
+%\appendix
+%\section{Here is a sample appendix}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Optional Glossary, Notation or Acronym section goes here:
+%
+%%%%%%%%%%%%%%
+% Glossary is only allowed in Reviews of Geophysics
+%  \begin{glossary}
+%  \term{Term}
+%   Term Definition here
+%  \term{Term}
+%   Term Definition here
+%  \term{Term}
+%   Term Definition here
+%  \end{glossary}
+
+%
+%%%%%%%%%%%%%%
+% Acronyms
+%   \begin{acronyms}
+%   \acro{Acronym}
+%   Definition here
+%   \acro{EMOS}
+%   Ensemble model output statistics
+%   \acro{ECMWF}
+%   Centre for Medium-Range Weather Forecasts
+%   \end{acronyms}
+
+%
+%%%%%%%%%%%%%%
+% Notation
+%   \begin{notation}
+%   \notation{$a+b$} Notation Definition here
+%   \notation{$e=mc^2$}
+%   Equation in German-born physicist Albert Einstein's theory of special
+%  relativity that showed that the increased relativistic mass ($m$) of a
+%  body comes from the energy of motion of the body—that is, its kinetic
+%  energy ($E$)—divided by the speed of light squared ($c^2$).
+%   \end{notation}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  ACKNOWLEDGMENTS
+%
+% The acknowledgments must list:
+%
+% >>>>	A statement that indicates to the reader where the data
+% 	supporting the conclusions can be obtained (for example, in the
+% 	references, tables, supporting information, and other databases).
+%
+% 	All funding sources related to this work from all authors
+%
+% 	Any real or perceived financial conflicts of interests for any
+%	author
+%
+% 	Other affiliations for any author that may be perceived as
+% 	having a conflict of interest with respect to the results of this
+% 	paper.
+%
+%
+% It is also the appropriate place to thank colleagues and other contributors.
+% AGU does not normally allow dedications.
+
+
+\acknowledgments
+Enter acknowledgments, including your data availability statement, here.
+
+
+%% ------------------------------------------------------------------------ %%
+%% References and Citations
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \bibliography{<name of your .bib file>} don't specify the file extension
+%
+% don't specify bibliographystyle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \bibliography{/project2/tas1/miyawaki/projects/002/draft/references.bib}
+\bibliography{/project2/tas1/miyawaki/projects/003/outline/references.bib}
+
+%Reference citation instructions and examples:
+%
+% Please use ONLY \cite and \citeA for reference citations.
+% \cite for parenthetical references
+% ...as shown in recent studies (Simpson et al., 2019)
+% \citeA for in-text citations
+% ...Simpson et al. (2019) have shown...
+%
+%
+%...as shown by \citeA{jskilby}.
+%...as shown by \citeA{lewin76}, \citeA{carson86}, \citeA{bartoldy02}, and \citeA{rinaldi03}.
+%...has been shown \citeAjskilbye}.
+%...has been shown \citeAlewin76,carson86,bartoldy02,rinaldi03}.
+%... \cite <i.e.>[]{lewin76,carson86,bartoldy02,rinaldi03}.
+%...has been shown by \cite <e.g.,>[and others]{lewin76}.
+%
+% apacite uses < > for prenotes and [ ] for postnotes
+% DO NOT use other cite commands (e.g., \citet, \cite, \citeyear, \nocite, \citealp, etc.).
+%
+
+
+
+\end{document}
+
+
+
+More Information and Advice:
+
+%% ------------------------------------------------------------------------ %%
+%
+%  SECTION HEADS
+%
+%% ------------------------------------------------------------------------ %%
+
+% Capitalize the first letter of each word (except for
+% prepositions, conjunctions, and articles that are
+% three or fewer letters).
+
+% AGU follows standard outline style; therefore, there cannot be a section 1 without
+% a section 2, or a section 2.3.1 without a section 2.3.2.
+% Please make sure your section numbers are balanced.
+% ---------------
+% Level 1 head
+%
+% Use the \section{} command to identify level 1 heads;
+% type the appropriate head wording between the curly
+% brackets, as shown below.
+%
+%An example:
+%\section{Level 1 Head: Introduction}
+%
+% ---------------
+% Level 2 head
+%
+% Use the \subsection{} command to identify level 2 heads.
+%An example:
+%\subsection{Level 2 Head}
+%
+% ---------------
+% Level 3 head
+%
+% Use the \subsubsection{} command to identify level 3 heads
+%An example:
+%\subsubsection{Level 3 Head}
+%
+%---------------
+% Level 4 head
+%
+% Use the \subsubsubsection{} command to identify level 3 heads
+% An example:
+%\subsubsubsection{Level 4 Head} An example.
+%
+%% ------------------------------------------------------------------------ %%
+%
+%  IN-TEXT LISTS
+%
+%% ------------------------------------------------------------------------ %%
+%
+% Do not use bulleted lists; enumerated lists are okay.
+% \begin{enumerate}
+% \item
+% \item
+% \item
+% \end{enumerate}
+%
+%% ------------------------------------------------------------------------ %%
+%
+%  EQUATIONS
+%
+%% ------------------------------------------------------------------------ %%
+
+% Single-line equations are centered.
+% Equation arrays will appear left-aligned.
+
+Math coded inside display math mode \[ ...\]
+ will not be numbered, e.g.,:
+ \[ x^2=y^2 + z^2\]
+
+ Math coded inside \begin{equation} and \end{equation} will
+ be automatically numbered, e.g.,:
+ \begin{equation}
+ x^2=y^2 + z^2
+ \end{equation}
+
+
+% To create multiline equations, use the
+% \begin{eqnarray} and \end{eqnarray} environment
+% as demonstrated below.
+\begin{eqnarray}
+  x_{1} & = & (x - x_{0}) \cos \Theta \nonumber \\
+        && + (y - y_{0}) \sin \Theta  \nonumber \\
+  y_{1} & = & -(x - x_{0}) \sin \Theta \nonumber \\
+        && + (y - y_{0}) \cos \Theta.
+\end{eqnarray}
+
+%If you don't want an equation number, use the star form:
+%\begin{eqnarray*}...\end{eqnarray*}
+
+% Break each line at a sign of operation
+% (+, -, etc.) if possible, with the sign of operation
+% on the new line.
+
+% Indent second and subsequent lines to align with
+% the first character following the equal sign on the
+% first line.
+
+% Use an \hspace{} command to insert horizontal space
+% into your equation if necessary. Place an appropriate
+% unit of measure between the curly braces, e.g.
+% \hspace{1in}; you may have to experiment to achieve
+% the correct amount of space.
+
+
+%% ------------------------------------------------------------------------ %%
+%
+%  EQUATION NUMBERING: COUNTER
+%
+%% ------------------------------------------------------------------------ %%
+
+% You may change equation numbering by resetting
+% the equation counter or by explicitly numbering
+% an equation.
+
+% To explicitly number an equation, type \eqnum{}
+% (with the desired number between the brackets)
+% after the \begin{equation} or \begin{eqnarray}
+% command.  The \eqnum{} command will affect only
+% the equation it appears with; LaTeX will number
+% any equations appearing later in the manuscript
+% according to the equation counter.
+%
+
+% If you have a multiline equation that needs only
+% one equation number, use a \nonumber command in
+% front of the double backslashes (\\) as shown in
+% the multiline equation above.
+
+% If you are using line numbers, remember to surround
+% equations with \begin{linenomath*}...\end{linenomath*}
+
+%  To add line numbers to lines in equations:
+%  \begin{linenomath*}
+%  \begin{equation}
+%  \end{equation}
+%  \end{linenomath*}
+
+
+

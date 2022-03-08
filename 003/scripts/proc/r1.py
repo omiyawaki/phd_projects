@@ -6,6 +6,7 @@ from misc.dirnames import get_datadir
 from misc.filenames import *
 from misc import par
 import numpy as np
+from scipy import interpolate
 import pickle
 from netCDF4 import Dataset
 
@@ -37,17 +38,22 @@ def save_r1(sim, **kwargs):
     elif sim == 'era5':
         varnames = ['ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf', 'cp', 'lsp']
     else:
-        varnames = ['rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr']
+        varnames = ['tend', 'rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr']
 
     # load all variables required to compute R1
     for varname in varnames:
         file[varname] = filenames_raw(sim, varname, model=model, timemean=timemean, yr_span=yr_span)
 
-        if loaded_grid == 0:
-            grid = {}
-            grid['lat'] = file[varname].variables['lat'][:]
-            grid['lon'] = file[varname].variables['lon'][:]
-            loaded_grid = 1
+        if varname == 'tend':
+            grid3d = {}
+            grid3d['lat'] = file[varname].variables['lat'][:]
+            grid3d['lon'] = file[varname].variables['lon'][:]
+        else:
+            if loaded_grid == 0:
+                grid = {}
+                grid['lat'] = file[varname].variables['lat'][:]
+                grid['lon'] = file[varname].variables['lon'][:]
+                loaded_grid = 1
 
         flux[translate_varname(varname)] = np.squeeze(file[varname].variables[varname][:])
         if sim == 'era5':
@@ -61,8 +67,24 @@ def save_r1(sim, **kwargs):
     else:
         flux['ra'] = flux['rsdt'] - flux['rsut'] - flux['rlut'] + flux['rsus'] - flux['rsds'] + flux['rlus'] - flux['rlds']
 
+    # interpolate 3d data to 2d grid if not the same
+    print(flux['tend'].shape)
+    lat3d = grid3d['lat']
+    lat2d = grid['lat']
+    # fill mask with nans
+    lat3d = lat3d.filled(np.nan)
+    lat2d = lat2d.filled(np.nan)
+    flux['tend'] = flux['tend'].filled(np.nan)
+    if not np.array_equal(lat2d,lat3d):
+        f_tend = interpolate.interp1d(lat3d, flux['tend'], axis=1, fill_value='extrapolate')
+        flux['tend'] = f_tend(lat2d)
+    print(flux['tend'].shape)
+
+    # compute residuals
     flux['stg_adv'] = flux['ra'] + flux['hfls'] + flux['hfss']
+    flux['adv'] = flux['stg_adv'] - flux['tend']
     flux['stg_adv_dse'] = flux['ra'] + par.Lv*flux['pr'] + flux['hfss']
+    flux['adv_dse'] = flux['stg_adv_dse'] - flux['tend']
 
     if zonmean:
         for fluxname in flux:
@@ -123,8 +145,16 @@ def save_r1(sim, **kwargs):
     r1_dc['rad'] = - stg_adv_tavg / (ra_tavg**2) * (ra - ra_tavg) # radiative component
     r1_dc['res'] = r1_dc['dr1'] - ( r1_dc['dyn'] + r1_dc['rad'] )
 
+    # compute time rate of change of r1 and its components
+    dr1={}
+    dr1['dr1'] = r1_dc['dr1'][1:,...] - r1_dc['dr1'][:-1,...]
+    dr1['dyn'] = r1_dc['dyn'][1:,...] - r1_dc['dyn'][:-1,...]
+    dr1['rad'] = r1_dc['rad'][1:,...] - r1_dc['rad'][:-1,...]
+    dr1['res'] = r1_dc['res'][1:,...] - r1_dc['res'][:-1,...]
+
     pickle.dump([r1, grid], open(remove_repdots('%s/r1.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
     pickle.dump([r1_dc, grid], open(remove_repdots('%s/r1_dc.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
+    pickle.dump([dr1, grid], open(remove_repdots('%s/dr1.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
     pickle.dump([ra, grid], open(remove_repdots('%s/ra.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
     pickle.dump([stg_adv, grid], open(remove_repdots('%s/stg_adv.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
     pickle.dump([flux, grid], open(remove_repdots('%s/flux.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))

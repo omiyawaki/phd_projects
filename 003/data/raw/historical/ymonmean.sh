@@ -2,12 +2,14 @@
 
 # declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/historical/ && ls -d */) # list of GCM models to process
 # declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "GISS-E2-H/" "GISS-E2-R/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
-# declare -a models=("HadGEM2-ES/" "bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
-models=("IPSL-CM5A-LR/")
+declare -a models=("HadGEM2-ES/" "bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+# declare -a models=("bcc-csm1-1/") # extended RCP runs
 # varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
-# varnames=("ta")
-varnames=("ps" "tas" "ta" "zg" "hus")
-# varnames=("divaht" "divte")
+varnames=("prl" "prfrac")
+# varnames=("aht" "vmmmc" "vmse" "vmte")
+# varnames=("vqse" "vqmmc" "vsse" "vsmmc")
+# varnames=("aht" "qaht" "saht" "vmmmc" "vqmmc" "vsmmc" "vmse" "vqse" "vsse" "vmte" "vqte" "vste")
+# varnames=("daht" "dqaht" "dsaht" "dvmmmc" "dvqmmc" "dvsmmc" "dvmse" "dvqse" "dvsse" "dvmte" "dvqte" "dvste")
 sim="historical"
 freq="Amon"
 ens="r1i1p1"

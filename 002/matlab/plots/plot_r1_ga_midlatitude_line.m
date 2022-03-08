@@ -63,9 +63,9 @@ function plot_r1_ga_midlatitude_line(type, par)
                             r1z_spr = nanmean(dr1.r1z_lat.(land).(fw)) + [circshift(dr1_max.dr1z_lat.(land).(fw), par.shiftby, 2), fliplr(circshift(dr1_min.dr1z_lat.(land).(fw), par.shiftby, 2))];
                             fill(mon2, r1z_spr, 0.5*[1 1 1], 'facealpha', 0.2, 'edgealpha', 0.2);
                             if strcmp(fw, 'mse_old')
-                                plot(1:12, circshift(dr1.r1z_lat.(land).mse, shiftby), '--', 'color', r1col);
-                                r1z_spr = nanmean(dr1.r1z_lat.(land).mse) + [circshift(dr1_max.dr1z_lat.(land).mse, par.shiftby, 2), fliplr(circshift(dr1_min.dr1z_lat.(land).mse, par.shiftby, 2))];
-                                fill(mon2, r1z_spr, 0.5*[1 1 1], 'facealpha', 0.2, 'edgealpha', 0.2);
+                                % plot(1:12, circshift(dr1.r1z_lat.(land).mse, shiftby), '--', 'color', r1col);
+                                % r1z_spr = nanmean(dr1.r1z_lat.(land).mse) + [circshift(dr1_max.dr1z_lat.(land).mse, par.shiftby, 2), fliplr(circshift(dr1_min.dr1z_lat.(land).mse, par.shiftby, 2))];
+                                % fill(mon2, r1z_spr, 0.5*[1 1 1], 'facealpha', 0.2, 'edgealpha', 0.2);
                             end
                         elseif strcmp(type, 'gcm') & contains(par.model, 'mmm')
                             plot(1:12, circshift(dr1.r1z_lat.(land).(fw), shiftby), '-', 'color', r1col);
@@ -73,14 +73,14 @@ function plot_r1_ga_midlatitude_line(type, par)
                             r1z_spr = nanmean(dr1.r1z_lat.(land).(fw)) + [circshift(dr1_75.dr1z_lat.(land).(fw), par.shiftby, 2), fliplr(circshift(dr1_25.dr1z_lat.(land).(fw), par.shiftby, 2))];
                             fill(mon2, r1z_spr, 0.5*[1 1 1], 'facealpha', 0.2, 'edgealpha', 0.2);
                             if strcmp(fw, 'mse_old')
-                                plot(1:12, circshift(dr1.r1z_lat.(land).mse, shiftby), '--', 'color', r1col);
-                                r1z_spr = nanmean(dr1.r1z_lat.(land).mse) +  [circshift(dr1_75.dr1z_lat.(land).mse, par.shiftby, 2), fliplr(circshift(dr1_25.dr1z_lat.(land).mse, par.shiftby, 2))];
-                                fill(mon2, r1z_spr, 0.5*[1 1 1], 'facealpha', 0.2, 'edgealpha', 0.2);
+                                % plot(1:12, circshift(dr1.r1z_lat.(land).mse, shiftby), '--', 'color', r1col);
+                                % r1z_spr = nanmean(dr1.r1z_lat.(land).mse) +  [circshift(dr1_75.dr1z_lat.(land).mse, par.shiftby, 2), fliplr(circshift(dr1_25.dr1z_lat.(land).mse, par.shiftby, 2))];
+                                % fill(mon2, r1z_spr, 0.5*[1 1 1], 'facealpha', 0.2, 'edgealpha', 0.2);
                             end
                         else
                             plot(1:12, circshift(dr1.r1z_lat.(land).(fw), shiftby), '-', 'color', r1col);
                             if strcmp(fw, 'mse_old') & ~strcmp(type, 'hahn')
-                                plot(1:12, circshift(dr1.r1z_lat.(land).mse, shiftby), '--', 'color', r1col);
+                                % plot(1:12, circshift(dr1.r1z_lat.(land).mse, shiftby), '--', 'color', r1col);
                             end
                         end
                         ylabel('$R_1$ (unitless)');

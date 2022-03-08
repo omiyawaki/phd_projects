@@ -1,0 +1,709 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% AGUJournalTemplate.tex: this template file is for articles formatted with LaTeX
+%
+% This file includes commands and instructions
+% given in the order necessary to produce a final output that will
+% satisfy AGU requirements, including customized APA reference formatting.
+%
+% You may copy this file and give it your
+% article name, and enter your text.
+%
+%
+% Step 1: Set the \documentclass
+%
+%
+
+%% To submit your paper:
+\documentclass[draft]{agujournal2019}
+\usepackage{url} %this package should fix any errors with URLs in refs.
+\usepackage{lineno}
+\usepackage[inline]{trackchanges} %for better track changes. finalnew option will compile document with changes incorporated.
+\usepackage{soul}
+\linenumbers
+%%%%%%%
+% As of 2018 we recommend use of the TrackChanges package to mark revisions.
+% The trackchanges package adds five new LaTeX commands:
+%
+%  \note[editor]{The note}
+%  \annote[editor]{Text to annotate}{The note}
+%  \add[editor]{Text to add}
+%  \remove[editor]{Text to remove}
+%  \change[editor]{Text to remove}{Text to add}
+%
+% complete documentation is here: http://trackchanges.sourceforge.net/
+%%%%%%%
+
+\draftfalse
+
+%% Enter journal name below.
+%% Choose from this list of Journals:
+%
+% JGR: Atmospheres
+% JGR: Biogeosciences
+% JGR: Earth Surface
+% JGR: Oceans
+% JGR: Planets
+% JGR: Solid Earth
+% JGR: Space Physics
+% Global Biogeochemical Cycles
+% Geophysical Research Letters
+% Paleoceanography and Paleoclimatology
+% Radio Science
+% Reviews of Geophysics
+% Tectonics
+% Space Weather
+% Water Resources Research
+% Geochemistry, Geophysics, Geosystems
+% Journal of Advances in Modeling Earth Systems (JAMES)
+% Earth's Future
+% Earth and Space Science
+% Geohealth
+%
+% ie, \journalname{Water Resources Research}
+
+\journalname{Enter journal name here}
+
+
+\begin{document}
+
+%% ------------------------------------------------------------------------ %%
+%  Title
+%
+% (A title should be specific, informative, and brief. Use
+% abbreviations only if they are defined in the abstract. Titles that
+% start with general keywords then specific terms are optimized in
+% searches)
+%
+%% ------------------------------------------------------------------------ %%
+
+% Example: \title{This is a test title}
+
+\title{OUTLINE\\The influence of entrainment and shallow convection on the amplified tropical temperature response to increased CO$_2$}
+
+%% ------------------------------------------------------------------------ %%
+%
+%  AUTHORS AND AFFILIATIONS
+%
+%% ------------------------------------------------------------------------ %%
+
+% Authors are individuals who have significantly contributed to the
+% research and preparation of the article. Group authors are allowed, if
+% each author in the group is separately identified in an appendix.)
+
+% List authors by first name or initial followed by last name and
+% separated by commas. Use \affil{} to number affiliations, and
+% \thanks{} for author notes.
+% Additional author notes should be indicated with \thanks{} (for
+% example, for current addresses).
+
+% Example: \authors{A. B. Author\affil{1}\thanks{Current address, Antartica}, B. C. Author\affil{2,3}, and D. E.
+% Author\affil{3,4}\thanks{Also funded by Monsanto.}}
+
+\authors{O. Miyawaki\affil{1}, Z. Tan\affil{1}, T. A. Shaw\affil{1}, M. F. Jansen\affil{1}}
+
+
+\affiliation{1}{Department of the Geophysical Sciences, The University of Chicago}
+% \affiliation{2}{Second Affiliation}
+% \affiliation{3}{Third Affiliation}
+% \affiliation{4}{Fourth Affiliation}
+
+%(repeat as many times as is necessary)
+
+%% Corresponding Author:
+% Corresponding author mailing address and e-mail address:
+
+% (include name and email addresses of the corresponding author.  More
+% than one corresponding author is allowed in this LaTeX file and for
+% publication; but only one corresponding author is allowed in our
+% editorial system.)
+
+% Example: \correspondingauthor{First and Last Name}{email@address.edu}
+
+\correspondingauthor{Osamu Miyawaki}{miyawaki@uchicago.edu}
+
+%% Keypoints, final entry on title page.
+
+%  List up to three key points (at least one is required)
+%  Key Points summarize the main points and conclusions of the article
+%  Each must be 100 characters or less with no special characters or punctuation and must be complete sentences
+
+% Example:
+% \begin{keypoints}
+% \item	List up to three key points (at least one is required)
+% \item	Key Points summarize the main points and conclusions of the article
+% \item	Each must be 100 characters or less with no special characters or punctuation and must be complete sentences
+% \end{keypoints}
+
+\begin{keypoints}
+\item Moist adiabat overpredicts the temperature response aloft to increased CO$_2$ as simulated by GCMs across the model hierarchy
+\item Models with stronger diagnosed convective entrainment deviates further away from the moist adiabat
+\item Bimodal vertical temperature response found in select models may be due to the response of shallow convection
+\end{keypoints}
+
+%% ------------------------------------------------------------------------ %%
+%
+%  ABSTRACT and PLAIN LANGUAGE SUMMARY
+%
+% A good Abstract will begin with a short description of the problem
+% being addressed, briefly describe the new data or analyses, then
+% briefly states the main conclusion(s) and how they are supported and
+% uncertainties.
+
+% The Plain Language Summary should be written for a broad audience,
+% including journalists and the science-interested public, that will not have 
+% a background in your field.
+%
+% A Plain Language Summary is required in GRL, JGR: Planets, JGR: Biogeosciences,
+% JGR: Oceans, G-Cubed, Reviews of Geophysics, and JAMES.
+% see http://sharingscience.agu.org/creating-plain-language-summary/)
+%
+%% ------------------------------------------------------------------------ %%
+
+%% \begin{abstract} starts the second page
+
+\begin{abstract}
+[ enter your Abstract here ]
+\end{abstract}
+
+\section*{Plain Language Summary}
+[ enter your Plain Language Summary here or delete this section]
+
+
+%% ------------------------------------------------------------------------ %%
+%
+%  TEXT
+%
+%% ------------------------------------------------------------------------ %%
+
+%%% Suggested section heads:
+% \section{Introduction}
+%
+% The main text should start with an introduction. Except for short
+% manuscripts (such as comments and replies), the text should be divided
+% into sections, each with its own heading.
+
+% Headings should be sentence fragments and do not begin with a
+% lowercase letter or number. Examples of good headings are:
+
+% \section{Materials and Methods}
+% Here is text on Materials and Methods.
+%
+% \subsection{A descriptive heading about methods}
+% More about Methods.
+%
+% \section{Data} (Or section title might be a descriptive heading about data)
+%
+% \section{Results} (Or section title might be a descriptive heading about the
+% results)
+%
+% \section{Conclusions}
+
+
+\section{Introduction}
+
+\begin{itemize}
+
+\item One of the robust responses to an increase in CO$_2$ concentrations is amplified warming in the tropical upper troposphere \cite{vallis-et-al-2015}. 
+
+\item Understanding this warming profile is important because it sets the
+\begin{enumerate}
+\item static stability in the tropics, which influences the average strength of deep convective storms \cite{seeley-romps-2015}.
+\item meridional temperature gradient (baroclinicity), which influences the position of the Hadley Cell edge and subtropical jet \cite{shaw-et-al-2016}.
+\item lapse rate feedback in the tropics, which exerts a strong influence on the global climate sensitivity owing to the large areal fraction of the tropics \cite{po-chedley-et-al-2018}.
+\end{enumerate}
+
+\item Quasi-equilibrium thinking offers a simple theory of the tropical temperature profile.
+\begin{itemize}
+\item \citeA{arakawa-schubert-1974} proposed that over a sufficiently long time scale (longer than the time scale of convective adjustment) and large spatial scale (larger than the spatial scale of an ensemble of cumulus clouds) the destabilizing force of radiative cooling balances the stabilizing response of convection.
+\item \citeA{bretherton-smolarkiewicz-1989} showed that even regions of subsidence follows the temperature profile set by convection due to gravity waves. 
+\item The moist adiabat is a useful first-order representation of a convective temperature profile because the moist adiabatic lapse rate has an analytical form \cite{emanuel-1994}.
+\item Observational studies show that the tropical temperature profile is indeed close to moist adiabatic \cite{betts-1982, xu-emanuel-1989}.
+\end{itemize}
+
+\item We quantitatively test the hypothesis that the amplified warming in the upper troposphere as simulated by GCMs can be explained as a shift to a warmer moist adiabat.
+
+\item We show that the moist adiabat overpredicts the response as simulated by GCMs across the model hierarchy.
+
+\item Here we study how entrainment cause the GCM response to deviate away from the a moist adiabat.
+
+\end{itemize}
+
+\section{Methods}
+
+\begin{itemize}
+
+\item We use GCM data available from the CMIP5 archive to obtain the vertical structure of warming in the tropics in response to an increase in CO$_2$.
+
+\subsection{CMIP5 data}
+
+\begin{itemize}
+\item We consider models of varying complexity to test the robustness of the warming response to various boundary conditions.
+\item abrupt4xCO$_2$ - piControl (29 models): state-of-the-art climate models --- atmosphere-ocean general circulation model (AOGCM) with ocean dynamics.
+\item AMIP4K - AMIP (12 models): atmosphere general circulation model (AGCM) with prescribed SST and interactive land temperature (no ocean dynamics).
+\item aqua4K - aqua (9 models): AGCM with prescribed SST everywhere (no ocean dynamics and no land).
+\end{itemize}
+
+\subsection{GFDL AM2.1 aquaplanet GCM}
+\begin{itemize}
+\item To study the influence of entrainment on the temperature response, we vary the Tokioka parameter ($\alpha$) in the Relaxed Arakawa-Schubert (RAS) scheme \cite{moorthi-suarez-1992}. 
+\item $\alpha$ controls the minimum entrainment rate in RAS \cite{tokioka-et-al-1988}.
+\item We configure the surface boundary condition in two ways:
+\begin{itemize}
+\item Prescribed SST using the qObs profile (standard aquaplanet experiment configuration).
+\item Prescribed uniform SST (radiative-convective equilibrium (RCE) configuration following \citeA{wing-et-al-2018})
+\end{itemize}
+\item Uses an improved radiation transfer scheme (RRTMG) as described in \citeA{tan-et-al-2019}.
+\item No sea ice because it is not important for studying the tropical temperature response.
+\item Greenhouse gases are specified as follows:
+\begin{itemize}
+\item CO$_2$ = 355 ppmv
+\item CH$_4$ = 1700 ppbv
+\item N$_2$O = 320 ppbv
+\item O$_3$ = 0
+\end{itemize} 
+\end{itemize}
+
+\end{itemize}
+
+\section{Results}
+
+\subsection{Moist adiabat overpredicts response across the model hierarchy}
+
+\begin{itemize}
+\item Moist adiabat overpredicts the tropical temperature response as simulated by state-of-the-art models by 16.4\% (Figures~\ref{fig:aogcm-op}a and \ref{fig:aogcm-op}b).
+\item Overprediction decreases but persists across the model hierarchy (Figures~\ref{fig:aogcm-op}c-f).
+\item Moist adiabat also overpredicts response in GFDL AM2.1 for both the aquaplanet and RCE configurations (Figure~\ref{fig:gfdl-op}).
+\item We explore how the representation of entrainment in parameterized convection affects the magnitude of the overprediction in GFDL AM2.1.
+\end{itemize}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{figs/2x3_figure.png}
+\caption{a) Temperature response over the tropics (defined as +/- 10 deg latitude) for the CMIP5 multi-model mean (black) and the prediction based on a moist adiabat (orange). The moist adiabat overpredicts the CMIP5 response by 16.4\% at 300 hPa. b) The ratio of warming aloft (at 300 hPa) to warming near the surface (at 2 meters) for individual models. Circle denotes models that also participated in the AMIP and aquaplanet experiments. Cross denotes models that participated in AMIP experiments but not the aquaplanet experiment. Dots denote models that did not participate in either AMIP or aquaplanet experiments. c) and d) are the same as above but for the AMIP runs; e) and f) for the aquaplanet runs.}
+\label{fig:aogcm-op}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{figs/gfdl-op.jpg}
+\caption{a) Tropical temperature response as simulated by GFDL AM2.1 (black) and the prediction based on a moist adiabat (orange). The moist adiabat overpredicts the GFDL AM2.1 response by 9.6\% at 300 hPa. b) Same as a) but for GFDL AM2.1 run with the RCE configuration (uniform SST).}
+\label{fig:gfdl-op}
+\end{figure}
+
+\subsection{Entrainment controls magnitude of overprediction}
+\subsubsection{Impact of entrainment in GFDL-AM2.1}
+\begin{itemize}
+\item We can constrain the convective entrainment rate in GFDL AM2.1 with the RAS convection scheme using the Tokioka parameter ($\alpha$)
+\item As we constrain GFDL AM2.1 to use larger entrainment rates, the moist adiabat further overpredicts the GCM response (Figure~\ref{fig:entrain})
+\item This holds for a large range of entrainment rates (Tokioka parameter spanning from 0.00125 to 0.1), where the overprediction scales nearly linearly with the logarithm of $\alpha$
+\item This result holds for both the aquaplanet and RCE configurations. (Only the aquaplanet configuration is currently shown)
+\end{itemize}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{figs/entrain.png}
+\caption{Overprediction of the moist adiabat scales with the magnitude of minimum entrainment in GFDL AM2.1 with the RAS convection scheme. When GFDL AM2.1 is configured with a larger Tokioka parameter $\alpha$ (which sets the minimum entrainment rate), the overprediction increases.}
+\label{fig:entrain}
+\end{figure}
+
+\subsubsection{\textbf{(TO DO)} Diagnosing entrainment using pseudoadiabat with entrainment}
+\begin{itemize}
+\item We use the moist pseudoadiabat equation following Emanuel (1994)
+\begin{itemize}
+\item We take the surface temperature and humidity data from the CMIP5 models to solve for the adiabatic profile
+\item Follow a dry adiabat until the parcel reaches saturation (LCL)
+\item Follow a moist pseudoadiabat above the LCL 
+\item Our results do not change substantially if we use a reversible moist adiabat instead
+\end{itemize}
+\item Entrainment rate is not a standard output in the CMIP5 archive so we must diagnose its strength with available data
+\item The zero-buoyancy bulk-plume assumption (Singh and O'Gorman 2013, Romps 2014) allows the influence of entrainment on the moist adiabatic lapse rate to be expressed analytically 
+\item If we assume that any deviation of the GCM temperature profile from the moist adiabat is due to entrainment, we can diagnose the fractional entrainment rate for each CMIP5 model (e.g., using the piControl temperature profile)
+\item I expect there to be a positive correlation between diagnosed entrainment strength and the overprediction of the moist adiabat
+\item I will make a figure that looks like the sketch in Figure~\ref{fig:entrain-cmip}.
+\end{itemize}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{figs/entrain-cmip.png}
+\caption{Sketch showing the expected positive correlation between diagnosed bulk entrainment rate and the overprediction of the moist adiabat. Each dot represents a model in the CMIP5 archive. I will calculate the correlation coefficient $R$ to quantify the magnitude of correlation.}
+\label{fig:entrain-cmip}
+\end{figure}
+
+\section{Summary and Discussion}
+
+\begin{itemize}
+\item Moist adiabat overpredicts the tropical temperature response as simulated by GCMs across the model hierarchy.
+\item We investigate the influence of entrainment on the deviation of the temperature response away from a moist adiabat.
+\item Overprediction scales linearly with the logarithm of the minimum entrainment rate in GFDL AM2.1 with the RAS scheme.
+\item \textbf{(TO DO)} Overprediction is correlated with the diagnosed entrainment rate in CMIP5 models
+\item Our work suggests the importance of constraining the entrainment rate in GCMs to reduce the spread in the tropical temperature response across the CMIP5 models 
+\item In the future it would be useful to see how the temperature response varies with entrainment in other GCMs; are the results robust?
+\item Moreover, future work should test these hypotheses with a cloud resolving model, where entrainment is resolved by the grid-scale flow.
+\end{itemize}
+
+%Text here ===>>>
+
+
+%%
+
+%  Numbered lines in equations:
+%  To add line numbers to lines in equations,
+%  \begin{linenomath*}
+%  \begin{equation}
+%  \end{equation}
+%  \end{linenomath*}
+
+
+
+%% Enter Figures and Tables near as possible to where they are first mentioned:
+%
+% DO NOT USE \psfrag or \subfigure commands.
+%
+% Figure captions go below the figure.
+% Table titles go above tables;  other caption information
+%  should be placed in last line of the table, using
+% \multicolumn2l{$^a$ This is a table note.}
+%
+%----------------
+% EXAMPLE FIGURES
+%
+% \begin{figure}
+% \includegraphics{example.png}
+% \caption{caption}
+% \end{figure}
+%
+% Giving latex a width will help it to scale the figure properly. A simple trick is to use \textwidth. Try this if large figures run off the side of the page.
+% \begin{figure}
+% \noindent\includegraphics[width=\textwidth]{anothersample.png}
+%\caption{caption}
+%\label{pngfiguresample}
+%\end{figure}
+%
+%
+% If you get an error about an unknown bounding box, try specifying the width and height of the figure with the natwidth and natheight options. This is common when trying to add a PDF figure without pdflatex.
+% \begin{figure}
+% \noindent\includegraphics[natwidth=800px,natheight=600px]{samplefigure.pdf}
+%\caption{caption}
+%\label{pdffiguresample}
+%\end{figure}
+%
+%
+% PDFLatex does not seem to be able to process EPS figures. You may want to try the epstopdf package.
+%
+
+%
+% ---------------
+% EXAMPLE TABLE
+%
+% \begin{table}
+% \caption{Time of the Transition Between Phase 1 and Phase 2$^{a}$}
+% \centering
+% \begin{tabular}{l c}
+% \hline
+%  Run  & Time (min)  \\
+% \hline
+%   $l1$  & 260   \\
+%   $l2$  & 300   \\
+%   $l3$  & 340   \\
+%   $h1$  & 270   \\
+%   $h2$  & 250   \\
+%   $h3$  & 380   \\
+%   $r1$  & 370   \\
+%   $r2$  & 390   \\
+% \hline
+% \multicolumn{2}{l}{$^{a}$Footnote text here.}
+% \end{tabular}
+% \end{table}
+
+%% SIDEWAYS FIGURE and TABLE
+% AGU prefers the use of {sidewaystable} over {landscapetable} as it causes fewer problems.
+%
+% \begin{sidewaysfigure}
+% \includegraphics[width=20pc]{figsamp}
+% \caption{caption here}
+% \label{newfig}
+% \end{sidewaysfigure}
+%
+%  \begin{sidewaystable}
+%  \caption{Caption here}
+% \label{tab:signif_gap_clos}
+%  \begin{tabular}{ccc}
+% one&two&three\\
+% four&five&six
+%  \end{tabular}
+%  \end{sidewaystable}
+
+%% If using numbered lines, please surround equations with \begin{linenomath*}...\end{linenomath*}
+%\begin{linenomath*}
+%\begin{equation}
+%y|{f} \sim g(m, \sigma),
+%\end{equation}
+%\end{linenomath*}
+
+%%% End of body of article
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Optional Appendix goes here
+%
+% The \appendix command resets counters and redefines section heads
+%
+% After typing \appendix
+%
+%\section{Here Is Appendix Title}
+% will show
+% A: Here Is Appendix Title
+%
+%\appendix
+%\section{Here is a sample appendix}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Optional Glossary, Notation or Acronym section goes here:
+%
+%%%%%%%%%%%%%%
+% Glossary is only allowed in Reviews of Geophysics
+%  \begin{glossary}
+%  \term{Term}
+%   Term Definition here
+%  \term{Term}
+%   Term Definition here
+%  \term{Term}
+%   Term Definition here
+%  \end{glossary}
+
+%
+%%%%%%%%%%%%%%
+% Acronyms
+%   \begin{acronyms}
+%   \acro{Acronym}
+%   Definition here
+%   \acro{EMOS}
+%   Ensemble model output statistics
+%   \acro{ECMWF}
+%   Centre for Medium-Range Weather Forecasts
+%   \end{acronyms}
+
+%
+%%%%%%%%%%%%%%
+% Notation
+%   \begin{notation}
+%   \notation{$a+b$} Notation Definition here
+%   \notation{$e=mc^2$}
+%   Equation in German-born physicist Albert Einstein's theory of special
+%  relativity that showed that the increased relativistic mass ($m$) of a
+%  body comes from the energy of motion of the body—that is, its kinetic
+%  energy ($E$)—divided by the speed of light squared ($c^2$).
+%   \end{notation}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  ACKNOWLEDGMENTS
+%
+% The acknowledgments must list:
+%
+% >>>>	A statement that indicates to the reader where the data
+% 	supporting the conclusions can be obtained (for example, in the
+% 	references, tables, supporting information, and other databases).
+%
+% 	All funding sources related to this work from all authors
+%
+% 	Any real or perceived financial conflicts of interests for any
+%	author
+%
+% 	Other affiliations for any author that may be perceived as
+% 	having a conflict of interest with respect to the results of this
+% 	paper.
+%
+%
+% It is also the appropriate place to thank colleagues and other contributors.
+% AGU does not normally allow dedications.
+
+
+\acknowledgments
+Enter acknowledgments, including your data availability statement, here.
+
+
+%% ------------------------------------------------------------------------ %%
+%% References and Citations
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \bibliography{<name of your .bib file>} don't specify the file extension
+%
+% don't specify bibliographystyle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliography{biblio}
+
+
+%Reference citation instructions and examples:
+%
+% Please use ONLY \cite and \citeA for reference citations.
+% \cite for parenthetical references
+% ...as shown in recent studies (Simpson et al., 2019)
+% \citeA for in-text citations
+% ...Simpson et al. (2019) have shown...
+%
+%
+%...as shown by \citeA{jskilby}.
+%...as shown by \citeA{lewin76}, \citeA{carson86}, \citeA{bartoldy02}, and \citeA{rinaldi03}.
+%...has been shown \cite{jskilbye}.
+%...has been shown \cite{lewin76,carson86,bartoldy02,rinaldi03}.
+%... \cite <i.e.>[]{lewin76,carson86,bartoldy02,rinaldi03}.
+%...has been shown by \cite <e.g.,>[and others]{lewin76}.
+%
+% apacite uses < > for prenotes and [ ] for postnotes
+% DO NOT use other cite commands (e.g., \citet, \citep, \citeyear, \nocite, \citealp, etc.).
+%
+
+
+
+\end{document}
+
+
+
+More Information and Advice:
+
+%% ------------------------------------------------------------------------ %%
+%
+%  SECTION HEADS
+%
+%% ------------------------------------------------------------------------ %%
+
+% Capitalize the first letter of each word (except for
+% prepositions, conjunctions, and articles that are
+% three or fewer letters).
+
+% AGU follows standard outline style; therefore, there cannot be a section 1 without
+% a section 2, or a section 2.3.1 without a section 2.3.2.
+% Please make sure your section numbers are balanced.
+% ---------------
+% Level 1 head
+%
+% Use the \section{} command to identify level 1 heads;
+% type the appropriate head wording between the curly
+% brackets, as shown below.
+%
+%An example:
+%\section{Level 1 Head: Introduction}
+%
+% ---------------
+% Level 2 head
+%
+% Use the \subsection{} command to identify level 2 heads.
+%An example:
+%\subsection{Level 2 Head}
+%
+% ---------------
+% Level 3 head
+%
+% Use the \subsubsection{} command to identify level 3 heads
+%An example:
+%\subsubsection{Level 3 Head}
+%
+%---------------
+% Level 4 head
+%
+% Use the \subsubsubsection{} command to identify level 3 heads
+% An example:
+%\subsubsubsection{Level 4 Head} An example.
+%
+%% ------------------------------------------------------------------------ %%
+%
+%  IN-TEXT LISTS
+%
+%% ------------------------------------------------------------------------ %%
+%
+% Do not use bulleted lists; enumerated lists are okay.
+% \begin{enumerate}
+% \item
+% \item
+% \item
+% \end{enumerate}
+%
+%% ------------------------------------------------------------------------ %%
+%
+%  EQUATIONS
+%
+%% ------------------------------------------------------------------------ %%
+
+% Single-line equations are centered.
+% Equation arrays will appear left-aligned.
+
+Math coded inside display math mode \[ ...\]
+ will not be numbered, e.g.,:
+ \[ x^2=y^2 + z^2\]
+
+ Math coded inside \begin{equation} and \end{equation} will
+ be automatically numbered, e.g.,:
+ \begin{equation}
+ x^2=y^2 + z^2
+ \end{equation}
+
+
+% To create multiline equations, use the
+% \begin{eqnarray} and \end{eqnarray} environment
+% as demonstrated below.
+\begin{eqnarray}
+  x_{1} & = & (x - x_{0}) \cos \Theta \nonumber \\
+        && + (y - y_{0}) \sin \Theta  \nonumber \\
+  y_{1} & = & -(x - x_{0}) \sin \Theta \nonumber \\
+        && + (y - y_{0}) \cos \Theta.
+\end{eqnarray}
+
+%If you don't want an equation number, use the star form:
+%\begin{eqnarray*}...\end{eqnarray*}
+
+% Break each line at a sign of operation
+% (+, -, etc.) if possible, with the sign of operation
+% on the new line.
+
+% Indent second and subsequent lines to align with
+% the first character following the equal sign on the
+% first line.
+
+% Use an \hspace{} command to insert horizontal space
+% into your equation if necessary. Place an appropriate
+% unit of measure between the curly braces, e.g.
+% \hspace{1in}; you may have to experiment to achieve
+% the correct amount of space.
+
+
+%% ------------------------------------------------------------------------ %%
+%
+%  EQUATION NUMBERING: COUNTER
+%
+%% ------------------------------------------------------------------------ %%
+
+% You may change equation numbering by resetting
+% the equation counter or by explicitly numbering
+% an equation.
+
+% To explicitly number an equation, type \eqnum{}
+% (with the desired number between the brackets)
+% after the \begin{equation} or \begin{eqnarray}
+% command.  The \eqnum{} command will affect only
+% the equation it appears with; LaTeX will number
+% any equations appearing later in the manuscript
+% according to the equation counter.
+%
+
+% If you have a multiline equation that needs only
+% one equation number, use a \nonumber command in
+% front of the double backslashes (\\) as shown in
+% the multiline equation above.
+
+% If you are using line numbers, remember to surround
+% equations with \begin{linenomath*}...\end{linenomath*}
+
+%  To add line numbers to lines in equations:
+%  \begin{linenomath*}
+%  \begin{equation}
+%  \end{equation}
+%  \end{linenomath*}
+
+
+

@@ -21,6 +21,7 @@ def r1_mon_lat(sim, **kwargs):
 
     zonmean = kwargs.get('zonmean', 'zonmean') # zonal mean?
     timemean = kwargs.get('timemean', '') # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
+    refclim = kwargs.get('refclim', '') 
     domain = kwargs.get('domain', '')
     try_load = kwargs.get('try_load', 1) # try to load data if available; otherwise, compute R1
     viewplt = kwargs.get('viewplt', 0) # view plot? (plt.show)
@@ -93,10 +94,10 @@ def r1_mon_lat(sim, **kwargs):
     ##################################
     # LOAD DATA
     ##################################
-    if isinstance(model, str):
-        [r1, grid, datadir, plotdir, modelstr] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, domain=domain, try_load=try_load, model=model, yr_span=yr_span) 
+    if isinstance(model, str) or model == None:
+        [r1, grid, datadir, plotdir, modelstr] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, domain=domain, try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
     else:
-        [r1, grid, datadir, plotdir, modelstr, r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, domain=domain, try_load=try_load, model=model, yr_span=yr_span) 
+        [r1, grid, datadir, plotdir, modelstr, r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, domain=domain, try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
 
     # print(np.reshape(r1, (-1,96,12)).shape)
     if timemean == '':
@@ -134,6 +135,7 @@ def r1_mon_lat(sim, **kwargs):
     cbar = plt.colorbar(csf)
     cbar.set_label('$R_1$ (unitless)')
     # plt.savefig('%s.png' % (plotname), dpi=300)
+    fig.set_size_inches(5, 4)
     plt.savefig('%s.pdf' % (plotname), format='pdf', dpi=300)
     if viewplt:
         plt.show()

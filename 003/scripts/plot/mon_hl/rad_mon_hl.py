@@ -2,7 +2,7 @@ import sys
 sys.path.append('/project2/tas1/miyawaki/projects/003/scripts')
 from misc.dirnames import get_datadir, get_plotdir
 from misc.filenames import *
-from misc.load_data import load_flux, load_rad
+from misc.load_data import load_flux, load_rad, load_hydro
 # from misc.translate import translate_varname
 from misc.means import lat_mean, global_int
 from misc import par
@@ -91,23 +91,32 @@ def rad_mon_hl(sim, **kwargs):
 
     if isinstance(model, str) or model is None:
         [rad, grid, datadir, plotdir, modelstr] = load_rad(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+        [hydro, grid, datadir, plotdir, modelstr] = load_hydro(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
     else:
         [rad, grid, datadir, plotdir, modelstr, rad_mmm] = load_rad(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+        [hydro, grid, datadir, plotdir, modelstr, hydro_mmm] = load_hydro(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
 
     if refclim == 'hist-30':
         if isinstance(model, str):
             [rad_ref, _, _, _, _] = load_rad(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
+            [hydro_ref, _, _, _, _] = load_hydro(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
         else:
             [rad_ref, _, _, _, _, rad_ref_mmm] = load_rad(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
+            [hydro_ref, _, _, _, _, hydro_ref_mmm] = load_hydro(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
 
         if timemean == 'djfmean':
             for radname in rad_ref:
                 rad_ref[radname] = np.mean(np.roll(rad_ref[radname],1,axis=0)[0:3], 0)
+            for hydroname in hydro_ref:
+                hydro_ref[hydroname] = np.mean(np.roll(hydro_ref[hydroname],1,axis=0)[0:3], 0)
         elif timemean == 'jjamean':
             for radname in rad_ref:
                 rad_ref[radname] = np.mean(rad_ref[radname][5:8], 0)
+            for hydroname in hydro_ref:
+                hydro_ref[hydroname] = np.mean(hydro_ref[hydroname][5:8], 0)
 
         rad_ref_hl = {}
+        hydro_ref_hl = {}
 
     ############################################
     # AVERAGE FLUXES ONLY AT HIGH LATITUDES
@@ -122,6 +131,17 @@ def rad_mon_hl(sim, **kwargs):
         else:
             rad_ref_hl[radname] = lat_mean(rad_ref[radname], grid, lat_int, dim=0)
             rad_dev_hl[radname] = rad_hl[radname] - rad_ref_hl[radname]
+
+    hydro_hl = {}
+    hydro_dev_hl = {}
+    for hydroname in hydro:
+        hydro_hl[hydroname] = lat_mean(hydro[hydroname], grid, lat_int, dim=1)
+
+        if refclim == 'init':
+            hydro_dev_hl[hydroname] = hydro_hl[hydroname] - hydro_hl[hydroname][0]
+        else:
+            hydro_ref_hl[hydroname] = lat_mean(hydro_ref[hydroname], grid, lat_int, dim=0)
+            hydro_dev_hl[hydroname] = hydro_hl[hydroname] - hydro_ref_hl[hydroname]
 
     time = yr_base + np.arange(rad_hl['ra'].shape[0]) # create time vector
 
@@ -145,6 +165,35 @@ def rad_mon_hl(sim, **kwargs):
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax.set_xlim(yr_base,yr_base+rad_dev_hl['ra'].shape[0]-1)
     ax.set_ylim(vmin_dev,vmax_dev)
+    if legend:
+        ax.legend()
+    plt.tight_layout()
+    plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+    if viewplt:
+        plt.show()
+    plt.close()
+
+    ############################################
+    # PLOT (FRACTIONAL CLEAR SKY RAD, DEVIATION FROM INITIAL)
+    ############################################
+    A = np.vstack([hydro_dev_hl['tas'], np.ones(len(hydro_dev_hl['tas']))]).T
+    m, c = np.linalg.lstsq(A, 1e2*rad_dev_hl['ra']/rad_hl['ra'], rcond=None)[0]
+
+    t_vec = np.arange(0,35,101)
+
+    plotname = remove_repdots('%s/rad_frac_dev_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean))
+    fig, ax = plt.subplots()
+    ax.axhline(0, color='k', linewidth=0.5)
+    lp_ra = ax.plot(hydro_dev_hl['tas'], 1e2*rad_dev_hl['ra']/rad_hl['ra'], '.', color='tab:gray', label='$\Delta R_a / R_a$')
+    ax.plot(t_vec, m*t_vec+c, '-k')
+    make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
+    ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
+    ax.set_xlabel('$\Delta T_{2\,m}$ (K)')
+    ax.set_ylabel('$\Delta R_a / R_a$ (%)')
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    # ax.set_xlim(yr_base,yr_base+rad_dev_hl['ra'].shape[0]-1)
+    # ax.set_ylim(vmin_dev,vmax_dev)
     if legend:
         ax.legend()
     plt.tight_layout()
