@@ -19,24 +19,24 @@ from ke_lat import *
 sim = 'rcp85'
 yr_span = '200601-229912'
 # models = ['HadGEM2-ES', 'bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
-models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
+models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'HadGEM2-ES', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
 # models = ['bcc-csm1-1']
 
 timemean = 'ymonmean-30'
 refclim = 'hist-30'
 
 
-# mmm = 1
-# try_load = 1
-mmm = 0
-try_load = 0
+mmm = 1
+try_load = 1
+# mmm = 0
+# try_load = 0
 seas = 'djf'
 viewplt = 0
 legend = 1
 
 if mmm:
-    r1_lat(sim, viewplt=viewplt, model=models, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, legend=legend, seas=seas)
-    # hydro_lat(sim, viewplt=viewplt, model=models, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, legend=legend, seas=seas)
+    # r1_lat(sim, viewplt=viewplt, model=models, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, legend=legend, seas=seas)
+    hydro_lat(sim, viewplt=viewplt, model=models, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, legend=legend, seas=seas)
 else:
     for model in models:
         print(model)

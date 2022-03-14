@@ -40,7 +40,8 @@ def save_hydro(sim, **kwargs):
     elif sim == 'era5':
         varnames = ['cp', 'lsp', 'e']
     else:
-        varnames = ['pr', 'prc', 'prl', 'prfrac', 'evspsbl', 'vhur', 'tas']
+        # varnames = ['pr', 'prc', 'prl', 'prfrac', 'evspsbl', 'vhur', 'tas', 't850']
+        varnames = ['pr', 'prc', 'prfrac', 'evspsbl']
         # varnames = ['pr', 'prc', 'evspsbl']
         # varnames = ['pr', 'prc', 'clwvi', 'clivi']
         # varnames = ['pr', 'prc', 'evspsbl', 'prw']
@@ -58,17 +59,20 @@ def save_hydro(sim, **kwargs):
             grid['lat3d'] = file[varname].variables['lat'][:]
             grid['lon3d'] = file[varname].variables['lon'][:]
 
-        hydro[translate_varname(varname)] = np.squeeze(file[varname].variables[varname][:])
+        if not varname == 't850':
+            hydro[translate_varname(varname)] = np.squeeze(file[varname].variables[varname][:])
+        else:
+            hydro[translate_varname(varname)] = np.squeeze(file[varname].variables['ta'][:])
+
         if ( ('pr' in translate_varname(varname)) or (translate_varname(varname) == 'evspsbl') ) and not (translate_varname(varname) == 'prw'):
             if sim == 'era5': # convert m accumulated over a day to mm/d
                 hydro[translate_varname(varname)] = hydro[translate_varname(varname)]*1e3
             else: # convert kg m**-2 s**-1 to mm/d
                 hydro[translate_varname(varname)] = hydro[translate_varname(varname)]*86400
 
-         if ( varname == 'vhur' ) and not (grid['lat'] == grid['lat3d']):
-             vhur_fint = interp1d(grid['lat3d'], hydro['vhur'], axis=1)
-             hydro['vhur'] = vhur_fint(grid['lat'])
-
+        if varname in ['vhur', 't850'] and not np.any(grid['lat'] == grid['lat3d']):
+            vhur_fint = interp1d(grid['lat3d'], hydro[varname].filled(fill_value=np.nan), axis=1, bounds_error=False)
+            hydro[varname] = vhur_fint(grid['lat'].filled(fill_value=np.nan))
 
     # if sim == 'era5':
     #     hydro['pr'] = hydro['prc'] + hydro['prl']

@@ -5,7 +5,8 @@
 declare -a models=("HadGEM2-ES/" "bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
 # declare -a models=("bcc-csm1-1/") # extended RCP runs
 # varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
-varnames=("prl" "prfrac")
+# varnames=("t850")
+varnames=("r1" "stgadv" "adv" "ra" "stf")
 # varnames=("aht" "vmmmc" "vmse" "vmte")
 # varnames=("vqse" "vqmmc" "vsse" "vsmmc")
 # varnames=("aht" "qaht" "saht" "vmmmc" "vqmmc" "vsmmc" "vmse" "vqse" "vsse" "vmte" "vqte" "vste")

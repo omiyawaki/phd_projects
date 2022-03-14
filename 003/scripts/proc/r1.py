@@ -38,7 +38,7 @@ def save_r1(sim, **kwargs):
     elif sim == 'era5':
         varnames = ['ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf', 'cp', 'lsp']
     else:
-        varnames = ['tend', 'rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr']
+        varnames = ['tend', 'ra', 'stf', 'rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr', 'dr1', 'dcra', 'dcdyn', 'dcres']
 
     # load all variables required to compute R1
     for varname in varnames:
@@ -59,13 +59,13 @@ def save_r1(sim, **kwargs):
         if sim == 'era5':
             flux[translate_varname(varname)] = flux[translate_varname(varname)]/86400
 
-    if sim == 'era5' or sim == 'echam':
-        flux['ra'] = flux['trad0'] + flux['srad0'] - flux['trads'] - flux['srads'] 
-        flux['hfls'] = -flux['hfls']
-        flux['hfss'] = -flux['hfss']
-        flux['pr'] = flux['prc'] + flux['prl']
-    else:
-        flux['ra'] = flux['rsdt'] - flux['rsut'] - flux['rlut'] + flux['rsus'] - flux['rsds'] + flux['rlus'] - flux['rlds']
+    # if sim == 'era5' or sim == 'echam':
+    #     flux['ra'] = flux['trad0'] + flux['srad0'] - flux['trads'] - flux['srads'] 
+    #     flux['hfls'] = -flux['hfls']
+    #     flux['hfss'] = -flux['hfss']
+    #     flux['pr'] = flux['prc'] + flux['prl']
+    # else:
+    #     flux['ra'] = flux['rsdt'] - flux['rsut'] - flux['rlut'] + flux['rsus'] - flux['rsds'] + flux['rlus'] - flux['rlds']
 
     # interpolate 3d data to 2d grid if not the same
     print(flux['tend'].shape)
@@ -88,75 +88,76 @@ def save_r1(sim, **kwargs):
 
     if zonmean:
         for fluxname in flux:
-            flux[fluxname] = np.mean(flux[fluxname], 2)
+            if not fluxname in ['r1', 'dr1', 'dcra', 'dcdyn', 'dcres']:
+                flux[fluxname] = np.mean(flux[fluxname], 2)
 
     r1 = flux['stg_adv']/flux['ra']
     stg_adv = flux['stg_adv']
     ra = flux['ra']
     
-    # linearly decompose r1 seasonality
-    r1_dc = {}
+    # # linearly decompose r1 seasonality
+    # r1_dc = {}
 
-    if refclim == 'init':
-        r1_dc['dr1'] = r1 - r1[0,...] # r1 deviation from first year
-        ra_tavg = ra[0,...]
-        stg_adv_tavg = stg_adv[0,...]
-    elif refclim == 'hist-30':
-        sim_ref='historical'
-        timemean_ref='ymonmean-30'
-        yr_span_ref='186001-200512'
+    # if refclim == 'init':
+    #     r1_dc['dr1'] = r1 - r1[0,...] # r1 deviation from first year
+    #     ra_tavg = ra[0,...]
+    #     stg_adv_tavg = stg_adv[0,...]
+    # elif refclim == 'hist-30':
+    #     sim_ref='historical'
+    #     timemean_ref='ymonmean-30'
+    #     yr_span_ref='186001-200512'
 
-        datadir_ref = get_datadir(sim_ref, model=model, yr_span=yr_span_ref)
+    #     datadir_ref = get_datadir(sim_ref, model=model, yr_span=yr_span_ref)
 
-        # location of pickled historical R1 data
-        r1_file_ref = remove_repdots('%s/r1.%s.%s.pickle' % (datadir_ref, zonmean, timemean_ref))
-        ra_file_ref = remove_repdots('%s/ra.%s.%s.pickle' % (datadir_ref, zonmean, timemean_ref))
-        stg_adv_file_ref = remove_repdots('%s/stg_adv.%s.%s.pickle' % (datadir_ref, zonmean, timemean_ref))
+    #     # location of pickled historical R1 data
+    #     r1_file_ref = remove_repdots('%s/r1.%s.%s.pickle' % (datadir_ref, zonmean, timemean_ref))
+    #     ra_file_ref = remove_repdots('%s/ra.%s.%s.pickle' % (datadir_ref, zonmean, timemean_ref))
+    #     stg_adv_file_ref = remove_repdots('%s/stg_adv.%s.%s.pickle' % (datadir_ref, zonmean, timemean_ref))
 
-        if not (os.path.isfile(r1_file_ref) and try_load):
-            save_r1(sim_ref, model=model, zonmean=zonmean, timemean=timemean_ref, yr_span=yr_span_ref, refclim='init')
+    #     if not (os.path.isfile(r1_file_ref) and try_load):
+    #         save_r1(sim_ref, model=model, zonmean=zonmean, timemean=timemean_ref, yr_span=yr_span_ref, refclim='init')
 
-        [r1_ref, grid_ref] = pickle.load(open(r1_file_ref, 'rb'))
-        [ra_ref, _] = pickle.load(open(ra_file_ref, 'rb'))
-        [stg_adv_ref, _] = pickle.load(open(stg_adv_file_ref, 'rb'))
+    #     [r1_ref, grid_ref] = pickle.load(open(r1_file_ref, 'rb'))
+    #     [ra_ref, _] = pickle.load(open(ra_file_ref, 'rb'))
+    #     [stg_adv_ref, _] = pickle.load(open(stg_adv_file_ref, 'rb'))
         
-        if timemean == 'djfmean':
-            r1_ref = np.mean(np.roll(r1_ref,1,axis=0)[0:3], 0)
-            ra_ref = np.mean(np.roll(ra_ref,1,axis=0)[0:3], 0)
-            stg_adv_ref = np.mean(np.roll(stg_adv_ref,1,axis=0)[0:3], 0)
-        elif timemean == 'mammean':
-            r1_ref = np.mean(r1_ref[2:5], 0)
-            ra_ref = np.mean(ra_ref[2:5], 0)
-            stg_adv_ref = np.mean(stg_adv_ref[2:5], 0)
-        elif timemean == 'jjamean':
-            r1_ref = np.mean(r1_ref[5:8], 0)
-            ra_ref = np.mean(ra_ref[5:8], 0)
-            stg_adv_ref = np.mean(stg_adv_ref[5:8], 0)
-        elif timemean == 'sonmean':
-            r1_ref = np.mean(r1_ref[8:11], 0)
-            ra_ref = np.mean(ra_ref[8:11], 0)
-            stg_adv_ref = np.mean(stg_adv_ref[8:11], 0)
+    #     if timemean == 'djfmean':
+    #         r1_ref = np.mean(np.roll(r1_ref,1,axis=0)[0:3], 0)
+    #         ra_ref = np.mean(np.roll(ra_ref,1,axis=0)[0:3], 0)
+    #         stg_adv_ref = np.mean(np.roll(stg_adv_ref,1,axis=0)[0:3], 0)
+    #     elif timemean == 'mammean':
+    #         r1_ref = np.mean(r1_ref[2:5], 0)
+    #         ra_ref = np.mean(ra_ref[2:5], 0)
+    #         stg_adv_ref = np.mean(stg_adv_ref[2:5], 0)
+    #     elif timemean == 'jjamean':
+    #         r1_ref = np.mean(r1_ref[5:8], 0)
+    #         ra_ref = np.mean(ra_ref[5:8], 0)
+    #         stg_adv_ref = np.mean(stg_adv_ref[5:8], 0)
+    #     elif timemean == 'sonmean':
+    #         r1_ref = np.mean(r1_ref[8:11], 0)
+    #         ra_ref = np.mean(ra_ref[8:11], 0)
+    #         stg_adv_ref = np.mean(stg_adv_ref[8:11], 0)
 
-        r1_dc['dr1'] = r1 - r1_ref # r1 deviation from first year
-        ra_tavg = ra_ref
-        stg_adv_tavg = stg_adv_ref
+    #     r1_dc['dr1'] = r1 - r1_ref # r1 deviation from first year
+    #     ra_tavg = ra_ref
+    #     stg_adv_tavg = stg_adv_ref
 
-    r1_dc['dyn'] = (stg_adv - stg_adv_tavg) / ra_tavg # dynamic component
-    r1_dc['rad'] = - stg_adv_tavg / (ra_tavg**2) * (ra - ra_tavg) # radiative component
-    r1_dc['res'] = r1_dc['dr1'] - ( r1_dc['dyn'] + r1_dc['rad'] )
+    # r1_dc['dyn'] = (stg_adv - stg_adv_tavg) / ra_tavg # dynamic component
+    # r1_dc['rad'] = - stg_adv_tavg / (ra_tavg**2) * (ra - ra_tavg) # radiative component
+    # r1_dc['res'] = r1_dc['dr1'] - ( r1_dc['dyn'] + r1_dc['rad'] )
 
-    # compute time rate of change of r1 and its components
-    dr1={}
-    dr1['dr1'] = r1_dc['dr1'][1:,...] - r1_dc['dr1'][:-1,...]
-    dr1['dyn'] = r1_dc['dyn'][1:,...] - r1_dc['dyn'][:-1,...]
-    dr1['rad'] = r1_dc['rad'][1:,...] - r1_dc['rad'][:-1,...]
-    dr1['res'] = r1_dc['res'][1:,...] - r1_dc['res'][:-1,...]
+    # # compute time rate of change of r1 and its components
+    # dr1={}
+    # dr1['dr1'] = r1_dc['dr1'][1:,...] - r1_dc['dr1'][:-1,...]
+    # dr1['dyn'] = r1_dc['dyn'][1:,...] - r1_dc['dyn'][:-1,...]
+    # dr1['rad'] = r1_dc['rad'][1:,...] - r1_dc['rad'][:-1,...]
+    # dr1['res'] = r1_dc['res'][1:,...] - r1_dc['res'][:-1,...]
 
     pickle.dump([r1, grid], open(remove_repdots('%s/r1.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
-    pickle.dump([r1_dc, grid], open(remove_repdots('%s/r1_dc.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
-    pickle.dump([dr1, grid], open(remove_repdots('%s/dr1.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
-    pickle.dump([ra, grid], open(remove_repdots('%s/ra.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
-    pickle.dump([stg_adv, grid], open(remove_repdots('%s/stg_adv.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
+    # pickle.dump([r1_dc, grid], open(remove_repdots('%s/r1_dc.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
+    # pickle.dump([dr1, grid], open(remove_repdots('%s/dr1.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
+    # pickle.dump([ra, grid], open(remove_repdots('%s/ra.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
+    # pickle.dump([stg_adv, grid], open(remove_repdots('%s/stg_adv.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
     pickle.dump([flux, grid], open(remove_repdots('%s/flux.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
 
     rlut = None; rsdt = None; rsut = None; rsus = None; rsds = None; rlds = None; rlus = None;

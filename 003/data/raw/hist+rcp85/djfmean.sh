@@ -1,12 +1,13 @@
 #!/bin/sh
 
-# models=("MPI-ESM-LR")
-# declare -a models=("HadGEM2-ES" "bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
-declare -a models=("bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
+# models=("CCSM4")
+declare -a models=("HadGEM2-ES" "bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
+# declare -a models=("bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
 # varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" )
 # varnames=("aht" "vmmmc" "vmse" "vmte")
-declare -a varnames=("qaht" "saht" "vqmmc" "vsmmc" "vqse" "vsse" "vqte" "vste") # list of GCM variables that we want to process
+varnames=("r1" "ra" "stf" "stgadv" "adv")
+# declare -a varnames=("qaht" "saht" "vqmmc" "vsmmc" "vqse" "vsse" "vqte" "vste") # list of GCM variables that we want to process
 sim="hist+rcp85"
 freq="Amon"
 ens="r1i1p1"
@@ -28,11 +29,11 @@ for model in ${models[@]}; do
         filename="${varname}_${freq}_${model}_${sim}_${ens}_${yr_span}"
 
         # create DJF mean file if it doesn't exist yet
-        if [ -f "${filename}.djfmean.nc" ]; then
-            echo "DJF mean already taken, skipping..."
-        else
+        # if [ -f "${filename}.djfmean.nc" ]; then
+            # echo "DJF mean already taken, skipping..."
+        # else
             cdo -seasmean -selseas,DJF ${filename}.nc ${filename}.djfmean.nc 
-        fi
+        # fi
 
     done # varnames
 done # models

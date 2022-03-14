@@ -37,7 +37,7 @@ def save_circ(sim, **kwargs):
     elif sim == 'era5':
         varnames = ['ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf']
     else:
-        varnames = ['wap', 'psi']
+        varnames = ['psi']
 
     # load all variables
     print(varnames)
@@ -47,7 +47,7 @@ def save_circ(sim, **kwargs):
 
         if loaded_grid == 0:
             grid = {}
-            grid['lon'] = file[varname].variables['lon'][:]
+            # grid['lon'] = file[varname].variables['lon'][:]
             grid['lat'] = file[varname].variables['lat'][:]
             grid['lev'] = file[varname].variables['plev'][:]
             loaded_grid = 1

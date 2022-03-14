@@ -392,6 +392,64 @@ def dyn_mon_hl(sim, **kwargs):
         plt.close()
 
         ############################################
+        # PLOT SMOOTH (SE TE DECOMP, DEVIATION FROM INITIAL, DRY OVERLAY)
+        ############################################
+        plotname = remove_repdots('%s/dyn_dev_dry_sm_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean))
+        fig, ax = plt.subplots()
+        ax.axhline(0, color='k', linewidth=0.5)
+        if not (isinstance(model, str) or model is None):
+            if spread == 'prc':
+                ax.fill_between(time[:-rolling_mean], dyn_mmm_hl['daht_sm']['prc25'][:-rolling_mean], dyn_mmm_hl['daht_sm']['prc75'][:-rolling_mean], facecolor='maroon', alpha=0.2, edgecolor=None)
+                ax.fill_between(time[:-rolling_mean], dyn_mmm_hl['dvmte_sm']['prc25'][:-rolling_mean], dyn_mmm_hl['dvmte_sm']['prc75'][:-rolling_mean], facecolor='r', alpha=0.2, edgecolor=None)
+                ax.fill_between(time[:-rolling_mean], dyn_mmm_hl['dvmse_sm']['prc25'][:-rolling_mean], dyn_mmm_hl['dvmse_sm']['prc75'][:-rolling_mean], facecolor='g', alpha=0.2, edgecolor=None)
+                ax.fill_between(time[:-rolling_mean], dyn_mmm_hl['dvmmmc_sm']['prc25'][:-rolling_mean], dyn_mmm_hl['dvmmmc_sm']['prc75'][:-rolling_mean], facecolor='b', alpha=0.2, edgecolor=None)
+            elif spread == 'std':
+                ax.fill_between(time[:-rolling_mean], dyn_mmm_hl['daht_sm']['mmm'][:-rolling_mean]-dyn_mmm_hl['daht_sm']['std'][:-rolling_mean], dyn_mmm_hl['daht_sm']['mmm'][:-rolling_mean]+dyn_mmm_hl['daht_sm']['std'][:-rolling_mean], facecolor='maroon', alpha=0.2, edgecolor=None)
+                ax.fill_between(time[:-rolling_mean], dyn_mmm_hl['dvmte_sm']['mmm'][:-rolling_mean]-dyn_mmm_hl['dvmte_sm']['std'][:-rolling_mean], dyn_mmm_hl['dvmte_sm']['mmm'][:-rolling_mean]+dyn_mmm_hl['dvmte_sm']['std'][:-rolling_mean], facecolor='r', alpha=0.2, edgecolor=None)
+                ax.fill_between(time[:-rolling_mean], dyn_mmm_hl['dvmse_sm']['mmm'][:-rolling_mean]-dyn_mmm_hl['dvmse_sm']['std'][:-rolling_mean], dyn_mmm_hl['dvmse_sm']['mmm'][:-rolling_mean]+dyn_mmm_hl['dvmse_sm']['std'][:-rolling_mean], facecolor='g', alpha=0.2, edgecolor=None)
+                ax.fill_between(time[:-rolling_mean], dyn_mmm_hl['dvmmmc_sm']['mmm'][:-rolling_mean]-dyn_mmm_hl['dvmmmc_sm']['std'][:-rolling_mean], dyn_mmm_hl['dvmmmc_sm']['mmm'][:-rolling_mean]+dyn_mmm_hl['dvmmmc_sm']['std'][:-rolling_mean], facecolor='b', alpha=0.2, edgecolor=None)
+
+        lp_tot = ax.plot(time[:-rolling_mean], dyn_hl['daht_sm'][:-rolling_mean], color='maroon', label='$-\Delta \partial_y(vm)$')
+        lp_te = ax.plot(time[:-rolling_mean], dyn_hl['dvmte_sm'][:-rolling_mean], color='r', label='TE')
+        lp_se = ax.plot(time[:-rolling_mean], dyn_hl['dvmse_sm'][:-rolling_mean], color='g', label='SE')
+        lp_mmc = ax.plot(time[:-rolling_mean], dyn_hl['dvmmmc_sm'][:-rolling_mean], color='b', label='MMC')
+
+        ax.plot(time[:-rolling_mean], dyn_hl['dsaht_sm'][:-rolling_mean],'--', color='maroon', label='$-\Delta \partial_y(vs)$')
+        ax.plot(time[:-rolling_mean], dyn_hl['dvste_sm'][:-rolling_mean],'--', color='r', label='TE (DSE)')
+        ax.plot(time[:-rolling_mean], dyn_hl['dvsse_sm'][:-rolling_mean],'--', color='g', label='SE (DSE)')
+        ax.plot(time[:-rolling_mean], dyn_hl['dvsmmc_sm'][:-rolling_mean],'--', color='b', label='MMC (DSE)')
+
+        ax.plot(time[:-rolling_mean], dyn_hl['daht_sm'][:-rolling_mean], color='maroon')
+        make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
+        ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
+        if 'ymonmean' in timemean:
+            ax.set_xticks(np.arange(0,12,1))
+            ax.set_xticklabels(['J','F','M','A','M','J','J','A','S','O','N','D'])
+        else:
+            ax.set_xlabel('Time (yr)')
+        ax.set_ylabel('$\Delta$ Energy flux convergence (Wm$^{-2}$)')
+        ax.xaxis.set_minor_locator(MultipleLocator(10))
+        ax.yaxis.set_minor_locator(AutoMinorLocator())
+        ax.set_xlim(2006,2300)
+        ax.set_ylim(vmin_dev,vmax_dev)
+        if legend:
+            # ax.legend()
+            legend = ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.3), ncol=4)
+        # cut off excess space on the bottom 
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0 + box.height * 0.05,
+            box.width, box.height * 0.95])
+
+        # alter figure aspect ratio to accomodate legend
+        fig.set_size_inches(5,3.5)
+        # fig.set_size_inches(4,3.5)
+        plt.tight_layout()
+        plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+        if viewplt:
+            plt.show()
+        plt.close()
+
+        ############################################
         # PLOT SMOOTH (STATIONARY TRANSIENT DECOMP, DEVIATION FROM INITIAL)
         ############################################
         plotname = remove_repdots('%s/dyn_dev_st_sm_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean))

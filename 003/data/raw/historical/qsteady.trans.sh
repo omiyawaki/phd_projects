@@ -7,10 +7,11 @@
 
 # declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/rcp85/ && ls -d */) # list of GCM models to process
 # declare -a models=("bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "HadGEM2-ES" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
-declare -a models=("MPI-ESM-LR") # extended RCP runs
+declare -a models=("HadGEM2-ES") # extended RCP runs
 sim="historical"
 freq="Amon"
 ens="r1i1p1"
+yr_resume=2005
 yr_begin=1860
 yr_end=2005
 yr_span="${yr_begin}01-${yr_end}12"
@@ -36,7 +37,7 @@ for model in ${models[@]}; do
         full_hus=${cwd}/${model}/hus_${common}.nc
         full_beta=${cwd}/${model}/beta_${common}.timmean.nc
 
-        for yr in $(seq -f "%04g" ${yr_begin} ${yr_end}); do
+        for yr in $(seq -f "%04g" ${yr_resume} ${yr_end}); do
             echo $yr
             sel_span=${yr}01-${yr}12
             sel_common=${freq}_${model}_${sim}_${ens}_${sel_span}

@@ -66,8 +66,8 @@ def rad_mon_hl(sim, **kwargs):
         if timemean == 'djfmean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
             vmin = -200
             vmax = 100
-            vmin_dev = -30
-            vmax_dev = 30
+            vmin_dev = -50
+            vmax_dev = 10
         elif timemean == 'jjamean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
             vmin = -150
             vmax = 50
@@ -146,6 +146,13 @@ def rad_mon_hl(sim, **kwargs):
     time = yr_base + np.arange(rad_hl['ra'].shape[0]) # create time vector
 
     ############################################
+    # Compute predicted ra_dev
+    ############################################
+    df_tlcl = -2 # W m**-2 K**-1, radiative cooling flux divergence in T coord at LCL
+    dra = df_tlcl * hydro_dev_hl['tas']
+    dra_mod = df_tlcl * hydro_dev_hl['t850']
+
+    ############################################
     # PLOT (W/ CLEAR SKY RAD, DEVIATION FROM INITIAL)
     ############################################
     plotname = remove_repdots('%s/rad_dev_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean))
@@ -211,6 +218,8 @@ def rad_mon_hl(sim, **kwargs):
     lp_ra = ax.plot(time, rad_dev_hl['ra'], '-', color='tab:gray', label='$\Delta R_a$')
     lp_ra_lw = ax.plot(time, rad_dev_hl['lw'], '-', color='tab:green', label='$\Delta LW$')
     lp_ra_sw = ax.plot(time, rad_dev_hl['sw'], '-', color='yellow', label='$\Delta SW$')
+    lp_ra_jr18 = ax.plot(time, dra, '-', color='k', label='$\Delta R_{a,\,\mathrm{JR18,\,T_{2\,\mathrm{m}}}}$')
+    lp_ra_jr18_mod = ax.plot(time, dra_mod, '--', color='k', label='$\Delta R_{a,\,\mathrm{JR18},\,T_{850\,\mathrm{hPa}}}$')
     make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:
@@ -242,6 +251,8 @@ def rad_mon_hl(sim, **kwargs):
     lp_ra_cld_lw = ax.plot(time, rad_dev_hl['lw'] - rad_dev_hl['lw_cs'], ':', color='tab:red', label='$\Delta \mathrm{LW}_{cloud}$')
     lp_ra_cs_sw = ax.plot(time, rad_dev_hl['sw_cs'], '--', color='tab:blue', label='$\Delta \mathrm{SW}_{clear}$')
     lp_ra_cld_sw = ax.plot(time, rad_dev_hl['sw'] - rad_dev_hl['sw_cs'], ':', color='tab:blue', label='$\Delta \mathrm{SW}_{cloud}$')
+    lp_ra_jr18 = ax.plot(time, dra, '-', color='k', label='$\Delta R_{a,\,\mathrm{JR18,\,T_{2\,\mathrm{m}}}}$')
+    lp_ra_jr18_mod = ax.plot(time, dra_mod, '--', color='k', label='$\Delta R_{a,\,\mathrm{JR18},\,T_{850\,\mathrm{hPa}}}$')
     make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     if 'ymonmean' in timemean:

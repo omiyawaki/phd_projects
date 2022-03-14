@@ -3,6 +3,18 @@ def translate_varname(varnames_in, **kwargs):
 
     # key are nonstandard names, value is the standard name
     trans_dict = {
+
+        # Energy balance regimes
+        'r1':'r1',
+        'ra':'ra',
+        'stgadv':'stgadv',
+        'adv':'adv',
+        'stf':'stf',
+        'dr1':'dr1',
+        'dcra':'dcra',
+        'dcdyn':'dcdyn',
+        'dcres':'dcres',
+
         # MSE storage
         'tend': 'tend',
 
@@ -130,19 +142,22 @@ def translate_varname(varnames_in, **kwargs):
         'tas' : 'tas', # CMIP
         't2m' : 'tas', # ERA
 
+        't850' : 't850',
+
         # 2 M DEW POINT TEMP
         'd2m' : 'd2m', # ERA
         
         # PRECIPITATION
         'pr' : 'pr', # CMIP
+        'prc' : 'prc', # CMIP
+        'cp' : 'prc', # ERA
+        'prl' : 'prl',
+        'lsp' : 'prl', # ERA
+        'prfrac' : 'prfrac',
         
         # EVAPORATION
         'evspsbl' : 'evspsbl', # CMIP
         
-        # CONVECTIVE PRECIP
-        'prc' : 'prc', # CMIP
-        'cp' : 'prc', # ERA
-
         # PRECIPITABLE WATER
         'prw' : 'prw', # CMIP
 
@@ -155,9 +170,6 @@ def translate_varname(varnames_in, **kwargs):
         # condensed ice path
         'clivi' : 'clivi', # CMIP
         
-        # LARGE-SCALE PRECIP
-        'lsp' : 'prl', # ERA
-
         # SEA ICE CONCENTRATION
         'sic' : 'sic', # CMIP
         
