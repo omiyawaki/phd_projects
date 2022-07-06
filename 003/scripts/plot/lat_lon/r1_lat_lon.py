@@ -46,6 +46,9 @@ def r1_lat_lon(sim, **kwargs):
     lat_int = np.arange(latbnd[0], latbnd[1], latstep)
     lon_int = np.arange(lonbnd[0], lonbnd[1], lonstep)
 
+    vmin=-1.7
+    vmax=1.7
+
     if sim == 'longrun':
         model = kwargs.get('model', 'MPIESM12_abrupt4x')
         yr_span = kwargs.get('yr_span', '1000')
@@ -84,6 +87,13 @@ def r1_lat_lon(sim, **kwargs):
     else:
         [r1, grid, datadir, plotdir, modelstr, r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
 
+    # ANN
+    r1_ann = np.nanmean(r1, axis=0)
+    r1_djf = np.nanmean(np.roll(r1,1,axis=0)[0:3,...], axis=0)
+    r1_mam = np.nanmean(r1[2:5,...], axis=0)
+    r1_jja = np.nanmean(r1[5:8,...], axis=0)
+    r1_son = np.nanmean(r1[8:11,...], axis=0)
+
     # if 'pr' in plotover or 'cl' in plotover:
     #     if isinstance(model, str) or model is None:
     #         [hydro, grid, datadir, plotdir, modelstr] = load_hydro(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
@@ -106,6 +116,161 @@ def r1_lat_lon(sim, **kwargs):
     categ[np.logical_and(np.min(r1, axis=0)>0.1, np.max(r1, axis=0)<0.9)] = 2 # label yearround RCAE as 2
 
     n_cats = 6
+
+    ############################################
+    # PLOT R1 ANNMEAN
+    ############################################
+    [mesh_lat, mesh_lon] = np.meshgrid(grid['lat'], grid['lon']) # create mesh
+    plotname = '%s/r1_lat_lon.ann.%s' % (plotdir, timemean)
+    fig = plt.figure()
+    axc = plt.axes(projection=ccrs.PlateCarree(central_longitude=180))
+    # axc.set_extent([-180, 180, -30, 30], ccrs.PlateCarree())
+    csf = plt.contourf(mesh_lon, mesh_lat, np.transpose(r1_ann),np.arange(vmin,vmax,0.1), vmin=vmin, vmax=vmax, cmap='RdBu', extend='both', transform=ccrs.PlateCarree())
+    plt.contour(mesh_lon, mesh_lat, np.transpose(r1_ann), [0.1], linewidths=0.5, colors='sandybrown', transform=ccrs.PlateCarree())
+    plt.contour(mesh_lon, mesh_lat, np.transpose(r1_ann), [0.9], linewidths=0.5, colors='royalblue', transform=ccrs.PlateCarree())
+    make_title_sim_time_seas(axc, sim, model=modelstr, timemean=timemean, seasmean='')
+    cbar = plt.colorbar(csf)
+    cbar.set_label('$R_1$')
+    axc.coastlines(color='gray', linewidth=0.5)
+    gl = axc.gridlines(draw_labels=True, linewidth=0.5, alpha=0.2)
+    gl.top_labels = False
+    gl.right_labels = False
+    gl.xlocator = LongitudeLocator()
+    gl.ylocator = LatitudeLocator()
+    gl.xformatter = LongitudeFormatter()
+    gl.yformatter = LatitudeFormatter()
+    gl.xlabel_style = {'size': 8}
+    gl.ylabel_style = {'size': 8}
+    fig.set_size_inches(6, 3)
+    # plt.tight_layout()
+    plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+    if viewplt:
+        plt.show()
+    plt.close()
+
+    ############################################
+    # PLOT R1 DJF
+    ############################################
+    [mesh_lat, mesh_lon] = np.meshgrid(grid['lat'], grid['lon']) # create mesh
+    plotname = '%s/r1_lat_lon.djf.%s' % (plotdir, timemean)
+    fig = plt.figure()
+    axc = plt.axes(projection=ccrs.PlateCarree(central_longitude=180))
+    # axc.set_extent([-180, 180, -30, 30], ccrs.PlateCarree())
+    csf = plt.contourf(mesh_lon, mesh_lat, np.transpose(r1_djf),np.arange(vmin,vmax,0.1), vmin=vmin, vmax=vmax, cmap='RdBu', extend='both', transform=ccrs.PlateCarree())
+    plt.contour(mesh_lon, mesh_lat, np.transpose(r1_djf), [0.1], linewidths=0.5, colors='sandybrown', transform=ccrs.PlateCarree())
+    plt.contour(mesh_lon, mesh_lat, np.transpose(r1_djf), [0.9], linewidths=0.5, colors='royalblue', transform=ccrs.PlateCarree())
+    make_title_sim_time_seas(axc, sim, model=modelstr, timemean=timemean, seasmean='djf')
+    cbar = plt.colorbar(csf)
+    cbar.set_label('$R_1$')
+    axc.coastlines(color='gray', linewidth=0.5)
+    gl = axc.gridlines(draw_labels=True, linewidth=0.5, alpha=0.2)
+    gl.top_labels = False
+    gl.right_labels = False
+    gl.xlocator = LongitudeLocator()
+    gl.ylocator = LatitudeLocator()
+    gl.xformatter = LongitudeFormatter()
+    gl.yformatter = LatitudeFormatter()
+    gl.xlabel_style = {'size': 8}
+    gl.ylabel_style = {'size': 8}
+    fig.set_size_inches(6, 3)
+    # plt.tight_layout()
+    plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+    if viewplt:
+        plt.show()
+    plt.close()
+
+    ############################################
+    # PLOT R1 mam
+    ############################################
+    [mesh_lat, mesh_lon] = np.meshgrid(grid['lat'], grid['lon']) # create mesh
+    plotname = '%s/r1_lat_lon.mam.%s' % (plotdir, timemean)
+    fig = plt.figure()
+    axc = plt.axes(projection=ccrs.PlateCarree(central_longitude=180))
+    # axc.set_extent([-180, 180, -30, 30], ccrs.PlateCarree())
+    csf = plt.contourf(mesh_lon, mesh_lat, np.transpose(r1_mam),np.arange(vmin,vmax,0.1), vmin=vmin, vmax=vmax, cmap='RdBu', extend='both', transform=ccrs.PlateCarree())
+    plt.contour(mesh_lon, mesh_lat, np.transpose(r1_mam), [0.1], linewidths=0.5, colors='sandybrown', transform=ccrs.PlateCarree())
+    plt.contour(mesh_lon, mesh_lat, np.transpose(r1_mam), [0.9], linewidths=0.5, colors='royalblue', transform=ccrs.PlateCarree())
+    make_title_sim_time_seas(axc, sim, model=modelstr, timemean=timemean, seasmean='mam')
+    cbar = plt.colorbar(csf)
+    cbar.set_label('$R_1$')
+    axc.coastlines(color='gray', linewidth=0.5)
+    gl = axc.gridlines(draw_labels=True, linewidth=0.5, alpha=0.2)
+    gl.top_labels = False
+    gl.right_labels = False
+    gl.xlocator = LongitudeLocator()
+    gl.ylocator = LatitudeLocator()
+    gl.xformatter = LongitudeFormatter()
+    gl.yformatter = LatitudeFormatter()
+    gl.xlabel_style = {'size': 8}
+    gl.ylabel_style = {'size': 8}
+    fig.set_size_inches(6, 3)
+    # plt.tight_layout()
+    plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+    if viewplt:
+        plt.show()
+    plt.close()
+
+    ############################################
+    # PLOT R1 jja
+    ############################################
+    [mesh_lat, mesh_lon] = np.meshgrid(grid['lat'], grid['lon']) # create mesh
+    plotname = '%s/r1_lat_lon.jja.%s' % (plotdir, timemean)
+    fig = plt.figure()
+    axc = plt.axes(projection=ccrs.PlateCarree(central_longitude=180))
+    # axc.set_extent([-180, 180, -30, 30], ccrs.PlateCarree())
+    csf = plt.contourf(mesh_lon, mesh_lat, np.transpose(r1_jja),np.arange(vmin,vmax,0.1), vmin=vmin, vmax=vmax, cmap='RdBu', extend='both', transform=ccrs.PlateCarree())
+    plt.contour(mesh_lon, mesh_lat, np.transpose(r1_jja), [0.1], linewidths=0.5, colors='sandybrown', transform=ccrs.PlateCarree())
+    plt.contour(mesh_lon, mesh_lat, np.transpose(r1_jja), [0.9], linewidths=0.5, colors='royalblue', transform=ccrs.PlateCarree())
+    make_title_sim_time_seas(axc, sim, model=modelstr, timemean=timemean, seasmean='jja')
+    cbar = plt.colorbar(csf)
+    cbar.set_label('$R_1$')
+    axc.coastlines(color='gray', linewidth=0.5)
+    gl = axc.gridlines(draw_labels=True, linewidth=0.5, alpha=0.2)
+    gl.top_labels = False
+    gl.right_labels = False
+    gl.xlocator = LongitudeLocator()
+    gl.ylocator = LatitudeLocator()
+    gl.xformatter = LongitudeFormatter()
+    gl.yformatter = LatitudeFormatter()
+    gl.xlabel_style = {'size': 8}
+    gl.ylabel_style = {'size': 8}
+    fig.set_size_inches(6, 3)
+    # plt.tight_layout()
+    plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+    if viewplt:
+        plt.show()
+    plt.close()
+
+    ############################################
+    # PLOT R1 son
+    ############################################
+    [mesh_lat, mesh_lon] = np.meshgrid(grid['lat'], grid['lon']) # create mesh
+    plotname = '%s/r1_lat_lon.son.%s' % (plotdir, timemean)
+    fig = plt.figure()
+    axc = plt.axes(projection=ccrs.PlateCarree(central_longitude=180))
+    # axc.set_extent([-180, 180, -30, 30], ccrs.PlateCarree())
+    csf = plt.contourf(mesh_lon, mesh_lat, np.transpose(r1_son),np.arange(vmin,vmax,0.1), vmin=vmin, vmax=vmax, cmap='RdBu', extend='both', transform=ccrs.PlateCarree())
+    plt.contour(mesh_lon, mesh_lat, np.transpose(r1_son), [0.1], linewidths=0.5, colors='sandybrown', transform=ccrs.PlateCarree())
+    plt.contour(mesh_lon, mesh_lat, np.transpose(r1_son), [0.9], linewidths=0.5, colors='royalblue', transform=ccrs.PlateCarree())
+    make_title_sim_time_seas(axc, sim, model=modelstr, timemean=timemean, seasmean='son')
+    cbar = plt.colorbar(csf)
+    cbar.set_label('$R_1$')
+    axc.coastlines(color='gray', linewidth=0.5)
+    gl = axc.gridlines(draw_labels=True, linewidth=0.5, alpha=0.2)
+    gl.top_labels = False
+    gl.right_labels = False
+    gl.xlocator = LongitudeLocator()
+    gl.ylocator = LatitudeLocator()
+    gl.xformatter = LongitudeFormatter()
+    gl.yformatter = LatitudeFormatter()
+    gl.xlabel_style = {'size': 8}
+    gl.ylabel_style = {'size': 8}
+    fig.set_size_inches(6, 3)
+    # plt.tight_layout()
+    plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+    if viewplt:
+        plt.show()
+    plt.close()
 
 
     ############################################

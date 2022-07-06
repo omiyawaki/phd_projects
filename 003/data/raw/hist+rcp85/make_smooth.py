@@ -25,7 +25,9 @@ file_noisy = Dataset(path_noisy, 'r')
 print('Done.\n')
 
 # read data
+varname = ''.join([i for i in varname if not i.isdigit()])
 nd = file_noisy.variables[varname][:]
+nd = nd.filled(fill_value=np.nan)
 
 # smoothen data by taking the rolling mean
 sd = uniform_filter1d(nd, n_roll, axis=0)

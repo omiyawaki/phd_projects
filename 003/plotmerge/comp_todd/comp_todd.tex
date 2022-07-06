@@ -1,0 +1,27 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\usepackage{cmbright}
+
+\begin{document}
+
+\begin{figure}
+
+  \begin{subfigure}[t]{\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{todd}.png}
+  \end{subfigure}
+
+  \hspace{4em}
+  \begin{subfigure}[t]{0.03\textwidth}
+    \textbf{\small{(e)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.6\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/historical/bcc-csm1-1/186001-200512/lat/diffv92500_sh.ymonmean-30}.pdf}
+  \end{subfigure}
+
+\end{figure}
+
+\end{document}

@@ -5,8 +5,12 @@
 declare -a models=("HadGEM2-ES/" "bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
 # declare -a models=("bcc-csm1-1/") # extended RCP runs
 # varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
-# varnames=("t850")
-varnames=("r1" "stgadv" "adv" "ra" "stf")
+# varnames=("hur" "hus" "ta")
+varnames=("ts")
+# varnames=("rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "tend" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
+# varnames=("gmse92500" "mse92500" "aht" "vmte")
+# varnames=("r1" "stgadv" "adv" "ra" "stf")
+# varnames=("vvmmmc" "vvmse" "vvqmmc" "vvqse" "vvsmmc" "vvsse")
 # varnames=("aht" "vmmmc" "vmse" "vmte")
 # varnames=("vqse" "vqmmc" "vsse" "vsmmc")
 # varnames=("aht" "qaht" "saht" "vmmmc" "vqmmc" "vsmmc" "vmse" "vqse" "vsse" "vmte" "vqte" "vste")
@@ -15,6 +19,10 @@ sim="historical"
 freq="Amon"
 ens="r1i1p1"
 yr_span="186001-200512"
+# mean=".zonmean.amean_70_90"
+# mean=".lat_80"
+mean=".zonmean"
+# mean=""
 
 n_yr="146"
 n_myr_begin="30"
@@ -36,16 +44,16 @@ for model in ${models[@]}; do
 
         echo ${varname}
 
-        filename="${varname}_${freq}_${model}_${sim}_${ens}_${yr_span}"
+        filename="${varname}_${freq}_${model}_${sim}_${ens}_${yr_span}${mean}"
 
         # create ymonmean mean file if it doesn't exist yet
-        if [ -f "${filename}.ymonmean-${n_myr_begin}.nc" ]; then
-            echo "ymonmean-${n_myr_begin} already taken, skipping..."
-        else
+        # if [ -f "${filename}.ymonmean-${n_myr_begin}.nc" ]; then
+        #     echo "ymonmean-${n_myr_begin} already taken, skipping..."
+        # else
             cdo -seltimestep,$tstep_begin/$tstep_end ${filename}.nc ${filename}.last${n_myr_begin}.nc 
             cdo ymonmean ${filename}.last${n_myr_begin}.nc ${filename}.ymonmean-${n_myr_begin}.nc
             rm ${filename}.last${n_myr_begin}.nc
-        fi
+        # fi
 
     done # varnames
 done # models

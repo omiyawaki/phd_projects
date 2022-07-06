@@ -1,0 +1,138 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% AGUJournalTemplate.tex: this template file is for articles formatted with LaTeX
+%
+% This file includes commands and instructions
+% given in the order necessary to produce a final output that will
+% satisfy AGU requirements, including customized APA reference formatting.
+%
+% You may copy this file and give it your
+% article name, and enter your text.
+%
+%
+% Step 1: Set the \documentclass
+%
+%
+
+%% To submit your paper:
+\documentclass[draft]{agujournal2019}
+\usepackage{url} %this package should fix any errors with URLs in refs.
+\usepackage{lineno}
+\usepackage[inline]{trackchanges} %for better track changes. finalnew option will compile document with changes incorporated.
+\usepackage{soul}
+\linenumbers
+%%%%%%%
+% As of 2018 we recommend use of the TrackChanges package to mark revisions.
+% The trackchanges package adds five new LaTeX commands:
+%
+%  \note[editor]{The note}
+%  \annote[editor]{Text to annotate}{The note}
+%  \add[editor]{Text to add}
+%  \remove[editor]{Text to remove}
+%  \change[editor]{Text to remove}{Text to add}
+%
+% complete documentation is here: http://trackchanges.sourceforge.net/
+%%%%%%%
+
+\draftfalse
+
+%% Enter journal name below.
+%% Choose from this list of Journals:
+%
+% JGR: Atmospheres
+% JGR: Biogeosciences
+% JGR: Earth Surface
+% JGR: Oceans
+% JGR: Planets
+% JGR: Solid Earth
+% JGR: Space Physics
+% Global Biogeochemical Cycles
+% Geophysical Research Letters
+% Paleoceanography and Paleoclimatology
+% Radio Science
+% Reviews of Geophysics
+% Tectonics
+% Space Weather
+% Water Resources Research
+% Geochemistry, Geophysics, Geosystems
+% Journal of Advances in Modeling Earth Systems (JAMES)
+% Earth's Future
+% Earth and Space Science
+% Geohealth
+%
+% ie, \journalname{Water Resources Research}
+
+\journalname{Geophysical Research Letters}
+
+
+\begin{document}
+
+\title{Supplementary material for\\The transient emergence of a new wintertime Arctic energy balance regime}
+
+
+\authors{O. Miyawaki\affil{1}, T. A. Shaw\affil{1}, M. F. Jansen\affil{1}}
+
+
+\affiliation{1}{Department of the Geophysical Sciences, The University of Chicago}
+
+\correspondingauthor{Osamu Miyawaki}{miyawaki@uchicago.edu}
+
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+
+\newpage
+
+\begin{table}
+    \centering
+    \caption{List of the 7 models that are used for the multimodel mean of the extended RCP8.5 run. Following \citeA{hankel2021}, GISS-E2-H and GISS-E2-R are omitted as outliers (wintertime sea ice does not melt during the extended RCP8.5 run).}
+    \label{tab:models}
+    \begin{tabular}{l}
+        \hline
+        Models \\
+        \hline
+        bcc-csm1-1 \\
+        CCSM4 \\
+        CNRM-CM5 \\
+        CSIRO-Mk3-6-0\\
+        HadGEM2-ES \\
+        IPSL-CM5A-LR \\
+        MPI-ESM-LR\\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/echam/qflux/qflux}.pdf}
+    \caption{The seasonally varying Q-flux (positive values correspond to heat flux divergence, a cooling influence) that is prescribed for the AQUAqflux run. The zero contour is indicated in black.}
+\end{figure}
+
+
+%
+% ---------------
+% EXAMPLE TABLE
+%
+% \begin{table}
+% \caption{Time of the Transition Between Phase 1 and Phase 2$^{a}$}
+% \centering
+% \begin{tabular}{l c}
+% \hline
+%  Run  & Time (min)  \\
+% \hline
+%   $l1$  & 260   \\
+%   $l2$  & 300   \\
+%   $l3$  & 340   \\
+%   $h1$  & 270   \\
+%   $h2$  & 250   \\
+%   $h3$  & 380   \\
+%   $r1$  & 370   \\
+%   $r2$  & 390   \\
+% \hline
+% \multicolumn{2}{l}{$^{a}$Footnote text here.}
+% \end{tabular}
+% \end{table}
+
+\clearpage
+
+\bibliography{/project2/tas1/miyawaki/projects/003/draft/references.bib}
+
+\end{document}

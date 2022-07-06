@@ -7,28 +7,30 @@ set -euo pipefail
 # declare -a vars_gcm=("ps" "tas" "ta" "zg" "hus") # list of GCM variables that we want to process
 # declare -a vars_gcm=("clt" "clwvi") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ta" "hus" "hur") # list of GCM variables that we want to process
-declare -a vars_gcm=("ua" "va" "wap") # list of GCM variables that we want to process
+declare -a vars_gcm=("hurs") # list of GCM variables that we want to process
 declare -a realm=("atmos")
 declare -a clim="historical" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
 declare -a ens="r1i1p1" # ensemble specification 
+mean=""
 # declare -a ens="r0i0p0" # ensemble specification 
 # declare -a models=$(cd /project2/tas1/ockham/data9/tas/CMIP5_RAW && ls -d */) # list of GCM models to process
-# declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "GISS-E2-H/" "GISS-E2-R/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+# declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+# declare -a models=("CNRM-CM5/") # extended RCP runs
 
 ##########################################################
 # SUBSET 1
 ##########################################################
-# declare -a models=("HadGEM2-ES/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
-# declare -a models=("HadGEM2-ES/") # extended RCP runs
-# declare -a skip_files=("_eady.nc")
+# declare -a models=("CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+declare -a models=("CCSM4/ CSIRO-Mk3-6-0/") # extended RCP runs
+declare -a skip_files=("_eady.nc")
 
 ##########################################################
 # SUBSET 2
 ##########################################################
 # declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/") # extended RCP runs
-declare -a models=("bcc-csm1-1/") # extended RCP runs
-declare -a skip_files=("185001-200512.nc 1-200512_eady.nc")
+# declare -a models=("HadGEM2-ES/") # extended RCP runs
+# declare -a skip_files=("185001-200512.nc 1-200512_eady.nc")
 
 # declare -a skip_files=("185001-201212.nc _eady.nc")
 # declare -a skip_files=("185001-201212.nc 185001-200512.nc _eady.nc")
@@ -63,7 +65,7 @@ for dirs in ${models[@]}; do # loop through models
                 echo "${vars} was already converted. Skipping..."
             else
                 cd ./${clim}/${realm}/${freq}/${vars}/${ens}/
-                pattern="${vars}_*${dirs%/}*.nc"
+                pattern="${vars}_*${dirs%/}*${mean}.nc"
                 files=( $pattern )
                 # remove files that are not original (list of non-original data is contained in variable $delete )
                 for (( i=0; i<${#files[@]}; i++ )); do 
@@ -116,8 +118,8 @@ for dirs in ${models[@]}; do # loop through models
                 # convert curvilinear to standard lat lon grid for sea ice data
                 #######################################################################
                 if [ ${vars} == "sic" ]; then
-                    ref_file=$(ls ${cwd}/${dirs}tas_*${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}.nc)
-                    sic_file=$(ls ${cwd}/${dirs}sic_*${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}.nc)
+                    ref_file=$(ls ${cwd}/${dirs}tas_*${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}${mean}.nc)
+                    sic_file=$(ls ${cwd}/${dirs}sic_*${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}${mean}.nc)
 
                     # rename sic file in original grid
                     mv ${sic_file} ${sic_file%.nc}.origgrid.nc

@@ -1,16 +1,18 @@
 #!/bin/sh
 
-# models=("HadGEM2-ES")
-# declare -a models=("bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "GISS-E2-H" "GISS-E2-R" "HadGEM2-ES" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
-declare -a models=("HadGEM2-ES" "bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
+models=("HadGEM2-ES")
+# declare -a models=("bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "HadGEM2-ES" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
+# declare -a models=("HadGEM2-ES" "bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss" "pr" "prc" "sic")
 # varnames=("aht" "qaht" "saht" "vmmmc" "vqmmc" "vsmmc" "vmse" "vqse" "vsse" "vmte" "vqte" "vste")
 # varnames=("daht" "dqaht" "dsaht" "dvmmmc" "dvqmmc" "dvsmmc" "dvmse" "dvqse" "dvsse" "dvmte" "dvqte" "dvste")
-varnames=("prl" "prfrac")
-# varnames=("ps")
+# varnames=("mse")
+# varnames=("vvmmmc" "vvmse" "vvqmmc" "vvqse" "vvsmmc" "vvsse")
+varnames=("mse92500")
 sim="rcp85"
 freq="Amon"
 ens="r1i1p1"
+mean=".zonmean"
 
 # yr_span="200601-230012"
 # n_yr="295"
@@ -71,7 +73,7 @@ cwd=$(pwd)
 
             echo ${varname}
 
-            filename="${varname}_${freq}_${model}_${sim}_${ens}_${yr_span}"
+            filename="${varname}_${freq}_${model}_${sim}_${ens}_${yr_span}${mean}"
 
             # create ymonmean mean file if it doesn't exist yet
             if [ -f "${filename}.ymonmean-${n_myr_begin}.nc" ]; then

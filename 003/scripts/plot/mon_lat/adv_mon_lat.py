@@ -10,7 +10,7 @@ import numpy as np
 from scipy.ndimage import uniform_filter
 import matplotlib.pyplot as plt
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
-import tikzplotlib
+# import tikzplotlib
 
 def adv_mon_lat(sim, **kwargs):
 

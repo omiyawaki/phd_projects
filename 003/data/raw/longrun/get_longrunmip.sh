@@ -2,9 +2,9 @@
 
 models=("MPIESM12_abrupt32x")
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
-varnames=("rsutcs" "rlutcs")
-# varnames=("sic")
-freq="mon"
+# varnames=("rsutcs" "rlutcs" "rsuscs" "rsdscs" "rldscs" "rluscs")
+varnames=("thetao")
+# freq="mon"
 n_yr="103"
 
 link_prefix="https://data.iac.ethz.ch/longrunmip/modeloutput/orig"
@@ -27,7 +27,13 @@ for model in ${models[@]}; do
 
         echo ${varname}
 
-        filename="${varname}_${freq}_${model}_${n_yr}"
+        if [[ "$varname" == "thetao" ]]; then
+            varname0="${varname}_ann"
+        else
+            varname0="${varname}_mon"
+        fi
+
+        filename="${varname0}_${model}_${n_yr}"
 
         # download data if it has not been downloaded yet
         if [ -f "${filename}.nc" ]; then

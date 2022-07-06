@@ -1,17 +1,18 @@
 #!/bin/sh
 
 # declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/rcp85/ && ls -d */) # list of GCM models to process
-models=("IPSL-CM5A-LR/")
+# models=("IPSL-CM5A-LR/")
 # models=("HadGEM2-ES/")
-# declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "GISS-E2-H/" "GISS-E2-R/" "HadGEM2-ES/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "HadGEM2-ES/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss" "pr" "prc" "evspsbl")
+varnames=("tend" "r1" "stgadv" "adv" "ra" "stf" "rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss" "pr" "prc" "evspsbl")
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
 # varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
 # varnames=("divaht" "divmmc" "divse" "divte")
 # varnames=("aht" "vmmmc" "vmse" "vmte")
 # varnames=("ps" "tas" "ta" "zg")
 # varnames=("pr" "prc")
-varnames=("eke" "veke")
+# varnames=("eke" "veke")
 # varnames=("sic")
 sim="rcp85"
 freq="Amon"

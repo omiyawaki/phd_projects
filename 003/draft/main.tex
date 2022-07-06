@@ -15,6 +15,7 @@
 
 %% To submit your paper:
 \documentclass[draft]{agujournal2019}
+\usepackage{mlmodern}
 \usepackage{url} %this package should fix any errors with URLs in refs.
 \usepackage{lineno}
 \usepackage{amsmath,amssymb,amsfonts}
@@ -136,7 +137,7 @@
 % \end{keypoints}
 
 \begin{keypoints}
-\item The Arctic is projected to undergo a wintertime energy balance regime transition that is associated with contemporaneous sea ice loss, vanishing surface inversion, and emergence of convective activity.
+\item The Arctic is projected to undergo a wintertime energy balance regime transition that is associated with sea ice loss, vanishing surface temperature inversion, and emergence of convective activity.
 \item The change in the Arctic energy balance is dominated by enhanced atmospheric radiative cooling prior to the regime transition and a decrease in MSE flux convergence thereafter.
 \item The decrease in MSE flux convergence in the Arctic is consistent with decreased sensible heat transported by transient eddies. 
 \end{keypoints}
@@ -202,91 +203,144 @@ The energy balance in the Arctic atmosphere today involves atmospheric radiative
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
+\label{sec:int}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The modern Arctic climate in wintertime is characterized by sea ice cover, a strong surface temperature inversion, and the absence of convective activity \cite<e.g.,>[]{peixoto1992}. The wintertime Arctic is projected to undergo significant changes in response to anthropogenic forcing. The robust response of the wintertime Arctic is characterized by sea ice loss \cite{dai2019,hankel2021}, amplified surface warming \cite{manabe1975,bintanja2011}, and an enhanced hydrologic cycle \cite{bengtsson2011,bintanja2014,pithan2021}. Due to the large magnitude of the Arctic response and its associated transformation of the surface boundary condition (sea ice to bare ocean) and precipitation type (large-scale precipitation and snow to convective precipitation and rain), Arctic climate change has been described as an emergence of a new climate regime \cite{landrum2020}.
 
-Amplified surface warming of the Arctic, so-called Arctic Amplification, is one of the robust responses to anthropogenic climate change projected by climate models \cite{manabe1975, held1993a, vallis2015}. Arctic Amplification and the associated melting of sea ice is accompanied by significant changes to the Arctic stratification \cite{manabe1975, bintanja2014}, hydrologic cycle \cite{bintanja2017, siler2018, pithan2021}, and the atmospheric circulation locally \cite{deser2010, burt2016} and remotely \cite<e.g.,>[]{francis2012, barnes2015, coumou2018, smith2022}. Since the impacts of Arctic Amplification are global and large in magnitude, understanding the physical mechanisms that control Arctic climate change is particularly important for society \cite{previdi2021}.
+While the emergence of a new Arctic climate regime has been investigated for the response of sea ice loss, surface warming, and precipitation phase, we lack a complete understanding of the transient emergence of wintertime convection in the Arctic atmosphere. Previous studies have found that convection occurs across the hierarchy of model complexity in an ice-free wintertime Arctic \cite{huber1999, abbot2008, abbot2008a, abbot2009, arnold2014, hankel2021}. Quantifying and understanding the transient emergence of convection is important because its greenhouse effect has been hypothesized to be important for melting wintertime sea ice \cite{abbot2009} and maintaining warm surface temperatures in the ice-free Arctic during polar night \cite{abbot2009a,abbot2009b}.
 
-Climate feedback analysis is a commonly used framework that provides mechanistic understanding of surface warming by quantifying the influence of various physical processes (Planck, lapse rate, water vapor, and clouds) on the efficacy of outgoing longwave radiation per degree of surface warming \cite<e.g.,>[]{hansen1984, soden2006,armour2011,feldl2013}. Feedback analyses show that lapse rate and albedo feedbacks contribute most significantly to Arctic Amplification \cite{pithan2014}. \citeA{feldl2020} propose a modified categorization of feedbacks into local and remote processes and show that sea ice loss is the underlying mechanism that controls the strength of the (lower-tropospheric) lapse rate and albedo feedbacks. A limitation of the climate feedback framework is that because it is computed based on the difference between two climate states, the state and time-dependence of feedbacks are not quantified \cite{previdi2021}.
-
-Understanding the mechanisms that control the transient response of Arctic climate change is important because different mechanisms may be important at different stages in its response. For example, \citeA{dai2019} show that Arctic Amplification is strongest during times of rapid sea ice loss. This suggests that the atmospheric response may also exhibit strong time-dependence, with different mechanisms controlling its response before, during, and after sea ice loss. While the transient responses of surface warming \cite{dai2019} and sea ice loss \cite{hankel2021} have been previously investigated, we currently do not have a complete understanding of the transient response of the Arctic atmosphere to anthropogenic warming.
-
-The transient response of the Arctic atmosphere can be quantified using the energy balance framework \cite{miyawaki2022}. In this framework, the present-day Arctic is characterized by a predominant balance between radiative cooling and advective heating, or Radiative Advective Equilibrium \cite<RAE,>[]{nakamura1988, cronin2016, miyawaki2022}. In its simplest form, RAE analytically predicts the Arctic vertical temperature structure \cite{cronin2016} and its response to anthropogenic climate change \cite{payne2015}. RAE has served as a useful conceptual framework for revealing the forcing-dependence of the lapse rate feedback \cite{payne2015, cronin2016}.  The predictions made under the assumption of RAE is expected to hold only where the Arctic remains in RAE in the future \cite{miyawaki2022}. Thus, it is important to quantify if and when the assumption of RAE breaks down in the Arctic in response to anthropogenic climate change.
-
-Past studies show that convection occurs over an ice-free wintertime Arctic, suggesting that the Arctic may undergo an energy balance regime transition from RAE to Radiative Convective Advective Equilibrium (RCAE), where convective heating becomes important. For example, climate model simulations representative of past equable climates have reported the occurence of wintertime deep convection over a warm, ice-free Arctic across the model hierarchy \cite{huber1999, abbot2008, abbot2008a, abbot2009, arnold2014}. \citeA{hankel2021} reported that convective precipitation is active in the extended Representative Concentration Pathway 8.5 (RCP8.5) simulations of the Coupled Model Intercomparison Project Phase 5 (CMIP5), suggesting that the RAE to RCAE regime transition may occur in the context of future anthropogenic climate change as well. However, we currently do not know precisely when wintertime convection emerges in the Arctic, and thus when the RAE to RCAE regime transition is projected to occur in the Arctic.
-
-Here, we investigate the transient response of the Arctic atmosphere using the energy balance framework. We show that the transient response of energy balance regimes is closely related to important climatological features of the Arctic climate such as sea ice fraction, the surface inversion, and precipitation type (Section~\ref{sec:r1}). To better understand the mechanisms that control the transient response of energy balanace regimes, we linearly decompose its change into contributions from enhanced radiative cooling and decreased advective heating (Section~\ref{sec:dc}). We configure experiments in a single column model with interactive sea ice thermodynamics to quantify the relative importance of CO2 and water vapor on enhanced radiative cooling (Section~\ref{sec:rap}). To understand the mechanism that contributes to decreased advective heating, we decompose the change in advective heating into contributions from stationary and transient circulations (Section~\ref{sec:adp}). Finally, the results are summarized and discussed (Section~\ref{sec:end}).
+Here, we propose the energy balance framework is useful for quantifying and understanding the mechanisms that influence the transient emergence of wintertime convection in the Arctic. In the energy balance framework, the modern Arctic is characterized by a state of idealized energy balance where net atmospheric radiative cooling is predominantly balanced by advective heating \cite{nakamura1988}, or Radiative Advective Equilibrium \cite<RAE,>[]{cronin2016}. In the quasi-equilibrium response to anthropogenic forcing, the wintertime Arctic is projected to transition to the so-called Radiative Convective Advective Equilibrium (RCAE) regime \cite{miyawaki2022} consistent with the emergence of convection. Thus the research questions that guide this work are:
+\begin{enumerate}
+    \item What is the transient response of the wintertime Arctic energy balance to anthropogenic forcing? How is the RAE to RCAE regime transition linked to sea ice, temperature, and convective activity?
+    \item What mechanisms control the transient response of this regime transition?
+\end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{The transient response of the Arctic RAE to RCAE regime transition}
+\section{Methods}
+\label{sec:met}
+\subsection{CMIP5 data}
+We quantify the transient response of wintertime (DJF) Arctic climate change using the extended RCP8.5 runs of Coupled Model Intercomparison Project Phase 5 \cite<CMIP5,>[]{meinshausen2011,taylor2012}. We focus on the multimodel mean response of 7 models (Supplementary Table~1) following \citeA{hankel2021}. We quantify relative changes [$\Delta(\cdot)$] as the difference between the RCP8.5 run and the 1975--2005 climatology of the historical run [$\overline{(\cdot)}$].
+
+\subsection{Energy balance regimes}
+We quantify energy balance regimes using the nondimensional number $R_1$ \cite{miyawaki2022}. $R_1$ quantifies the ratio of advective heating to radiative cooling:
+\begin{equation}
+    R_1 = \frac{\langle \partial_t [m] + \partial_y [vm] \rangle}{\langle [R_{a}] \rangle}
+\end{equation}
+where $m=c_pT + gz + Lq$ is moist static energy, $v$ is meridional wind, $R_a$ is net atmospheric radiative cooling, LH is surface latent heat flux, SH is surface sensible heat flux, $[\cdot]$ is the zonal mean, and $\langle \cdot \rangle$ is the mass-weighted vertical integral. Following \cite{miyawaki2022}, $R_1$ is computed using monthly frequency LH, SH, and $R_a$. RAE is defined as where $R_1 \ge 0.9$, which corresponds to a state of atmospheric energy balance where advective heating is the predominant heat source that balances radiative cooling. We focus on $R_1$ in the Arctic, which we define as the area-weighted average of $R_1$ from $80^\circ$ to $90^\circ$N. We choose $80^\circ$N as the lower bound of the Arctic domain as it corresponds to the equatorward extent of the zonal mean RAE regime in the modern climate \cite<see Fig.~3a in>[]{miyawaki2022}.
+
+\subsection{RRTMG}
+We quantify the direct and indirect CO$_2$ effects on the transient radiative cooling response using Rapid Radiative Transfer Model for General Circulation Models \cite<RRTMG,>[]{mlawer1997,price2014}. Specifically, we use RRTMG included in CLIMLAB \cite{rose2018}. RRTMG is configured with zero insolation consistent with polar night in the wintertime Arctic. Ozone and well-mixed radiatively active gases aside from CO$_2$ are prescribed according to the Aquaplanet Experiment (APE) protocol \cite{blackburn2013}. We focus on the clear-sky radiative cooling response in RRTMG.
+
+Clear-sky radiative cooling in RRTMG ($RR_a$) is then computed as a function of three variables: CO$_2$ concentration ($pCO_2$), vertical temperature profile ($T(p)$), and vertical vapor pressure profile ($e(p)$). The total clear-sky radiative cooling response in RRTMG (All) is then computed as
+\begin{equation}
+    \mathrm{All} = RR_a(pCO_2, T, e) - RR_a(\overline{pCO_2}, \overline{T}, \overline{e})\, ,
+\end{equation}
+where $pCO_2$, $T$, and $e$ correspond to the CMIP5 mean quantities from the RCP8.5 run. To quantify the direct effect of CO$_2$ (CO2), we vary $pCO_2$ following the RCP8.5 protocol while holding $T$ and $e$ fixed at the historical climatology.
+\begin{equation}
+    \mathrm{CO2} = RR_a(pCO_2, \overline{T}, \overline{e}) - RR_a(\overline{pCO_2}, \overline{T}, \overline{e})\, .
+\end{equation}
+The indirect effect of CO$_2$ consists of changes to radiative cooling associated with warming and moistening of the atmosphere. We quantify the warming contribution (T) by varying temperature and vapor pressure expected from the Clausius-Clapeyron relation (i.e. holding relative humidity, $RH$, fixed):
+\begin{equation}
+    \mathrm{T} = RR_a(\overline{pCO_2}, T, \overline{RH}e^{\ast}(T)) - RR_a(\overline{pCO_2}, \overline{T}, \overline{e})\, ,
+\end{equation}
+where $e^\ast$ is saturation vapor pressure. Finally we quantify the moistening contribution (RH) associated with vapor pressure changes that depart from Clausius-Clapeyron as follows:
+\begin{equation}
+    \mathrm{RH} = RR_a(\overline{pCO_2}, \overline{T}, RHe^{\ast}(\overline{T})) - RR_a(\overline{pCO_2}, \overline{T}, \overline{e})\, .
+\end{equation}
+
+\subsection{Aquaplanet experiments}
+We run the ECHAM6 aquaplanet (AQUA) with and without thermodynamic sea ice to test the importance of sea ice loss on the transient response of Arctic energy balance regimes \cite{stevens2013, shaw2020, shaw2022}. Thermodynamic sea ice in AQUA is based on a zero-layer Semtner model \cite{semtner1976} and grid cells are either completely ice free or ice covered \cite{giorgetta2013,salameh2018}. AQUA with a 40 m mixed layer depth configured with ice (hereafter AQUAice) was previously shown to capture the observed wintertime Arctic sea ice thickness, energy balance regime, and inversion strength \cite{miyawaki2022}. Here, we initialize AQUAice from its control climate equilibrium ($pCO_2=348$ ppmv) and ramp up the CO$_2$ concentration following the RCP8.5 protocol starting from the year 1987 ($pCO_2=348.6$ ppmv).
+
+To test the role of sea ice loss on the Arctic transient response, we configure AQUA with 40 m mixed layer and Q-flux but no sea ice (hereafter AQUAqflux). The imposed Q-flux is seasonally varying but does not vary year-by-year (Supplementary Fig.~1). The Q-flux is computed to reproduce the wintertime Arctic surface energy budget in AQUAice control climate as follows:
+
+\textbf{OLD EQUATION} (doesn't account for albedo difference):
+\begin{equation}
+    Q_{\mathrm{flux}} = F_{SFC} - \frac{C_w}{C} \left[ F_{SFC} + \rho_iL_f\frac{\partial h}{\partial t}\right] \, ,
+\end{equation}
+
+\textbf{NEW EQUATION} (accounts for albedo difference):
+\begin{equation}
+    Q_{\mathrm{flux}} = \left[1-\alpha_{s,o}-\frac{C_W}{C}(1-\alpha_s)\right]SW^{\downarrow}_{SFC} + \left(1-\frac{C_w}{C}\right) \left( LW^{\text{net}}_{SFC} + LH + SH \right) - \frac{C_w}{C}\rho_iL_f\frac{\partial h}{\partial t}\, ,
+\end{equation}
+where $F_{SFC}$ is the net surface heat flux in AQUAice, $C_w$ is the surface heat capacity of the 40 m mixed layer ocean, $C$ is the effective surface heat capacity in AQUAice, $rho_i=905$ kg m$^{-3}$ is the density of ice, $L_f=3.337\times10^{5}$ J kg$^{-1}$ is the latent heat of fusion, and $h$ is sea ice thickness in AQUAice. $C$ is determined as follows:
+\[
+    C = \left\{\begin{array}{ll}
+            C_w & \text{if sic}<1\text{ or }\partial_t(h)<0\\ 
+            C_i & \text{else}
+    \end{array}\right.
+\]
+where sic is the sea ice concentration. Thus the effective surface heat capacity in AQUAice is assumed to correspond to that of a 40 m mixed layer ocean in regions of bare ocean or melting ice and otherwise takes on the value $C_i$. We choose $C_i$ such that $C_w/C_i = 25$ to closely capture the wintertime Arctic climate in AQUAice. $C_w/C_i=25$ corresponds to an ice heat capacity that is equivalent to a 1.6 m deep mixed layer ocean.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results}
+\label{sec:res}
+\subsection{The transient energy balance response of the wintertime Arctic}
 \label{sec:r1}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The modern Arctic atmosphere is in the RAE regime ($R_1=1.04$) and undergoes a regime transition to RCAE in the late 21st century (black line crosses to white region in Fig.~\ref{fig:r1}a). $R_1$ continues to decrease until 2200 and stabilizes in the RCAE regime corresponding to $R_1=0.7$.
 
-We quantify the transient response of the wintertime (DJF) Arctic energy balance regime using the metric $R_1$ \cite{miyawaki2022}:
-\begin{equation}
-    R_1 = \frac{[\partial_t m + \partial_y(vm)]}{[R_a]} = 1-\frac{[\mathrm{LH}] + [\mathrm{SH}]}{[R_a]} \, ,
-\end{equation}
-where $m=c_pT + gz + Lq$ is moist static energy, $v$ is meridional wind, $R_a$ is net atmospheric radiative cooling, LH is surface latent heat flux, SH is surface sensible heat flux, and $[\cdot]$ denotes the zonal mean. Following \cite{miyawaki2022}, RAE is defined as where $R_1 \ge 0.9$, which corresponds to a state of atmospheric energy balance where advective heating is the predominant heat source that balances radiative cooling. We consider $R_1$ in the Arctic, which is computed as the area-weighted average of $R_1$ from $80^\circ$ to $90^\circ$N. We choose $80^\circ$N as the lower bound of the Arctic domain as it corresponds to the equatorward extent of the zonal mean RAE regime in the modern climate \cite<see Fig.~3a in>[]{miyawaki2022}.
+The timing of the energy balance regime transition coincides closely with the disappearance of the surface temperature inversion as measured by the lapse rate deviation from a moist adiabat (blue line, Fig.~\ref{fig:r1}a). The modern Arctic is characterized by the existence of a strong inversion (near surface lapse rate deviation exceeds 100\%). The near surface lapse rate weakens until 2200 and stabilizes to the moist adiabatic lapse rate. Importantly, the timing of the inversion response is closely captured by $R_1$ as evidenced by the coincident timing of the RAE to RCAE regime transition and the disappearance of the inversion (where the deviation equals 100\%).
 
-$R_1$ is computed using monthly frequency LH, SH, and $R_a$. We focus on the multimodel mean of 7 out of the 9 models that participated in the extended RCP8.5 run of CMIP5. Following \citeA{hankel2021}, we omit the 2 models (GISS-E2-H and GISS-E2-R) that retain wintertime sea ice through the entire extended RCP8.5 run as outliers.
-
-The modern Arctic atmosphere is in the RAE regime during winter and continues to remain in RAE through much of the 21st century (black line is in the blue region in Fig.~\ref{fig:r1}a). However, $R_1$ decreases monotonically in response to anthropogenic forcing (Fig.~\ref{fig:r1}d), which leads to a wintertime RAE to RCAE regime transition around the year 2100 (black line crosses into white region in Fig.~\ref{fig:r1}a).
-
-The timing the RAE to RCAE regime transition coincides closely with sea ice loss (blue line, right axis in Fig.~\ref{fig:r1}a), consistent with previous studies that demonstrated the importance of sea ice on inhibiting surface turbulent fluxes \cite{andreas1979, boeke2018, feldl2020}. By providing moisture and heat to the boundary layer, surface turbulent fluxes destabilize the boundary layer. Thus, the RAE to RCAE regime transition is also marked by the disappearance of the boundary layer surface inversion (lapse rate deviation from a moist adiabat, blue line, decreases below 100\% in Fig.~\ref{fig:r1}b) and the emergence of convective precipitation (blue line in Fig.~\ref{fig:r1}c). Thus, the transient response of energy balance regimes is useful for understanding the warming and the precipitation response in the Arctic.
+The $R_1$ response also coincides with the emergence of Arctic convection as measured by the convective precipitation fraction (blue line, Fig.~\ref{fig:r1}b). The modern Arctic is characterized by the absence of convection (convective precipitation fraction is 0). Convective precipitation increases until 2200 and stabilizes to 35\%, consistent with $R_1=0.7$ indicating that 30\% of radiative cooling is balanced by convective heating. The timing of the inversion response is also closely captured by $R_1$. Thus, the transient response of energy balance regimes is useful for understanding the disappearing inversion and the emerging convection in the Arctic.
 
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/fig_1/fig_1}.pdf}
-    \caption{The response of wintertime (DJF) $R_1$ (a--c, black, left axis), sea ice area fraction (a, blue, right axis), near-surface lapse rate deviation from a moist adiabat (b, blue, right axis), convective precipitation fraction (c, blue, right axis), and the time rate of change of $R_1$ (d, black) for the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
+    \caption{The response of wintertime (DJF) $R_1$ (a,b, black, left axis), near-surface lapse rate deviation from a moist adiabat (a, blue, right axis), and convective precipitation fraction (b, blue, right axis) for the CMIP5 multimodel mean of the extended RCP8.5 run. The shading indicates the multimodel spread (25th and 75th percentiles).}
     \label{fig:r1}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{The radiative and advective phases of the regime transition}
+\subsection{The radiative and advective phases of the regime transition}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:dc}
 
-To diagnose the possible physical mechanisms that control the rate of change of $R_1$ (Fig.~\ref{fig:r1}d), we decompose $\Delta R_1(t) = R_1(t) - \overline{R_1}$ (where $\overline{R_1}$ is $R_1$ averaged over the 1975--2005 historical run) into radiative and advective components following \citeA{miyawaki2022}:
+To diagnose the possible physical mechanisms that control the $R_1$ response (Fig.~\ref{fig:r1}d), we decompose $\Delta R_1(t) = R_1(t) - \overline{R_1}$ into radiative and advective components following \citeA{miyawaki2022}:
 
 \begin{equation} \label{eq:dc}
     \Delta R_1 = \overline{R_1}\left( \underbrace{ \frac{\Delta(\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}} }_{\mathrm{advective}} \; \underbrace{ - \frac{\Delta R_a }{\overline{R_a}} }_{\mathrm{radiative}} \right) + \mathrm{Residual} \, .
 \end{equation}
 
-The advective component [first term in Equation~(\ref{eq:dc})] quantifies the importance of the advective heating response and the radiative component [second term in Equation~(\ref{eq:dc})] quantifies the importance of the radiative cooling response. The residual quantifies the contribution of nonlinear interactions.
+The advective component [first term in Equation~(\ref{eq:dc})] quantifies the importance of the advective heating response and the radiative component [second term in Equation~(\ref{eq:dc})] quantifies the importance of the radiative cooling response. The residual quantifies the contribution of higher order terms.
 
-The decomposition shows that there are three stages to the transient response of $R_1$: 1) the radiative phase prior to 2050, 2) the mixed phase from 2050 to 2100, and 3) the advective phase after 2100 (Fig.~\ref{fig:r1-decomp}a). During the radiative phase, $\Delta{R_a}$ is predominantly associated enhanced radiative cooling (specifically, at a rate of $\sim-0.001$ yr$^{-1}$, gray line in Fig.~\ref{fig:r1-decomp}b) and the contribution from changes in advective heating is small ($\lesssim0.0005$ yr$^{-1}$, red line in Fig.~\ref{fig:r1-decomp}b). During the mixed phase, enhanced radiative cooling and reduced advective heating are of comparable magnitude ($\sim-0.001$ yr$^{-1}$) and both components are important for the response of $\Delta R_1$. Finally, during the advective phase, $\Delta{R_a}$ is predominantly associated with reduced advective heating (specifically, about a factor of 2 larger than the radiative component). The three phases are closely associated with the time prior to, during, and after the RCAE regime transition and sea ice loss (compare Fig.~\ref{fig:r1-decomp}a with Fig.~\ref{fig:r1}a), suggesting that the transient response of atmospheric energy balance regimes is connected to the response of sea ice loss. 
+The decomposition shows that there are two stages to the transient response of $R_1$: 1) the radiative phase prior to 2100 and 2) the advective phase after 2100 (Fig.~\ref{fig:r1-decomp}a). During the radiative phase, $\Delta{R_1}$ is predominantly associated with enhanced radiative cooling and the contribution from changes in advective heating is small. During the advective phase, $\Delta{R_1}$ is predominantly associated with reduced advective heating. The two phases are closely associated with the time prior to and after the RAE to RCAE regime transition (compare Fig.~\ref{fig:r1-decomp}a with Fig.~\ref{fig:r1}a). 
+
+% The role of sea ice on the $R_1$ response can be understood through their connection with the surface turbulent fluxes. The presence of sea ice modulates the magnitude of the surface turbulent fluxes by insulating the atmosphere from the warmer ocean temperature below. In the Arctic, where $R_1\approx1$, $\Delta R_1\approx \Delta(\mathrm{LH+SH})/\overline{R_a}$ \cite<see Equations~5 and 6 in>[]{miyawaki2022}. Thus, the $R_1$ response can be understood to first order by the surface turbulent flux response (Fig.~\ref{fig:r1-decomp}c), which is consistent with the transient response of sea ice melt.  
 
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/fig_2/fig_2}.pdf}
-    \caption{The wintertime (DJF) transient response of (a) $R_1$ decomposed into the advective (red) and radiative (gray) components and (b) energy flux changes (relative to the 1975--2005 historical mean) for the CMIP5 multimodel mean of the extended RCP8.5 runs.}
+    \caption{The wintertime (DJF) transient response (relative to the 1975--2005 historical mean) of (a) $R_1$ (solid black) decomposed into the advective (red) and radiative (gray) components and the residual (dash-dot black) for the CMIP5 multimodel mean of the extended RCP8.5 runs. (b) The smoothed (80-year rolling mean) time rate of change of each term in (a). (c) $\Delta R_1$ (black) compared with the approximation based solely on surface turbulent flux response (blue).}
     \label{fig:r1-decomp}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{What mechanisms control the radiative phase?}
+\subsection{Quantifying the direct and indirect CO$_2$ effects on the radiative cooling response}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:rap}
 
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/fig_3/fig_3}.pdf}
-    \caption{The wintertime (DJF) radiative cooling (gray) decomposed into the clear-sky (dashed green) and cloudy-sky (dotted green) longwave (red) and shortwave (blue) components for (a) the CMIP5 multimodel mean of the extended RCP8.5 runs and (b) SCAM.}
+    \caption{(a) Wintertime (DJF) radiative cooling response (gray) decomposed into shortwave (cyan) and longwave clear- (dashed red) and cloudy-sky (dotted red) fluxes for the CMIP5 multimodel mean and the RRTMG clear-sky response (black). (b) The RRTMG clear-sky radiative cooling response is further decomposed into changes associated with the direct CO$_2$ effect (green) and indirect effects (i.e. warming and moistening following Clausius Clapeyron, dashed blue).}
     \label{fig:ra-lwcs}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{What mechanisms control the advective phase?}
+\subsection{Testing the importance of sea ice melt on the advective heating response}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \label{sec:adp}
-\begin{itemize}
-    \item As a first step toward understanding the mechanism for the advectively-driven change in $\Delta R_1$, we decompose the change in MSE flux divergence into stationary and transient components:
-    \begin{equation}
-        \langle \partial_y(vm) \rangle = \langle \partial_y(\overline{v}\,\overline{m}) \rangle + \langle \partial_y(\overline{v^\prime m^\prime}) \rangle
-    \end{equation}
-    \item Is the result consistent with the existing literature that show the change in meridional energy transport in the extratropics is predominantly due to transient eddies \cite{feldl2021}?
-    \item While there are studies that show the change in energy transport, the change in MSE flux divergence has not (to my knowledge) been decomposed in this way.
-        \item To do: Can a moist-diffusive EBM capture the advectively-driven change in $\Delta R_1$?
-\end{itemize}
+% \begin{itemize}
+%     \item As a first step toward understanding the mechanism for the advectively-driven change in $\Delta R_1$, we decompose the change in MSE flux divergence into stationary and transient components:
+%     \begin{equation}
+%         \langle \partial_y(vm) \rangle = \langle \partial_y(\overline{v}\,\overline{m}) \rangle + \langle \partial_y(\overline{v^\prime m^\prime}) \rangle
+%     \end{equation}
+%     \item Is the result consistent with the existing literature that show the change in meridional energy transport in the extratropics is predominantly due to transient eddies \cite{feldl2021}?
+%     \item While there are studies that show the change in energy transport, the change in MSE flux divergence has not (to my knowledge) been decomposed in this way.
+%         \item To do: Can a moist-diffusive EBM capture the advectively-driven change in $\Delta R_1$?
+% \end{itemize}
 
 \begin{figure}
     \centering
@@ -497,7 +551,7 @@ Enter acknowledgments, including your data availability statement, here.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % \bibliography{/project2/tas1/miyawaki/projects/002/draft/references.bib}
-\bibliography{/project2/tas1/miyawaki/projects/003/draft/references.bib}
+\bibliography{/project2/tas1/miyawaki/projects/003/draft/references}
 
 %Reference citation instructions and examples:
 %

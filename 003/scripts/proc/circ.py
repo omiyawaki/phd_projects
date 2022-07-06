@@ -5,6 +5,7 @@ from misc.translate import translate_varname
 from misc.dirnames import get_datadir
 from misc.filenames import *
 from proc.r1 import save_r1
+from scipy.interpolate import interp1d
 import numpy as np
 import pickle
 from netCDF4 import Dataset
@@ -37,7 +38,7 @@ def save_circ(sim, **kwargs):
     elif sim == 'era5':
         varnames = ['ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf']
     else:
-        varnames = ['psi']
+        varnames = ['psi', 'psic', 'mse', 'vvmmmc']
 
     # load all variables
     print(varnames)
@@ -55,6 +56,15 @@ def save_circ(sim, **kwargs):
             # create subsurface mask
             ps_file = filenames_raw(sim, 'ps', model=model, timemean=timemean, yr_span=yr_span)
             ps = ps_file.variables['ps'][:]
+            grid['lat2d'] = ps_file.variables['lat'][:]
+
+            # regrid ps to 3d lat grid
+            if not np.array_equal(grid['lat2d'], grid['lat']):
+                ps = ps.filled(fill_value=np.nan)
+                lat = grid['lat'].filled(fill_value=np.nan)
+                fint = interp1d(grid['lat2d'], ps, axis=1)
+                ps = fint(lat)
+
             ps_ext = np.tile(ps, [len(grid['lev']),1,1,1])
             ps_ext = np.transpose(ps_ext, [1,0,2,3])
             pa_ext = np.tile(grid['lev'], [ps.shape[0], ps.shape[1], ps.shape[2], 1])
@@ -66,13 +76,12 @@ def save_circ(sim, **kwargs):
         circ[translate_varname(varname)] = np.squeeze(file[varname].variables[varname][:])
         # make subsurface data nan
         circ[translate_varname(varname)] = circ[translate_varname(varname)].filled(fill_value=np.nan)
-        if varname is not 'psi':
+        if varname in ['mse']:
             circ[translate_varname(varname)][subsurf] = np.nan
 
     if zonmean:
         for circname in circ:
-            if circname is not 'psi':
-                print(circname)
+            if circname in ['mse']:
                 circ[circname] = np.nanmean(circ[circname], 3)
     
     pickle.dump([circ, grid], open(remove_repdots('%s/circ.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))

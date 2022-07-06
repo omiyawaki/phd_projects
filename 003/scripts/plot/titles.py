@@ -47,6 +47,9 @@ def base_title_str(sim, **kwargs):
     
     model = kwargs.get('model')
 
+    if not ( isinstance(model, str) or model is None ):
+        model = 'mmm'
+
     if sim == 'rcp85':
         base_str = '%s, %s' % ('RCP8.5', model)
     elif sim == 'historical':
@@ -67,8 +70,16 @@ def base_title_str(sim, **kwargs):
         elif model == 'MPIESM12_abrupt32x':
             base_str = 'LongRunMIP, MPI-ESM-LR abrupt32x'
     elif sim == 'echam':
-        if model == 'rp000140':
-            base_str = 'AQUA 15 m'
+        if model in ['rp000130', 'rp000184']:
+            base_str = 'AQUAice 30 m'
+        if model in ['rp000131', 'rp000185']:
+            base_str = 'AQUAnoice 30 m'
+        elif model in ['rp000134', 'rp000188']:
+            base_str = 'AQUAice 40 m'
+        elif model in ['rp000135', 'rp000189']:
+            base_str = 'AQUAnoice 40 m'
+        elif model in ['rp000190']:
+            base_str = 'AQUAqflux 40 m'
     elif sim == 'era5':
         base_str = 'ERA5'
 

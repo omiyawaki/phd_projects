@@ -69,14 +69,14 @@ clat = np.cos(rlat)
 fluxdiv = dps - tend
 
 # take zonal mean
-fluxdiv_z = np.nanmean(fluxdiv, axis=2)
+fluxdiv_z = np.transpose( np.tile( np.nanmean(fluxdiv, axis=2), [fluxdiv.shape[2],1,1] ), [1,2,0] )
 
 # subtract global mean
-fluxdiv_g = np.trapz(clat*fluxdiv_z, rlat, axis=1) / np.trapz(clat, rlat)
-fluxdiv_z = fluxdiv_z - np.transpose(np.tile(fluxdiv_g, [len(lat), 1]))
+fluxdiv_g = np.trapz(clat[None,:,None]*fluxdiv_z, rlat, axis=1) / np.trapz(clat, rlat)
+fluxdiv_z = fluxdiv_z - np.transpose(np.tile(fluxdiv_g, [len(lat), 1, 1]), [1,0,2])
 
 # meridionally integrate
-aht = 2*np.pi*a**2 * integrate.cumtrapz(clat*fluxdiv_z, rlat, axis=1, initial=0)
+aht = 2*np.pi*a**2 * integrate.cumtrapz(clat[None,:,None]*fluxdiv_z, rlat, axis=1, initial=0)
 if lat[1]-lat[0]<0:
     aht = -aht
 
@@ -99,9 +99,9 @@ for name, variable in file_tend.variables.items():
     file_aht[name].setncatts(file_tend[name].__dict__)
     file_aht[name][:] = file_tend[name][:]
     
-vE = file_aht.createVariable('aht', 'f4', ("time","lat"))
+vE = file_aht.createVariable('aht', 'f4', ("time","lat","lon"))
 vE.units = "W"
 vE.long_name = "vertically integrated total energy flux transport"
-vE[:,:] = aht
+vE[:] = aht
 
 file_aht.close()

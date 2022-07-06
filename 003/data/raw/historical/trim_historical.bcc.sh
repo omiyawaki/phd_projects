@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-declare -a vars_gcm=("ua" "va" "wap") # list of GCM variables that we want to process
+declare -a vars_gcm=("ts") # list of GCM variables that we want to process
 declare -a clim="historical" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
 declare -a ens="r1i1p1" # ensemble specification 

@@ -14,6 +14,16 @@ def translate_varname(varnames_in, **kwargs):
         'dcra':'dcra',
         'dcdyn':'dcdyn',
         'dcres':'dcres',
+        'dcstf':'dcstf',
+
+        # Diffusivity
+        'diffv92500':'diffv92500',
+        'tdiffv92500':'tdiffv92500',
+        'gmse92500':'gmse92500',
+        'mse92500':'mse92500',
+
+        # MSE
+        'mse': 'mse',
 
         # MSE storage
         'tend': 'tend',
@@ -23,6 +33,7 @@ def translate_varname(varnames_in, **kwargs):
         'va': 'va',
         'wap': 'wap',
         'psi': 'psi',
+        'psic': 'psic',
 
         # DYNAMICS
         'aht': 'aht',
@@ -74,12 +85,23 @@ def translate_varname(varnames_in, **kwargs):
         'dvsse_sm': 'dvsse_sm',
         'dvste_sm': 'dvste_sm',
 
+        'vvmmmc': 'vvmmmc',
+        'vvmse': 'vvmse',
+        'vvqmmc': 'vvqmmc',
+        'vvqse': 'vvqse',
+        'vvsmmc': 'vvsmmc',
+        'vvsse': 'vvsse',
+
         # RADIATION
         # ECHAM
         'srad0': 'srad0',
         'trad0': 'trad0',
         'srads': 'srads',
         'trads': 'trads',
+        'sraf0': 'sraf0',
+        'traf0': 'traf0',
+        'srafs': 'srafs',
+        'trafs': 'trafs',
         # ERA
         'tsr': 'srad0',
         'ttr': 'trad0',
@@ -111,7 +133,7 @@ def translate_varname(varnames_in, **kwargs):
 
         # TEMPERATURE
         'ta' : 'ta', # CMIP
-        't' : 'ta', # ERA
+        't' : 'ta', # ERA, ECHAM
 
         # SPECIFIC HUMIDITY
         'hus' : 'hus', # CMIP
@@ -141,6 +163,10 @@ def translate_varname(varnames_in, **kwargs):
         # 2 M TEMPERATURE
         'tas' : 'tas', # CMIP
         't2m' : 'tas', # ERA
+        'temp2' : 'tas', # ECHAM
+
+        # lower troposphere max temp
+        'tmax': 'tmax',
 
         't850' : 't850',
 
@@ -149,10 +175,13 @@ def translate_varname(varnames_in, **kwargs):
         
         # PRECIPITATION
         'pr' : 'pr', # CMIP
+        'precip' : 'pr', # ECHAM
         'prc' : 'prc', # CMIP
         'cp' : 'prc', # ERA
+        'aprc' : 'prc', # ECHAM
         'prl' : 'prl',
         'lsp' : 'prl', # ERA
+        'aprl' : 'prl', # ECHAM
         'prfrac' : 'prfrac',
         
         # EVAPORATION
@@ -172,6 +201,11 @@ def translate_varname(varnames_in, **kwargs):
         
         # SEA ICE CONCENTRATION
         'sic' : 'sic', # CMIP
+        'seaice' : 'sic', # ECHAM
+
+        # SEA ICE DEPTH
+        'sit' : 'sit', # CMIP
+        'siced' : 'sit', # ECHAM
         
         # CO2 MASS
         'co2mass' : 'co2mass', # CMIP
@@ -214,9 +248,12 @@ def translate_varcat(varnames_in, **kwargs):
         # ERA
         'slhf' : 'stf',
         'sshf' : 'stf',
+        # ECHAM
+        'ahfl' : 'stf',
+        'ahfs' : 'stf',
 
         # TEMPERATURE
-        't' : 'temp', # ERA
+        't' : 'temp', # ERA, ECHAM
 
         # GEOPOTENTIAL HEIGHT
         'z' : 'zg', # ERA
@@ -226,6 +263,8 @@ def translate_varcat(varnames_in, **kwargs):
         'sp' : 'srfc',
         't2m' : 'srfc',
         'skt' : 'srfc',
+        # ECHAM
+        'temp2' : 'srfc',
 
         # OROGRAPHY
         'zs' : 'orog',
@@ -235,6 +274,10 @@ def translate_varcat(varnames_in, **kwargs):
         'cp' : 'hydro',
         'lsp' : 'hydro',
         'e' : 'hydro',
+        # ECHAM
+        'precip' : 'hydro',
+        'aprl' : 'hydro',
+        'aprc' : 'hydro',
 
         # SEA ICE
         # ERA
@@ -272,7 +315,10 @@ def translate_varsfc(varname_std, **kwargs):
     # outputs the surface variable name of a 3D (vertical) variable
     trans_dict = {
         'ta' : 'tas',
+        't' : 'temp2', # echam
+
         'zg' : 'orog',
+
     }
 
     varsfc = trans_dict.get(varname_std, "No translation available")

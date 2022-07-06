@@ -34,11 +34,17 @@ def save_r1(sim, **kwargs):
 
     # variable names
     if sim == 'echam':
-        varnames = ['trad0', 'srad0', 'trads', 'srads', 'ahfl', 'ahfs']
+        if model in ['rp000184', 'rp000185', 'rp000188', 'rp000189']:
+            varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'dr1', 'dcra', 'dcdyn', 'dcres', 'dcstf', 'trad0', 'srad0', 'trads', 'srads', 'ahfl', 'ahfs', 'precip']
+        else:
+            varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'trad0', 'srad0', 'trads', 'srads', 'ahfl', 'ahfs', 'precip']
     elif sim == 'era5':
-        varnames = ['ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf', 'cp', 'lsp']
+        varnames = ['ftoa', 'fsfc', 'ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf', 'cp', 'lsp']
     else:
-        varnames = ['tend', 'ra', 'stf', 'rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr', 'dr1', 'dcra', 'dcdyn', 'dcres']
+        if sim == 'rcp85':
+            varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr', 'dr1', 'dcra', 'dcdyn', 'dcres', 'dcstf']
+        else:
+            varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr']
 
     # load all variables required to compute R1
     for varname in varnames:
@@ -58,6 +64,8 @@ def save_r1(sim, **kwargs):
         flux[translate_varname(varname)] = np.squeeze(file[varname].variables[varname][:])
         if sim == 'era5':
             flux[translate_varname(varname)] = flux[translate_varname(varname)]/86400
+        elif sim == 'echam' and ( varname in ['ahfl', 'ahfs'] ):
+            flux[translate_varname(varname)] = -flux[translate_varname(varname)]
 
     # if sim == 'era5' or sim == 'echam':
     #     flux['ra'] = flux['trad0'] + flux['srad0'] - flux['trads'] - flux['srads'] 
@@ -88,13 +96,13 @@ def save_r1(sim, **kwargs):
 
     if zonmean:
         for fluxname in flux:
-            if not fluxname in ['r1', 'dr1', 'dcra', 'dcdyn', 'dcres']:
+            if not fluxname in ['r1', 'dr1', 'dcra', 'dcdyn', 'dcres', 'dcstf']:
                 flux[fluxname] = np.mean(flux[fluxname], 2)
 
     r1 = flux['stg_adv']/flux['ra']
     stg_adv = flux['stg_adv']
     ra = flux['ra']
-    
+
     # # linearly decompose r1 seasonality
     # r1_dc = {}
 

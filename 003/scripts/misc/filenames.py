@@ -14,17 +14,28 @@ def filenames_raw(sim, varname, **kwargs):
             fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*.nc' % (sim, model, varname, model, sim)))
         else:
             try:
-                fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_Amon_%s_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean)))
+                if varname in ['sic']:
+                    fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_OImon_%s_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean)))
+                elif varname in ['diffv92500', 'tdiffv92500', 'vmte', 'aht', 'gmse92500', 'mse92500']:
+                    fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_Amon_%s_%s_*_%s.zonmean.shsmooth.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean)))
+                else:
+                    fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_Amon_%s_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean)))
             except:
                 print('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_Amon_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean))
         try:
             filename = Dataset(fname[0], 'r')
         except:
             print('\nERROR: The following file cannot be read: /project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_Amon_%s_%s_*_%s.%s.nc\n' % (sim, model, varname, model, sim, yr_span, timemean))
+
     elif sim == 'longrun':
         filename = Dataset(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_mon_%s_%s.%s.nc' % (sim, model, varname, model, yr_span, timemean)), 'r')
+
     elif sim == 'echam':
-        filename = Dataset(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_%s_%s.%s.nc' % (sim, model, varname, model, yr_span, timemean)), 'r')
+        print('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_%s_%s.%s.nc' % (sim, model, varname, model, yr_span, timemean))
+        fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_%s_%s.%s.nc' % (sim, model, varname, model, yr_span, timemean)))
+        print(fname)
+        filename = Dataset(fname[0], 'r')
+
     elif sim == 'era5':
         filename = Dataset(remove_repdots('/project2/tas1/miyawaki/projects/002/data/raw/era5c/%s/era5c_%s_%s.%s.nc' % (translate_varcat(varname), translate_varcat(varname), yr_span, timemean)), 'r')
 

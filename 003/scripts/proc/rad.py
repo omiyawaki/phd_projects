@@ -33,11 +33,11 @@ def save_rad(sim, **kwargs):
 
     # variable names
     if sim == 'echam':
-        varnames = ['trad0', 'srad0', 'trads', 'srads', 'ahfl', 'ahfs']
+        varnames = ['trad0', 'srad0', 'trads', 'srads', 'traf0', 'sraf0', 'trafs', 'srafs']
     elif sim == 'era5':
         varnames = ['ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf']
     else:
-        varnames = ['rlut', 'rlutcs', 'rsut', 'rsutcs', 'rsus', 'rsuscs', 'rsds', 'rsdscs', 'rlds', 'rldscs', 'rsdt', 'rlus']
+        varnames = ['rlut', 'rlutcs', 'rsut', 'rsutcs', 'rsus', 'rsuscs', 'rsds', 'rsdscs', 'rlds', 'rldscs', 'rsdt', 'rlus', 'tmax']
 
     # load all variables
     print(varnames)
@@ -57,6 +57,11 @@ def save_rad(sim, **kwargs):
 
     if sim == 'era5' or sim == 'echam':
         rad['ra'] = rad['trad0'] + rad['srad0'] - rad['trads'] - rad['srads'] 
+        rad['ra_cs'] = rad['traf0'] + rad['sraf0'] - rad['trafs'] - rad['srafs']
+        rad['sw'] = rad['srad0'] - rad['srads'] 
+        rad['sw_cs'] = rad['sraf0'] - rad['srafs'] 
+        rad['lw'] = rad['trad0'] - rad['trads'] 
+        rad['lw_cs'] = rad['traf0'] - rad['trafs'] 
     else:
         rad['ra'] = rad['rsdt'] - rad['rsut'] - rad['rlut'] + rad['rsus'] - rad['rsds'] + rad['rlus'] - rad['rlds']
         rad['ra_cs'] = rad['rsdt'] - rad['rsutcs'] - rad['rlutcs'] + rad['rsuscs'] - rad['rsdscs'] + rad['rlus'] - rad['rldscs']
@@ -69,6 +74,9 @@ def save_rad(sim, **kwargs):
 
     if zonmean:
         for radname in rad:
+            print(radname)
+            print(model)
+            print(rad[radname].shape)
             rad[radname] = np.mean(rad[radname], 2)
     
     pickle.dump([rad, grid], open(remove_repdots('%s/rad.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))

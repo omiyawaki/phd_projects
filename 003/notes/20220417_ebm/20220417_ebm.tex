@@ -1,0 +1,222 @@
+\documentclass{article}
+
+\usepackage{float}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+
+\title{Notes on using an EBM to further understand the advective phase}
+\date{April 17, 2022}
+% \author{Osamu Miyawaki, Tiffany A. Shaw, Malte F. Jansen}
+
+\begin{document}
+\maketitle
+
+\section{Background}
+Our work so far revealed that there are two phases to the Arctic regime transition: the radiative and advective phases. The advective phase was further demonstrated to be dominated by weakened poleward DSE transport by transient eddies. Decreased DSE TE transport is consistent with the weakened MSE gradient associated with sea ice melt and polar amplification. However, we do not know if the connection between decreased MSE transport and the MSE gradient is quantitatively true in the high latitudes. To test this quantitatively, we must turn to idealized models that connect the magnitude of MSE TE transport with the MSE gradient.
+
+An energy balance model (EBM) with diffusive heat transport is a promising model to test this idea. In this framework, the TE MSE transport response ($\Delta F_{TE}$) is quantified as either due to a change in diffusivity or MSE gradient (e.g. following the conventions in \cite{mooring2020}):
+\begin{equation}
+    \Delta F_{TE} = \Delta \left(\frac{D}{a}\frac{\partial m}{\partial \phi}\right) = \Delta D \frac{1}{a}\frac{\partial m}{\partial \phi} + \frac{D}{a}\Delta\left(\frac{\partial m}{\partial \phi}\right) \, .
+\end{equation}
+\cite{mooring2020} showed that changes in diffusivity do not significantly contribute to changes in MSE transport in the midlatitudes. That is, the contribution due to change in MSE gradient dominates over the change in diffusivity. However, we currently do not know if this explanation also applies in the Arctic. Thus, we seek to test the hypothesis that the weakening MSE transport in the Arctic is predominantly due to a weakening MSE gradient using an EBM.
+
+A challenge of testing this hypothesis using an EBM in the high latitudes is the method in which sea ice physics is included in the EBM. Although a temperature-dependent ice-albedo feedback has been incorporated ever since the original EBM's \citep[e.g.,][]{budyko1969,sellers1969}, the thermodynamic effects of sea ice are essential to properly model sea ice melt and growth \citep{eisenman2009}. To determine which EBM is most appropriate for testing our hypothesis, I started a literature review on candidate EBM's and evaluated their strengths and limitations.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\cite{hwang2010}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Equation}
+\begin{equation}
+    S - (L_S - L_C) = -\frac{p_s}{g}D\nabla^2 m + F_s
+\end{equation}
+where
+\begin{itemize}
+    \item $m$ is surface MSE
+    \item $S$ is the net solar radiation at TOA \textbf{(prescribed from GCM)}
+    \item $L_S$ is the clear sky OLR
+    \item $L_C$ is the LW CRF \textbf{(prescribed from GCM)}
+    \item $p_s$ is surface pressure
+    \item $D$ is the diffusivity [m$^2$ s$^{-1}$]
+    \item $F_s$ is the downward surface flux \textbf{(prescribed from GCM)}
+\end{itemize}
+
+\subsection{Assumptions}
+\begin{itemize}
+    \item OLR is linear in surface temperature
+    \item 80\% surface relative humidity (i.e. change in latent energy transport follows Clausius Clapeyron)
+    \item $D$ remains constant with warming
+\end{itemize}
+
+\subsection{Strengths}
+\begin{itemize}
+    \item MSE is the prognostic variable
+    \item Prognostic equation is consistent with atmospheric energy budget
+    \item Forcing is represented by modifying coefficients in the OLR parameterization, which is consistent with increasing CO2
+    \item Taking GCM input means it is also useful for studying CMIP intermodel spread in MSE transport
+\end{itemize}
+
+\subsection{Limitations}
+\begin{itemize}
+    \item No seasonal cycle (must add atmospheric heat storage term)
+    \item No interactive sea ice (but its effect can be prescribed into $F_s$)
+    \item Prescribing transient response of $F_s$ may be too strong of a constaint (similar to above, i.e. there is no atmosphere-ice feedback in the model)
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\cite{wagner2015}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Equation}
+\begin{equation}
+    \frac{\partial E}{\partial t} = aS - L + D\nabla^2T + F_b + F
+\end{equation}
+where
+\begin{itemize}
+    \item $E$ is surface enthalpy
+    \item $a$ is coalbedo
+    \item $S$ is insolation
+    \item $L$ is OLR
+    \item $D$ is diffusivity [W m$^{-2}$ K$^{-1}$]
+    \item $T$ is surface temperature
+    \item $F_b$ is heat flux from the deep ocean to the mixed layer
+    \item $F$ is the forcing
+\end{itemize}
+
+\subsection{Assumptions}
+\begin{itemize}
+    \item $E$ is latent heat if ice covered and mixed layer heat storage if open water
+    \item The above statement implies sensible heat storage in ice is negligible
+    \item $a$ is temperature dependent (represents the ice-albedo feedback)
+    \item $S = S_0 + S_1x\cos(\omega t) + S_2x^2$, where $x$ is the sine of latitude
+    \item OLR is linear in surface temperature
+    \item $D$ remains constant with warming
+    \item For numerical purposes, diffusion occurs in a ghost layer
+\end{itemize}
+
+\subsection{Strengths}
+\begin{itemize}
+    \item Includes a seasonal cycle
+    \item Includes sea ice thermodynamics
+\end{itemize}
+
+\subsection{Limitations}
+\begin{itemize}
+    \item No latent energy transport
+    \item Prognostic equation is of a combined atmosphere-surface energy budget 
+        \begin{itemize}
+            \item Diffusion of surface T thus isn't exactly representative of atmospheric heat transport (conflates atmospheric and oceanic transport)
+            \item Forcing directly heats the surface, which is not consistent with the radiative forcing associated with increasing CO2
+        \end{itemize}
+\end{itemize}
+
+\subsection{Preliminary results}
+Last week I prepared results simulating Arctic climate change in the WE15 model (Fig.~\ref{fig:we15-arctic}) without fully thinking through its limitations. I will leave these results here knowing that this model may not be the most appropriate one to test our hypothesis.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/we15/multi/arctic/arctic}.pdf}
+    \caption{The predicted (a) surface warming, (b) diffusive heat transport response, (c) sea ice thickness response, and (d) sea ice fraction response in the WE15 model to varied forcing (x axis).}
+    \label{fig:we15-arctic}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\cite{mooring2020}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+This EBM builds on \cite{hwang2010} by using 925 hPa MSE as the prognostic variable and specifying a spatially varying specific humidity and geopotential field.
+\subsection{Equation}
+\begin{equation}
+    S - L = -\frac{D}{a}\frac{\partial m}{\partial \phi} + F_s
+\end{equation}
+where
+\begin{itemize}
+    \item $m$ is 925 hPa MSE normalized by $2\pi a$
+    \item $S$ is the net solar radiation at TOA \textbf{(prescribed from GCM)}
+    \item $L$ is OLR
+    \item $D$ is the diffusivity [kg s$^{-1}$] \textbf{(prescribed from GCM)}
+    \item $F_s$ is the downward surface flux \textbf{(prescribed from GCM)}
+\end{itemize}
+
+\subsection{Assumptions}
+\begin{itemize}
+    \item OLR is linear in surface temperature
+\end{itemize}
+
+\subsection{Strengths}
+\begin{itemize}
+    \item MSE is the prognostic variable
+    \item Prognostic equation is consistent with atmospheric energy budget
+    \item MSE takes into account meridional variations in humidity and geopotential height
+    \item $D$ is prescribed based on GCM diagnostics and thus can predict the effect of assuming fixed vs varying diffusivity
+\end{itemize}
+
+\subsection{Limitations}
+\begin{itemize}
+    \item No seasonal cycle (must add atmospheric heat storage term)
+    \item No interactive sea ice (but its effect can be prescribed into $F_s$)
+    \item Prescribing transient response of $F_s$ may be too strong of a constaint (similar to above, i.e. there is no atmosphere-ice feedback in the model)
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{\cite{feldl2021}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+This EBM builds on \cite{wagner2015} by using MSE as the prognostic variable.
+\subsection{Equation}
+\begin{equation}
+    \frac{\partial E}{\partial t} = aS - L - \frac{\partial}{\partial x}D(1-x^2)\frac{\partial h}{\partial x} + F
+\end{equation}
+where
+\begin{itemize}
+    \item $E$ is surface enthalpy
+    \item $a$ is coalbedo
+    \item $S$ is insolation
+    \item $L$ is OLR
+    \item $D$ is diffusivity [W m$^{-2}$ K$^{-1}$]
+    \item $h$ is surface MSE
+    \item $F$ is the forcing
+\end{itemize}
+
+\subsection{Assumptions}
+\begin{itemize}
+    \item $E$ is latent heat if ice covered and mixed layer heat storage if open water
+    \item $a$ is temperature dependent (represents the ice-albedo feedback)
+    \item $S = S_0 + S_1x\cos(\omega t) + S_2x^2$
+    \item OLR is linear in surface temperature
+    \item 80\% surface relative humidity (i.e. change in latent energy transport follows Clausius Clapeyron)
+    \item $D$ remains constant with warming
+    \item For numerical purposes, diffusion occurs in a ghost layer
+\end{itemize}
+
+\subsection{Strengths}
+\begin{itemize}
+    \item Includes a seasonal cycle
+    \item Includes sea ice thermodynamics
+    \item MSE is the prognostic variable
+\end{itemize}
+
+\subsection{Limitations}
+\begin{itemize}
+    \item Prognostic equation is of a combined atmosphere-surface energy budget 
+        \begin{itemize}
+            \item Diffusion of surface MSE thus isn't exactly representative of atmospheric heat transport (conflates atmospheric and oceanic transport)
+            \item Forcing directly heats the surface, which is not consistent with the radiative forcing associated with increasing CO2
+        \end{itemize}
+\end{itemize}
+
+\section{Next steps}
+The EBM's explored so far can be broadly categorized according to a prognostic equation that is based on 1) the atmospheric energy budget \citep{hwang2010, mooring2020} or 2) the combined atmosphere-surface energy budget \citep{wagner2015, feldl2021}. Type 1 EBM's have the advantage that the diffused MSE flux is representative of atmosphere-only transport. However, they currently lack interactive sea ice thermodynamics and it is unclear how one can easily be added. Type 2 EBM's have the advantage that sea ice thermodynamics is included. However, the diffused energy flux is one that represents both atmosphere and ocean transport.
+
+There appears to be a fundamental limitation to what can be achieved using a 1-layer EBM. The single layer either permits: 1) the energy budget of the atmosphere in isolation but no sea ice or 2) a prognostic sea ice model but the energy budget represents the combined atmosphere-surface system. The only way to diffuse atmospheric energy while incorporating a thermodynamic sea ice model appears to be to create a 2-layer EBM, where the upper layer represents the atmosphere and the lower layer the sea ice-ocean system.
+
+If we should pursue such a 2-layer EBM, I believe the best approach is to build a thermodynamic sea ice module into climlab. Implementing such a module into climlab would also enable us to perform single column simulations for quantifying the role of water vapor and CO2 on radiative cooling in a unified modeling framework. Since I still have not received any guidance on how to proceed with the SCAM simulation errors in the CESM forum, this may be a worthwhile pursuit not only for understanding the advective phase but the radiative phase as well. 
+
+Alternatively, we can use the \cite{hwang2010} EBM and prescribe the effect of sea ice loss into the surface heat flux $F_s$ response. This would be sufficient to answer the question I posed (does the diffusivity or MSE gradient response dominate the MSE transport response?). Including interactive sea ice may only be necessary for research questions that are beyond the scope of this work (e.g., intermodel spread in rate of $R_1$ and sea ice loss).
+
+I'm interested to hear your thoughts on this. 
+
+\bibliographystyle{apalike}
+\bibliography{./references.bib}
+
+\end{document}

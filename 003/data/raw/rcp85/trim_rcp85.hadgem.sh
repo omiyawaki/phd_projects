@@ -5,10 +5,10 @@ set -euo pipefail
 # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "ta" "zg" "hus" "mse" "va") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps") # list of GCM variables that we want to process
-declare -a vars_gcm=("prc") # list of GCM variables that we want to process
+# declare -a vars_gcm=("rlutcs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("pr" "prc") # list of GCM variables that we want to process
 # declare -a vars_gcm=("hur") # list of GCM variables that we want to process
-# declare -a vars_gcm=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
+declare -a vars_gcm=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
 declare -a realm=("atmos")
 declare -a clim="rcp85" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)

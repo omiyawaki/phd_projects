@@ -1,0 +1,131 @@
+\documentclass{article}
+
+\usepackage{float}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+\usepackage{listings}
+\lstset{
+    basicstyle=\small\ttfamily,
+    columns=flexible,
+    breaklines=true
+}
+
+\title{Notes on the Arctic meridional MSE gradient}
+\date{May 09, 2022}
+% \author{Osamu Miyawaki, Tiffany A. Shaw, Malte F. Jansen}
+
+\begin{document}
+\maketitle
+
+My notes this week are organized as responses to \texttt{your comments} from our previous email discussion.\\
+
+\noindent
+\texttt{
+Are you carefully accounting for surface pressure when you look at 925 hPa?
+} \\
+
+Thank you for pointing this out. My previous analysis used CDO's sellev command to extract the 925 hPa MSE. However this command does not mask subsurface data. I created my own simple script to extract 925 hPa MSE where the local surface pressure is less than the surface pressure (and otherwise fill with a nan). The revised DJF climatological 925 hPa MSE field is shown in Fig.~\ref{fig:mse-lat-lon}. As expected, regions of topography are now masked.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/historical/bcc-csm1-1/186001-200512/lat_lon/mse92500_lat_lon.ymonmean}.pdf}
+    \caption{The latitude-longitude structure of 925 hPa MSE for 1975-2005 DJF climatology of the bcc-csm1-1 model. Note that subsurface data are masked (filled with nans).}
+    \label{fig:mse-lat-lon}
+\end{figure}
+
+\noindent
+\texttt{
+Where does the MSE gradient change sign (what latitude)? Can you send us a figure?
+} \\
+
+The gradient of the revised 925 hPa MSE field still exhibits a sign change for bcc-csm1-1 (Fig.~\ref{fig:diffv}b). The gradient changes sign around 85$^\circ$N. The sign change also occurs for the CMIP5 multimodel mean (Fig.~\ref{fig:diffv-mmm}b).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/diffv/diffv_hist}.pdf}
+    \caption{The zonal mean (a) 925 hPa MSE, (b) 925 hPa MSE gradient, (c) vertically-integrated transient eddy MSE transport, and (d) diffusivity profile for the 1975-2005 DJF climatology of the bcc-csm1-1 model.}
+    \label{fig:diffv}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/diffv/diffv_hist.mmm}.pdf}
+    \caption{Same as Fig.~\ref{fig:diffv} but for the CMIP5 multi-model mean.}
+    \label{fig:diffv-mmm}
+\end{figure}
+
+\noindent
+\texttt{
+    I recall Todd had to smooth the MSE gradient following \cite{sardeshmukh1984}. You should look at Todd's 2020 JGR paper on MSE diffusivity.
+} \\
+
+I can understand the need to smooth the MSE gradient when showing the latitudinal structure and computing the diffusivity maximum. I could smooth the MSE gradient field here as well, but I don't think this will eliminate the zero gradient problem because it isn't associated with a noisy MSE field.\\
+
+\texttt{
+Can you show us the time series of the MSE gradient as a function of latitude (contour plot) poleward of 60N? I'd like to see what is going on with the gradient.
+} \\
+
+The 925 hPa MSE gradient poleward of 60$^\circ$N broadly weakens over time (Fig.~\ref{fig:gmse}). The timeseries is smoothed using an 80 year rolling mean. Interestingly, the MSE gradient strengthens between 75--80$^\circ$N up to $\sim$ year 2075. This may be important for understanding why the net atmospheric poleward advective heat flux changes little prior to the regime transition. Regions of zero gradient (marked with a thick black contour in Fig.~\ref{fig:gmse}a) is problematic for diagnosing diffusivity $D$, where
+\begin{equation}
+    D = -\frac{[\overline{v^\prime m^\prime}]}{\partial_{\phi}m_{925\,\mathrm{hPa}}} \, ,
+\end{equation}
+because $D$ becomes undefined when the gradient is 0 (diffusivity in regions near the black contour blow up in Fig.~\ref{fig:diffv-mon-lat}). This is why I preferred the methodology used in \cite{pierrehumbert2005}. By area averaging the gradients, we prevent the diagnosed diffusivity from becoming undefined.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/gmse/gmse_mon_lat}.pdf}
+    \caption{Transient response of the (a) zonal mean 925 hPa MSE gradient and (b) its difference from the 1975-2005 climatology for the RCP8.5 simulation of the bcc-csm1-1 model (filled contours). Gray contours show the zonal mean 925 hPa MSE gradient in both panels (same as filled contours in panel a).}
+    \label{fig:gmse}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/hist+rcp85/bcc-csm1-1/186001-229912/mon_lat/diffv_time_lat.djfmean}.pdf}
+    \caption{Transient response of diagnosed transient eddy diffusivity for the RCP8.5 run of bcc-csm1-1. Filled (gray) contour interval is 10 kg s$^{-1}$ (50 kg s$^{-1}$).}
+    \label{fig:diffv-mon-lat}
+\end{figure}
+
+Nevertheless, let's continue to use this diagnosed diffusivity field to decompose the transient eddy MSE transport response (Fig.~\ref{fig:dcvmte}) into contributions from the change in MSE gradient (Fig.~\ref{fig:dcvmte}c) and the change in diffusivity (Fig.~\ref{fig:dcvmte}d). The decrease in poleward transient eddy MSE transport is qualitatively consistent with a weakening MSE gradient (compare blue regions in Fig.~\ref{fig:dcvmte}a and \ref{fig:dcvmte}c). Interestingly, the aforementioned region of MSE gradient increase (blue region in Fig.~\ref{fig:gmse}b, red region in \ref{fig:dcvmte}c) are consistent with strengthening transient eddy MSE transport prior to$\sim2075$ (red region in Fig.~\ref{fig:dcvmte}a).
+
+While the transient eddy MSE transport response is qualitatively consistent with the MSE gradient, there are significant quantitative discrepancies. The MSE gradient contribution to weakening MSE transport is approximately an order of magnitude larger than the total response (note difference in colorbar limits in Fig.~\ref{fig:dcvmte}a and \ref{fig:dcvmte}c). This difference is due to a large compensating contribution from the diffusivity response, which increases over time (Fig.~\ref{fig:dcvmte}d). The sum of these two contributions do not add up to the total response (i.e. the higher order residual terms are large, Fig.~\ref{fig:dcvmte}b). These latitudinally-resolved results are consistent with the result I shared last week (which followed \cite{pierrehumbert2005}, see Fig.~\ref{fig:dcvmte-p05}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/dcvmte/dcvmte}.pdf}
+    \caption{Transient response of (a) transient eddy MSE transport relative to the 1975-2005 DJF climatology decomposed into contributions due to (b) nonlinear terms, (c) the 925 hPa MSE gradient response, and (d) the diffusivity response for the RCP8.5 run of bcc-csm1-1. Filled (gray) contour interval is 0.01 PW (0.05 PW) in panel (a). Filled and gray contours are a factor of 10 larger in panels (b), (c), and (d).}
+    \label{fig:dcvmte}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/hist+rcp85/bcc-csm1-1/186001-229912/lat/dvmte.ymonmean-30}.pdf}
+    \caption{Transient response of Arctic (80$^\circ$N) (a) transient eddy MSE transport relative to the 1975-2005 DJF climatology decomposed into contributions due to (b) nonlinear terms, (c) the 925 hPa MSE gradient (area-averaged over 70--90$^\circ$N) response, and (d) the diffusivity response for the RCP8.5 run of bcc-csm1-1.}
+    \label{fig:dcvmte-p05}
+\end{figure}
+
+\noindent
+\texttt{
+The x axis in Fig. 8 of Pierrehumbert (2005) is the "temperature difference over the interval extending 10 degrees of latitude on either side of the point of maximum dry static energy flux" not the area-averaged temperature gradient. Did you try the MSE difference rather than the MSE gradient?
+} \\
+
+I agree that the x-axis in Fig.~8 in \cite{pierrehumbert2005} shows the temperature difference and not the average. However, he states in the main text (paragraph 34, page 9) that to compute diffusivity, ``we find, for each CO$_2$ case and for each month, the maximum $F_{trans}$ in each hemisphere, and then compute the mean temperature gradient averaged within 10 degrees latitude on either side of the location of the maximum flux.'' I am not sure why Ray chose to show the temperature difference as the x-axis in Fig.~8 rather than the average gradient.
+
+\section*{Next steps}
+Given these results, below are the options I am considering:
+\begin{itemize}
+    \item Continue alternative analyses that may lead to improved quantitative agreement between transient eddy MSE transport response and the meridional MSE gradient response.
+        \begin{itemize}
+            \item In particular, take the mass-weighted vertically-integrated meridional MSE gradient instead of the 925 hPa MSE gradient. The idea here is that this may be more physically consistent with the MSE transport, which is a vertically-integrated quantity. The caveat is that diffusivity is usually not diagnosed this way because EBMs do not use column-integrated MSE as a prognostic variable.
+            \item Taking the MSE difference across 70 and 90$^\circ$N as opposed to the area-weighted mean of the MSE gradient.
+            \item Smooth the MSE gradient field following \cite{sardeshmukh1984}.
+        \end{itemize}
+    \item Stop pursuing a quantitative link between MSE transport and MSE gradient. Acknowledge in the paper that weakening transient eddy MSE transport response is qualitatively (but not quantitatively) consistent with the MSE gradient response.
+\end{itemize}
+
+\bibliographystyle{apalike}
+\bibliography{./references.bib}
+
+\end{document}

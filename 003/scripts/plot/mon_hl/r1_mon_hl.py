@@ -233,7 +233,10 @@ def r1_mon_hl(sim, **kwargs):
             elif spread == 'std':
                 spr_r1 = ax.fill_between(time, r1_hl_mmm['mmm'] - r1_hl_mmm['std'], r1_hl_mmm['mmm'] + r1_hl_mmm['std'], facecolor='black', alpha=0.2, edgecolor=None)
 
-        lp_r1 = ax.plot(time, r1_hl, color='black')
+        if sim == 'echam' and plotover == 'decomp':
+            lp_r1 = ax.plot(time, r1_hl, alpha=0, color='black')
+        else:
+            lp_r1 = ax.plot(time, r1_hl, color='black')
     if 'ymonmean' not in timemean and sim == 'era5':
         # lp_trend = ax.plot(time, m*time + c, '--k', label='%g decade$^{-1}$' % (m*10))
         lp_trend = ax.plot(time, m*time + c, '--k', label='$R_1$ trend$ = %.1f$ %% decade$^{-1}$' % (m/np.nanmean(r1_hl) *1e3))
@@ -671,6 +674,91 @@ def r1_mon_hl(sim, **kwargs):
         # alter figure aspect ratio to accomodate legend
         fig.set_size_inches(4,3.5)
 
+    elif plotover == 'decomp_radonly':
+        ############################################
+        # DECOMPOSE INTO DYNAMIC AND RADIATIVE COMPONENTS
+        ###########################################
+        plotname = '%s.%s' % (plotname, plotover)
+
+        # if isinstance(model, str) or model is None:
+        #     [r1_dc, grid, datadir, plotdir, modelstr] = load_r1_dc(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span) 
+        # else:
+        #     [r1_dc, grid, datadir, plotdir, modelstr, r1_dc_mmm] = load_r1_dc(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span) 
+
+        if isinstance(model, str) or model is None:
+            [flux, grid, datadir, plotdir, modelstr] = load_flux(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+        else:
+            [flux, grid, datadir, plotdir, modelstr, flux_mmm] = load_flux(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+
+        # # location of pickled R1 seasonality data
+        # r1_dc_file = remove_repdots('%s/r1_dc.%s.%s.pickle' % (datadir, zonmean, timemean))
+
+        # if not (os.path.isfile(r1_dc_file) and try_load):
+        #     save_r1(sim, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span)
+
+        # [r1_dc, grid] = pickle.load(open(r1_dc_file, 'rb'))
+
+        ############################################
+        # AVERAGE R1 COMPONENTS ONLY AT HIGH LATITUDES
+        ############################################
+        # r1_dc_hl = {}
+        # for varname in r1_dc:
+        #     r1_dc_hl[varname] = lat_mean(r1_dc[varname], grid, lat_int, dim=1)
+
+        # if not (isinstance(model, str) or model is None):
+        #     r1_dc_mmm_hl = {}
+        #     for varname in r1_dc_mmm:
+        #         r1_dc_mmm_hl[varname] = {}
+        #         for stat in r1_dc_mmm[varname]:
+        #             r1_dc_mmm_hl[varname][stat] = lat_mean(r1_dc_mmm[varname][stat], grid, lat_int, dim=1)
+
+        flux_hl = {}
+        for varname in flux:
+            flux_hl[varname] = lat_mean(flux[varname], grid, lat_int, dim=1)
+
+        if not (isinstance(model, str) or model is None):
+            flux_mmm_hl = {}
+            for varname in flux_mmm:
+                flux_mmm_hl[varname] = {}
+                for stat in flux_mmm[varname]:
+                    flux_mmm_hl[varname][stat] = lat_mean(flux_mmm[varname][stat], grid, lat_int, dim=1)
+
+        sax = ax.twinx()
+        if not (isinstance(model, str) or model is None):
+            if spread == 'prc':
+                sax.fill_between(time, flux_mmm_hl['dr1']['prc25'], flux_mmm_hl['dr1']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
+                # sax.fill_between(time, flux_mmm_hl['dcdyn']['prc25'], flux_mmm_hl['dcdyn']['prc75'], facecolor='maroon', alpha=0.2, edgecolor=None)
+                sax.fill_between(time, flux_mmm_hl['dcra']['prc25'], flux_mmm_hl['dcra']['prc75'], facecolor='tab:gray', alpha=0.3, edgecolor=None)
+                # sax.fill_between(time, flux_mmm_hl['dcres']['prc25'], flux_mmm_hl['dcres']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
+            elif spread == 'std':
+                # sax.fill_between(time, flux_mmm_hl['dcdyn']['mmm']-flux_mmm_hl['dcdyn']['std'], flux_mmm_hl['dcdyn']['mmm']+flux_mmm_hl['dcdyn']['std'], facecolor='maroon', alpha=0.2, edgecolor=None)
+                sax.fill_between(time, flux_mmm_hl['dcra']['mmm']-flux_mmm_hl['dcra']['std'], flux_mmm_hl['dcra']['mmm']+flux_mmm_hl['dcra']['std'], facecolor='tab:gray', alpha=0.3, edgecolor=None)
+                # sax.fill_between(time, flux_mmm_hl['dcres']['mmm']-flux_mmm_hl['dcres']['std'], flux_mmm_hl['dcres']['mmm']+flux_mmm_hl['dcres']['std'], facecolor='k', alpha=0.2, edgecolor=None)
+        sax.axhline(0, color='k', linewidth=0.5)
+        # sax.plot(time, r1_dc_hl['dr1'], color='k', label='$\Delta{R_1}$')
+        # sax.plot(time, r1_dc_hl['dyn'], color='maroon', label='$\overline{R_1} \dfrac{\Delta (\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}}$')
+        # sax.plot(time, r1_dc_hl['res'], '-.k', label='Residual')
+        # sax.plot(time, r1_dc_hl['rad'], color='lightgray', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$')
+        sax.plot(time, flux_hl['dr1'], color='k', label='$\Delta{R_1}$')
+        # sax.plot(time, flux_hl['dcdyn'], color='maroon', label='$\overline{R_1} \dfrac{\Delta (\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}}$')
+        # sax.plot(time, flux_hl['dcres'], '-.k', label='Residual')
+        sax.plot(time, flux_hl['dcra'], color='silver', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$')
+        sax.set_ylabel(r'$\Delta R_1$ (unitless)', color='black')
+        sax.set_ylim(vmin['r1']-r1_hl[0],vmax['r1']-r1_hl[0])
+        sax.tick_params(axis='y', labelcolor='black', color='black')
+        sax.yaxis.set_minor_locator(AutoMinorLocator())
+
+        # add legend
+        sax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.2), ncol=2)
+
+        # cut off excess space on the bottom 
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0 + box.height * 0.1,
+                             box.width, box.height * 0.9])
+
+        # alter figure aspect ratio to accomodate legend
+        fig.set_size_inches(4,3.5)
+
     if legend and sim == 'era5':
         fig.legend(loc='upper right', bbox_to_anchor=(1,1), bbox_transform=ax.transAxes)
 
@@ -680,3 +768,4 @@ def r1_mon_hl(sim, **kwargs):
     if viewplt:
         plt.show()
     plt.close()
+

@@ -1,0 +1,43 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\usepackage{cmbright}
+
+\begin{document}
+
+\begin{figure}
+
+  \begin{subfigure}[t]{0.03\textwidth}
+    \textbf{\small{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.sic}.pdf}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.03\textwidth}
+    \textbf{\small{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.ga_dev.1.0.9}.pdf}
+  \end{subfigure}
+
+  \begin{subfigure}[t]{0.03\textwidth}
+    \textbf{\small{(c)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/rcp85/mmm/200601-229912/mon_hl/r1_mon_hl.80.90.djfmean.prfrac}.pdf}
+  \end{subfigure}
+  \hspace{-1em}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/hist+rcp85/mmm/186001-229912/mon_hl/r1deriv_only_mon_hl.80.90.djfmean.80}.pdf}
+  \end{subfigure}
+  \hspace{-0.45\textwidth}
+  \begin{subfigure}[t]{0.03\textwidth}
+    \textbf{\small{(d)}}
+  \end{subfigure}
+
+\end{figure}
+
+\end{document}

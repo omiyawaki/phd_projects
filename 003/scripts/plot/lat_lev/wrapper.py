@@ -12,13 +12,16 @@ sim = 'historical'
 yr_span = '186001-200512'
 # models = ['GISS-E2-H', 'GISS-E2-R', 'bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
 models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'HadGEM2-ES', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
-# models = ['bcc-csm1-1']
+# models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
+# models = ['MPI-ESM-LR', 'IPSL-CM5A-LR']
+# models = ['HadGEM2-ES']
 
 # # EXTENDED RCP8.5 RUNS, TO 2300
 # sim = 'rcp85'
 # yr_span = '200601-229912'
 # models = ['HadGEM2-ES', 'bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
 # # models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
+# # models = ['bcc-csm1-1']
 
 timemean = 'ymonmean-30'
 refclim = 'hist-30'
@@ -32,9 +35,9 @@ refclim = 'hist-30'
 #refclim = 'init'
 #timemean = 'ymonmean'
 
-mmm = 0
+# mmm = 0
 # try_load = 0
-# mmm = 1
+mmm = 1
 try_load = 1
 viewplt = 0
 seas = 'djf' # choose from ann, djf, mam, jja, son

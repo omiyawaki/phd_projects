@@ -33,9 +33,7 @@ def save_seaice(sim, **kwargs):
 
     # variable names
     if sim == 'echam':
-        print('todo: fix variable names')
-        # fix variable names below
-        # varnames = ['tseaice0', 'sseaice0', 'tseaices', 'sseaices', 'ahfl', 'ahfs']
+        varnames = ['seaice', 'siced']
     elif sim == 'era5':
         print('todo: fix variable names')
         # fix variable names below

@@ -41,16 +41,19 @@ for model in ${models[@]}; do
     else
         full_r1=${cwd}/${model}/r1_${common}.nc
         full_ra=${cwd}/${model}/ra_${common}.nc
+        full_stf=${cwd}/${model}/stf_${common}.nc
         full_dyn=${cwd}/${model}/stgadv_${common}.nc
         ref_r1=${rfd}/${model}/r1_${ref_common}.nc
         ref_ra=${rfd}/${model}/ra_${ref_common}.nc
+        ref_stf=${rfd}/${model}/stf_${ref_common}.nc
         ref_dyn=${rfd}/${model}/stgadv_${ref_common}.nc
         diff_r1=${cwd}/${model}/dr1_${common}.nc
         diff_ra=${cwd}/${model}/dcra_${common}.nc
+        diff_stf=${cwd}/${model}/dcstf_${common}.nc
         diff_dyn=${cwd}/${model}/dcdyn_${common}.nc
         diff_res=${cwd}/${model}/dcres_${common}.nc
 
-        python ${cwd}/make_decomp.py ${full_r1} ${full_ra} ${full_dyn} ${ref_r1} ${ref_ra} ${ref_dyn} ${diff_r1} ${diff_ra} ${diff_dyn} ${diff_res}
+        python ${cwd}/make_decomp.py ${full_r1} ${full_ra} ${full_dyn} ${ref_r1} ${ref_ra} ${ref_dyn} ${diff_r1} ${diff_ra} ${diff_dyn} ${diff_res} ${full_stf} ${ref_stf} ${diff_stf}
 
 
     fi

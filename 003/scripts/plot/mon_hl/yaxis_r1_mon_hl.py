@@ -25,7 +25,7 @@ def yaxis_r1_mon_hl(sim, **kwargs):
                     vmax['r1'] = 1.3
                 else:
                     vmin['r1'] = 0.5
-                    vmax['r1'] = 1.1
+                    vmax['r1'] = 1.3
                 vmin['dr1dt'] = -0.3e-2
                 vmax['dr1dt'] = 0.2e-2
                 vmin['sic'] = -60

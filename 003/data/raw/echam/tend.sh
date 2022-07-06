@@ -1,43 +1,41 @@
 #!/usr/bin/env bash
 # set -euo pipefail
 
-sims=("echr0001/")
-freq="6h"
-lev="pl"
-yr_begin="1030"
-mn_begin="01"
-yr_end="1030"
-mn_end="12"
+# declare -a sims=("rp000190") # climate name
+# yr_span="0001_0009"
+
+# declare -a sims=("rp000134") # climate name
+# yr_span="0001_0049"
+
+# sims=("rp000184")
+# # sims=("rp000185" "rp000188")
+# yr_span="0040_0139"
+
+sims=("rp000190")
+# sims=("rp000130" "rp000131" "rp000134" "rp000135")
+yr_span="0020_0039"
 
 cwd=$(pwd) # save current working directory
 
 for sim in ${sims[@]}; do
 
-    sim=${sim%/}
     echo ${sim}
 
-    for yr in $(seq $yr_begin $yr_end); do
-        for mon in $(seq -f "%02g" ${mn_begin} ${mn_end}); do
-            echo ${yr}-${mon}
-    
-            common=${freq}_${lev}_${sim}_${yr}${mon}
-            common_bot=${freq}_${sim}_${yr}${mon}
+    indir=${cwd}/${sim}
+    cd $indir
 
-            cd ${cwd}/${sim}
+    common=${sim}_${yr_span}
 
-            if ls $cwd/${sim}/tend_${common} 1> /dev/null 2>&1; then # check if data is already there
-                echo "tend was already created. Skipping..."
-            else
-                full_atm=/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/${sim}/ATM_${common}.nc
-                full_bot=/project2/tas1/ockham/data11/tas/echam-aiv_rcc_6.1.00p1/${sim}/BOT_${common_bot}.nc
-                full_mse=${cwd}/${sim}/mse_${common}.nc
-                full_tend=${cwd}/${sim}/tend_${common}.nc
 
-                # srun --partition=tas1 --time=6:00:00 --exclusive --pty python ${cwd}/make_tend.py ${full_atm} ${full_bot} ${full_mse} ${full_tend}
-                python ${cwd}/make_tend.py ${full_atm} ${full_bot} ${full_mse} ${full_tend}
-            fi
+    if ls ${indir}/tend_${common} 1> /dev/null 2>&1; then # check if data is already there
+        echo "MSE tendency was already created. Skipping..."
+    else
+        full_mse=${indir}/mse_${common}.nc
+        full_ps=${indir}/aps_${common}.nc
+        full_tend=${indir}/tend_${common}.nc
 
-        done
-    done        
+        # srun --partition=tas1 --time=6:00:00 --exclusive --pty python ${cwd}/make_mse.py ${full_atm} ${full_mse}
+        python ${cwd}/make_tend.py ${full_mse} ${full_ps} ${full_tend}
+    fi
 
 done

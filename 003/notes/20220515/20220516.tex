@@ -1,0 +1,98 @@
+\documentclass{article}
+
+\usepackage{float}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+\usepackage{listings}
+\lstset{
+    basicstyle=\small\ttfamily,
+    columns=flexible,
+    breaklines=true
+}
+
+\title{Notes on the Arctic meridional MSE gradient, continued}
+\date{May 16, 2022}
+% \author{Osamu Miyawaki, Tiffany A. Shaw, Malte F. Jansen}
+
+\begin{document}
+\maketitle
+
+My notes this week continues on the topic of quantifying the relationship between a weakening Arctic atmospheric MSE transport with a weakening meridional MSE gradient.
+
+Following Tiffany's suggestion, I now smooth the meridional MSE gradient and MSE transport profiles following \cite{mooring2020}. Specifically, I use the \texttt{exp\_tapershC} NCL routine with parameters $n=21$ and $r=1$. The resulting MSE gradient profile no longer goes to 0 in the Arctic in the annual mean (Fig.~\ref{fig:diffv-ann}b). This makes the diffusivity diagnostic meaningful in the Arctic (i.e., it remains a finite value, see Fig.~\ref{fig:diffv-ann}d).
+
+Since we are following the conventions of \cite{mooring2020}, I now quantify diffusivity $D$ as:
+\begin{equation}
+    D = - \frac{F}{2\pi}\frac{\partial m}{\partial \phi} \, ,
+\end{equation}
+where $F$ is atmospheric heat transport (W), $m$ is moist static energy (J kg$^{-1}$), and $\phi$ is latitude (radians). For the current analysis, $F$ corresponds to the transient eddy MSE transport so that $D$ is directly comparable to that in \cite{mooring2020}. The diagnosed diffusivity $D$ in the annual mean historical climatology of the bcc-csm1-1 model exhibits a similar latitudinal profile and magnitude as those in \cite{mooring2020} (compare Fig.~\ref{fig:comp-todd}b and e). This suggests that my implementation of the diffusivity diagnostic is correct.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/diffv/diffv_hist_ann}.pdf}
+    \caption{The zonal mean (a) 925 hPa MSE, (b) 925 hPa MSE gradient, (c) vertically-integrated transient eddy MSE transport, and (d) diffusivity profile for the 1975-2005 annual mean climatology of the bcc-csm1-1 model.}
+    \label{fig:diffv-ann}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/comp_todd/comp_todd}.pdf}
+    \caption{The transient eddy diffusivity in the SH (same as Fig~\ref{fig:diffv-ann} but zoomed in at 20--60$^\circ$S) is compared to Fig.~C1a--d in \cite{mooring2020}. The caption for Fig.~C1 from \cite{mooring2020} is repeated here for reference: Diagram of the diffusivity maximum shift and intensity analysis process for the AQUA (a, c) and AMIP (b, d) configurations. The top row shows actual diffusivity profiles $\langle D \rangle$, while the bottom row shows the linearly estimated perturbed diffusivity profiles $\{D\}+\Delta D$. By definition, the control run diffusivity profiles are exactly the same in both rows. The circles mark the identified midlatitude local maxima, or latitudes at which the magnitude of the meridional slope of the diffusivity is minimized if no maximum exists in the latitude range of interest. Note the slight variations in marker positions between the top and bottom rows of this figure --- this is associated with $\Delta \mathcal{M}_{RLA}$ as defined in (C8).}
+    \label{fig:comp-todd}
+\end{figure}
+
+We focus on the Arctic regime transition during wintertime (DJF) in our project, so I now repeat the analysis for DJF. I now consider $F$ to be the total atmospheric MSE transport (rather than the transient eddy MSE transport) because the total transport is relevant for the regime transition. Even with these changes, the historical DJF climatology of the MSE gradient is nonzero (Fig.~\ref{fig:tdiffv}b) and the diffusivity is finite (Fig.~\ref{fig:tdiffv}d). Additionally, the MSE gradient remains nonzero through the entire RCP8.5 run (Fig.~\ref{fig:gmse}a). This suggests that the diffusivity diagnostic can be a useful tool for understanding the quantitative relationship between atmospheric MSE transport and gradient.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/diffv/tdiffv_hist}.pdf}
+    \caption{Same as Fig.~\ref{fig:diffv-ann} but for the diffusivity corresponding total atmospheric MSE transport for the DJF climatology.}
+    \label{fig:tdiffv}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/gmse/gmse_mon_lat}.pdf}
+    \caption{Transient response of the (a) zonal mean 925 hPa MSE gradient and (b) its difference from the 1975-2005 climatology for the RCP8.5 simulation of the bcc-csm1-1 model (filled contours). Gray contours show the zonal mean 925 hPa MSE gradient in both panels (same as filled contours in panel a).}
+    \label{fig:gmse}
+\end{figure}
+
+The goal of the diffusivity diagnosis is to test whether we can quantitatively explain the transient response of the weakening MSE transport due to a weakening MSE gradient while holding the diffusivity fixed. The key transient feature of the high latitude MSE transport response is that there is little change prior to the regime transition ($\sim2075$) and a significant weakening thereafter (Fig.~\ref{fig:daht-decomp}a). The MSE gradient exhibits a similarly delayed weakening response (Fig.~\ref{fig:daht-decomp}c). The magnitude of the weakening MSE transport is also well captured by the contribution due to a weakening MSE gradient. However, contributions due to a changing diffusivity (Fig.~\ref{fig:daht-decomp}d) and higher order terms (Fig.~\ref{fig:daht-decomp}b) are large. The weakening MSE gradient contribution is consistent with the MSE transport response because the diffusivity change and residual terms largely cancel out.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/dcvmte/dcaht}.pdf}
+    \caption{Transient response of (a) total atmospheric MSE transport relative to the 1975-2005 DJF climatology decomposed into contributions due to (b) nonlinear terms, (c) the 925 hPa MSE gradient response, and (d) the diffusivity response for the RCP8.5 run of bcc-csm1-1.}
+    \label{fig:daht-decomp}
+\end{figure}
+
+The quantitative agreement between the MSE transport and gradient responses are more clearly illustrated by focusing on the transport through $80^\circ$N (Fig.~\ref{fig:daht-decomp-80}). The magnitude of the MSE transport response is in good agreement with the contribution due to the weakening MSE gradient, but the MSE gradient contribution lags behind the transport response by $\sim30$ years (compare solid and dashed lines in Fig.~\ref{fig:daht-decomp-80}). This suggests that the MSE gradient response can't be the cause of the MSE transport response (I acknowledge that a diagnostic analysis can never be used as proof of causality, but here I think it is useful for ruling out the possibility of the direction of causality).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/hist+rcp85/bcc-csm1-1/186001-229912/mon_lat/aht/aht_decomp_time_lat_80.djfmean}.pdf}
+    \caption{Transient response of Arctic (80$^\circ$N) total atmospheric MSE transport (solid) relative to the 1975-2005 DJF climatology decomposed into contributions due to the 925 hPa MSE gradient response (dotted), the diffusivity response (dashed), and nonlinear terms (dash-dot) for the RCP8.5 run of bcc-csm1-1.}
+    \label{fig:daht-decomp-80}
+\end{figure}
+
+\section*{Next steps}
+My main concern is how to present these results when the diffusivity change and residual contributions are large. Is there a reason why we might expect these terms to oppose each other?
+
+My plan moving forward is to:
+\begin{itemize}
+    \item extend this analysis for the CMIP5 multimodel mean to check for robustness.
+    \item use the diagnosed diffusivity profile from AOGCMs and predict the MSE transport response in an EBM assuming fixed diffusivity. If the EBM prediction is consistent with the AOGCM response, the EBM may be a useful tool for probing the cause of the MSE transport response, and understanding why the MSE gradient contribution lags the transport response.
+    \item make progress on understanding the radiative cooling response by:
+        \begin{itemize}
+            \item configuring an SCM in climlab with ice-like surface properties. i.e., high albedo and low mixed layer depth. (this is currently in progress)
+            \item compare the SCM/AOGCM radiative cooling responses with a simple theory that only considers the change in radiative cooling associated with increasing CO$_2$.
+        \end{itemize}
+\end{itemize}
+
+\bibliographystyle{apalike}
+\bibliography{./references.bib}
+
+\end{document}

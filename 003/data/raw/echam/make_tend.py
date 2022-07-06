@@ -11,28 +11,25 @@ from netCDF4 import Dataset,num2date
 cpd = 1005.7; Rd = 287; Rv = 461; L = 2.501e6; g = 9.81; a = 6357e3; eps = Rd/Rv;
 
 # paths to ps and mse files
-path_atm = sys.argv[1]
-path_bot = sys.argv[2]
-path_mse = sys.argv[3]
-path_tend = sys.argv[4]
+path_mse = sys.argv[1]
+path_ps = sys.argv[2]
+path_tend = sys.argv[3]
 
 # open files
-file_atm = Dataset(path_atm, 'r')
-file_bot = Dataset(path_bot, 'r')
 file_mse = Dataset(path_mse, 'r')
+file_ps = Dataset(path_ps, 'r')
 
 # read data
-# ps = file_atm.variables['aps'][:] # (time x lat x lon)
-ps = file_bot.variables['aps'][:] # (time x lat x lon)
 mse = file_mse.variables['mse'][:] # (time x lev x lat x lon)
-lat = file_atm.variables['lat'][:] # (lat)
-hyam = file_atm.variables['hyam'][:] # (lev)
-hybm = file_atm.variables['hybm'][:] # (lev)
+ps = file_ps.variables['aps'][:] # (time x lat x lon)
+try:
+    lev = file_mse.variables['plev'][:] # (lev)
+except:
+    lev = file_mse.variables['lev'][:] # (lev)
 
 # compute pressure field
-ps = np.tile(ps, [len(hyam),1,1,1])
-pai = hyam[:,np.newaxis,np.newaxis,np.newaxis] + hybm[:,np.newaxis,np.newaxis,np.newaxis]*ps
-pa = np.transpose(pai, [1,0,2,3])
+ps = np.transpose(np.tile(ps, [len(lev),1,1,1]), [1,0,2,3])
+pa = np.transpose(np.tile(lev, [mse.shape[0],mse.shape[2], mse.shape[3],1]), [0,3,1,2])
 
 # take time tendency
 # 3d mse tendency
@@ -40,6 +37,10 @@ dmsedt = np.empty(mse.shape)
 dmsedt[1:-1,:,:,:] = (mse[2:,:,:,:]-mse[0:-2,:,:,:])/(2*365*86400/12)
 dmsedt[0] = (mse[1,:,:,:]-mse[0,:,:,:])/(365*86400/12)
 dmsedt[-1] = (mse[-1,:,:,:]-mse[-2,:,:,:])/(365*86400/12)
+
+# set data below surface to 0 (will not be counted in vertical integral)
+below = pa > ps
+dmsedt[below] = 0
 
 # compute vertical integral
 if pa[0,1,0,0]-pa[0,0,0,0]>0: # if pressure increases with index
@@ -55,13 +56,13 @@ file_tend.setncatts(file_mse.__dict__)
 
 # copy dimensions from mse file
 for name, dimension in file_mse.dimensions.items():
-    if any(name in s for s in ['lev', 'hyai', 'hybi', 'hyam', 'hybm']):
+    if any(name in s for s in ['plev']):
         continue
     file_tend.createDimension(name, len(dimension) if not dimension.isunlimited() else None)
  
 # copy all variables except time from ps file
 for name, variable in file_mse.variables.items():
-    if any(name in s for s in ['mse' 'lev', 'hyai', 'hybi', 'hyam', 'hybm']):
+    if any(name in s for s in ['mse' 'plev']):
         continue
     
     x = file_tend.createVariable(name, variable.datatype, variable.dimensions)

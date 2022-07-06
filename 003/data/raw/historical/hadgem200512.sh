@@ -2,12 +2,13 @@
 set -euo pipefail
 
 # declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
+# declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "sic") # list of GCM variables that we want to process
-# declare -a vars_gcm=("ta" "hus" "zg")
+declare -a vars_gcm=("ts")
 # declare -a vars_gcm=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
 # declare -a vars_gcm=("ps" "va" "tas") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "tas" "ts" "ta" "hus" "zg") # list of GCM variables that we want to process
-declare -a vars_gcm=("evspsbl") # list of GCM variables that we want to process
+# declare -a vars_gcm=("evspsbl") # list of GCM variables that we want to process
 # declare -a vars_gcm=("sic") # list of GCM variables that we want to process
 # declare -a vars_gcm=("clt" "clwvi") # list of GCM variables that we want to process
 declare -a clim="rcp85" # climate name

@@ -36,7 +36,7 @@ def save_hydro(sim, **kwargs):
     if sim == 'echam':
         print('todo: fix variable names')
         # fix variable names below
-        # varnames = ['thydro0', 'shydro0', 'thydros', 'shydros', 'ahfl', 'ahfs']
+        varnames = ['precip', 'aprc']
     elif sim == 'era5':
         varnames = ['cp', 'lsp', 'e']
     else:
