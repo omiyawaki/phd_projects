@@ -55,6 +55,7 @@ def save_rad(sim, **kwargs):
         if sim == 'era5':
             rad[translate_varname(varname)] = rad[translate_varname(varname)]/86400
 
+    # compute useful derived quantities
     if sim == 'era5' or sim == 'echam':
         rad['ra'] = rad['trad0'] + rad['srad0'] - rad['trads'] - rad['srads'] 
         rad['ra_cs'] = rad['traf0'] + rad['sraf0'] - rad['trafs'] - rad['srafs']
@@ -71,6 +72,11 @@ def save_rad(sim, **kwargs):
 
         rad['lw'] = -rad['rlut'] + rad['rlus'] - rad['rlds']
         rad['lw_cs'] = -rad['rlutcs'] + rad['rlus'] - rad['rldscs']
+
+    # cloud radiative fluxes
+    rad['ra_cld'] = rad['ra'] - rad['ra_cs']
+    rad['sw_cld'] = rad['sw'] - rad['sw_cs']
+    rad['lw_cld'] = rad['lw'] - rad['lw_cs']
 
     if zonmean:
         for radname in rad:

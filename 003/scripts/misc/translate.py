@@ -200,11 +200,13 @@ def translate_varname(varnames_in, **kwargs):
         'clivi' : 'clivi', # CMIP
         
         # SEA ICE CONCENTRATION
-        'sic' : 'sic', # CMIP
+        'sic' : 'sic', # CMIP5
+        'siconc' : 'sic', # CMIP6
         'seaice' : 'sic', # ECHAM
 
         # SEA ICE DEPTH
-        'sit' : 'sit', # CMIP
+        'sit' : 'sit', # CMIP5
+        'sithick' : 'sit', # CMIP6
         'siced' : 'sit', # ECHAM
         
         # CO2 MASS

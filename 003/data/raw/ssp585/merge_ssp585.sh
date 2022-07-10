@@ -1,24 +1,28 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
-declare -a vars_gcm=("zg" "ta" "hus") # list of GCM variables that we want to process
-# declare -a vars_gcm=("ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
-# declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
-# declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
-# declare -a vars_gcm=("ta" "hus" "zg") # list of GCM variables that we want to process
-# declare -a vars_gcm=("rlutcs") # list of GCM variables that we want to process
-# declare -a vars_gcm=("ps" "tas" "ts" "hurs") # list of GCM variables that we want to process
-# declare -a vars_gcm=("clt" "clwvi") # list of GCM variables that we want to process
-# declare -a vars_gcm=("hus") # list of GCM variables that we want to process
-# declare -a vars_gcm=("tas" "ts") # list of GCM variables that we want to process
 declare -a realm=("atmos")
+# # declare -a vars_gcm=("hus" "rlut" "zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("hus") # list of GCM variables that we want to process
+# # declare -a vars_gcm=("ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
+# # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
+# # declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
+# # declare -a vars_gcm=("ta" "hus" "zg") # list of GCM variables that we want to process
+# # declare -a vars_gcm=("rlutcs") # list of GCM variables that we want to process
+# # declare -a vars_gcm=("ps" "tas" "ts" "hurs") # list of GCM variables that we want to process
+# # declare -a vars_gcm=("clt" "clwvi") # list of GCM variables that we want to process
+declare -a vars_gcm=("rlut") # list of GCM variables that we want to process
+# # declare -a vars_gcm=("tas" "ts") # list of GCM variables that we want to process
+
+# declare -a realm=("seaIce")
+# declare -a vars_gcm=("siconc") # list of GCM variables that we want to process
+
 declare -a clim="ssp585" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
 declare -a ens="r1i1p1f1" # ensemble specification 
-# declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "CESM2-WACCM/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
-declare -a models=("ACCESS-ESM1-5/" "CanESM5/" "CESM2-WACCM/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
-# declare -a models=("ACCESS-CM2/") # extended RCP runs
+# declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+# declare -a models=("ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+declare -a models=("IPSL-CM6A-LR/") # extended RCP runs
 declare -a skip_files=("_eady.nc")
 
 ###########################################################
@@ -97,10 +101,15 @@ for dirs in ${models[@]}; do # loop through models
             #######################################################################
             if [ ${vars} == "siconc" ]; then
                 ref_file=$(ls ${cwd}/${dirs}tas_*${yr_begin}01-${yr_end}12.nc)
-                sic_file=$(ls ${cwd}/${dirs}sic_*${yr_begin}01-${yr_end}12.nc)
+                sic_file=$(ls ${cwd}/${dirs}siconc_*${yr_begin}01-${yr_end}12.nc)
 
-                # rename sic file in original grid
-                mv ${sic_file} ${sic_file%.nc}.origgrid.nc
+                # extract siconc only for IPSL
+                if [ "${dirs%/}" == "IPSL-CM6A-LR" ]; then
+                    echo "Extracting siconc only..."
+                    cdo -selvar,siconc ${sic_file} ${sic_file%.nc}.origgrid.nc
+                else
+                    mv ${sic_file} ${sic_file%.nc}.origgrid.nc
+                fi
 
                 # first create file containing standard lat-lon grid data (e.g., using tas file)
                 cdo griddes ${ref_file} > ${cwd}/${dirs}grid_latlon

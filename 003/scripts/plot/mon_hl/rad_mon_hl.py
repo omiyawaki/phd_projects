@@ -36,7 +36,7 @@ def rad_mon_hl(sim, **kwargs):
 
     lat_int = np.arange(latbnd[0], latbnd[1], latstep)
 
-    model, yr_span, yr_base = get_predata(sim, timemean, kwargs)
+    model, yr_span, yr_base, yr_span_ref, yr_base_show = get_predata(sim, timemean, kwargs)
 
     if sim == 'echam':
         model_ref = refclim
@@ -48,7 +48,7 @@ def rad_mon_hl(sim, **kwargs):
             vmin = -200
             vmax = 100
             vmin_dev = -50
-            vmax_dev = 10
+            vmax_dev = 20
         elif timemean == 'jjamean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
             vmin = -150
             vmax = 50
@@ -258,9 +258,11 @@ def rad_mon_hl(sim, **kwargs):
     ax.axhline(0, color='k', linewidth=0.5)
     lp_ra = ax.plot(time, rad_dev_hl['ra'], '-', color='tab:gray', label='$\Delta R_a$')
     lp_ra_cs_lw = ax.plot(time, rad_dev_hl['lw_cs'], '--', color='tab:red', label='$\Delta \mathrm{LW}_{clear}$')
-    lp_ra_cld_lw = ax.plot(time, rad_dev_hl['lw'] - rad_dev_hl['lw_cs'], ':', color='tab:red', label='$\Delta \mathrm{LW}_{cloud}$')
+    # lp_ra_cld_lw = ax.plot(time, rad_dev_hl['lw'] - rad_dev_hl['lw_cs'], ':', color='tab:red', label='$\Delta \mathrm{LW}_{cloud}$')
+    lp_ra_cld_lw = ax.plot(time, rad_dev_hl['lw_cld'], ':', color='tab:red', label='$\Delta \mathrm{LW}_{cloud}$')
     lp_ra_cs_sw = ax.plot(time, rad_dev_hl['sw_cs'], '--', color='tab:blue', label='$\Delta \mathrm{SW}_{clear}$')
-    lp_ra_cld_sw = ax.plot(time, rad_dev_hl['sw'] - rad_dev_hl['sw_cs'], ':', color='tab:blue', label='$\Delta \mathrm{SW}_{cloud}$')
+    # lp_ra_cld_sw = ax.plot(time, rad_dev_hl['sw'] - rad_dev_hl['sw_cs'], ':', color='tab:blue', label='$\Delta \mathrm{SW}_{cloud}$')
+    lp_ra_cld_sw = ax.plot(time, rad_dev_hl['sw_cld'], ':', color='tab:blue', label='$\Delta \mathrm{SW}_{cloud}$')
     # lp_ra_jr18 = ax.plot(time, dra, '-', color='k', label='$\Delta R_{a,\,\mathrm{JR18,\,T_{2\,\mathrm{m}}}}$')
     # lp_ra_jr18_mod = ax.plot(time, dra_mod, '--', color='k', label='$\Delta R_{a,\,\mathrm{JR18},\,T_{850\,\mathrm{hPa}}}$')
     make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])

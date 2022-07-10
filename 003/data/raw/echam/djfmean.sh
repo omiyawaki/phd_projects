@@ -1,31 +1,31 @@
 #!/bin/sh
 
-varnames=("trads" "srads" "srad0" "trad0" "ahfl" "ahfs" "seaice" "temp2" "precip" "aprl" "aprc" "aps" "tend" "ra" "stf" "ra" "stgadv" "adv" "r1" "trafs" "srafs" "sraf0" "traf0" "siced") # list of GCM variables that we want to process
+# varnames=("ftoa" "fsfc" "trads" "srads" "srad0" "trad0" "ahfl" "ahfs" "seaice" "temp2" "precip" "aprl" "aprc" "aps" "tend" "ra" "stf" "ra" "stgadv" "adv" "r1" "trafs" "srafs" "sraf0" "traf0" "siced") # list of GCM variables that we want to process
 # varnames=("trafs" "srafs" "sraf0" "traf0") # list of GCM variables that we want to process
 # varnames=("trads" "srads" "srad0" "trad0" "ahfl" "ahfs" "seaice" "temp2" "precip" "aprl" "aprc" "tend") # list of GCM variables that we want to process
 # varnames=("seaice" "siced")
-# varnames=("ahfres")
+varnames=("ftoa" "fsfc")
 
 # clims=("rp000190") # climate name
 # yr_span="0001_0009"
-mean=""
+# mean=""
 
-# clims=("rp000134") # climate name
-# yr_span="0001_0049"
+# clims=("rp000191") # climate name
+# yr_span="0040_0059"
 # mean=""
 
 # clims=("rp000130") # climate name
 # yr_span="0001_0079"
 # mean=""
 
-# clims=("rp000184") # climate name
+clims=("rp000188") # climate name
 # clims=("rp000184" "rp000185" "rp000188" "rp000189") # climate name
-# yr_span="0040_0139"
-# mean=""
+yr_span="0040_0139"
+mean=""
 
-clims=("rp000134") # climate name
-# clims=("rp000130" "rp000131" "rp000134" "rp000135") # climate name
-yr_span="0020_0039"
+# clims=("rp000190") # climate name
+# # clims=("rp000130" "rp000131" "rp000134" "rp000135") # climate name
+# yr_span="0020_0039"
 # mean=".ymonmean-20"
 
 # save path to current directory

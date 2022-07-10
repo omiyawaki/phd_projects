@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-declare -a vars_gcm=("zg" "ta" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
-# declare -a vars_gcm=("zg" "ta" "hus") # list of GCM variables that we want to process
+# declare -a vars_gcm=("zg" "ta" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
+declare -a vars_gcm=("rlut") # list of GCM variables that we want to process
 declare -a clim="ssp585" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
 declare -a ens="r1i1p1f1" # ensemble specification 
-declare -a models=("ACCESS-ESM1-5/" "CanESM5/" "CESM2-WACCM/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+# declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+# declare -a models=("ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+declare -a models=("ACCESS-CM2/") # extended RCP runs
+declare -a skip_models=("")
 declare -a skip_files=("_eady.nc")
 
 in_yr_out=2300

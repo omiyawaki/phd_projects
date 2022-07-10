@@ -1,30 +1,37 @@
 #!/bin/sh
 
-# declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/historical/ && ls -d */) # list of GCM models to process
-# declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "GISS-E2-H/" "GISS-E2-R/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
-declare -a models=("HadGEM2-ES/" "bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
-# declare -a models=("bcc-csm1-1/") # extended RCP runs
-# varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
-# varnames=("hur" "hus" "ta")
-varnames=("ts")
-# varnames=("rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "tend" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
-# varnames=("gmse92500" "mse92500" "aht" "vmte")
-# varnames=("r1" "stgadv" "adv" "ra" "stf")
-# varnames=("vvmmmc" "vvmse" "vvqmmc" "vvqse" "vvsmmc" "vvsse")
-# varnames=("aht" "vmmmc" "vmse" "vmte")
-# varnames=("vqse" "vqmmc" "vsse" "vsmmc")
-# varnames=("aht" "qaht" "saht" "vmmmc" "vqmmc" "vsmmc" "vmse" "vqse" "vsse" "vmte" "vqte" "vste")
-# varnames=("daht" "dqaht" "dsaht" "dvmmmc" "dvqmmc" "dvsmmc" "dvmse" "dvqse" "dvsse" "dvmte" "dvqte" "dvste")
+# freq="Amon"
+# # varnames=("rlut" "rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "tend" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" "tas" "ts" "r1" "stgadv" "adv" "ra" "stf")
+# # varnames=("hur" "hus" "ta")
+# varnames=("pr" "prc" "evspsbl")
+# # varnames=("prfrac")
+# # varnames=("r1" "stgadv" "adv" "ra" "stf")
+
+freq="SImon"
+varnames=("siconc")
+
+# declare -a models=("bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "HadGEM2-ES" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
+# # declare -a models=("HadGEM2-ES") # extended RCP runs
+# ens="r1i1p1"
+# yr_end=2005
+# n_yr="146"
+
+declare -a ens="r1i1p1f1" # ensemble specification 
+declare -a models=("CanESM5/") # extended RCP runs
+# declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+yr_end=2014
+# n_yr="155" # average climatology from 1984-2014
+n_yr="146" # average climatology from 1975-2005
+
 sim="historical"
-freq="Amon"
-ens="r1i1p1"
-yr_span="186001-200512"
+yr_begin=1860
+yr_span="${yr_begin}01-${yr_end}12"
+
 # mean=".zonmean.amean_70_90"
 # mean=".lat_80"
-mean=".zonmean"
-# mean=""
+# mean=".zonmean"
+mean=""
 
-n_yr="146"
 n_myr_begin="30"
 
 tstep_begin=$((1 + 12 * ($n_yr - $n_myr_begin)))
@@ -44,7 +51,10 @@ for model in ${models[@]}; do
 
         echo ${varname}
 
-        filename="${varname}_${freq}_${model}_${sim}_${ens}_${yr_span}${mean}"
+        filename=$(basename ${cwd}/${model}/${varname}_${freq}_${model}_${sim}_${ens}_*${yr_span}.nc)
+        filename=${filename%.nc}
+        filename="${filename}${mean}"
+        echo $filename
 
         # create ymonmean mean file if it doesn't exist yet
         # if [ -f "${filename}.ymonmean-${n_myr_begin}.nc" ]; then

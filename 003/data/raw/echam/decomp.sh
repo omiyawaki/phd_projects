@@ -13,17 +13,21 @@ module load python
 # declare -a models=("rp000185") # extended RCP runs
 # declare -a ref_model=("rp000131") # extended RCP runs
 
+########## 30 m w/o ice QFLUX
+declare -a models=("rp000191") # extended RCP runs
+declare -a ref_model=("rp000190") # extended RCP runs
+
 ########## 40 m w/ ice
 # declare -a models=("rp000188") # extended RCP runs
 # ref_model=("rp000134")
 
-########## 40 m w/o ice
-declare -a models=("rp000189") # extended RCP runs
-declare -a ref_model=("rp000135") # extended RCP runs
+# ########## 40 m w/o ice
+# declare -a models=("rp000189") # extended RCP runs
+# declare -a ref_model=("rp000135") # extended RCP runs
 
-clim=".jjamean"
+clim=".djfmean"
 sim="echam"
-yr_span="0040_0139"
+yr_span="0040_0059"
 
 ref_clim=".ymonmean-20"
 ref_yr_span="0020_0039"

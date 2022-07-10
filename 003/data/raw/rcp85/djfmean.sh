@@ -15,7 +15,7 @@ declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "HadGEM2-ES/" "CSIRO-Mk3-6
 # varnames=("r1" "stgadv" "adv" "ra" "stf")
 # varnames=("vmte_sm")
 # varnames=("gmse92500")
-varnames=("racs")
+varnames=("ftoa" "fsfc")
 # varnames=("vvmmmc" "vvmse" "vvqmmc" "vvqse" "vvsmmc" "vvsse")
 # varnames=("ta" "hur" "hus" "tendv")
 # varnames=("tas" "rlut" "rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "tend" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" "r1" "stgadv" "adv" "ra" "stf" "ftoa" "ftoacs" "fsfc" "ts" "racs")
@@ -24,9 +24,9 @@ freq="Amon"
 ens="r1i1p1"
 yr_span="200601-229912"
 # yr_span="200601-230012"
-mean=".zonmean"
+# mean=".zonmean"
 # mean=".lat_80"
-# mean=""
+mean=""
 
 # save path to current directory
 cwd=$(pwd)

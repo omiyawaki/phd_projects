@@ -9,13 +9,15 @@ def filenames_raw(sim, varname, **kwargs):
     timemean = kwargs.get('timemean', 'yearmean') # do annual mean? (bool)
     yr_span = kwargs.get('yr_span') # considered span of years
     
-    if sim in ['hist+rcp85', 'rcp85', 'historical']:
+    if sim in ['hist+ssp585', 'ssp585', 'hist+rcp85', 'rcp85', 'historical']:
         if varname in ['orog', 'sftlf']:
             fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_*_%s_%s_*.nc' % (sim, model, varname, model, sim)))
         else:
             try:
                 if varname in ['sic']:
                     fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_OImon_%s_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean)))
+                elif varname in ['siconc']:
+                    fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_SImon_%s_%s_*_%s.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean)))
                 elif varname in ['diffv92500', 'tdiffv92500', 'vmte', 'aht', 'gmse92500', 'mse92500']:
                     fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_Amon_%s_%s_*_%s.zonmean.shsmooth.%s.nc' % (sim, model, varname, model, sim, yr_span, timemean)))
                 else:

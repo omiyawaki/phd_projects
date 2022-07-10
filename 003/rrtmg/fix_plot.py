@@ -7,11 +7,11 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 from tools import get_modelidx, get_modelstr
 
-models = ['mmm']
+# models = ['mmm']
 # models=['CSIRO-Mk3-6-0']
 # models=['IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR']
 # models=['bcc-csm1-1', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR']
-# models=['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR']
+models=['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR']
 
 for model in models:
 
@@ -197,7 +197,7 @@ for model in models:
     lfull,=ax.plot(time, full['racs']-ref['racs'], color='black', label='All')
     lco2,=ax.plot(time, fixqt['racs']-ref['racs'], '-', color='tab:green', label='CO$_2$')
     lt,=ax.plot(time, fixqco2['racs']-ref['racs'], '-', color='tab:orange', label='T')
-    lq,=ax.plot(time, fixtco2['racs']-ref['racs'], '-', color='tab:blue', label='Q')
+    lq,=ax.plot(time, fixtco2['racs']-ref['racs'], '-', color='tab:blue', label='q')
     ax.set_xlim([time[0], time[-1]])
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -224,7 +224,7 @@ for model in models:
     lfull,=ax.plot(time, full['racs']-ref['racs'], color='black', label='All')
     lco2,=ax.plot(time, fixqt['racs']-ref['racs'], '-', color='tab:green', label='CO$_2$')
     lt,=ax.plot(time, fixqco2['racs']-ref['racs'], '-', color='tab:orange', label='T')
-    lq,=ax.plot(time, fixtco2['racs']-ref['racs'], '-', color='tab:blue', label='Q')
+    lq,=ax.plot(time, fixtco2['racs']-ref['racs'], '-', color='tab:blue', label='q')
     ax.set_xlim([time[0], time[-1]])
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -254,7 +254,7 @@ for model in models:
     lfull,=ax.plot(time, full['racs']-ref['racs'], color='black', label='All')
     lco2,=ax.plot(time, fixqt['racs']-ref['racs'], '-', color='tab:green', label='CO$_2$')
     lt,=ax.plot(time, fixqco2['racs']-ref['racs'], '-', color='tab:orange', label='T')
-    lq,=ax.plot(time, fixtco2['racs']-ref['racs'], '-', color='tab:blue', label='Q')
+    lq,=ax.plot(time, fixtco2['racs']-ref['racs'], '-', color='tab:blue', label='q')
     ax.set_xlim([time[0], time[-1]])
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -280,9 +280,9 @@ for model in models:
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     lres,=ax.plot(time, full['racs']-fixqt['racs']-fixrhco2['racs']-fixtco2devrh['racs']+2*ref['racs'], '-.', color='k', label='Residual')
     lfull,=ax.plot(time, full['racs']-ref['racs'], color='black', label='All')
-    lco2,=ax.plot(time, fixqt['racs']-ref['racs'], '-', color='tab:green', label='CO$_2$')
-    lcc,=ax.plot(time, fixrhco2['racs']-ref['racs'], '-', color='tab:orange', label=r'T+CC')
-    ldcc,=ax.plot(time, fixtco2devrh['racs']-ref['racs'], '-', color='tab:blue', label=r'RH')
+    lco2,=ax.plot(time, fixqt['racs']-ref['racs'], '-', color='tab:green', label='$\Delta$CO$_2$')
+    lcc,=ax.plot(time, fixrhco2['racs']-ref['racs'], '-', color='tab:orange', label=r'$\Delta T$, $\Delta q|_\mathrm{fix\,RH}$')
+    ldcc,=ax.plot(time, fixtco2devrh['racs']-ref['racs'], '-', color='tab:blue', label=r'$\Delta RH q^\ast|_\mathrm{clim}$')
     ax.set_xlim([time[0], time[-1]])
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -307,9 +307,9 @@ for model in models:
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     lres,=ax.plot(time, full['racs']-fixqt['racs']-fixrhco2['racs']-fixtco2devrh['racs']+2*ref['racs'], '-.', color='k', label='Residual')
     lfull,=ax.plot(time, full['racs']-ref['racs'], color='black', label='All')
-    lco2,=ax.plot(time, fixqt['racs']-ref['racs'], '-', color='tab:green', label='CO$_2$')
-    lcc,=ax.plot(time, fixrhco2['racs']-ref['racs'], '-', color='tab:orange', label=r'T+CC')
-    ldcc,=ax.plot(time, fixtco2devrh['racs']-ref['racs'], '-', color='tab:blue', label=r'RH')
+    lco2,=ax.plot(time, fixqt['racs']-ref['racs'], '-', color='tab:green', label='$\Delta$CO$_2$')
+    lcc,=ax.plot(time, fixrhco2['racs']-ref['racs'], '-', color='tab:orange', label=r'$\Delta T$, $\Delta q|_\mathrm{fix\,RH}$')
+    ldcc,=ax.plot(time, fixtco2devrh['racs']-ref['racs'], '-', color='tab:blue', label=r'$\Delta RH q^\ast|_\mathrm{clim}$')
     ax.set_xlim([time[0], time[-1]])
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
@@ -338,9 +338,9 @@ for model in models:
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     lres,=ax.plot(time, full['racs']-fixqt['racs']-fixrhco2['racs']-fixtco2devrh['racs']+2*ref['racs'], '-.', color='k', label='Residual')
     lfull,=ax.plot(time, full['racs']-ref['racs'], color='black', label='All')
-    lco2,=ax.plot(time, fixqt['racs']-ref['racs'], '-', color='tab:green', label='CO$_2$')
-    lcc,=ax.plot(time, fixrhco2['racs']-ref['racs'], '-', color='tab:orange', label=r'T+CC')
-    ldcc,=ax.plot(time, fixtco2devrh['racs']-ref['racs'], '-', color='tab:blue', label=r'RH')
+    lco2,=ax.plot(time, fixqt['racs']-ref['racs'], '-', color='tab:green', label='$\Delta$CO$_2$')
+    lcc,=ax.plot(time, fixrhco2['racs']-ref['racs'], '-', color='tab:orange', label=r'$\Delta T$, $\Delta q|_\mathrm{fix\,RH}$')
+    ldcc,=ax.plot(time, fixtco2devrh['racs']-ref['racs'], '-', color='tab:blue', label=r'$\Delta RH q^\ast|_\mathrm{clim}$')
     ax.set_xlim([time[0], time[-1]])
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())

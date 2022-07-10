@@ -52,10 +52,14 @@ def base_title_str(sim, **kwargs):
 
     if sim == 'rcp85':
         base_str = '%s, %s' % ('RCP8.5', model)
+    elif sim == 'ssp585':
+        base_str = '%s, %s' % ('SSP585', model)
     elif sim == 'historical':
         base_str = '%s, %s' % ('historical', model)
     elif sim == 'hist+rcp85':
         base_str = '%s, %s' % ('RCP8.5', model)
+    elif sim == 'hist+ssp585':
+        base_str = '%s, %s' % ('SSP585', model)
     elif sim == 'longrun':
         if model == 'MPIESM12_control':
             base_str = 'MPI-ESM-LR piControl'
@@ -78,7 +82,7 @@ def base_title_str(sim, **kwargs):
             base_str = 'AQUAice 40 m'
         elif model in ['rp000135', 'rp000189']:
             base_str = 'AQUAnoice 40 m'
-        elif model in ['rp000190']:
+        elif model in ['rp000190', 'rp000191']:
             base_str = 'AQUAqflux 40 m'
     elif sim == 'era5':
         base_str = 'ERA5'

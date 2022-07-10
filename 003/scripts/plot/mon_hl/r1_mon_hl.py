@@ -16,6 +16,7 @@ from scipy.interpolate import interp1d, interp2d
 from scipy.ndimage import uniform_filter
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from plot.preamble import get_predata
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 # import tikzplotlib
 
@@ -40,35 +41,7 @@ def r1_mon_hl(sim, **kwargs):
 
     lat_int = np.arange(latbnd[0], latbnd[1], latstep)
 
-    if sim == 'longrun':
-        model = kwargs.get('model', 'MPIESM12_abrupt4x')
-        yr_span = kwargs.get('yr_span', '1000')
-        yr_base = 0
-    elif sim == 'rcp85':
-        model = kwargs.get('model', 'MPI-ESM-LR')
-        yr_span = kwargs.get('yr_span', '200601-230012')
-        if 'ymonmean' not in timemean:
-            yr_base = 2006
-        else:
-            yr_base = 0
-    elif sim == 'historical':
-        model = kwargs.get('model', 'MPI-ESM-LR')
-        yr_span = kwargs.get('yr_span', '186001-200512')
-        if 'ymonmean' not in timemean:
-            yr_base = 1860
-        else:
-            yr_base = 0
-    elif sim == 'echam':
-        model = kwargs.get('model', 'rp000140')
-        yr_span = kwargs.get('yr_span', '0001_0039')
-        yr_base = 0
-    elif sim == 'era5':
-        model = None
-        yr_span = kwargs.get('yr_span', '1979_2019')
-        if 'ymonmean' not in timemean:
-            yr_base = int(yr_span[0:4])
-        else:
-            yr_base = 0
+    model, yr_span, yr_base, yr_span_ref, yr_base_show = get_predata(sim, timemean, kwargs)
 
     ##########################################
     ## Y AXIS SPECIFICATIONS
@@ -106,7 +79,7 @@ def r1_mon_hl(sim, **kwargs):
         if refclim == 'hist-30':
             sim_ref = 'historical'
             timemean_ref = 'ymonmean-30'
-            yr_span_ref = '186001-200512'
+            # yr_span_ref = '186001-200512'
             if isinstance(model, str):
                 [seaice_ref, _, _, _, _] = load_seaice(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
             else:
@@ -128,7 +101,7 @@ def r1_mon_hl(sim, **kwargs):
         if refclim == 'hist-30':
             sim_ref = 'historical'
             timemean_ref = 'ymonmean-30'
-            yr_span_ref = '186001-200512'
+            # yr_span_ref = '186001-200512'
             if isinstance(model, str):
                 [hydro_ref, _, _, _, _] = load_hydro(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
             else:
@@ -251,7 +224,8 @@ def r1_mon_hl(sim, **kwargs):
         ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.set_ylabel('$R_1$ (unitless)')
     ax.yaxis.set_minor_locator(MultipleLocator(0.01))
-    ax.set_xlim(yr_base,yr_base+r1_hl.shape[0]-1)
+    # ax.set_xlim(yr_base,yr_base+r1_hl.shape[0]-1)
+    ax.set_xlim(yr_base_show,yr_base+r1_hl.shape[0]-1)
     ax.set_ylim(vmin['r1'],vmax['r1'])
 
     fig.set_size_inches(4, 3.5)
@@ -344,13 +318,13 @@ def r1_mon_hl(sim, **kwargs):
 
         # take mean in high latitudes
         pr_hl_mmm = dict()
-        prl_hl_mmm = dict()
+        # prl_hl_mmm = dict()
         prc_hl_mmm = dict()
         prfrac_hl_mmm = dict()
         if not ( isinstance(model, str) or (model is None) ):
             for i in hydro_mmm['pr']:
                 pr_hl_mmm[i] = lat_mean(hydro_mmm['pr'][i], grid, lat_int, dim=1)
-                prl_hl_mmm[i] = lat_mean(hydro_mmm['prl'][i], grid, lat_int, dim=1)
+                # prl_hl_mmm[i] = lat_mean(hydro_mmm['prl'][i], grid, lat_int, dim=1)
                 prc_hl_mmm[i] = lat_mean(hydro_mmm['prc'][i], grid, lat_int, dim=1)
                 prfrac_hl_mmm[i] = lat_mean(hydro_mmm['prc'][i]/hydro_mmm['pr'][i], grid, lat_int, dim=1)
 
@@ -452,31 +426,31 @@ def r1_mon_hl(sim, **kwargs):
         sax.yaxis.set_minor_locator(AutoMinorLocator())
         ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
 
-    elif plotover == 'prl':
-        ############################################
-        # COMPARE WITH LARGE-SCALE PRECIPITATION
-        ###########################################
-        plotname = '%s.%s' % (plotname, plotover)
+    #elif plotover == 'prl':
+    #    ############################################
+    #    # COMPARE WITH LARGE-SCALE PRECIPITATION
+    #    ###########################################
+    #    plotname = '%s.%s' % (plotname, plotover)
 
-        pr_file = filenames_raw(sim, 'pr', model=model, timemean=timemean, yr_span=yr_span)
-        prc_file = filenames_raw(sim, 'prc', model=model, timemean=timemean, yr_span=yr_span)
-        if not zonmean:
-            prl = pr_file.variables['pr'][:]-prc_file.variables['prc'][:]
-        else:
-            prl = np.mean(np.squeeze(pr_file.variables['pr'][:]-prc_file.variables['prc'][:]),2)
+    #    pr_file = filenames_raw(sim, 'pr', model=model, timemean=timemean, yr_span=yr_span)
+    #    prc_file = filenames_raw(sim, 'prc', model=model, timemean=timemean, yr_span=yr_span)
+    #    if not zonmean:
+    #        prl = pr_file.variables['pr'][:]-prc_file.variables['prc'][:]
+    #    else:
+    #        prl = np.mean(np.squeeze(pr_file.variables['pr'][:]-prc_file.variables['prc'][:]),2)
 
-        prl = 86400*prl # convert kg m**-2 s**-1 to mm d**-1
+    #    prl = 86400*prl # convert kg m**-2 s**-1 to mm d**-1
 
-        prl_hl = lat_mean(prl, grid, lat_int, dim=1)
+    #    prl_hl = lat_mean(prl, grid, lat_int, dim=1)
 
-        sax = ax.twinx()
-        sax.plot(time, prl_hl, color='tab:blue')
-        sax.set_ylabel(r'$P_l$ (mm d$^{-1}$)', color='tab:blue')
-        sax.set_ylim(vmin['prl'],vmax['prl'])
-        sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
-        sax.yaxis.set_minor_locator(AutoMinorLocator())
+    #    sax = ax.twinx()
+    #    sax.plot(time, prl_hl, color='tab:blue')
+    #    sax.set_ylabel(r'$P_l$ (mm d$^{-1}$)', color='tab:blue')
+    #    sax.set_ylim(vmin['prl'],vmax['prl'])
+    #    sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
+    #    sax.yaxis.set_minor_locator(AutoMinorLocator())
 
-        ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
+    #    ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
 
     elif plotover == 'clt':
         ############################################

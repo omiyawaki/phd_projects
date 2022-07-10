@@ -83,17 +83,17 @@
 
 \begin{table}
     \centering
-    \caption{List of the 7 models that are used for the multimodel mean of the extended RCP8.5 run. Following \citeA{hankel2021}, GISS-E2-H and GISS-E2-R are omitted as outliers (wintertime sea ice does not melt during the extended RCP8.5 run).}
+    \caption{List of the 7 CMIP5 and 5 CMIP6 models that are used for the multimodel mean of the extended RCP8.5 and SSP585 runs, respectively. Following \citeA{hankel2021}, GISS-E2-H and GISS-E2-R are omitted as outliers from the CMIP5 mean (deemed outliers because wintertime sea ice does not melt during the extended RCP8.5 run).}
     \label{tab:models}
-    \begin{tabular}{l}
+    \begin{tabular}{l l}
         \hline
-        Models \\
+        CMIP5 & CMIP6 \\
         \hline
-        bcc-csm1-1 \\
-        CCSM4 \\
-        CNRM-CM5 \\
-        CSIRO-Mk3-6-0\\
-        HadGEM2-ES \\
+        bcc-csm1-1 & ACCESS-CM2\\
+        CCSM4 & ACCESS-ESM1-5\\
+        CNRM-CM5 & CanESM5\\
+        CSIRO-Mk3-6-0 & IPSL-CM6A-LR\\
+        HadGEM2-ES & MRI-ESM2-0\\
         IPSL-CM5A-LR \\
         MPI-ESM-LR\\
         \hline
@@ -104,6 +104,42 @@
     \centering
     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/echam/qflux/qflux}.pdf}
     \caption{The seasonally varying Q-flux (positive values correspond to heat flux divergence, a cooling influence) that is prescribed for the AQUAqflux run. The zero contour is indicated in black.}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/qflux/clima}.pdf}
+    \caption{(a) Surface temperature tendency, (b) surface net longwave radiative flux, (c) surface latent heat flux, and (d) surface sensible heat flux for 40 m AQUA with ice (blue), with q flux but no ice (red), and no q flux and no ice (black).}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip6/fig_2/fig_2}.pdf}
+    \caption{Same as Fig.~2 but for the CMIP6 mean of the extended SSP585 run.}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip5/fig_2_all/fig_2_all}.pdf}
+    \caption{Same as Fig.~2 (a) but for individual CMIP5 models (b--h).}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip6/fig_2_all/fig_2_all}.pdf}
+    \caption{Same as Fig.~S3 (a) but for individual CMIP6 models (b--f).}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip5/fig_3a_all/fig_3a_all}.pdf}
+    \caption{Same as Fig.~3a (a) but for individual CMIP5 models (b--h).}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip5/fig_3b_all/fig_3b_all}.pdf}
+    \caption{Same as Fig.~3b (a) but for individual CMIP5 models (b--h).}
 \end{figure}
 
 

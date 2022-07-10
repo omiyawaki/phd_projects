@@ -34,14 +34,14 @@ def save_r1(sim, **kwargs):
 
     # variable names
     if sim == 'echam':
-        if model in ['rp000184', 'rp000185', 'rp000188', 'rp000189']:
+        if model in ['rp000184', 'rp000185', 'rp000188', 'rp000189', 'rp000191']:
             varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'dr1', 'dcra', 'dcdyn', 'dcres', 'dcstf', 'trad0', 'srad0', 'trads', 'srads', 'ahfl', 'ahfs', 'precip']
         else:
             varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'trad0', 'srad0', 'trads', 'srads', 'ahfl', 'ahfs', 'precip']
     elif sim == 'era5':
         varnames = ['ftoa', 'fsfc', 'ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf', 'cp', 'lsp']
     else:
-        if sim == 'rcp85':
+        if sim in ['rcp85', 'ssp585', 'hist+rcp85', 'hist+ssp585']:
             varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr', 'dr1', 'dcra', 'dcdyn', 'dcres', 'dcstf']
         else:
             varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr']

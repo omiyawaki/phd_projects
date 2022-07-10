@@ -10,16 +10,16 @@ sim="echam"
 # declare -a models=("rp000190") # climate name
 # yr_span="0001_0009"
 
-# declare -a models=("rp000134") # climate name
-# yr_span="0001_0049"
+declare -a models=("rp000191") # climate name
+yr_span="0040_0059"
 
 # declare -a models=("rp000184") # extended RCP runs
 # # declare -a models=("rp000185" "rp000189") # extended RCP runs
 # yr_span="0040_0139"
 
-declare -a models=("rp000190") # extended RCP runs
-# declare -a models=("rp000130" "rp000131" "rp000134" "rp000135") # extended RCP runs
-yr_span="0020_0039"
+# declare -a models=("rp000190") # extended RCP runs
+# # declare -a models=("rp000130" "rp000131" "rp000134" "rp000135") # extended RCP runs
+# yr_span="0020_0039"
 
 cwd=$(pwd) # save current working directory
 

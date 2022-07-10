@@ -1,20 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+table="Amon"
+# declare -a vars_gcm=("pr" "prc" "evspsbl" "ftoa" "fsfc" "rlut" "rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "tend" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" "tas" "ts" "r1" "stgadv" "adv" "ra" "stf")
 # declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
-# declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
-# declare -a vars_gcm=("ps" "tas" "ta" "zg" "hus") # list of GCM variables that we want to process
-# declare -a vars_gcm=("aht" "vmmmc" "vmse" "vmte") # list of GCM variables that we want to process
-# declare -a vars_gcm=("gmse92500") # list of GCM variables that we want to process
-# declare -a vars_gcm=("gmse92500" "mse92500" "vmte" "aht" "diffv92500" "tdiffv92500") # list of GCM variables that we want to process
-declare -a vars_gcm=("ta") # list of GCM variables that we want to process
-# declare -a vars_gcm=("ra" "stf" "stgadv" "adv" "r1") # list of GCM variables that we want to process
-declare -a realm=("atmos")
-declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
-table="Amon"
-mean=".zonmean.djfmean"
-# mean=""
+declare -a vars_gcm=("tend") # list of GCM variables that we want to process
+
+# table="OImon"
+# declare -a vars_gcm=("sic") # list of GCM variables that we want to process
+
+# mean=".zonmean.djfmean"
+mean=".djfmean"
+
 declare -a ens="r1i1p1" # ensemble specification 
 # declare -a ens="r0i0p0" # ensemble specification 
 # declare -a models=$(cd /project2/tas1/ockham/data9/tas/CMIP5_RAW && ls -d */) # list of GCM models to process

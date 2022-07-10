@@ -2,9 +2,9 @@
 set -euo pipefail
 
 dim="BOT"
-# declare -a vars_gcm=("albedo" "sradsu" "tsurf" "trads" "srads" "srad0" "trad0" "ahfl" "ahfs" "seaice" "temp2" "precip" "aprl" "aprc" "aps" "trafs" "srafs" "sraf0" "traf0" "siced") # list of GCM variables that we want to process
+declare -a vars_gcm=("albedo" "sradsu" "tsurf" "trads" "srads" "srad0" "trad0" "ahfl" "ahfs" "seaice" "temp2" "precip" "aprl" "aprc" "aps" "trafs" "srafs" "sraf0" "traf0" "siced") # list of GCM variables that we want to process
 # declare -a vars_gcm=("tsurf" "trads" "srads" "ahfl" "ahfs") # list of GCM variables that we want to process
-declare -a vars_gcm=("trad0" "srad0") # list of GCM variables that we want to process
+# declare -a vars_gcm=("trad0" "srad0") # list of GCM variables that we want to process
 # declare -a vars_gcm=("albedo" "sradsu") # list of GCM variables that we want to process
 # declare -a vars_gcm=("precip" "aprl" "aprc") # list of GCM variables that we want to process
 # declare -a vars_gcm=("seaice" "siced") # list of GCM variables that we want to process
@@ -18,13 +18,13 @@ declare -a vars_gcm=("trad0" "srad0") # list of GCM variables that we want to pr
 # yr0=0001
 # yr1=0009
 
-declare -a clims=("rp000135") # climate name
-yr0=0001
-yr1=0039
-
-# declare -a clims=("rp000134") # climate name
+# declare -a clims=("rp000135") # climate name
 # yr0=0001
-# yr1=0049
+# yr1=0039
+
+declare -a clims=("rp000191") # climate name
+yr0=0040
+yr1=0059
 
 # declare -a clims=("rp000130") # climate name
 # yr0=0001
@@ -71,8 +71,8 @@ for dirs in ${clims[@]}; do # loop through models
             # pattern=$(ls ${dim}_${dirs}_{0040..0139}.nc)
             # pattern=$(ls ${dim}_${dirs}_{0020..0039}.nc)
             # pattern=$(ls ${dim}_${dirs}_{0001..0009}.nc)
-            pattern=$(ls ${dim}_${dirs}_{0001..0039}.nc)
-            # pattern=$(ls ${dim}_${dirs}_{0001..0049}.nc)
+            # pattern=$(ls ${dim}_${dirs}_{0001..0039}.nc)
+            pattern=$(ls ${dim}_${dirs}_{0040..0059}.nc)
             # pattern=$(ls ${dim}_${dirs}_{0001..0079}.nc)
             files=( $pattern )
             echo $files

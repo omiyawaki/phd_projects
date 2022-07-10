@@ -4,16 +4,16 @@
 # declare -a sims=("rp000190") # climate name
 # yr_span="0001_0009"
 
-# declare -a sims=("rp000134") # climate name
-# yr_span="0001_0049"
+declare -a sims=("rp000191") # climate name
+yr_span="0040_0059"
 
 # sims=("rp000184")
 # # sims=("rp000185" "rp000188")
 # yr_span="0040_0139"
 
-sims=("rp000190")
-# sims=("rp000130" "rp000131" "rp000134" "rp000135")
-yr_span="0020_0039"
+# sims=("rp000190")
+# # sims=("rp000130" "rp000131" "rp000134" "rp000135")
+# yr_span="0020_0039"
 
 cwd=$(pwd) # save current working directory
 

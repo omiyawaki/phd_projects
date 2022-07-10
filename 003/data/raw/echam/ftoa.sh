@@ -11,15 +11,15 @@ sim="echam"
 # # declare -a models=("rp000185" "rp000189") # extended RCP runs
 # yr_span="0001_0009"
 
-declare -a models=("rp000135") # extended RCP runs
-yr_span="0001_0039"
+# declare -a models=("rp000135") # extended RCP runs
+# yr_span="0001_0039"
 
-# declare -a models=("rp000134") # extended RCP runs
-# yr_span="0001_0049"
+# declare -a models=("rp000191") # extended RCP runs
+# yr_span="0040_0059"
 
-# declare -a models=("rp000184") # extended RCP runs
-# # declare -a models=("rp000185" "rp000189") # extended RCP runs
-# yr_span="0040_0139"
+declare -a models=("rp000188") # extended RCP runs
+# declare -a models=("rp000185" "rp000189") # extended RCP runs
+yr_span="0040_0139"
 
 # declare -a models=("rp000134") # extended RCP runs
 # # declare -a models=("rp000131" "rp000134") # extended RCP runs

@@ -6,8 +6,8 @@
 # yr_end=2005
 
 declare -a ens="r1i1p1f1" # ensemble specification 
-# declare -a models=("MRI-ESM2-0/") # extended RCP runs
-declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "CESM2-WACCM/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+declare -a models=("MRI-ESM2-0/") # extended RCP runs
+# declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "CESM2-WACCM/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
 yr_end=2014
 
 sim="historical"

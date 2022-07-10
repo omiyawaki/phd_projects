@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 from tools import get_modelidx, get_modelstr
 
-models = ['mmm']
+# models = ['mmm']
 # models=['CCSM4']
 # models=['bcc-csm1-1', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR']
-# models=['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR']
+models=['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR']
 
 for model in models:
 

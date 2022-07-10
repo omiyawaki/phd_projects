@@ -1,21 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-declare -a vars_gcm=("hus" "zg" "ta" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
+# declare -a realm=("atmos")
+# declare -a vars_gcm=("tas") # list of GCM variables that we want to process
+# declare -a vars_gcm=("hus" "zg" "ta" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "tas" "ta" "zg" "hus") # list of GCM variables that we want to process
 # declare -a vars_gcm=("clt" "clwvi") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ta" "hus" "hur") # list of GCM variables that we want to process
-# declare -a vars_gcm=("hurs") # list of GCM variables that we want to process
-declare -a realm=("atmos")
+
+declare -a realm=("seaIce")
+declare -a vars_gcm=("siconc") # list of GCM variables that we want to process
+
 declare -a clim="historical" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
 declare -a ens="r1i1p1f1" # ensemble specification 
 mean=""
 # declare -a ens="r0i0p0" # ensemble specification 
-declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "CESM2-WACCM/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+# declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "CESM2-WACCM/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+declare -a models=("CanESM5/") # extended RCP runs
 declare -a skip_files=("_eady.nc")
 
 declare -a skip_models="inmcm4/ FGOALS-s2/ CanAM4/ CanCM4/ CESM1-CAM5-1-FV2/ EC-EARTH/ FIO-ESM/ HadGEM2-A/ HadGEM2-AO/ GFDL-HIRAM-C180/ GFDL-HIRAM-C360/ MRI-AGCM3-2H/ MRI-AGCM3-2S/ NICAM-09/ MPI-ESM-P/"
@@ -100,12 +105,21 @@ for dirs in ${models[@]}; do # loop through models
                 #######################################################################
                 # convert curvilinear to standard lat lon grid for sea ice data
                 #######################################################################
-                if [ ${vars} == "sic" ]; then
+                if [ ${vars} == "siconc" ]; then
                     ref_file=$(ls ${cwd}/${dirs}tas_*${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}${mean}.nc)
-                    sic_file=$(ls ${cwd}/${dirs}sic_*${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}${mean}.nc)
+                    sic_file=$(ls ${cwd}/${dirs}siconc_*${out_yr_begin}${out_mn_begin}-${out_yr_end}${out_mn_end}${mean}.nc)
 
-                    # rename sic file in original grid
-                    mv ${sic_file} ${sic_file%.nc}.origgrid.nc
+                    # extract siconc only for IPSL
+                    if [ "${dirs%/}" == "IPSL-CM6A-LR" ]; then
+                        echo "Extracting siconc only..."
+                        cdo -selvar,siconc ${sic_file} ${sic_file%.nc}.origgrid.nc
+                    # sic in canesm5 is not in percentage so correct by multiplying by factor of 100
+                    elif [ "${dirs%/}" == "CanESM5" ]; then
+                        cdo -mulc,100 ${sic_file} ${sic_file%.nc}.origgrid.nc
+                    else
+                        mv ${sic_file} ${sic_file%.nc}.origgrid.nc
+                    fi
+
 
                     # first create file containing standard lat-lon grid data (e.g., using tas file)
                     cdo griddes ${ref_file} > ${cwd}/${dirs}grid_latlon

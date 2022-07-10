@@ -99,7 +99,10 @@ def load_r1(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -160,7 +163,10 @@ def load_r1_dc(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -228,7 +234,10 @@ def load_dr1(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -296,7 +305,10 @@ def load_flux(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -364,7 +376,10 @@ def load_cl_in(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -433,7 +448,10 @@ def load_rad(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -501,7 +519,10 @@ def load_ke(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -569,7 +590,10 @@ def load_hydro(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -634,7 +658,10 @@ def load_co2(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         co2list = [ [] for _ in range(len(modellist)) ]
@@ -696,7 +723,10 @@ def load_seaice(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -765,7 +795,10 @@ def load_circ(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -833,7 +866,10 @@ def load_dyn(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -909,7 +945,10 @@ def load_diffv(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -988,7 +1027,10 @@ def load_ga(sim, categ, vertbnd, vertcoord, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}
@@ -1061,7 +1103,10 @@ def load_dta(sim, categ, **kwargs):
     else: # multi-model mean
         modellist = model
         model = 'mmm'
-        modelstr = 'CMIP5 mean'
+        if sim in ['rcp85', 'hist+rcp85']:
+            modelstr = 'CMIP5 mean'
+        elif sim in ['ssp585', 'hist+ssp585']:
+            modelstr = 'CMIP6 mean'
         plotdir = get_plotdir(sim, model=model, yr_span=yr_span, categ=categ)
 
         grid0 = {}

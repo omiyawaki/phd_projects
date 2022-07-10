@@ -38,6 +38,8 @@ def save_seaice(sim, **kwargs):
         print('todo: fix variable names')
         # fix variable names below
         # varnames = ['cp', 'lsp', 'e']
+    elif model in ['ACCESS-CM2', 'ACCESS-ESM1-5', 'CanESM5', 'IPSL-CM6A-LR', 'MRI-ESM2-0']:
+        varnames = ['siconc']
     else:
         varnames = ['sic']
 
@@ -55,6 +57,7 @@ def save_seaice(sim, **kwargs):
 
     if zonmean:
         for seaicename in seaice:
-            seaice[seaicename] = np.mean(seaice[seaicename], 2)
+            # seaice[seaicename] = np.mean(seaice[seaicename], 2)
+            seaice[seaicename] = np.nanmean(seaice[seaicename], 2)
     
     pickle.dump([seaice, grid], open(remove_repdots('%s/seaice.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
