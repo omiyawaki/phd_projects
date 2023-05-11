@@ -36,7 +36,7 @@ def rad_mon_hl(sim, **kwargs):
 
     lat_int = np.arange(latbnd[0], latbnd[1], latstep)
 
-    model, yr_span, yr_base, yr_span_ref, yr_base_show = get_predata(sim, timemean, kwargs)
+    model, yr_span, yr_base, yr_span_ref, yr_base_show,yr_end_show = get_predata(sim, timemean, kwargs)
 
     if sim == 'echam':
         model_ref = refclim
@@ -47,8 +47,8 @@ def rad_mon_hl(sim, **kwargs):
         if timemean == 'djfmean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
             vmin = -200
             vmax = 100
-            vmin_dev = -50
-            vmax_dev = 20
+            vmin_dev = -33
+            vmax_dev = 6
         elif timemean == 'jjamean': # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
             vmin = -150
             vmax = 50
@@ -72,32 +72,32 @@ def rad_mon_hl(sim, **kwargs):
 
     if isinstance(model, str) or model is None:
         [rad, grid, datadir, plotdir, modelstr] = load_rad(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
-        [hydro, grid, datadir, plotdir, modelstr] = load_hydro(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+        # [hydro, grid, datadir, plotdir, modelstr] = load_hydro(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
     else:
         [rad, grid, datadir, plotdir, modelstr, rad_mmm] = load_rad(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
-        [hydro, grid, datadir, plotdir, modelstr, hydro_mmm] = load_hydro(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+        # [hydro, grid, datadir, plotdir, modelstr, hydro_mmm] = load_hydro(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
 
     if not refclim == '':
         if isinstance(model, str):
             [rad_ref, _, _, _, _] = load_rad(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model_ref, yr_span=yr_span_ref)
-            [hydro_ref, _, _, _, _] = load_hydro(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model_ref, yr_span=yr_span_ref)
+            # [hydro_ref, _, _, _, _] = load_hydro(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model_ref, yr_span=yr_span_ref)
         else:
             [rad_ref, _, _, _, _, rad_ref_mmm] = load_rad(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model_ref, yr_span=yr_span_ref)
-            [hydro_ref, _, _, _, _, hydro_ref_mmm] = load_hydro(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model_ref, yr_span=yr_span_ref)
+            # [hydro_ref, _, _, _, _, hydro_ref_mmm] = load_hydro(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model_ref, yr_span=yr_span_ref)
 
         if timemean == 'djfmean':
             for radname in rad_ref:
                 rad_ref[radname] = np.mean(np.roll(rad_ref[radname],1,axis=0)[0:3], 0)
-            for hydroname in hydro_ref:
-                hydro_ref[hydroname] = np.mean(np.roll(hydro_ref[hydroname],1,axis=0)[0:3], 0)
+            # for hydroname in hydro_ref:
+            #     hydro_ref[hydroname] = np.mean(np.roll(hydro_ref[hydroname],1,axis=0)[0:3], 0)
         elif timemean == 'jjamean':
             for radname in rad_ref:
                 rad_ref[radname] = np.mean(rad_ref[radname][5:8], 0)
-            for hydroname in hydro_ref:
-                hydro_ref[hydroname] = np.mean(hydro_ref[hydroname][5:8], 0)
+            # for hydroname in hydro_ref:
+            #     hydro_ref[hydroname] = np.mean(hydro_ref[hydroname][5:8], 0)
 
         rad_ref_hl = {}
-        hydro_ref_hl = {}
+        # hydro_ref_hl = {}
 
     ############################################
     # AVERAGE FLUXES ONLY AT HIGH LATITUDES
@@ -130,7 +130,7 @@ def rad_mon_hl(sim, **kwargs):
     # Compute predicted ra_dev
     ############################################
     df_tlcl = -1 # W m**-2 K**-1, radiative cooling flux divergence in T coord at LCL
-    dra = df_tlcl * rad_dev_hl['tmax']
+    # dra = df_tlcl * rad_dev_hl['tmax']
     # dra_mod = df_tlcl * hydro_dev_hl['t850']
 
     ############################################
@@ -151,7 +151,7 @@ def rad_mon_hl(sim, **kwargs):
     ax.set_ylabel('$\Delta$ Energy flux (Wm$^{-2}$)')
     ax.xaxis.set_minor_locator(MultipleLocator(10))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
-    ax.set_xlim(yr_base,yr_base+rad_dev_hl['ra'].shape[0]-1)
+    ax.set_xlim(yr_base_show,yr_end_show)
     ax.set_ylim(vmin_dev,vmax_dev)
     if legend:
         ax.legend()
@@ -197,7 +197,7 @@ def rad_mon_hl(sim, **kwargs):
     fig, ax = plt.subplots()
     ax.axhline(0, color='k', linewidth=0.5)
     lp_ra = ax.plot(time, rad_dev_hl['ra'], '-', color='tab:gray', label='$\Delta R_{a}$')
-    lp_ra_jr18 = ax.plot(time, dra, '-', color='k', label='Theory (JR18)')
+    # lp_ra_jr18 = ax.plot(time, dra, '-', color='k', label='Theory (JR18)')
     # lp_ra_jr18_mod = ax.plot(time, dra_mod, '--', color='k', label='$\Delta R_{a,\,\mathrm{JR18},\,T_{850\,\mathrm{hPa}}}$')
     make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
@@ -209,7 +209,7 @@ def rad_mon_hl(sim, **kwargs):
     ax.set_ylabel('$\Delta$ Energy flux (Wm$^{-2}$)')
     ax.xaxis.set_minor_locator(MultipleLocator(10))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
-    ax.set_xlim(yr_base,yr_base+rad_dev_hl['ra'].shape[0]-1)
+    ax.set_xlim(yr_base_show,yr_end_show)
     ax.set_ylim(vmin_dev,vmax_dev)
     fig.set_size_inches(4,3)
     if legend:
@@ -227,7 +227,7 @@ def rad_mon_hl(sim, **kwargs):
     fig, ax = plt.subplots()
     ax.axhline(0, color='k', linewidth=0.5)
     lp_ra = ax.plot(time, rad_dev_hl['ra_cs'], '-', color='tab:red', label='$\Delta R_{a,\,cs}$')
-    lp_ra_jr18 = ax.plot(time, dra, '-', color='k', label='Theory (JR18)')
+    # lp_ra_jr18 = ax.plot(time, dra, '-', color='k', label='Theory (JR18)')
     # lp_ra_jr18_mod = ax.plot(time, dra_mod, '--', color='k', label='$\Delta R_{a,\,\mathrm{JR18},\,T_{850\,\mathrm{hPa}}}$')
     make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
@@ -239,7 +239,7 @@ def rad_mon_hl(sim, **kwargs):
     ax.set_ylabel('$\Delta$ Energy flux (Wm$^{-2}$)')
     ax.xaxis.set_minor_locator(MultipleLocator(10))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
-    ax.set_xlim(yr_base,yr_base+rad_dev_hl['ra'].shape[0]-1)
+    ax.set_xlim(yr_base_show,yr_end_show)
     ax.set_ylim(vmin_dev,vmax_dev)
     fig.set_size_inches(4,3)
     if legend:
@@ -257,12 +257,12 @@ def rad_mon_hl(sim, **kwargs):
     fig, ax = plt.subplots()
     ax.axhline(0, color='k', linewidth=0.5)
     lp_ra = ax.plot(time, rad_dev_hl['ra'], '-', color='tab:gray', label='$\Delta R_a$')
-    lp_ra_cs_lw = ax.plot(time, rad_dev_hl['lw_cs'], '--', color='tab:red', label='$\Delta \mathrm{LW}_{clear}$')
+    lp_ra_cs_lw = ax.plot(time, rad_dev_hl['lw_cs'], '-', color='tab:red', label='$\Delta \mathrm{LW}_{clear}$')
     # lp_ra_cld_lw = ax.plot(time, rad_dev_hl['lw'] - rad_dev_hl['lw_cs'], ':', color='tab:red', label='$\Delta \mathrm{LW}_{cloud}$')
-    lp_ra_cld_lw = ax.plot(time, rad_dev_hl['lw_cld'], ':', color='tab:red', label='$\Delta \mathrm{LW}_{cloud}$')
-    lp_ra_cs_sw = ax.plot(time, rad_dev_hl['sw_cs'], '--', color='tab:blue', label='$\Delta \mathrm{SW}_{clear}$')
+    lp_ra_cld_lw = ax.plot(time, rad_dev_hl['lw_cld'], '-', color='tab:purple', label='$\Delta \mathrm{LW}_{cloud}$')
+    lp_ra_cs_sw = ax.plot(time, rad_dev_hl['sw'], '-', color='tab:cyan', label='$\Delta \mathrm{SW}$')
     # lp_ra_cld_sw = ax.plot(time, rad_dev_hl['sw'] - rad_dev_hl['sw_cs'], ':', color='tab:blue', label='$\Delta \mathrm{SW}_{cloud}$')
-    lp_ra_cld_sw = ax.plot(time, rad_dev_hl['sw_cld'], ':', color='tab:blue', label='$\Delta \mathrm{SW}_{cloud}$')
+    # lp_ra_cld_sw = ax.plot(time, rad_dev_hl['sw_cld'], ':', color='tab:blue', label='$\Delta \mathrm{SW}_{cloud}$')
     # lp_ra_jr18 = ax.plot(time, dra, '-', color='k', label='$\Delta R_{a,\,\mathrm{JR18,\,T_{2\,\mathrm{m}}}}$')
     # lp_ra_jr18_mod = ax.plot(time, dra_mod, '--', color='k', label='$\Delta R_{a,\,\mathrm{JR18},\,T_{850\,\mathrm{hPa}}}$')
     make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
@@ -275,7 +275,7 @@ def rad_mon_hl(sim, **kwargs):
     ax.set_ylabel('$\Delta$ Energy flux (Wm$^{-2}$)')
     ax.xaxis.set_minor_locator(MultipleLocator(10))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
-    ax.set_xlim(yr_base,yr_base+rad_dev_hl['ra'].shape[0]-1)
+    ax.set_xlim(yr_base_show,yr_end_show)
     ax.set_ylim(vmin_dev,vmax_dev)
     fig.set_size_inches(4,3)
     plt.tight_layout()

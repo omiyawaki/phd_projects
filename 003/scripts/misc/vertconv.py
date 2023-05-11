@@ -59,7 +59,8 @@ def pa_to_sigma(varname, var_pa, varname_sfc, var_sfc, var_ps, si):
     for ilon in tqdm(range(vpa.shape[3])):
         for ilat in range(vpa.shape[2]):
             for itime in range(vpa.shape[0]):
-                idx_atm_local = ~idx_subsrfc[itime,:,ilat,ilon]
+                # idx_atm_local = ~idx_subsrfc[itime,:,ilat,ilon]
+                idx_atm_local = ~np.isnan(vpa[itime,:,ilat,ilon])
                 si_local = (pa/ps[itime,ilat,ilon])[idx_atm_local]
                 vpa_local = (vpa[itime,:,ilat,ilon])[idx_atm_local]
 

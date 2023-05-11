@@ -37,7 +37,8 @@ def save_rad(sim, **kwargs):
     elif sim == 'era5':
         varnames = ['ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf']
     else:
-        varnames = ['rlut', 'rlutcs', 'rsut', 'rsutcs', 'rsus', 'rsuscs', 'rsds', 'rsdscs', 'rlds', 'rldscs', 'rsdt', 'rlus', 'tmax']
+        # varnames = ['rlut', 'rlutcs', 'rsut', 'rsutcs', 'rsus', 'rsuscs', 'rsds', 'rsdscs', 'rlds', 'rldscs', 'rsdt', 'rlus', 'tmax']
+        varnames = ['rlut', 'rlutcs', 'rsut', 'rsutcs', 'rsus', 'rsuscs', 'rsds', 'rsdscs', 'rlds', 'rldscs', 'rsdt', 'rlus']
 
     # load all variables
     print(varnames)

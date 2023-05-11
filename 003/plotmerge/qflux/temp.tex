@@ -1,0 +1,28 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\usepackage{cmbright}
+
+\begin{document}
+
+\begin{figure}
+
+  \begin{subfigure}[t]{0.03\textwidth}
+    \textbf{\small{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/echam/seas/paper_plots/rp000190f/tsurf}.pdf}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.03\textwidth}
+    \textbf{\small{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/echam/ann/paper_plots/rp000190f/tsurf}.pdf}
+  \end{subfigure}
+
+\end{figure}
+
+\end{document}

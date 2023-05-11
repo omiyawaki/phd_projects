@@ -13,13 +13,16 @@ from sic_stf_mon_hl import *
 from eke_mon_hl import *
 from dyn_mon_hl import *
 from circ_mon_hl import *
+from cld_mon_hl import *
 
-utype = 'ssp+hist' # echam, ssp, rcp, ssp+hist, rcp+hist, hist
-# utype = 'echam' # echam, ssp, rcp, ssp+hist, rcp+hist, hist
+# utype = 'rcp' # echam, ssp, rcp, ssp+hist, rcp+hist, hist
+# utype = 'rcp+hist' # echam, ssp, rcp, ssp+hist, rcp+hist, hist
+# utype = 'ssp+hist' # echam, ssp, rcp, ssp+hist, rcp+hist, hist
+utype = 'echam' # echam, ssp, rcp, ssp+hist, rcp+hist, hist
 
-# mmm = 0
+mmm = 0
 # try_load =0
-mmm = 1
+# mmm = 1
 try_load = 1
 plotover = 'decomp'
 # timemeans = ['djfmean', 'mammean', 'jjamean', 'sonmean']
@@ -32,8 +35,8 @@ latbnd = (80,90)
 viewplt = 0
 vertlev = 1
 vertcoord = 'si'
-legend = 1
-spread = 'prc' # show spread as percentiles (prc) or stdev (std)?
+legend =0
+spread = 'std' # show spread as percentiles (prc) or stdev (std)?
 
 if utype == 'echam':
     ####################################
@@ -48,10 +51,13 @@ if utype == 'echam':
     # refclim = 'rp000134'
 
     ####################
-    # yr_span = '0040_0059'
+    # yr_span = '0040_0339'
 
-    # models = ['rp000191']
-    # refclim = 'rp000190'
+    # models = ['rp000191b']
+    # refclim = 'rp000190b'
+
+    # models = ['rp000188']
+    # refclim = 'rp000134'
 
     ####################
     # yr_span = '0001_0079'
@@ -60,10 +66,13 @@ if utype == 'echam':
     # refclim = 'rp000130'
 
     ###################
-    yr_span = '0040_0139'
+    yr_span = '0040_0252'
 
-    models = ['rp000188']
-    refclim = 'rp000134'
+    models = ['rp000191f']
+    refclim = 'rp000190f'
+
+    # models = ['rp000188']
+    # refclim = 'rp000134'
 
     # models = ['rp000189']
     # refclim = 'rp000135'
@@ -127,20 +136,20 @@ elif utype == 'rcp':
     yr_span_ref = '186001-200512'
     # # models = ['HadGEM2-ES', 'GISS-E2-H', 'GISS-E2-R', 'bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
     models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'HadGEM2-ES', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
+    # models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'HadGEM2-ES', 'MPI-ESM-LR']
     # models = ['bcc-csm1-1', 'CCSM4', 'CSIRO-Mk3-6-0', 'HadGEM2-ES', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
-    # models = ['HadGEM2-ES']
+    # models = ['IPSL-CM5A-LR']
 
 elif utype == 'ssp+hist':
     # MERGED HISTORICAL AND EXTENDED SSP585 RUNS, TO 2300
-    yr_span = '186001-230012'
+    yr_span = '186001-229912'
     sim = 'hist+ssp585'
     sim_ref = 'historical'
     refclim = 'hist-30'
     timemean_ref = 'ymonmean-30'
     yr_span_ref = '186001-201412'
     # refclim = 'init'
-    models=['ACCESS-CM2', 'ACCESS-ESM1-5', 'CanESM5', 'IPSL-CM6A-LR', 'MRI-ESM2-0']
-    # models=['CanESM5']
+    models=['ACCESS-CM2', 'ACCESS-ESM1-5', 'CanESM5', 'CESM2-WACCM', 'IPSL-CM6A-LR', 'MRI-ESM2-0','MIROC-ES2L','GISS-E2-1-G','GISS-E2-1-H','UKESM1-0-LL']
 
 elif utype == 'rcp+hist':
     # MERGED HISTORICAL AND EXTENDED RCP8.5 RUNS, TO 2300
@@ -151,8 +160,7 @@ elif utype == 'rcp+hist':
     timemean_ref = 'ymonmean-30'
     yr_span_ref = '186001-200512'
     # refclim = 'init'
-    # models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'HadGEM2-ES', 'MPI-ESM-LR', 'IPSL-CM5A-LR']
-    models = ['bcc-csm1-1']
+    models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'HadGEM2-ES', 'MPI-ESM-LR', 'IPSL-CM5A-LR','GISS-E2-H','GISS-E2-R']
 
 ####################################
 ## ERA
@@ -166,6 +174,8 @@ for timemean in timemeans:
     if mmm:
         r1_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=models, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend, spread=spread)
 
+        # cld_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=models, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend, spread=spread)
+        
         # stf_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=models, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend, spread=spread)
 
         # sic_stf_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=models, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend, spread=spread)
@@ -194,6 +204,8 @@ for timemean in timemeans:
 
             r1_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend)
 
+            # cld_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend)
+
             # stf_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend)
 
             # sic_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend)
@@ -208,7 +220,7 @@ for timemean in timemeans:
 
             # sens_mon_hl(sim, vertlev=vertlev, vertcoord=vertcoord, viewplt=viewplt, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend)
 
-            # flux_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend)
+            # flux_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend, yr_span_ref=yr_span_ref, timemean_ref=timemean_ref)
 
             # rad_mon_hl(sim, viewplt=viewplt, plotover=plotover, model=model, yr_span=yr_span, timemean=timemean, refclim=refclim, try_load=try_load, latbnd=latbnd, legend=legend, sim_ref=sim_ref, timemean_ref=timemean_ref, yr_span_ref=yr_span_ref)
 

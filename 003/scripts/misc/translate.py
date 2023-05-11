@@ -6,11 +6,13 @@ def translate_varname(varnames_in, **kwargs):
 
         # Energy balance regimes
         'r1':'r1',
+        'r1a':'r1a',
         'ra':'ra',
         'stgadv':'stgadv',
         'adv':'adv',
         'stf':'stf',
         'dr1':'dr1',
+        'dr1a':'dr1a',
         'dcra':'dcra',
         'dcdyn':'dcdyn',
         'dcres':'dcres',
@@ -147,10 +149,12 @@ def translate_varname(varnames_in, **kwargs):
         # GEOPOTENTIAL HEIGHT
         'zg' : 'zg', # CMIP
         'z' : 'zg', # ERA
+        'geopoth' : 'zg', # ECHAM
 
         # SURFACE PRESSURE
         'ps' : 'ps', # CMIP
         'sp' : 'ps', # ERA
+        'aps': 'ps', # ECHAM
 
         # SURFACE HEIGHT
         'orog' : 'orog', # CMIP
@@ -190,13 +194,18 @@ def translate_varname(varnames_in, **kwargs):
         # PRECIPITABLE WATER
         'prw' : 'prw', # CMIP
 
+        # vertical cloud fraction
+        'cl' : 'cl', # CMIP
+
         # total cloud fraction
         'clt' : 'clt', # CMIP
 
         # condensed water path
+        'clw' : 'clw', # CMIP
         'clwvi' : 'clwvi', # CMIP
 
         # condensed ice path
+        'cli' : 'cli', # CMIP
         'clivi' : 'clivi', # CMIP
         
         # SEA ICE CONCENTRATION
@@ -270,7 +279,7 @@ def translate_varcat(varnames_in, **kwargs):
 
         # OROGRAPHY
         'zs' : 'orog',
-        
+
         # HYDROLOGY
         # ERA
         'cp' : 'hydro',
@@ -280,6 +289,14 @@ def translate_varcat(varnames_in, **kwargs):
         'precip' : 'hydro',
         'aprl' : 'hydro',
         'aprc' : 'hydro',
+
+        # CLOUD
+        'cl' : 'cld',
+        'clt' : 'cld',
+        'cli' : 'cld',
+        'clw' : 'cld',
+        'clivi' : 'cld',
+        'clwvi' : 'cld',
 
         # SEA ICE
         # ERA

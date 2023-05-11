@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# declare -a vars_gcm=("huss" "hurs" "hur" "hus" "zg" "ta" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "sic") # list of GCM variables that we want to process
-# declare -a vars_gcm=("ta" "hus" "zg")
+declare -a vars_gcm=("cl" "clt" "cli" "clw" "clivi" "clwvi")
 # declare -a vars_gcm=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
 # declare -a vars_gcm=("ps" "ta" "zg" "hus" "mse" "va") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "tas" "ts" "ta" "hus" "zg") # list of GCM variables that we want to process
-declare -a vars_gcm=("hurs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("hurs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("sic") # list of GCM variables that we want to process
 # declare -a vars_gcm=("clt" "clwvi") # list of GCM variables that we want to process
 declare -a clim="rcp85" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
 declare -a ens="r1i1p1" # ensemble specification 
 # declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/rcp85/ && ls -d */) # list of GCM models to process
-declare -a models=("CCSM4/ CSIRO-Mk3-6-0/") # list of GCM models to process
+# declare -a models=("GISS-E2-H/" "GISS-E2-R/") # list of GCM models to process
 # declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "GISS-E2-H/" "GISS-E2-R/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
-# declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
 # declare -a models=("CCSM4/" "CNRM-CM5/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
 declare -a skip_models="ACCESS1-0/ inmcm4/ FGOALS-s2/"
 declare -a skip_files=("_eady.nc")

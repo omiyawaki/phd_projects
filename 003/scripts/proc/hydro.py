@@ -36,7 +36,7 @@ def save_hydro(sim, **kwargs):
     if sim == 'echam':
         print('todo: fix variable names')
         # fix variable names below
-        varnames = ['precip', 'aprc']
+        varnames = ['precip', 'aprc', 'prfrac']
     elif sim == 'era5':
         varnames = ['cp', 'lsp', 'e']
     else:
@@ -64,15 +64,15 @@ def save_hydro(sim, **kwargs):
         else:
             hydro[translate_varname(varname)] = np.squeeze(file[varname].variables['ta'][:])
 
-        if ( ('pr' in translate_varname(varname)) or (translate_varname(varname) == 'evspsbl') ) and not (translate_varname(varname) == 'prw'):
-            if sim == 'era5': # convert m accumulated over a day to mm/d
-                hydro[translate_varname(varname)] = hydro[translate_varname(varname)]*1e3
-            else: # convert kg m**-2 s**-1 to mm/d
-                hydro[translate_varname(varname)] = hydro[translate_varname(varname)]*86400
+        # if ( ('pr' in translate_varname(varname)) or (translate_varname(varname) == 'evspsbl') ) and not (translate_varname(varname) == 'prw'):
+        #     if sim == 'era5': # convert m accumulated over a day to mm/d
+        #         hydro[translate_varname(varname)] = hydro[translate_varname(varname)]*1e3
+        #     else: # convert kg m**-2 s**-1 to mm/d
+        #         hydro[translate_varname(varname)] = hydro[translate_varname(varname)]*86400
 
-        if varname in ['vhur', 't850'] and not np.any(grid['lat'] == grid['lat3d']):
-            vhur_fint = interp1d(grid['lat3d'], hydro[varname].filled(fill_value=np.nan), axis=1, bounds_error=False)
-            hydro[varname] = vhur_fint(grid['lat'].filled(fill_value=np.nan))
+        # if varname in ['vhur', 't850'] and not np.any(grid['lat'] == grid['lat3d']):
+        #     vhur_fint = interp1d(grid['lat3d'], hydro[varname].filled(fill_value=np.nan), axis=1, bounds_error=False)
+        #     hydro[varname] = vhur_fint(grid['lat'].filled(fill_value=np.nan))
 
     # if sim == 'era5':
     #     hydro['pr'] = hydro['prc'] + hydro['prl']

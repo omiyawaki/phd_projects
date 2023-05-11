@@ -14,11 +14,15 @@ import pickle
 import numpy as np
 from scipy.interpolate import interp1d, interp2d
 from scipy.ndimage import uniform_filter
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from plot.preamble import get_predata
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 # import tikzplotlib
+
+def logifunc(x,A,x0,k,off):
+        return A / (1 + np.exp(-k*(x-x0)))+off
 
 def r1_mon_hl(sim, **kwargs):
 
@@ -34,14 +38,21 @@ def r1_mon_hl(sim, **kwargs):
     refclim = kwargs.get('refclim', 'hist-30') # reference climate from which to compute deviations (init is first time step, hist-30 is the last 30 years of the historical run)
     legend = kwargs.get('legend', 0)
     spread = kwargs.get('spread', 'prc')
-    if plotover == 'ga_dev':
+    if 'ga_dev' in plotover:
         vertcoord = kwargs.get('vertcoord', 'si') # vertical coordinate (si for sigma, pa for pressure, z for height)
         # vertbnd = kwargs.get('vertbnd', (0.7, 0.3)) # sigma bounds of vertical integral
         vertbnd = kwargs.get('vertbnd', (1.0, 0.9)) # sigma bounds of vertical integral
 
     lat_int = np.arange(latbnd[0], latbnd[1], latstep)
 
-    model, yr_span, yr_base, yr_span_ref, yr_base_show = get_predata(sim, timemean, kwargs)
+    model, yr_span, yr_base, yr_span_ref, yr_base_show,yr_end_show = get_predata(sim, timemean, kwargs)
+
+    if ~isinstance(model, str):
+        from scipy.stats import t
+        alpha=0.1 # significance
+        df=len(model)
+        tscore=t.ppf(1-alpha/2,df)
+        sqn=2*np.sqrt(len(model))/tscore
 
     ##########################################
     ## Y AXIS SPECIFICATIONS
@@ -69,6 +80,29 @@ def r1_mon_hl(sim, **kwargs):
             [son_r1, son_grid, son_datadir, plotdir, modelstr, son_r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean='sonmean', try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
         else:
             [r1, grid, datadir, plotdir, modelstr, r1_mmm] = load_r1(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span, refclim=refclim) 
+
+    if 'r1a' in plotover:
+        if isinstance(model, str) or model is None:
+            [r1a, grid, datadir, plotdir, modelstr] = load_r1a(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+        else:
+            [r1a, grid, datadir, plotdir, modelstr, r1a_mmm] = load_r1a(sim, categ, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
+
+        if refclim == 'hist-30':
+            sim_ref = 'historical'
+            timemean_ref = 'ymonmean-30'
+            # yr_span_ref = '186001-200512'
+            if isinstance(model, str):
+                [r1a_ref, _, _, _, _] = load_r1a(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
+            else:
+                [r1a_ref, _, _, _, _, r1a_ref_mmm] = load_r1a(sim_ref, categ, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
+            
+            # if timemean == 'djfmean':
+            #     for r1aname in r1a_ref:
+            #         print(r1aname)
+            #         r1a_ref[r1aname] = np.mean(np.roll(r1a_ref[r1aname],1,axis=0)[0:3], 0)
+            # elif timemean == 'jjamean':
+            #     for r1aname in r1a_ref:
+            #         r1a_ref[r1aname] = np.mean(r1a_ref[r1aname][5:8], 0)
 
     if 'sic' in plotover:
         if isinstance(model, str) or model is None:
@@ -114,7 +148,7 @@ def r1_mon_hl(sim, **kwargs):
                 for hydroname in hydro_ref:
                     hydro_ref[hydroname] = np.mean(hydro_ref[hydroname][5:8], 0)
 
-    if plotover == 'ga_dev':
+    if 'ga_dev' in plotover:
         if isinstance(model, str) or model is None:
             [ga, grid_ga, datadir, plotdir, modelstr] = load_ga(sim, categ, vertbnd,vertcoord, zonmean=zonmean, timemean=timemean, try_load=try_load, model=model, yr_span=yr_span)
         else:
@@ -123,7 +157,6 @@ def r1_mon_hl(sim, **kwargs):
         if refclim == 'hist-30':
             sim_ref = 'historical'
             timemean_ref = 'ymonmean-30'
-            yr_span_ref = '186001-200512'
             if isinstance(model, str):
                 [ga_ref, _, _, _, _] = load_ga(sim_ref, categ, vertbnd, vertcoord, zonmean=zonmean, timemean=timemean_ref, try_load=try_load, model=model, yr_span=yr_span_ref)
             else:
@@ -131,6 +164,7 @@ def r1_mon_hl(sim, **kwargs):
             
             if timemean == 'djfmean':
                 for ganame in ga_ref:
+                    print(ganame)
                     ga_ref[ganame] = np.mean(np.roll(ga_ref[ganame],1,axis=0)[0:3], 0)
             elif timemean == 'jjamean':
                 for ganame in ga_ref:
@@ -184,9 +218,54 @@ def r1_mon_hl(sim, **kwargs):
     r1_l30 = np.mean(r1_hl[-30:])
 
     ############################################
+    # Quantify precisely when regime transition occurs
+    ############################################
+    irt=np.argmin(np.abs(r1_hl-0.9))
+    print('Regime transition occurs at year %g' % time[irt])
+    if not ( isinstance(model, str) or (model is None) ):
+        irt5=np.argmin(np.abs(r1_hl_mmm['mmm']-r1_hl_mmm['std']/sqn-0.9))
+        irt95=np.argmin(np.abs(r1_hl_mmm['mmm']+r1_hl_mmm['std']/sqn-0.9))
+        print('5th PRC %g' % time[irt5])
+        print('95th PRC %g' % time[irt95])
+
+    # compute when r1 change weakens using logistic fit
+    try:
+        popt, pcov = curve_fit(logifunc, time, r1_hl, p0=[0.3,2100,-0.1,0.7])
+        A=popt[0]; x0=popt[1]; k=popt[2];
+        te=x0 - 3/k
+        print('R1 is 5%% of its max (initial) value at year %g' % te)
+        if sim == 'echam':
+            print('First 10 year avg of R1 is %g' % np.nanmean(r1_hl[:10]))
+        print('Present R1 value is %g' % (popt[3]+A))
+        print('Future R1 value is %g' % popt[3])
+    except:
+        print('Fit did not converge.')
+
+    if not (isinstance(model, str) or model is None):
+        p5 = r1_hl_mmm['mmm']-r1_hl_mmm['std']/sqn
+        m5 = np.isnan(p5)
+        p5[m5] = np.interp(np.flatnonzero(m5), np.flatnonzero(~m5), p5[~m5])
+        popt5, pcov5 = curve_fit(logifunc, time, p5, p0=[0.3,2100,-0.1,0.7])
+        A=popt5[0]; x0=popt5[1]; k=popt5[2];
+        te=x0 - 3/k
+        print('5 PRC %g' % te)
+        print('5 Present R1 value is %g' % (popt5[3]+A))
+        print('5 Future R1 value is %g' % popt5[3])
+
+        p95 = r1_hl_mmm['mmm']+r1_hl_mmm['std']/sqn
+        m95 = np.isnan(p95)
+        p95[m95] = np.interp(np.flatnonzero(m95), np.flatnonzero(~m95), p95[~m95])
+        popt95, pcov95 = curve_fit(logifunc, time, p95, p0=[0.3,2100,-0.1,0.7])
+        A=popt95[0]; x0=popt95[1]; k=popt95[2];
+        te=x0 - 3/k
+        print('95 PRC %g' % te)
+        print('95 Present R1 value is %g' % (popt95[3]+A))
+        print('95 Future R1 value is %g' % popt95[3])
+
+
+    ############################################
     # PLOT
     ############################################
-
     plotname = '%s/r1_mon_hl.%g.%g.%s' % (plotdir, latbnd[0], latbnd[1], timemean)
 
     fig, ax = plt.subplots()
@@ -204,16 +283,20 @@ def r1_mon_hl(sim, **kwargs):
             if spread == 'prc':
                 spr_r1 = ax.fill_between(time, r1_hl_mmm['prc25'], r1_hl_mmm['prc75'], facecolor='black', alpha=0.2, edgecolor=None)
             elif spread == 'std':
-                spr_r1 = ax.fill_between(time, r1_hl_mmm['mmm'] - r1_hl_mmm['std'], r1_hl_mmm['mmm'] + r1_hl_mmm['std'], facecolor='black', alpha=0.2, edgecolor=None)
+                spr_r1 = ax.fill_between(time, r1_hl_mmm['mmm'] - r1_hl_mmm['std']/sqn, r1_hl_mmm['mmm'] + r1_hl_mmm['std']/sqn, facecolor='black', alpha=0.2, edgecolor=None)
 
         if sim == 'echam' and plotover == 'decomp':
-            lp_r1 = ax.plot(time, r1_hl, alpha=0, color='black')
+            # lp_r1 = ax.plot(time, r1_hl, alpha=0, color='black')
+            if model=='rp000191f':
+                print('skipping r1 plot')
+            else:
+                lp_r1 = ax.plot(time, r1_hl, color='black')
         else:
-            lp_r1 = ax.plot(time, r1_hl, color='black')
+            lp_r1 = ax.plot(time, r1_hl, color='black',label=r'$\frac{\langle\partial_t[m]+\partial_y[vm]\rangle}{[R_a]}$')
     if 'ymonmean' not in timemean and sim == 'era5':
         # lp_trend = ax.plot(time, m*time + c, '--k', label='%g decade$^{-1}$' % (m*10))
         lp_trend = ax.plot(time, m*time + c, '--k', label='$R_1$ trend$ = %.1f$ %% decade$^{-1}$' % (m/np.nanmean(r1_hl) *1e3))
-    make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1])
+    make_title_sim_time_lat(ax, sim, model=modelstr, timemean=timemean, lat1=latbnd[0], lat2=latbnd[1], plotover=plotover)
     ax.tick_params(which='both', bottom=True, top=True, left=True, right=True)
     print(timemean)
     if 'ymonmean' in timemean:
@@ -225,10 +308,38 @@ def r1_mon_hl(sim, **kwargs):
     ax.set_ylabel('$R_1$ (unitless)')
     ax.yaxis.set_minor_locator(MultipleLocator(0.01))
     # ax.set_xlim(yr_base,yr_base+r1_hl.shape[0]-1)
-    ax.set_xlim(yr_base_show,yr_base+r1_hl.shape[0]-1)
+    ax.set_xlim(yr_base_show,yr_end_show)
     ax.set_ylim(vmin['r1'],vmax['r1'])
 
-    fig.set_size_inches(4, 3.5)
+    if isinstance(model, str) or model is None:
+        fig.set_size_inches(4, 3)
+    else:
+        fig.set_size_inches(4, 3.5)
+
+    if plotover == 'r1a':
+        ############################################
+        # COMPARE WITH alternative r1 (adv/ra)
+        ###########################################
+        plotname = '%s.%s' % (plotname, plotover)
+
+        r1a_hl_mmm = dict()
+        if not ( isinstance(model, str) or (model is None) ):
+            for i in r1a_mmm:
+                r1a_hl_mmm[i] = lat_mean(r1a_mmm[i], grid, lat_int, dim=1)
+
+        r1a_hl = lat_mean(r1a, grid, lat_int, dim=1)
+
+        # if not (isinstance(model, str) or model is None):
+        #     if spread == 'prc':
+        #         ax.fill_between(time, r1a_hl_mmm['prc25'], r1a_hl_mmm['prc75'], facecolor='tab:purple', alpha=0.2, edgecolor=None)
+        #     elif spread == 'std':
+        #         ax.fill_between(time, r1a_hl_mmm['mmm']-r1a_hl_mmm['std']/sqn, r1a_hl_mmm['mmm']+r1a_hl_mmm['std']/sqn, facecolor='tab:purple', alpha=0.2, edgecolor=None)
+        ax.plot(time, r1a_hl, '--k',label=r'$\frac{\langle\partial_y[vm]\rangle}{[R_a]}$')
+        ax.set_title('%s\n%s, %s, $\phi=%g^\circ$ to $%g^\circ$' % (model,'SSP585', 'DJF', latbnd[0], latbnd[1]), loc='left')
+        if legend:
+            handles, labels = plt.gca().get_legend_handles_labels()
+            order = [1,0]
+            ax.legend([handles[idx] for idx in order],[labels[idx] for idx in order],loc='lower left',frameon=False,prop={'size':13})
 
     if plotover == 'sic':
         ############################################
@@ -243,6 +354,9 @@ def r1_mon_hl(sim, **kwargs):
 
         sic_hl = lat_mean(seaice['sic'], grid, lat_int, dim=1)
 
+        if sim == 'echam': # sea ice is not in percent in echam output
+            sic_hl = 1e2* sic_hl
+                
         # first and last 30 years
         sic_f30 = np.mean(sic_hl[:30])
         sic_l30 = np.mean(sic_hl[-30:])
@@ -252,22 +366,22 @@ def r1_mon_hl(sim, **kwargs):
 
         sax = ax.twinx()
         if timemean == 'jjamean':
-            sax.plot(time, 100-sic_hl, color='tab:blue')
-            sax.set_ylabel('Ocean fraction (%)', color='tab:blue')
+            sax.plot(time, 100-sic_hl, color='tab:purple')
+            sax.set_ylabel('Ocean fraction (%)', color='tab:purple')
         else:
             if not (isinstance(model, str) or model is None):
                 if spread == 'prc':
-                    sax.fill_between(time, sic_hl_mmm['prc25'], sic_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+                    sax.fill_between(time, sic_hl_mmm['prc25'], sic_hl_mmm['prc75'], facecolor='tab:purple', alpha=0.2, edgecolor=None)
                 elif spread == 'std':
-                    sax.fill_between(time, sic_hl_mmm['mmm']-sic_hl_mmm['std'], sic_hl_mmm['mmm']+sic_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
-            sax.plot(time, sic_hl, color='tab:blue')
-            sax.set_ylabel('Sea ice fraction (%)', color='tab:blue')
+                    sax.fill_between(time, sic_hl_mmm['mmm']-sic_hl_mmm['std']/sqn, sic_hl_mmm['mmm']+sic_hl_mmm['std']/sqn, facecolor='tab:purple', alpha=0.2, edgecolor=None)
+            sax.plot(time, sic_hl, color='tab:purple')
+            sax.set_ylabel('Sea-ice fraction (%)', color='tab:purple')
         # sax.set_ylim(vmin['sic'],vmax['sic'])
         sax.set_ylim(vmin_alg,vmax_alg)
-        sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
+        sax.tick_params(axis='y', labelcolor='tab:purple', color='tab:purple')
         sax.yaxis.set_minor_locator(MultipleLocator(5))
 
-    elif plotover == 'ga_dev':
+    elif 'ga_dev' in plotover:
         ############################################
         # COMPARE WITH LAPSE RATE DEVIATION
         ###########################################
@@ -288,10 +402,41 @@ def r1_mon_hl(sim, **kwargs):
         ga_dev_vint_hl = lat_mean(ga['ga_dev_vint'], grid_ga, lat_int, dim=1)
         print(ga_dev_vint_hl.shape)
 
+        # compute when lapse rate change weakens using logistic fit
+        mask = np.isnan(ga_dev_vint_hl)
+        ga_dev_vint_hl[mask] = np.interp(np.flatnonzero(mask), np.flatnonzero(~mask), ga_dev_vint_hl[~mask])
+        try:
+            popt, pcov = curve_fit(logifunc, time, ga_dev_vint_hl, p0=[200,2100,-0.1,0])
+            A=popt[0]; x0=popt[1]; k=popt[2];
+            te=x0 - 3/k
+            print('Lapse rate is 5%% of its max (initial) value at year %g' % te)
+            print('Future LR dev is %g' % popt[3])
+        except:
+            print('Fit did not converge.')
+
+        if not (isinstance(model, str) or model is None):
+            p5 = ga_dev_vint_hl_mmm['mmm']-ga_dev_vint_hl_mmm['std']/sqn
+            m5 = np.isnan(p5)
+            p5[m5] = np.interp(np.flatnonzero(m5), np.flatnonzero(~m5), p5[~m5])
+            popt5, pcov5 = curve_fit(logifunc, time, p5, p0=[200,2100,-0.1,0])
+            A=popt5[0]; x0=popt5[1]; k=popt5[2];
+            te=x0 - 3/k
+            print('5 PRC %g' % te)
+
+            p95 = ga_dev_vint_hl_mmm['mmm']+ga_dev_vint_hl_mmm['std']/sqn
+            m95 = np.isnan(p95)
+            p95[m95] = np.interp(np.flatnonzero(m95), np.flatnonzero(~m95), p95[~m95])
+            popt95, pcov95 = curve_fit(logifunc, time, p95, p0=[200,2100,-0.1,0])
+            A=popt95[0]; x0=popt95[1]; k=popt95[2];
+            te=x0 - 3/k
+            print('95 PRC %g' % te)
+
         # first and last 30 years
         ga_dev_vint_f30 = np.mean(ga_dev_vint_hl[:30])
         ga_dev_vint_l30 = np.mean(ga_dev_vint_hl[-30:])
         m_axis = (ga_dev_vint_l30 - ga_dev_vint_f30)/(r1_l30 - r1_f30)
+        if m_axis < -1e3: # e.g. in echam rp000191b
+            m_axis = 7.5e2 # set to a more reasonable value
         vmax_alg = ga_dev_vint_f30 + m_axis*( vmax['r1'] - r1_f30 )
         vmin_alg = ga_dev_vint_l30 + m_axis*( vmin['r1'] - r1_l30 )
 
@@ -300,15 +445,61 @@ def r1_mon_hl(sim, **kwargs):
             if spread == 'prc':
                 sax.fill_between(time, ga_dev_vint_hl_mmm['prc25'], ga_dev_vint_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
             elif spread == 'std':
-                sax.fill_between(time, ga_dev_vint_hl_mmm['mmm']-ga_dev_vint_hl_mmm['std'], ga_dev_vint_hl_mmm['mmm']+ga_dev_vint_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+                sax.fill_between(time, ga_dev_vint_hl_mmm['mmm']-ga_dev_vint_hl_mmm['std']/sqn, ga_dev_vint_hl_mmm['mmm']+ga_dev_vint_hl_mmm['std']/sqn, facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, ga_dev_vint_hl, color='tab:blue')
+        # sax.plot(time, logifunc(time, *popt), color='tab:red')
         sax.set_ylabel(r'$\langle(\Gamma_m-\Gamma)/\Gamma_m\rangle_{%0.1f}^{%0.1f}$ (%%)' % (vertbnd[0], vertbnd[1]), color='tab:blue')
         # sax.set_ylim(vmin['ga_dev'],vmax['ga_dev'])
         sax.set_ylim(vmin_alg,vmax_alg)
         sax.tick_params(axis='y', labelcolor='tab:blue', color='tab:blue')
         sax.yaxis.set_minor_locator(MultipleLocator(5))
 
-    elif plotover == 'prfrac':
+        if 'sic' in plotover:
+            sic_hl_mmm = dict()
+            if not ( isinstance(model, str) or (model is None) ):
+                for i in seaice_mmm['sic']:
+                    sic_hl_mmm[i] = lat_mean(seaice_mmm['sic'][i], grid, lat_int, dim=1)
+
+            sic_hl = lat_mean(seaice['sic'], grid, lat_int, dim=1)
+
+            if sim == 'echam': # sea ice is not in percent in echam output
+                sic_hl = 1e2* sic_hl
+
+            # first and last 30 years
+            sic_f30 = np.mean(sic_hl[:30])
+            sic_l30 = np.mean(sic_hl[-30:])
+            m_axis = (sic_l30 - sic_f30)/(r1_l30 - r1_f30)
+            if m_axis == 0: # e.g. in echam
+                m_axis = 1 # this doesn't really matter
+            vmax_alg = sic_f30 + m_axis*( vmax['r1'] - r1_f30 )
+            vmin_alg = sic_l30 + m_axis*( vmin['r1'] - r1_l30 )
+            
+            if sim=='hist+rcp85':
+                fig.set_size_inches(5.5, 2.5)
+            elif isinstance(model, str) or model is None:
+                fig.set_size_inches(5.5, 2.5)
+            else:
+                fig.set_size_inches(5.5, 3.5)
+
+            tax = ax.twinx()
+            tax.spines.right.set_position(("axes", 1.5))
+            if timemean == 'jjamean':
+                tax.plot(time, 100-sic_hl, color='tab:purple')
+                tax.set_ylabel('Ocean fraction (%)', color='tab:purple')
+            else:
+                if not (isinstance(model, str) or model is None):
+                    if spread == 'prc':
+                        tax.fill_between(time, sic_hl_mmm['prc25'], sic_hl_mmm['prc75'], facecolor='tab:purple', alpha=0.2, edgecolor=None)
+                    elif spread == 'std':
+                        tax.fill_between(time, sic_hl_mmm['mmm']-sic_hl_mmm['std']/sqn, sic_hl_mmm['mmm']+sic_hl_mmm['std']/sqn, facecolor='tab:purple', alpha=0.2, edgecolor=None)
+                tax.plot(time, sic_hl, color='tab:purple')
+                tax.set_ylabel('Sea-ice fraction (%)', color='tab:purple')
+            # tax.set_ylim(vmin['sic'],vmax['sic'])
+            tax.set_ylim(vmin_alg,vmax_alg)
+            tax.tick_params(axis='y', labelcolor='tab:purple', color='tab:purple')
+            tax.yaxis.set_minor_locator(MultipleLocator(5))
+
+    elif 'prfrac' in plotover:
         ############################################
         # COMPARE WITH FRACTION OF LARGE SCALE PRECIPITATION
         ###########################################
@@ -326,9 +517,11 @@ def r1_mon_hl(sim, **kwargs):
                 pr_hl_mmm[i] = lat_mean(hydro_mmm['pr'][i], grid, lat_int, dim=1)
                 # prl_hl_mmm[i] = lat_mean(hydro_mmm['prl'][i], grid, lat_int, dim=1)
                 prc_hl_mmm[i] = lat_mean(hydro_mmm['prc'][i], grid, lat_int, dim=1)
-                prfrac_hl_mmm[i] = lat_mean(hydro_mmm['prc'][i]/hydro_mmm['pr'][i], grid, lat_int, dim=1)
+                prfrac_hl_mmm[i] = lat_mean(hydro_mmm['prfrac'][i], grid, lat_int, dim=1)
+                # prfrac_hl_mmm[i] = lat_mean(hydro_mmm['prc'][i]/hydro_mmm['pr'][i], grid, lat_int, dim=1)
 
-        prfrac_hl = lat_mean(hydro['prc']/hydro['pr'], grid, lat_int, dim=1)
+        # prfrac_hl = lat_mean(hydro['prc']/hydro['pr'], grid, lat_int, dim=1)
+        prfrac_hl = lat_mean(hydro['prfrac'], grid, lat_int, dim=1)
 
         # first and last 30 years
         prfrac_f30 = np.mean(prfrac_hl[:30])
@@ -336,6 +529,37 @@ def r1_mon_hl(sim, **kwargs):
         m_axis = (prfrac_l30 - prfrac_f30)/(r1_l30 - r1_f30)
         vmin_alg = prfrac_f30 + m_axis*( vmax['r1'] - r1_f30 )
         vmax_alg = prfrac_l30 + m_axis*( vmin['r1'] - r1_l30 )
+
+        # compute when prfrac change weakens using logistic fit
+        try:
+            popt, pcov = curve_fit(logifunc, time, prfrac_hl, p0=[0.35,2100,0.1,0])
+            A=popt[0]; x0=popt[1]; k=popt[2];
+            te=x0 + 3/k
+            print('PR frac is 5%% of its max (initial) value at year %g' % te)
+            print('Future prfrac is %g' % (popt[3]+popt[0]))
+        except:
+            print('Optimal fit could not be found.')
+
+        if not (isinstance(model, str) or model is None):
+            p5 = prfrac_hl_mmm['mmm']-prfrac_hl_mmm['std']/sqn
+            m5 = np.isnan(p5)
+            p5[m5] = np.interp(np.flatnonzero(m5), np.flatnonzero(~m5), p5[~m5])
+            popt5, pcov5 = curve_fit(logifunc, time, p5, p0=[0.35,2100,0.1,0])
+            A=popt5[0]; x0=popt5[1]; k=popt5[2];
+            te=x0 + 3/k
+            print('5 PRC %g' % te)
+            print('5 Present prfrac value is %g' % (popt5[3]+A))
+            print('5 Future prfrac value is %g' % popt5[3])
+
+            p95 = prfrac_hl_mmm['mmm']+prfrac_hl_mmm['std']/sqn
+            m95 = np.isnan(p95)
+            p95[m95] = np.interp(np.flatnonzero(m95), np.flatnonzero(~m95), p95[~m95])
+            popt95, pcov95 = curve_fit(logifunc, time, p95, p0=[0.35,2100,0.1,0])
+            A=popt95[0]; x0=popt95[1]; k=popt95[2];
+            te=x0 + 3/k
+            print('95 PRC %g' % te)
+            print('95 Present prfrac value is %g' % (popt95[3]+A))
+            print('95 Future prfrac value is %g' % popt95[3])
 
         # compute trends
         if 'ymonmean' not in timemean and sim == 'era5':
@@ -347,8 +571,9 @@ def r1_mon_hl(sim, **kwargs):
             if spread == 'prc':
                 sax.fill_between(time, prfrac_hl_mmm['prc25'], prfrac_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
             elif spread == 'std':
-                sax.fill_between(time, prfrac_hl_mmm['mmm']-prfrac_hl_mmm['std'], prfrac_hl_mmm['mmm']+prfrac_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+                sax.fill_between(time, prfrac_hl_mmm['mmm']-prfrac_hl_mmm['std']/sqn, prfrac_hl_mmm['mmm']+prfrac_hl_mmm['std']/sqn, facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, prfrac_hl, color='tab:blue')
+        # sax.plot(time, logifunc(time, *popt), color='tab:red')
         if 'ymonmean' not in timemean and sim == 'era5':
             # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
             sax.plot(time, m*time + c, '--', color='tab:blue', label='$P_c/P$ trend$ = %.1f$ %% decade$^{-1}$' % (m*10))
@@ -361,6 +586,52 @@ def r1_mon_hl(sim, **kwargs):
         sax.yaxis.set_minor_locator(AutoMinorLocator())
         ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
         # sax.set_ylim(sax.get_ylim()[::-1]) # invert r1 axis
+
+        if 'sic' in plotover:
+            sic_hl_mmm = dict()
+            if not ( isinstance(model, str) or (model is None) ):
+                for i in seaice_mmm['sic']:
+                    sic_hl_mmm[i] = lat_mean(seaice_mmm['sic'][i], grid, lat_int, dim=1)
+
+            sic_hl = lat_mean(seaice['sic'], grid, lat_int, dim=1)
+
+            if sim == 'echam': # sea ice is not in percent in echam output
+                sic_hl = 1e2* sic_hl
+
+            # first and last 30 years
+            sic_f30 = np.mean(sic_hl[:30])
+            sic_l30 = np.mean(sic_hl[-30:])
+            m_axis = (sic_l30 - sic_f30)/(r1_l30 - r1_f30)
+            if m_axis == 0: # e.g. in echam
+                m_axis = 1 # this doesn't really matter
+            vmax_alg = sic_f30 + m_axis*( vmax['r1'] - r1_f30 )
+            vmin_alg = sic_l30 + m_axis*( vmin['r1'] - r1_l30 )
+
+            if sim=='hist+rcp85':
+                fig.set_size_inches(5.5, 2.5)
+            elif isinstance(model, str) or model is None:
+                fig.set_size_inches(5.5, 2.5)
+            else:
+                fig.set_size_inches(5.5, 3.5)
+
+            tax = ax.twinx()
+            tax.spines.right.set_position(("axes", 1.5))
+            if timemean == 'jjamean':
+                tax.plot(time, 100-sic_hl, color='tab:purple')
+                tax.set_ylabel('Ocean fraction (%)', color='tab:purple')
+            else:
+                if not (isinstance(model, str) or model is None):
+                    if spread == 'prc':
+                        tax.fill_between(time, sic_hl_mmm['prc25'], sic_hl_mmm['prc75'], facecolor='tab:purple', alpha=0.2, edgecolor=None)
+                    elif spread == 'std':
+                        tax.fill_between(time, sic_hl_mmm['mmm']-sic_hl_mmm['std']/sqn, sic_hl_mmm['mmm']+sic_hl_mmm['std']/sqn, facecolor='tab:purple', alpha=0.2, edgecolor=None)
+                tax.plot(time, sic_hl, color='tab:purple')
+                tax.set_ylabel('Sea-ice fraction (%)', color='tab:purple')
+            # tax.set_ylim(vmin['sic'],vmax['sic'])
+            tax.set_ylim(vmin_alg,vmax_alg)
+            tax.tick_params(axis='y', labelcolor='tab:purple', color='tab:purple')
+            tax.yaxis.set_minor_locator(MultipleLocator(5))
+            tax.set_ylim(tax.get_ylim()[::-1]) # invert r1 taxis
 
     elif plotover == 'pr':
         ############################################
@@ -415,7 +686,7 @@ def r1_mon_hl(sim, **kwargs):
             if spread == 'prc':
                 spr_r1 = sax.fill_between(time, prc_hl_mmm['prc25'], prc_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
             elif spread == 'std':
-                spr_r1 = sax.fill_between(time, prc_hl_mmm['mmm']-prc_hl_mmm['std'], prc_hl_mmm['mmm']+prc_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+                spr_r1 = sax.fill_between(time, prc_hl_mmm['mmm']-prc_hl_mmm['std']/sqn, prc_hl_mmm['mmm']+prc_hl_mmm['std']/sqn, facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, prc_hl, color='tab:blue')
         if 'ymonmean' not in timemean and sim == 'era5':
             # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
@@ -478,7 +749,7 @@ def r1_mon_hl(sim, **kwargs):
             if spread == 'prc':
                 spr_r1 = sax.fill_between(time, clt_hl_mmm['prc25'], clt_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
             elif spread == 'std':
-                spr_r1 = sax.fill_between(time, clt_hl_mmm['mmm']-clt_hl_mmm['std'], clt_hl_mmm['mmm']+clt_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+                spr_r1 = sax.fill_between(time, clt_hl_mmm['mmm']-clt_hl_mmm['std']/sqn, clt_hl_mmm['mmm']+clt_hl_mmm['std']/sqn, facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, clt_hl, color='tab:blue')
         if 'ymonmean' not in timemean and sim == 'era5':
             # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
@@ -515,7 +786,7 @@ def r1_mon_hl(sim, **kwargs):
             if spread == 'prc':
                 spr_r1 = sax.fill_between(time, clwvi_hl_mmm['prc25'], clwvi_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
             elif spread == 'std':
-                spr_r1 = sax.fill_between(time, clwvi_hl_mmm['mmm']- clwvi_hl_mmm['std'], clwvi_hl_mmm['mmm']+clwvi_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+                spr_r1 = sax.fill_between(time, clwvi_hl_mmm['mmm']- clwvi_hl_mmm['std']/sqn, clwvi_hl_mmm['mmm']+clwvi_hl_mmm['std']/sqn, facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, clwvi_hl, color='tab:blue')
         if 'ymonmean' not in timemean and sim == 'era5':
             # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
@@ -552,7 +823,7 @@ def r1_mon_hl(sim, **kwargs):
             if spread == 'prc':
                 spr_r1 = sax.fill_between(time, clivi_hl_mmm['prc25'], clivi_hl_mmm['prc75'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
             elif spread == 'std':
-                spr_r1 = sax.fill_between(time, clivi_hl_mmm['mmm']-clivi_hl_mmm['std'], clivi_hl_mmm['mmm']+clivi_hl_mmm['std'], facecolor='tab:blue', alpha=0.2, edgecolor=None)
+                spr_r1 = sax.fill_between(time, clivi_hl_mmm['mmm']-clivi_hl_mmm['std']/sqn, clivi_hl_mmm['mmm']+clivi_hl_mmm['std']/sqn, facecolor='tab:blue', alpha=0.2, edgecolor=None)
         sax.plot(time, clivi_hl, color='tab:blue')
         if 'ymonmean' not in timemean and sim == 'era5':
             # sax.plot(time, m*time + c, '--', color='tab:blue', label='%g mm d$^{-1}$ decade$^{-1}$' % (m*10))
@@ -563,7 +834,7 @@ def r1_mon_hl(sim, **kwargs):
         sax.yaxis.set_minor_locator(AutoMinorLocator())
         ax.set_ylim(ax.get_ylim()[::-1]) # invert r1 axis
 
-    elif plotover == 'decomp':
+    elif 'decomp' in plotover:
         ############################################
         # DECOMPOSE INTO DYNAMIC AND RADIATIVE COMPONENTS
         ###########################################
@@ -620,33 +891,98 @@ def r1_mon_hl(sim, **kwargs):
                 sax.fill_between(time, flux_mmm_hl['dcra']['prc25'], flux_mmm_hl['dcra']['prc75'], facecolor='tab:gray', alpha=0.3, edgecolor=None)
                 sax.fill_between(time, flux_mmm_hl['dcres']['prc25'], flux_mmm_hl['dcres']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
             elif spread == 'std':
-                sax.fill_between(time, flux_mmm_hl['dcdyn']['mmm']-flux_mmm_hl['dcdyn']['std'], flux_mmm_hl['dcdyn']['mmm']+flux_mmm_hl['dcdyn']['std'], facecolor='maroon', alpha=0.2, edgecolor=None)
-                sax.fill_between(time, flux_mmm_hl['dcra']['mmm']-flux_mmm_hl['dcra']['std'], flux_mmm_hl['dcra']['mmm']+flux_mmm_hl['dcra']['std'], facecolor='tab:gray', alpha=0.3, edgecolor=None)
-                sax.fill_between(time, flux_mmm_hl['dcres']['mmm']-flux_mmm_hl['dcres']['std'], flux_mmm_hl['dcres']['mmm']+flux_mmm_hl['dcres']['std'], facecolor='k', alpha=0.2, edgecolor=None)
+                sax.fill_between(time, flux_mmm_hl['dcdyn']['mmm']-flux_mmm_hl['dcdyn']['std']/sqn, flux_mmm_hl['dcdyn']['mmm']+flux_mmm_hl['dcdyn']['std']/sqn, facecolor='maroon', alpha=0.2, edgecolor=None)
+                sax.fill_between(time, flux_mmm_hl['dcra']['mmm']-flux_mmm_hl['dcra']['std']/sqn, flux_mmm_hl['dcra']['mmm']+flux_mmm_hl['dcra']['std']/sqn, facecolor='tab:gray', alpha=0.3, edgecolor=None)
+                sax.fill_between(time, flux_mmm_hl['dcres']['mmm']-flux_mmm_hl['dcres']['std']/sqn, flux_mmm_hl['dcres']['mmm']+flux_mmm_hl['dcres']['std']/sqn, facecolor='k', alpha=0.2, edgecolor=None)
         sax.axhline(0, color='k', linewidth=0.5)
-        # sax.plot(time, r1_dc_hl['dr1'], color='k', label='$\Delta{R_1}$')
+        # sax.plot(time, flux_hl['dr1'], color='k', label='$\Delta{R_1}$')
         # sax.plot(time, r1_dc_hl['dyn'], color='maroon', label='$\overline{R_1} \dfrac{\Delta (\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}}$')
         # sax.plot(time, r1_dc_hl['res'], '-.k', label='Residual')
         # sax.plot(time, r1_dc_hl['rad'], color='lightgray', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$')
-        sax.plot(time, flux_hl['dr1'], color='k', label='$\Delta{R_1}$')
-        sax.plot(time, flux_hl['dcdyn'], color='maroon', label='$\overline{R_1} \dfrac{\Delta (\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}}$')
-        sax.plot(time, flux_hl['dcres'], '-.k', label='Residual')
-        sax.plot(time, flux_hl['dcra'], color='lightgray', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$')
+        if model=='rp000191f':
+            sax.plot(time, flux_hl['dcdyn'], color='maroon', label='$\overline{R_1} \dfrac{\Delta (\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}}$',zorder=3)
+            sax.plot(time, flux_hl['dcres'], '-.k', label='Residual',zorder=3)
+            sax.plot(time, flux_hl['dcra'], color='lightgray', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$',zorder=3)
+            sax.plot(time, flux_hl['dr1'], color='k', label='$\Delta{R_1}$',zorder=10)
+            # ax.set_zorder(sax.get_zorder()+1)
+            # ax.set_frame_on(False)
+        else:
+            sax.plot(time, flux_hl['dcdyn'], color='maroon', label='$\overline{R_1} \dfrac{\Delta (\partial_t m + \partial_y (vm))}{\overline{\partial_t m + \partial_y (vm)}}$')
+            sax.plot(time, flux_hl['dcres'], '-.k', label='Residual')
+            sax.plot(time, flux_hl['dcra'], color='lightgray', label='$-\overline{R_1} \dfrac{\Delta R_a}{\overline{R_a}}$')
+            sax.plot(time, r1_hl, color='k', label='$\Delta{R_1}$')
+        # sax.plot(time, flux_hl['dr1'], color='k', label='$\Delta{R_1}$')
         sax.set_ylabel(r'$\Delta R_1$ (unitless)', color='black')
         sax.set_ylim(vmin['r1']-r1_hl[0],vmax['r1']-r1_hl[0])
         sax.tick_params(axis='y', labelcolor='black', color='black')
         sax.yaxis.set_minor_locator(AutoMinorLocator())
 
         # add legend
-        sax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.2), ncol=2)
+        if legend:
+            sax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.2), ncol=2)
 
-        # cut off excess space on the bottom 
-        box = ax.get_position()
-        ax.set_position([box.x0, box.y0 + box.height * 0.1,
-                             box.width, box.height * 0.9])
+            # cut off excess space on the bottom 
+            box = ax.get_position()
+            ax.set_position([box.x0, box.y0 + box.height * 0.1,
+                                 box.width, box.height * 0.9])
 
         # alter figure aspect ratio to accomodate legend
-        fig.set_size_inches(4,3.5)
+        if legend:
+            fig.set_size_inches(4,3.5)
+        else:
+            if sim=='hist+rcp85':
+                fig.set_size_inches(4, 2.5)
+            elif isinstance(model, str) or model is None:
+                fig.set_size_inches(4,2.5)
+            else:
+                fig.set_size_inches(4,3)
+
+        if 'sic' in plotover:
+            sic_hl_mmm = dict()
+            if not ( isinstance(model, str) or (model is None) ):
+                for i in seaice_mmm['sic']:
+                    sic_hl_mmm[i] = lat_mean(seaice_mmm['sic'][i], grid, lat_int, dim=1)
+
+            sic_hl = lat_mean(seaice['sic'], grid, lat_int, dim=1)
+
+            if sim == 'echam': # sea ice is not in percent in echam output
+                sic_hl = 1e2* sic_hl
+
+            # first and last 30 years
+            sic_f30 = np.mean(sic_hl[:30])
+            sic_l30 = np.mean(sic_hl[-30:])
+            dyn_f30 = np.mean(flux_hl['dcdyn'][:30])
+            if sim == 'echam':
+                dyn_l30 = np.mean(flux_hl['dcdyn'][70:100])
+            else:
+                dyn_l30 = np.mean(flux_hl['dcdyn'][-30:])
+            m_axis = (sic_l30 - sic_f30)/(dyn_l30 - dyn_f30)
+            if m_axis == 0: # e.g. in echam
+                m_axis = 1 # this doesn't really matter
+            vmax_alg = sic_f30 + m_axis*( vmax['r1']-r1_hl[0] - dyn_f30 )
+            vmin_alg = sic_l30 + m_axis*( vmin['r1']-r1_hl[0] - dyn_l30 )
+
+            fig.set_size_inches(5.5, 3.5)
+
+            tax = ax.twinx()
+            tax.spines.right.set_position(("axes", 1.5))
+            if timemean == 'jjamean':
+                tax.plot(time, 100-sic_hl, color='tab:purple')
+                tax.set_ylabel('Ocean fraction (%)', color='tab:purple')
+            else:
+                if not (isinstance(model, str) or model is None):
+                    if spread == 'prc':
+                        tax.fill_between(time, sic_hl_mmm['prc25'], sic_hl_mmm['prc75'], facecolor='tab:purple', alpha=0.2, edgecolor=None)
+                    elif spread == 'std':
+                        tax.fill_between(time, sic_hl_mmm['mmm']-sic_hl_mmm['std']/sqn, sic_hl_mmm['mmm']+sic_hl_mmm['std']/sqn, facecolor='tab:purple', alpha=0.2, edgecolor=None)
+                tax.plot(time, sic_hl, color='tab:purple')
+                tax.set_ylabel('Sea-ice fraction (%)', color='tab:purple')
+            # tax.set_ylim(vmin['sic'],vmax['sic'])
+            tax.set_ylim(vmin_alg,vmax_alg)
+            tax.tick_params(axis='y', labelcolor='tab:purple', color='tab:purple')
+            tax.yaxis.set_minor_locator(MultipleLocator(5))
+            # tax.set_ylim(tax.get_ylim()[::-1]) # invert r1 taxis
+
 
     elif plotover == 'decomp_radonly':
         ############################################
@@ -706,7 +1042,7 @@ def r1_mon_hl(sim, **kwargs):
                 # sax.fill_between(time, flux_mmm_hl['dcres']['prc25'], flux_mmm_hl['dcres']['prc75'], facecolor='k', alpha=0.2, edgecolor=None)
             elif spread == 'std':
                 # sax.fill_between(time, flux_mmm_hl['dcdyn']['mmm']-flux_mmm_hl['dcdyn']['std'], flux_mmm_hl['dcdyn']['mmm']+flux_mmm_hl['dcdyn']['std'], facecolor='maroon', alpha=0.2, edgecolor=None)
-                sax.fill_between(time, flux_mmm_hl['dcra']['mmm']-flux_mmm_hl['dcra']['std'], flux_mmm_hl['dcra']['mmm']+flux_mmm_hl['dcra']['std'], facecolor='tab:gray', alpha=0.3, edgecolor=None)
+                sax.fill_between(time, flux_mmm_hl['dcra']['mmm']-flux_mmm_hl['dcra']['std']/sqn, flux_mmm_hl['dcra']['mmm']+flux_mmm_hl['dcra']['std']/sqn, facecolor='tab:gray', alpha=0.3, edgecolor=None)
                 # sax.fill_between(time, flux_mmm_hl['dcres']['mmm']-flux_mmm_hl['dcres']['std'], flux_mmm_hl['dcres']['mmm']+flux_mmm_hl['dcres']['std'], facecolor='k', alpha=0.2, edgecolor=None)
         sax.axhline(0, color='k', linewidth=0.5)
         # sax.plot(time, r1_dc_hl['dr1'], color='k', label='$\Delta{R_1}$')
@@ -723,7 +1059,8 @@ def r1_mon_hl(sim, **kwargs):
         sax.yaxis.set_minor_locator(AutoMinorLocator())
 
         # add legend
-        sax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.2), ncol=2)
+        if legend:
+            sax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.2), ncol=2)
 
         # cut off excess space on the bottom 
         box = ax.get_position()
@@ -731,13 +1068,22 @@ def r1_mon_hl(sim, **kwargs):
                              box.width, box.height * 0.9])
 
         # alter figure aspect ratio to accomodate legend
-        fig.set_size_inches(4,3.5)
+        if sim=='hist+rcp85':
+            fig.set_size_inches(4,3)
+        elif legend:
+            fig.set_size_inches(4,3.5)
+        else:
+            fig.set_size_inches(4,3)
 
     if legend and sim == 'era5':
         fig.legend(loc='upper right', bbox_to_anchor=(1,1), bbox_transform=ax.transAxes)
 
+    ax.set_xlim(yr_base_show,yr_end_show)
     plt.tight_layout()
-    plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
+    if legend:
+        plt.savefig(remove_repdots('%s.legend.pdf' % (plotname)), format='pdf', dpi=300)
+    else:
+        plt.savefig(remove_repdots('%s.pdf' % (plotname)), format='pdf', dpi=300)
 
     if viewplt:
         plt.show()

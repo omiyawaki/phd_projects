@@ -33,9 +33,13 @@ def filenames_raw(sim, varname, **kwargs):
         filename = Dataset(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_mon_%s_%s.%s.nc' % (sim, model, varname, model, yr_span, timemean)), 'r')
 
     elif sim == 'echam':
-        print('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_%s_%s.%s.nc' % (sim, model, varname, model, yr_span, timemean))
-        fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_%s_%s.%s.nc' % (sim, model, varname, model, yr_span, timemean)))
-        print(fname)
+        if varname in ['orog', 'sftlf']:
+            fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_%s_%s.nc' % (sim, model, varname, model, yr_span)))
+        else:
+            print('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_%s_%s.%s.nc' % (sim, model, varname, model, yr_span, timemean))
+            fname = glob.glob(remove_repdots('/project2/tas1/miyawaki/projects/003/data/raw/%s/%s/%s_%s_%s.%s.nc' % (sim, model, varname, model, yr_span, timemean)))
+            print(fname)
+
         filename = Dataset(fname[0], 'r')
 
     elif sim == 'era5':

@@ -30,6 +30,7 @@ hus = file_hus.variables['hus'][:] # (day x lev x lat x lon)
 ta = ta.filled(fill_value=np.nan)
 zg = zg.filled(fill_value=np.nan)
 hus = hus.filled(fill_value=np.nan)
+hus[np.abs(hus)>1e20]=np.nan
 
 # calculate MSE
 m = cpd*ta + g*zg + L*hus

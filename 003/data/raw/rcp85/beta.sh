@@ -7,7 +7,7 @@
 
 # declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/rcp85/ && ls -d */) # list of GCM models to process
 # declare -a models=("bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "HadGEM2-ES" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
-declare -a models=("HadGEM2-ES") # extended RCP runs
+declare -a models=("GISS-E2-H/" "GISS-E2-R/") # extended RCP runs
 sim="rcp85"
 freq="Amon"
 ens="r1i1p1"
@@ -28,10 +28,10 @@ for model in ${models[@]}; do
         echo "beta was already created. Skipping..."
     else
         full_ps=${cwd}/${model}/ps_${common}.timmean.nc
-        full_va=${cwd}/${model}/va_${common}.nc
+        full_ta=${cwd}/${model}/ta_${common}.nc
         full_beta=${cwd}/${model}/beta_${common}.timmean.nc
 
-        python ${cwd}/make_beta.py ${full_ps} ${full_va} ${full_beta}
+        python ${cwd}/make_beta.py ${full_ps} ${full_ta} ${full_beta}
 
     fi
 

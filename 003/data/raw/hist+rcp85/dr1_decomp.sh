@@ -5,7 +5,8 @@
 module unload python
 module load python
 
-declare -a models=("bcc-csm1-1") # extended RCP runs
+declare -a models=("GISS-E2-H/" "GISS-E2-R/") # extended RCP runs
+# declare -a models=("CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "HadGEM2-ES" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
 # declare -a models=("bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "HadGEM2-ES" "IPSL-CM5A-LR" "MPI-ESM-LR") # extended RCP runs
 
 sim="hist+rcp85"

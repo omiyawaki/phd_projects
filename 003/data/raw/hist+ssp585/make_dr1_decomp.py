@@ -39,11 +39,15 @@ file_ref_dyn = Dataset(path_ref_dyn, 'r')
 r1 = file_full_r1.variables['r1'][:] # (mon x lat)
 ra = file_full_ra.variables['ra'][:] # (mon x lat)
 stf = file_full_stf.variables['stf'][:] # (mon x lat)
-dyn = file_full_dyn.variables['stgadv'][:] # (mon x lat)
 r1_r = file_ref_r1.variables['r1'][:] # (1 x lat)
 ra_r = file_ref_ra.variables['ra'][:] # (1 x lat)
 stf_r = file_ref_stf.variables['stf'][:] # (1 x lat)
-dyn_r = file_ref_dyn.variables['stgadv'][:] # (1 x lat)
+try:
+    dyn = file_full_dyn.variables['stgadv'][:] # (mon x lat)
+    dyn_r = file_ref_dyn.variables['stgadv'][:] # (1 x lat)
+except:
+    dyn = file_full_dyn.variables['adv'][:] # (mon x lat)
+    dyn_r = file_ref_dyn.variables['adv'][:] # (1 x lat)
 
 # take zonal means
 ra = np.nanmean(ra, axis=2)

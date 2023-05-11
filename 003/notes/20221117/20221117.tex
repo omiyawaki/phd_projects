@@ -1,0 +1,147 @@
+\documentclass{article}
+
+\usepackage{float}
+\usepackage{mlmodern}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+\usepackage{listings}
+\lstset{
+    basicstyle=\small\ttfamily,
+    columns=flexible,
+    breaklines=true
+}
+
+\title{Update on Arctic Project:\\Quantifying the influence of surface albedo on downwelling shortwave flux to close the Q flux problem}
+\date{Nov 20, 2022}
+% \author{Osamu Miyawaki, Tiffany A. Shaw, Malte F. Jansen}
+
+\begin{document}
+\maketitle
+
+\section{Background}
+The goal of imposing a Q flux in AQUAnoice is to capture the climatology of AQUAice in the absence of an interactive sea-ice module. To derive a Q flux ($Q$) that mimics the thermodynamic effect of sea ice, consider the surface energy budget for AQUAnoice:
+\begin{equation}\label{eq:fsfc-ni}
+    C^{ni}\frac{\partial T^{ni}_{s}}{\partial t} + Q = SW^{ni} + LW^{ni} + LH^{ni} + SH^{ni} = F^{ni}_{SFC} \, ,
+\end{equation}
+and for AQUAice:
+\begin{equation}\label{eq:fsfc-i}
+    C^i\frac{\partial T^{i}_{s}}{\partial t} + F^i_{melt} + F^i_{cond}  = SW^{i} + LW^{i} + LH^{i} + SH^{i} = F^i_{SFC} \, ,
+\end{equation}
+where $F_{SFC}$ is the net surface energy flux, $F_{melt}$ is the energy flux associated with surface melting of snow or sea ice, $F_{cond}$ is conductive flux through snow and sea ice, $SW$ is the net surface shortwave flux, $LW$ is the net surface longwave flux, $LH$ is surface latent heat flux, $SH$ is surface sensible heat flux, $T_{s}$ is the surface temperature, and $C$ is the surface heat capacity. The superscripts $ni$ and $i$ indicate the value is associated with AQUAnoice and AQUAice, respectively.
+
+Subtracting equation~(\ref{eq:fsfc-i}) from (\ref{eq:fsfc-ni}), I obtain:
+\begin{equation}\label{eq:q1}
+    Q =  C^i\frac{\partial T^{i}_{s}}{\partial t} + F^i_{melt} + F^i_{cond} - C^{ni}\frac{\partial T^{ni}_{s}}{\partial t} + SW^{ni} - SW^{i} + LW^{ni} - LW^{i} + LH^{ni} - LH^{i} + SH^{ni} - SH^{i} \, .
+\end{equation}
+All quantities with a superscript $ni$ are unknown because they emerge only after running the model with the imposed $Q$. To close this problem, I first express the statement that the climatology in AQUAnoice matches that of AQUAice by imposing variables determined by processes internal to the climate system are equal:
+\begin{align}
+    T^{ni}_s &= T^i_s \label{eq:imp1}\\
+    LW^{ni} &= LW^i \label{eq:imp2}\\
+    LH^{ni} &= LH^i \label{eq:imp3}\\
+    SH^{ni} &= SH^i \label{eq:imp4}
+\end{align}
+Substituting equation~(\ref{eq:imp1})--(\ref{eq:imp4}) into (\ref{eq:q1}),
+\begin{equation}\label{eq:q2}
+    Q =  \underbrace{F^i_{SFC} - C^{ni}\frac{\partial T^{i}_{s}}{\partial t}}_{\text{surface heat capacity effect, }Q_C} + \underbrace{SW^{ni} - SW^{i}}_{\text{shortwave effect, }Q_{SW}} \, .
+\end{equation}
+The Q flux is composed of two distinct thermodynamic effects of sea ice. First, the smaller surface heat capacity of sea ice and the presence of melt and conductive fluxes amplify the seasonal cycle of surface temperature. Second, the higher surface albedo of sea ice compared to open ocean acts to cool the surface temperature year round. As shown in equation~(\ref{eq:q2}), the surface heat capacity effect is trivial to compute because all necessary quantities are known from AQUAice ($F^i_{SFC}$ and $T^i_s$) or is an external parameter in AQUAnoice ($C^{ni}=\rho_w c_w d$ where $\rho_w$ is the density of water, $c_w$ is the specific heat capacity of water, and $d$ is the slab-ocean mixed layer depth). On the other hand, the shortwave effect requires making further assumptions because $SW^{ni}$ is unknown.
+
+The goal of this note is to compare the shortwave component of Q flux associated with various closure assumptions. I will explain why previous assumptions led to biases in the Arctic climatology and show this is consistent with previous literature on simple models of surface shortwave absorption \citep{winton2005}.
+
+\section{Reference simulation: imposing $Q_{SW}=SW^{Q_C}-SW^{i}$}
+AQUAnoice can successfully reproduce the climatology of AQUAice by running an intermediate AQUAnoice run with an imposed Q flux of $Q_C$ (surface heat capacity effect only). $Q_{SW}$ (shortwave component of Q flux) is then determined as the difference in net surface shortwave absorption between AQUAnoice with $Q_C$ and AQUAice:
+\begin{equation} \label{eq:qs0}
+    Q^0_{SW}=SW^{Q_C}-SW^{i}\,,
+\end{equation}
+where the superscript 0 is a label of the shortwave closure assumption (subsequent assumptions will be labeled 1, 2, and 3). The resulting Q flux is imposes an ocean heat flux divergence (cooling flux) of $\approx 50$ W m$^{-2}$ in the annual mean (blue line in Fig.~\ref{fig:qflux-comp}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/echam/qflux/comp_qflux_ann}.pdf}
+    \caption{Annual mean Q flux for $Q^0=Q_C+Q^0_{SW}$ (blue, see equation~(\ref{eq:qs0})), $Q^1=Q_C+Q^1_{SW}$ (orange, see equation~(\ref{eq:qs1})), $Q^2=Q_C+Q^2_{SW}$ (green, see equation~(\ref{eq:qs2})), $Q^3=Q_C+Q^3_{SW}$ (red, see equation~(\ref{eq:qs3})).}
+    \label{fig:qflux-comp}
+\end{figure}
+
+AQUAnoice with an imposed Q flux of $Q_{C}+Q^0_{SW}$ captures the surface temperature climatology of AQUAice (compare blue and purple lines in Fig.~\ref{fig:temp2-comp}). Thus, this serves as a reference Q flux profile that is known to successfully capture the thermodynamic effect of sea ice.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/echam/ann/plot/rp000190d/temp2}.pdf}
+    \caption{Latitudinal structure of the annual mean 2~m air temperature for AQUAice (purple), AQUAnoice with $Q^0=Q_C+Q^0_{SW}$ (blue, see equation~(\ref{eq:qs0})), and AQUAnoice with $Q^1=Q_C+Q^1_{SW}$ (orange, see equation~(\ref{eq:qs1})).}
+    \label{fig:temp2-comp}
+\end{figure}
+
+However, this method has two problems:
+\begin{enumerate}
+    \item It is unclear why this works because the underlying physical mechanism is not clearly expressed in $SW^{Q_C}-SW^{i}$ (e.g., what is the effect of surface albedo?).
+    \item It is cumbersome and wastes computational resources because it requires two model runs (one with $Q=Q_C$ and another with $Q=Q_C+Q_{SW}$). 
+\end{enumerate}
+To improve the usefulness of the Q flux method, we need to address both of these issues. My approach is to use simple models for net surface shortwave absorption ($SW$) of varying complexity following \cite{winton2005}. 
+
+\section{Assumption 1: Linear model}
+The simplest expression for net surface shortwave flux is that it absorbs a fraction of the downwelling surface shortwave flux based on the surface coalbedo ($1-\alpha$):
+\begin{equation}
+    SW=SW_{\downarrow}(1-\alpha)
+\end{equation}
+Under this assumption, the shortwave component of Q flux becomes:
+\begin{equation}
+    Q^1_{SW}=SW^{ni}_{\downarrow}(1-\alpha_o)-SW^{i}_{\downarrow}(1-\alpha_i)\,,
+\end{equation}
+where $\alpha_o=0.07$ is the albedo of ocean and $\alpha_i$ is the surface albedo in AQUAice. To close the problem, we assume that
+\begin{equation}
+    SW^{ni}_\downarrow=SW^{i}_\downarrow
+\end{equation}
+such that
+\begin{equation} \label{eq:qs1}
+    Q^1_{SW}=SW^{i}_{\downarrow}(\alpha_i-\alpha_o)
+\end{equation}
+The resulting Q flux overpredicts the reference Q flux in the high latitudes by $\approx15$ Wm$^{-2}$ (compare orange to blue line in Fig.~\ref{fig:qflux-comp}). Consistent with an excessively strong ocean heat flux divergence, the resulting climatology in AQUAnoice with $Q^1$ exhibits a cold bias of $\approx 5$ K.
+
+This bias suggests that there is a fundamental problem in the assumption that the downwelling shortwave flux is the same between AQUAice and AQUAnoice. The reason this assumption is poor is because multiple reflections of shortwave flux between the surface and atmosphere increases downwelling shortwave flux for a more reflective surface. Multiple reflections has been shown to be especially important for cloudy conditions over a highly reflective surface such as the high latitudes \citep{schneider1976,wendler1981,shine1984,rouse1987,wendler2004,wyser2008}. This means assumption 1 will overestimate surface downwelling shortwave flux and thus surface absorption. This is consistent with Fig.~7 in \cite{winton2005}, which shows the linear model overestimates surface shortwave absorption (compare dashed line to solid circles for surface albedo of 0.07).
+
+\section{Assumption 2: 2-parameter model}
+To improve on the deficiency of assumption 1, we must consider how downwelling surface shortwave flux depends on surface albedo. The simplest model that accounts for this effect is a one-layer energy balance model for shortwave radiative transfer \citep[e.g.,][]{qu2005,winton2005,donohoe2011}. In this model, downwelling shortwave flux is analytically expressed as an arithmetic series of infinite reflections between the surface and atmosphere \citep[equation~(2) in][]{donohoe2011}. The shortwave component of Q flux is then expressed as:
+\begin{equation} \label{eq:qs2}
+    Q^2_{SW}=\frac{S(1-R^{ni}-A^{ni})}{1-\alpha_oR^{ni}}(1-\alpha_o)-\frac{S(1-R^{i}-A^{i})}{1-\alpha_iR^{i}}(1-\alpha_i)\,,
+\end{equation}
+where $S$ is insolation, $R$ is atmospheric shortwave reflectivity, and $A$ is atmospheric shortwave absorptivity. The virtue of the 2-parameter model is that it reveals the surface albedo dependence of downwelling shortwave flux. Now, we close the problem by assuming that 
+\begin{align}
+    R^{ni}&=R^i\\
+    A^{ni}&=A^i\,.
+\end{align}
+Assumption 2 is more conceptually sound than assumption 1 because it imposes properties internal to the atmosphere are equal across AQUAice and AQUAnoice. The resulting shortwave component of Q flux is
+\begin{equation} \label{eq:qs2-setup}
+    Q^2_{SW}=\frac{SW^{i}_{\downarrow}}{1-\alpha_oR^i}(\alpha_i-\alpha_o)(1-R^i)=Q^1_{SW}\frac{1-R^i}{1-\alpha_oR^i}\,,
+\end{equation}
+where $R^i$ is the atmospheric shortwave reflectivity in AQUAice. $R^i$ is diagnosed from shortwave fluxes at the surface and top of the atmosphere \citep[equation~(16) in][]{winton2005}. $Q^2_{SW}$ always satisfies $Q^2_{SW}\le Q^1_{SW}$ implying that the Q flux under assumption 2 will always be smaller than assumption 1, which is indeed the case here (compare green to orange line in Fig.~\ref{fig:qflux-comp}).
+
+However, assumption 2 underestimates $Q^0$, suggesting that the climatology in AQUAnoice with $Q^2$ will exhibit a warm bias. This bias is consistent with \cite{winton2005} (compare dashed gray line to circles in their Fig.~7). \cite{winton2005} attributes this bias to the directional (upward vs downward) dependence of atmospheric shortwave reflectivity and absorptivity. He suggests possible reasons for the importance of directionality include: 1) downward flux is a combination of direct and diffuse radiation whereas upward flux is entirely diffuse, 2) spectroscopic dependence of atmospheric reflection and absorption, 3) vertical structure of reflection and absorption (e.g., aborption being top-heavy relative to reflection), and 4) weighting effects (I don't understand this from his description). 
+
+\section{Assumption 3: 2-parameter model with directionality}
+Given the importance of separating atmospheric reflectivity and absorptivity to upwelling and downwelling fluxes, \cite{winton2005} derives a modified 2-parameter model where the atmospheric reflectivity to \textbf{upwelling fluxes} is relevant reflectivity to surface downwelling flux:
+\begin{equation} \label{eq:qs3}
+    Q^3_{SW}=\frac{SW^{i}_{\downarrow}}{1-\alpha_oR^i_\uparrow}(\alpha_i-\alpha_o)(1-R^i_\uparrow)\,,
+\end{equation}
+where $R^i_\uparrow$ is the atmospheric shortwave reflectivity to upwelling fluxes defined as (his equation~(18)):
+\begin{equation}
+    R^i_\uparrow=0.05+0.85\left(1-\frac{SW^i_\downarrow}{SW^i_{\downarrow\,,clear}}\right)
+\end{equation}
+The resulting Q flux captures the reference Q flux ($Q^0$) suggesting that $Q^3$ will reproduce the climatology of AQUAice. This addresses the two problems I noted with the $Q^0$ method:
+\begin{enumerate}
+    \item Quantitatively capturing the effect of surface albedo on net surface shortwave flux (SW$^{ni}$) requires you to consider two key physical mechanisms: 1) multiple reflections between the surface and atmosphere and 2) the directional dependence of atmospheric shortwave reflectivity.
+    \item The Q flux can be computed solely with information from the AQUAice run, eliminating the need to run an intermediate AQUAnoice with $Q_C$ only.
+\end{enumerate}
+
+\section{Next steps}
+I am currently running AQUAnoice with $Q^2$ and $Q^3$ to quantitatively evaluate the climatology that emerges from assumptions 2 and 3. I expect assumptions 2 and 3 to produce a climatology that is warmer and consistent with AQUAice, respectively.
+
+Once the simulations are completed, I will update the manuscript with the new Q-flux derivation. I will also update previous figures comparing AQUAnoice with $Q^0$ to AQUAice with AQUAnoice with $Q^3$ instead. I will also update the format of the manuscript to follow the Environmental Research: Climate template and share the manuscript with you for your feedback.
+
+
+\bibliographystyle{apalike}
+\bibliography{./references.bib}
+
+\end{document}

@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 # set -euo pipefail
 
-# declare -a sims=("rp000190") # climate name
-# yr_span="0001_0009"
+# declare -a models=("rp000200") # extended RCP runs
+# yr_span="0040_0057"
 
-declare -a sims=("rp000191") # climate name
-yr_span="0040_0059"
+declare -a models=("rp000201") # extended RCP runs
+yr_span="0040_0083"
 
-# sims=("rp000184")
-# # sims=("rp000185" "rp000188")
-# yr_span="0040_0139"
+# declare -a sims=("rp000188" "rp000191" "rp000191b") # climate name
+# yr_span="0040_0339"
 
-# sims=("rp000190")
+sims=("rp000188" "rp000191f")
+yr_span="0040_0252"
+
+# sims=("rp000195")
 # # sims=("rp000130" "rp000131" "rp000134" "rp000135")
 # yr_span="0020_0039"
 

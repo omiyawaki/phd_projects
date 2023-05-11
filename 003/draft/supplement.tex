@@ -15,6 +15,8 @@
 
 %% To submit your paper:
 \documentclass[draft]{agujournal2019}
+\usepackage{mlmodern}
+\usepackage{amsmath,amssymb,amsfonts}
 \usepackage{url} %this package should fix any errors with URLs in refs.
 \usepackage{lineno}
 \usepackage[inline]{trackchanges} %for better track changes. finalnew option will compile document with changes incorporated.
@@ -61,87 +63,233 @@
 %
 % ie, \journalname{Water Resources Research}
 
-\journalname{Geophysical Research Letters}
+\journalname{Environmental Research: Climate}
 
 
 \begin{document}
 
-\title{Supplementary material for\\The transient emergence of a new wintertime Arctic energy balance regime}
+\title{Supplementary material for\\The emergence of a new wintertime Arctic energy balance regime}
 
 
-\authors{O. Miyawaki\affil{1}, T. A. Shaw\affil{1}, M. F. Jansen\affil{1}}
+\authors{O. Miyawaki\affil{1}, T. A. Shaw\affil{2}, M. F. Jansen\affil{2}}
 
 
-\affiliation{1}{Department of the Geophysical Sciences, The University of Chicago}
+\affiliation{1}{Climate and Global Dynamics Laboratory, National Center for Atmospheric Research}
+\affiliation{2}{Department of the Geophysical Sciences, The University of Chicago}
 
-\correspondingauthor{Osamu Miyawaki}{miyawaki@uchicago.edu}
+\correspondingauthor{Osamu Miyawaki}{miyawaki@ucar.edu}
 
 \renewcommand{\thefigure}{S\arabic{figure}}
 \renewcommand{\thetable}{S\arabic{table}}
 
 \newpage
 
+\section{Response in individual CMIP6 and CMIP5 models}
+\label{sec:c4aa}
+The RAE to RCAE regime transition occurs in 9 out of 10 CMIP6 models analyzed here (black lines in Fig.~\ref{fig:indiv-r1a}). Among models that exhibit the wintertime regime transition, sea ice melts, the surface inversion vanishes, and convective precipitation emerges (purple and blue lines in Fig.~\ref{fig:indiv-gadev} and \ref{fig:indiv-prfrac}). CMIP5 models also exhibit the link between the time-dependent response of energy balance regimes and the surface inversion and convective precipitation fraction (Fig.~\ref{fig:indiv-gadev-c5} and \ref{fig:indiv-prfrac-c5}). The exception is IPSL-CM5A-LR, where convective precipitation remains 0 despite undergoing the RAE to RCAE regime transition (Fig.~\ref{fig:indiv-prfrac-c5}i).
+
+9 out of 10 CMIP6 models exhibit the two distinct phases of the regime transition (gray and red lines in Fig.~\ref{fig:indiv-dc}). 6 of the 9 CMIP5 models exhibit the two phases of the regime transition (Fig.~\ref{fig:indiv-dc-c5}). The exceptions are HadGEM2-ES, where reduced advective heating dominates the full $R_1$ response, and GISS-E2-R and IPSL-CM5A-LR, where enhanced radiative cooling dominates the full response.
+
+The clear-sky longwave cooling response to anthropogenic forcing contributes to the enhanced radiative cooling response in all CMIP6 (red lines in Fig.~\ref{fig:clr-cld}) and CMIP5 models (Fig.~\ref{fig:clr-cld-c5}). The contribution of the cloudy-sky longwave cooling response varies among models. For example, the cloudy-sky contribution is close to 0 in CESM2-WACCM, MIROC-ES2L, CSIRO-Mk3-6-0, GISS-E2-H, and GISS-E2-R whereas the cloudy-sky contribution is equally or more important than the clear-sky contribution in GISS-E2-1-G, CCSM4, and IPSL-CM5A-LR. The cloudy-sky contribution in several CMIP6 models is time dependent, where the cloudy-sky contribution is largest during the regime transition and weakens thereafter as the Arctic approaches equilibrium.
+
+RRTMG captures the clear-sky longwave cooling response for most CMIP6 (compare black and red lines in Fig.~\ref{fig:clr-cld}) and CMIP5 models (Fig.~\ref{fig:clr-cld-c5}). The exceptions are CanESM5, GISS-E2-1-H, GISS-E2-H, and GISS-E2-R where RRTMG overpredicts the radiative cooling response and CSIRO-Mk3-6-0 where RRTMG underpredicts the response. The enhanced greenhouse effect from warming and the moistening associated with fixed relative humidity explains the clear-sky response in all CMIP6 (orange lines in Fig.~\ref{fig:indiv-rrtmg}) and CMIP5 models (orange lines in Fig.~\ref{fig:indiv-rrtmg-c5}).
+
+\section{Deriving the Q flux to capture the thermodynamic effect of sea ice}
+\label{sec:c4ab}
+The goal of imposing the Q flux in AQUAnoice is to capture the climatology of AQUAice in the absence of an interactive sea-ice module. To derive the Q flux ($Q$) that mimics the thermodynamic effect of sea ice, consider the surface energy budget for AQUAnoice:
+\begin{equation}\label{eq:fsfc-ni}
+    C^{ni}\frac{\partial T^{ni}_{s}}{\partial t} + Q = SW^{ni} + LW^{ni} + LH^{ni} + SH^{ni} = F^{ni}_{SFC} \, ,
+\end{equation}
+and for AQUAice:
+\begin{equation}\label{eq:fsfc-i}
+    C^i\frac{\partial T^{i}_{s}}{\partial t} + F^i_{melt} + F^i_{cond}  = SW^{i} + LW^{i} + LH^{i} + SH^{i} = F^i_{SFC} \, ,
+\end{equation}
+where $F_{SFC}$ is the net surface energy flux, $F_{melt}$ is the energy flux associated with surface melting of snow or sea ice, $F_{cond}$ is conductive flux through snow and sea ice, $SW$ is the net surface shortwave flux, $LW$ is the net surface longwave flux, $LH$ is surface latent heat flux, $SH$ is surface sensible heat flux, $T_{s}$ is the surface temperature, and $C$ is the surface heat capacity. The superscripts $ni$ and $i$ indicate the value is associated with AQUAnoice and AQUAice, respectively.
+
+Subtracting equation~(\ref{eq:fsfc-i}) from (\ref{eq:fsfc-ni}), we obtain:
+\begin{equation}\label{eq:q1}
+    Q =  C^i\frac{\partial T^{i}_{s}}{\partial t} + F^i_{melt} + F^i_{cond} - C^{ni}\frac{\partial T^{ni}_{s}}{\partial t} + SW^{ni} - SW^{i} + LW^{ni} - LW^{i} + LH^{ni} - LH^{i} + SH^{ni} - SH^{i} \, .
+\end{equation}
+All quantities with a superscript $ni$ are unknown because they emerge only after running the model with the imposed $Q$. To close this problem, we first require that the climatology in AQUAnoice matches that of AQUAice. Specifically,
+\begin{align}
+    T^{ni}_s &= T^i_s \label{eq:imp1}\\
+    LW^{ni} &= LW^i \label{eq:imp2}\\
+    LH^{ni} &= LH^i \label{eq:imp3}\\
+    SH^{ni} &= SH^i \label{eq:imp4}
+\end{align}
+Substituting equation~(\ref{eq:imp1})--(\ref{eq:imp4}) into (\ref{eq:q1}),
+\begin{equation}\label{eq:q2}
+    % Q =  \underbrace{C^i\frac{\partial T^{i}_{s}}{\partial t} + F^i_{melt} + F^i_{cond} - C^{ni}\frac{\partial T^{i}_{s}}{\partial t}}_{\text{surface heat capacity effect, }Q_C} + \underbrace{SW^{ni} - SW^{i}}_{\text{shortwave effect, }Q_{SW}} \, .
+    Q =  \underbrace{F^i_{SFC} - C^{ni}\frac{\partial T^{i}_{s}}{\partial t}}_{\text{surface heat capacity effect, }Q_C} + \underbrace{SW^{ni} - SW^{i}}_{\text{shortwave effect, }Q_{SW}} \, .
+\end{equation}
+$Q$ is composed of two distinct thermodynamic effects of sea ice. First, the smaller surface heat capacity of sea ice and the presence of melt and conductive fluxes amplify the seasonal cycle of surface temperature. Second, the higher surface albedo of sea ice compared to open ocean acts to cool the surface temperature year round. The surface heat capacity effect, $Q_C$, can be computed directly from the diagnosed surface heat fluxes and surface temperature evolution in AQUAice. The shortwave effect, $Q_{SW}$, is estimated using an analytic radiative transfer model \cite{winton2005}. Substituting equation~(19) in \citeA{winton2005} for $SW^{ni}$ and simplifying yields the following expression for the shortwave effect of sea ice:
+\begin{equation} \label{eq:qs3}
+    Q_{SW}=\frac{SW^{i}_{\downarrow}}{1-\alpha^{ni}_S\alpha^i_\uparrow}(\alpha^i_S-\alpha^{ni}_S)(1-\alpha^i_\uparrow)\,,
+\end{equation}
+where $SW^i_\downarrow$ is the downward shortwave flux in AQUAice, $\alpha_S$ is the surface albedo where $\alpha^{ni}_S=0.07$ for open ocean and $\alpha^{i}_S$ is the diagnosed surface albedo in AQUAice, and $\alpha_{\uparrow}$ is the atmospheric shortwave reflectivity to upwelling fluxes. $\alpha^i_{\uparrow}$ is computed for AQUAice following equation~(18) in \citeA{winton2005}:
+\begin{equation}
+    \alpha^i_\uparrow=0.05+0.85\left(1-\frac{SW^i_\downarrow}{SW^i_{\downarrow\,,clear}}\right)\,,
+\end{equation}
+where $SW^i_{\downarrow\,,clear}$ is the clear-sky net surface shortwave flux in AQUAice.
+
+AQUAnoice with imposed $Q$ captures the climatology of the AQUAice surface temperature for both the seasonal cycle and the annual mean (compare purple and blue lines in Fig.~\ref{fig:aqua-temp}). Furthermore, the vertical structure of the Arctic temperature profile in AQUAnoice with $Q$ are consistent with the AQUAice climatology (Fig.~\ref{fig:aqua-vert}).
+
+%%%%%%%%%%%%%%%%%%%% BEGIN TABLES AND FIGS
+
 \begin{table}
     \centering
-    \caption{List of the 7 CMIP5 and 5 CMIP6 models that are used for the multimodel mean of the extended RCP8.5 and SSP585 runs, respectively. Following \citeA{hankel2021}, GISS-E2-H and GISS-E2-R are omitted as outliers from the CMIP5 mean (deemed outliers because wintertime sea ice does not melt during the extended RCP8.5 run).}
-    \label{tab:models}
+    \caption{List of the 10 CMIP6 and 9 CMIP5 models that are used for the multimodel mean of the extended SSP585 and RCP8.5 runs.}
+    \label{tab:models-ch3}
     \begin{tabular}{l l}
         \hline
-        CMIP5 & CMIP6 \\
-        \hline
-        bcc-csm1-1 & ACCESS-CM2\\
-        CCSM4 & ACCESS-ESM1-5\\
-        CNRM-CM5 & CanESM5\\
-        CSIRO-Mk3-6-0 & IPSL-CM6A-LR\\
-        HadGEM2-ES & MRI-ESM2-0\\
-        IPSL-CM5A-LR \\
-        MPI-ESM-LR\\
+        CMIP6          & CMIP5          \\
+        \hline                 
+        ACCESS-CM2     & bcc-csm1-1     \\
+        ACCESS-ESM1-5  & CCSM4          \\
+        CanESM5        & CNRM-CM5       \\
+        CESM2-WACCM    & CSIRO-Mk3-6-0  \\
+        GISS-E2-1-G    & GISS-E2-H      \\
+        GISS-E2-1-H    & GISS-E2-R      \\ 
+        IPSL-CM6A-LR   & HadGEM2-ES     \\
+        MIROC-ES2L     & IPSL-CM5A-LR   \\
+        MRI-ESM2-0     & MPI-ESM-LR     \\
+        UKESM1-0-LL    & \\
         \hline
     \end{tabular}
 \end{table}
 
+%%%%%%%%%%%%%%% FIG S1
 \begin{figure}
     \centering
-    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/echam/qflux/qflux}.pdf}
-    \caption{The seasonally varying Q-flux (positive values correspond to heat flux divergence, a cooling influence) that is prescribed for the AQUAqflux run. The zero contour is indicated in black.}
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip6/fig_r1a/fig_r1a_all}.pdf}
+    \caption{The wintertime (DJF) energy balance regime quantified using $R_1=\langle\partial_t[m]+\partial_y[vm]\rangle/[R_a]$ (solid black, see equation~(1) in the main text) and an alternative definition without the storage term, $\langle\partial_y[vm]\rangle/[R_a]$ (dashed black), for individual CMIP6 models of the extended SSP585 run. Blue and white regions indicate RAE and RCAE, respectively.}
+    \label{fig:indiv-r1a} % s6
 \end{figure}
 
+%%%%%%%%%%%%%%% FIG S1
 \begin{figure}
     \centering
-    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/qflux/clima}.pdf}
-    \caption{(a) Surface temperature tendency, (b) surface net longwave radiative flux, (c) surface latent heat flux, and (d) surface sensible heat flux for 40 m AQUA with ice (blue), with q flux but no ice (red), and no q flux and no ice (black).}
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip6/fig_1_all/fig_1a_all}.pdf}
+    \caption{Same as Fig.~1a but (a--j) for individual CMIP6 models.}
+    \label{fig:indiv-gadev} % s6
 \end{figure}
 
+%%%%%%%%%%%%%%% FIG S2
 \begin{figure}
     \centering
-    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip6/fig_2/fig_2}.pdf}
-    \caption{Same as Fig.~2 but for the CMIP6 mean of the extended SSP585 run.}
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip6/fig_1_all/fig_1b_all}.pdf}
+    \caption{Same as Fig.~1b but (a--j) for individual CMIP6 models.}
+    \label{fig:indiv-prfrac} % s6
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip5/fig_2_all/fig_2_all}.pdf}
-    \caption{Same as Fig.~2 (a) but for individual CMIP5 models (b--h).}
-\end{figure}
-
+%%%%%%%%%%%%%%% FIG S3
 \begin{figure}
     \centering
     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip6/fig_2_all/fig_2_all}.pdf}
-    \caption{Same as Fig.~S3 (a) but for individual CMIP6 models (b--f).}
+    \caption{Same as Fig.~2 but (a--j) for individual CMIP6 models.}
+    \label{fig:indiv-dc} % s6
+\end{figure}
+
+%%%%%%%%%%%%%%% FIG S4
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip6/fig_3a_all/fig_3a_all}.pdf}
+    \caption{Same as Fig.~3a but (a--j) for individual CMIP6 models.}
+    \label{fig:clr-cld} % s8
+\end{figure}
+
+%%%%%%%%%%%%%%% FIG S5
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip6/fig_3b_all/fig_3b_all}.pdf}
+    \caption{Same as Fig.~3b but (a--j) for individual CMIP6 models.}
+    \label{fig:indiv-rrtmg} % s9
+\end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/qflux/q}.pdf}
+%     \caption{The annual and zonal mean (a) surface temperature, (b) net surface shortwave flux, (c) net surface longwave flux, (d) surface latent heating, (e) surface sensible heating, and (f) net surface heat flux for AQUAice (blue) and AQUAnoice (purple). A positive (negative) energy flux corresponds to a flux that heats (cools) the surface. Note that $Q_{SW}$ is subtracted from AQUAnoice (b) net shortwave flux and (f) $F_{SFC}$ to highlight the effect that $Q_{SW}$ has in offsetting the difference between AQUAice and AQUAnoice shortwave flux.}
+%     \label{fig:q-ann}
+% \end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/qflux/q_seas}.pdf}
+%     \caption{Same as Fig.~\ref{fig:q-ann} but for the seasonal cycle in the Arctic ($80$--$90^\circ$N).}
+%     \label{fig:q-seas}
+% \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/echam/qflux/qflux_f}.pdf}
+    \caption{The latitudinal and seasonal structure of the imposed Q flux in AQUAnoice. Positive values correspond to heat flux divergence, a cooling influence on the surface energy budget.}
+    \label{fig:noice} % s1
+\end{figure}
+
+% \begin{figure}
+%     \centering
+%     \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/qflux/clima}.pdf}
+%     \caption{(a) Surface temperature tendency, (b) surface net longwave radiative flux, (c) surface latent heat flux, and (d) surface sensible heat flux for AQUAice (blue), AQUA with an imposed Q flux of $Q_C$ (red), and AQUA with an imposed Q flux of $Q_C+Q_{SW}$ (purple).}
+%     \label{fig:flux-seas} % s2
+% \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/qflux/temp}.pdf}
+    \caption{(a) The seasonal cycle of Arctic surface temperature and (b) the latitudinal structure of annual mean surface temperature for AQUAice (blue) and AQUAnoice (purple).}
+    \label{fig:aqua-temp} % s3
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip5/fig_3a_all/fig_3a_all}.pdf}
-    \caption{Same as Fig.~3a (a) but for individual CMIP5 models (b--h).}
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/qflux/ta}.pdf}
+    \caption{(a) Annual mean (ANN) and (b) wintertime (DJF) Arctic vertical temperature profile for AQUAice (blue) and AQUAnoice (purple).}
+    \label{fig:aqua-vert} % s4
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip5/fig_3b_all/fig_3b_all}.pdf}
-    \caption{Same as Fig.~3b (a) but for individual CMIP5 models (b--h).}
+    % \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/rrtmg/plot/mmm/dracs_decomp}.pdf}
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip6/fig_3/fig_3_alt}.pdf}
+    \caption{(a) Similar to Fig.~3b but showing an alternative decomposition that separates the contribution of warming at fixed specific humidity (i.e. holding CO$_2$ and specific humidity fixed, orange line) and moistening (i.e. holding CO$_2$ and temperature fixed, blue line). (b) The warming contribution in the absence of moistening is further decomposed into contributions from vertically uniform warming (Planck effect, dashed orange) and deviations therefrom (lapse rate effect, dotted orange).}
+    \label{fig:rrtmg-alt} % s9
 \end{figure}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/echam/fig_1_ice/fig_1_ice}.pdf}
+    \caption{Same as Fig.~1 but for AQUAice.}
+    \label{fig:ai-corr} % s10
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/echam/fig_1_noice/fig_1_noice}.pdf}
+    \caption{Same as Fig.~1 but for AQUAnoice.}
+    \label{fig:an-corr} % s10
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/qflux/dta}.pdf}
+    \caption{(a) The latitudinal and vertical warming response for the Northern Hemisphere winter season (DJF) for (a) AQUAice and (b) AQUAnoice. The warming response is computed as the difference between the temperature averaged over year 2180 to 2200 of the SSP585 run and the last 20 years of the control run. The contour interval is 1~K. Note that the climate is hemispherically symmetric in the aquaplanets: the asymmetry shown here is a seasonal asymmetry (surface-amplified polar warming is weak in the summer hemisphere).}
+    \label{fig:aqua-p-lat-dt} % s11
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/echam/fig_3/fig_3}.pdf}
+    \caption{Same as Fig.~3 but for AQUAice.}
+    \label{fig:ai-rrtmg} % s10
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plot/hist+ssp585/mmm/186001-229912/mon_hl/flux_dse_prpers_pj21_dev_mon_hl.80.90.djfmean}.pdf}
+    \caption{The wintertime (DJF) dry static energy (DSE) energy budget decomposed into atmospheric radiative cooling (gray line), latent heat released from precipitation (blue line), and atmospheric DSE flux convergence plus storage minus surface sensible heat flux (maroon line) for the CMIP6 multimodel mean of the extended SSP585 run. The shading indicates the 5--95\% confidence interval.}
+    \label{fig:dse} % s10
+\end{figure}
 
 %
 % ---------------
@@ -166,6 +314,48 @@
 % \multicolumn{2}{l}{$^{a}$Footnote text here.}
 % \end{tabular}
 % \end{table}
+
+%%%%%%%%%%%%%%% CMIP5
+%%%%%%%%%%%%%%% FIG S1 (CMIP5)
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip5/fig_1_all/fig_1a_all}.pdf}
+    \caption{Same as Fig.~1a but (a) for the CMIP5 multimodel mean and (b--j) individual CMIP5 models.}
+    \label{fig:indiv-gadev-c5} % s6
+\end{figure}
+
+%%%%%%%%%%%%%%% FIG S2 (CMIP5)
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip5/fig_1_all/fig_1b_all}.pdf}
+    \caption{Same as Fig.~1b but (a) for the CMIP5 multimodel mean and (b--j) individual CMIP5 models.}
+    \label{fig:indiv-prfrac-c5} % s6
+\end{figure}
+
+%%%%%%%%%%%%%%% FIG S3 (CMIP5)
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip5/fig_2_all/fig_2_all}.pdf}
+    \caption{(a) Same as Fig.~2 but (b--h) for individual CMIP5 models.}
+    \caption{Same as Fig.~2 but (a) for the CMIP5 multimodel mean and (b--j) individual CMIP5 models.}
+    \label{fig:indiv-dc-c5} % s6
+\end{figure}
+
+%%%%%%%%%%%%%%% FIG S4 (CMIP5)
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip5/fig_3a_all/fig_3a_all}.pdf}
+    \caption{Same as Fig.~3a but (a) for the CMIP5 multimodel mean and (b--j) individual CMIP5 models.}
+    \label{fig:clr-cld-c5} % s8
+\end{figure}
+
+%%%%%%%%%%%%%%% FIG S5 (CMIP5)
+\begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{{/project2/tas1/miyawaki/projects/003/plotmerge/cmip5/fig_3b_all/fig_3b_all}.pdf}
+    \caption{Same as Fig.~3b but (a) for the CMIP5 multimodel mean and (b--j) individual CMIP5 models.}
+    \label{fig:indiv-rrtmg-c5} % s9
+\end{figure}
 
 \clearpage
 

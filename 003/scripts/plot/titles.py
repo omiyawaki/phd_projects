@@ -2,7 +2,7 @@ def make_title_sim(ax, sim, **kwargs):
 
     model = kwargs.get('model')
 
-    ax.set_title('%s' % (base_title_str(sim, model=model)))
+    ax.set_title('%s' % (base_title_str(sim, model=model)), loc='left')
 
 def make_title_sim_time(ax, sim, **kwargs):
 
@@ -29,8 +29,12 @@ def make_title_sim_time_lat(ax, sim, **kwargs):
     timemean = kwargs.get('timemean')
     lat1 = kwargs.get('lat1')
     lat2 = kwargs.get('lat2')
+    plotover = kwargs.get('plotover')
 
-    ax.set_title('%s, %s, $\phi=%g^\circ$ to $%g^\circ$' % (base_title_str(sim, model=model), time_str(timemean), lat1, lat2))
+    if plotover == 'decomp':
+        ax.set_title('%s, %s, $\phi=%g^\circ$ to $%g^\circ$' % (base_title_str(sim, model=model), time_str(timemean), lat1, lat2))
+    else:
+        ax.set_title('%s, %s, $\phi=%g^\circ$ to $%g^\circ$' % (base_title_str(sim, model=model), time_str(timemean), lat1, lat2), loc='left')
     
 def make_title_sim_time_lat_lon(ax, sim, **kwargs):
 
@@ -82,8 +86,8 @@ def base_title_str(sim, **kwargs):
             base_str = 'AQUAice 40 m'
         elif model in ['rp000135', 'rp000189']:
             base_str = 'AQUAnoice 40 m'
-        elif model in ['rp000190', 'rp000191']:
-            base_str = 'AQUAqflux 40 m'
+        elif model in ['rp000190', 'rp000191', 'rp000191b','rp000191f']:
+            base_str = 'AQUAnoice 40 m'
     elif sim == 'era5':
         base_str = 'ERA5'
 

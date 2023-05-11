@@ -38,7 +38,7 @@ def save_seaice(sim, **kwargs):
         print('todo: fix variable names')
         # fix variable names below
         # varnames = ['cp', 'lsp', 'e']
-    elif model in ['ACCESS-CM2', 'ACCESS-ESM1-5', 'CanESM5', 'IPSL-CM6A-LR', 'MRI-ESM2-0']:
+    elif model in ['ACCESS-CM2', 'ACCESS-ESM1-5', 'CanESM5', 'IPSL-CM6A-LR', 'MRI-ESM2-0','MIROC-ES2L','GISS-E2-1-G','GISS-E2-1-H','UKESM1-0-LL','CESM2-WACCM']:
         varnames = ['siconc']
     else:
         varnames = ['sic']

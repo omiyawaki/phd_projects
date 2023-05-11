@@ -34,14 +34,16 @@ def save_r1(sim, **kwargs):
 
     # variable names
     if sim == 'echam':
-        if model in ['rp000184', 'rp000185', 'rp000188', 'rp000189', 'rp000191']:
+        if model in ['rp000184', 'rp000185', 'rp000188', 'rp000189', 'rp000191', 'rp000191b','rp000191f']:
             varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'dr1', 'dcra', 'dcdyn', 'dcres', 'dcstf', 'trad0', 'srad0', 'trads', 'srads', 'ahfl', 'ahfs', 'precip']
         else:
             varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'trad0', 'srad0', 'trads', 'srads', 'ahfl', 'ahfs', 'precip']
     elif sim == 'era5':
         varnames = ['ftoa', 'fsfc', 'ssr', 'str', 'tsr', 'ttr', 'slhf', 'sshf', 'cp', 'lsp']
     else:
-        if sim in ['rcp85', 'ssp585', 'hist+rcp85', 'hist+ssp585']:
+        if sim in ['rcp85', 'ssp585', 'hist+rcp85']:
+            varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr', 'dr1', 'dcra', 'dcdyn', 'dcres', 'dcstf']
+        elif sim in ['hist+ssp585']:
             varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr', 'dr1', 'dcra', 'dcdyn', 'dcres', 'dcstf']
         else:
             varnames = ['ftoa', 'fsfc', 'tend', 'ra', 'stf', 'rlut', 'rsdt', 'rsut', 'rsus', 'rsds', 'rlds', 'rlus', 'hfls', 'hfss', 'pr']
@@ -96,10 +98,11 @@ def save_r1(sim, **kwargs):
 
     if zonmean:
         for fluxname in flux:
-            if not fluxname in ['r1', 'dr1', 'dcra', 'dcdyn', 'dcres', 'dcstf']:
+            if not fluxname in ['r1', 'r1a', 'dr1', 'dr1a', 'dcra', 'dcdyn', 'dcres', 'dcstf']:
                 flux[fluxname] = np.mean(flux[fluxname], 2)
 
     r1 = flux['stg_adv']/flux['ra']
+    r1a = flux['adv']/flux['ra']
     stg_adv = flux['stg_adv']
     ra = flux['ra']
 
@@ -162,6 +165,7 @@ def save_r1(sim, **kwargs):
     # dr1['res'] = r1_dc['res'][1:,...] - r1_dc['res'][:-1,...]
 
     pickle.dump([r1, grid], open(remove_repdots('%s/r1.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
+    pickle.dump([r1a, grid], open(remove_repdots('%s/r1a.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
     # pickle.dump([r1_dc, grid], open(remove_repdots('%s/r1_dc.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
     # pickle.dump([dr1, grid], open(remove_repdots('%s/dr1.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))
     # pickle.dump([ra, grid], open(remove_repdots('%s/ra.%s.%s.pickle' % (datadir, zonmean, timemean)), 'wb'))

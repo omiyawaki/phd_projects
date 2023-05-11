@@ -1,0 +1,35 @@
+\documentclass[preview]{standalone}
+
+\usepackage[font=normalsize]{caption}
+\usepackage[labelformat=empty, position=top]{subcaption}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\usepackage{cmbright}
+
+\begin{document}
+
+\begin{figure}
+
+  \begin{subfigure}[t]{0.03\textwidth}
+    \textbf{\small{(a)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/echam/rp000188/0040_0252/t/dta.djfmean}.pdf}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.03\textwidth}
+    \textbf{\small{(b)}}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.45\textwidth}
+    \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/plot/echam/rp000191f/0040_0252/t/dta.djfmean}.pdf}
+  \end{subfigure}
+
+  % \begin{subfigure}[t]{0.03\textwidth}
+  %   \textbf{\small{(c)}}
+  % \end{subfigure}
+  % \begin{subfigure}[t]{0.29\textwidth}
+  %   \includegraphics[width=\textwidth, valign=t]{{/project2/tas1/miyawaki/projects/003/echam/vert/plot/t/t.jja}.pdf}
+  % \end{subfigure}
+
+\end{figure}
+
+\end{document}

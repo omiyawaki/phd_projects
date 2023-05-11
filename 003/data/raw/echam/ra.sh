@@ -7,17 +7,19 @@ module load python
 
 sim="echam"
 
-# declare -a models=("rp000190") # climate name
-# yr_span="0001_0009"
+declare -a models=("rp000200") # climate name
+yr_span="0040_0057"
 
-declare -a models=("rp000191") # climate name
-yr_span="0040_0059"
+# declare -a models=("rp000201") # climate name
+# yr_span="0040_0083"
 
-# declare -a models=("rp000184") # extended RCP runs
-# # declare -a models=("rp000185" "rp000189") # extended RCP runs
-# yr_span="0040_0139"
+# declare -a models=("rp000188" "rp000191" "rp000191b") # climate name
+# yr_span="0040_0339"
 
-# declare -a models=("rp000190") # extended RCP runs
+# declare -a models=("rp000188" "rp000191f") # extended RCP runs
+# yr_span="0040_0252"
+
+# declare -a models=("rp000195") # extended RCP runs
 # # declare -a models=("rp000130" "rp000131" "rp000134" "rp000135") # extended RCP runs
 # yr_span="0020_0039"
 

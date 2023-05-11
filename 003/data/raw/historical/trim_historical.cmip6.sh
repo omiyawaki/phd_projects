@@ -1,13 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# declare -a vars_gcm=("hus" "zg" "ta" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
-declare -a vars_gcm=("siconc") # list of GCM variables that we want to process
+declare -a vars_gcm=("huss" "hurs" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("hur" "hus" "zg" "ta" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("ta" "hus" "zg") # list of GCM variables that we want to process
+# declare -a vars_gcm=("ta") # list of GCM variables that we want to process
+# declare -a vars_gcm=("siconc" "sithick" "huss" "hurs" "hur" "hus" "zg" "ta" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
 declare -a clim="historical" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
-declare -a ens="r1i1p1f1" # ensemble specification 
-declare -a models=("CanESM5/") # extended RCP runs
-# declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+
+# declare -a ens="r1i1p1f1" # ensemble specification 
+# declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/" "CESM2-WACCM/") # extended RCP runs
+
+# declare -a ens="r1i1p1f2" # ensemble specification 
+# declare -a models=("MIROC-ES2L/") # extended RCP runs
+
+# declare -a ens="r3i1p1f2" # ensemble specification 
+# declare -a models=("GISS-E2-1-H/" "GISS-E2-1-G/") # extended RCP runs
+
+declare -a ens="r4i1p1f2" # ensemble specification 
+declare -a models=("UKESM1-0-LL/") # extended RCP runs
+
 declare -a skip_models="FGOALS-s2/"
 declare -a skip_files=("_eady.nc")
 

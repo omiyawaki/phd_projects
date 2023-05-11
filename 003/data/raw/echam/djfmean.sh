@@ -1,32 +1,35 @@
 #!/bin/sh
 
-# varnames=("ftoa" "fsfc" "trads" "srads" "srad0" "trad0" "ahfl" "ahfs" "seaice" "temp2" "precip" "aprl" "aprc" "aps" "tend" "ra" "stf" "ra" "stgadv" "adv" "r1" "trafs" "srafs" "sraf0" "traf0" "siced") # list of GCM variables that we want to process
+varnames=("racs" "ftoacs" "swref" "swabs" "alb" "tradsu" "aclcov" "sni" "xlvi" "xivi" "aclcov" "prfrac" "ftoa" "twtend" "titend" "ttend" "stend" "sn" "ahfres" "tsi" "tsw" "ahfcon" "trafs" "sraf0" "traf0" "srafs" "srad0d" "srad0u" "fsfc" "tsurf" "sradsu" "albedo" "trads" "srads" "srad0" "trad0" "ahfl" "ahfs" "siced" "seaice" "temp2" "precip" "aprl" "aprc" "aps" "tend" "ra" "stf" "ra" "stgadv" "adv" "r1") # list of GCM variables that we want to process
 # varnames=("trafs" "srafs" "sraf0" "traf0") # list of GCM variables that we want to process
 # varnames=("trads" "srads" "srad0" "trad0" "ahfl" "ahfs" "seaice" "temp2" "precip" "aprl" "aprc" "tend") # list of GCM variables that we want to process
-# varnames=("seaice" "siced")
-varnames=("ftoa" "fsfc")
+# varnames=("geopoth")
+# varnames=("t")
+# varnames=("t" "rhumidity" "q" "tendv" "geopoth")
 
 # clims=("rp000190") # climate name
 # yr_span="0001_0009"
 # mean=""
 
-# clims=("rp000191") # climate name
-# yr_span="0040_0059"
+# clims=("rp000188" "rp000191" "rp000191b") # climate name
+# yr_span="0040_0339"
 # mean=""
 
 # clims=("rp000130") # climate name
 # yr_span="0001_0079"
 # mean=""
 
-clims=("rp000188") # climate name
+clims=("rp000188" "rp000191f") # climate name
 # clims=("rp000184" "rp000185" "rp000188" "rp000189") # climate name
-yr_span="0040_0139"
-mean=""
+yr_span="0040_0252"
+# mean=""
+mean=".zonmean"
 
-# clims=("rp000190") # climate name
-# # clims=("rp000130" "rp000131" "rp000134" "rp000135") # climate name
+# # clims=("rp000134" "rp000190f") # climate name
+# clims=("rp000190f") # climate name
 # yr_span="0020_0039"
-# mean=".ymonmean-20"
+# # mean=".zonmean"
+# mean=""
 
 # save path to current directory
 cwd=$(pwd)

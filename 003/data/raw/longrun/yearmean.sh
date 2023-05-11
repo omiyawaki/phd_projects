@@ -5,12 +5,13 @@
 models=("MPI-ESM-LR/")
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss")
 # varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs")
-varnames=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs")
-# varnames=("pr" "prc")
-sim="piControl"
+# varnames=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs")
+varnames=("r1")
+sim="abrupt32x"
 freq="Amon"
 ens="r1i1p1"
-yr_span="280001-284912"
+# yr_span="280001-284912"
+yr_span="103"
 
 # save path to current directory
 cwd=$(pwd)

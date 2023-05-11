@@ -7,10 +7,11 @@ module load python
 
 # declare -a models=$(cd /project2/tas1/miyawaki/projects/003/data/raw/rcp85/ && ls -d */) # list of GCM models to process
 # declare -a models=("bcc-csm1-1" "CCSM4" "CNRM-CM5" "CSIRO-Mk3-6-0" "HadGEM2-ES" "IPSL-CM5A-LR" "MPI-ESM-LR") # extmaxed RCP runs
-declare -a models=("HadGEM2-ES") # extmaxed RCP runs
+# declare -a models=("HadGEM2-ES") # extmaxed RCP runs
+# ens="r1i1p1"
+
 sim="historical"
 freq="Amon"
-ens="r1i1p1"
 yr_span="186001-200512"
 
 cwd=$(pwd) # save current working directory

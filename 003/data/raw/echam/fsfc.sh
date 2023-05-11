@@ -7,18 +7,18 @@ module load python
 
 sim="echam"
 
-# declare -a models=("rp000190") # extended RCP runs
+# declare -a models=("rp000190b") # extended RCP runs
 # # declare -a models=("rp000185" "rp000189") # extended RCP runs
 # yr_span="0001_0009"
 
-# declare -a models=("rp000191") # extended RCP runs
-# yr_span="0040_0059"
+# declare -a models=("rp000188" "rp000191" "rp000191b") # extended RCP runs
+# yr_span="0040_0339"
 
-declare -a models=("rp000188") # extended RCP runs
+declare -a models=("rp000188" "rp000191f") # extended RCP runs
 # declare -a models=("rp000185" "rp000189") # extended RCP runs
-yr_span="0040_0139"
+yr_span="0040_0252"
 
-# declare -a models=("rp000190") # extended RCP runs
+# declare -a models=("rp000190e" "rp000190f") # extended RCP runs
 # # declare -a models=("rp000131" "rp000134") # extended RCP runs
 # # declare -a models=("rp000130" "rp000131" "rp000134" "rp000135") # extended RCP runs
 # yr_span="0020_0039"

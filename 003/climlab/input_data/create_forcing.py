@@ -6,18 +6,20 @@ import pickle
 from scipy.interpolate import interp1d
 from netCDF4 import Dataset
 
-prefix = '/project2/tas1/miyawaki/projects/003/data/raw/rcp85'
+prefix = '/project2/tas1/miyawaki/projects/003/data/raw/hist+rcp85'
 suffix = '.zonmean.djfmean.nc'
 
-ntime = 295
+# ntime = 295
+ntime = 441
 grid = {}
 grid['lat'] = np.linspace(80,90,101)
 grid['lev'] = np.logspace(3,5,101)
 
-models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR']
+models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR','GISS-E2-H','GISS-E2-R']
+# models = ['GISS-E2-H','GISS-E2-R']
 varnames = ['rsdt', 'rsut', 'rsutcs', 'rlut', 'rlutcs', 'rsds', 'rsdscs', 'rsus', 'rsuscs', 'rlus','rlds', 'rldscs', 'adv', 'ftoa', 'ftoacs', 'fsfc','tas', 'ts', 'ra', 'racs','hfls','hfss', 'tendv', 'hur', 'hus', 'ta']
-clim = 'rcp85'
-yr_span = '200601-229912'
+clim = 'hist+rcp85'
+yr_span = '186001-229912'
 
 mmm = {}
 modeldata = {}
@@ -50,7 +52,7 @@ for varname in varnames:
 
         # interpolate to standard vertical grid if relevant
         if isvertvar(varname):
-            if model == 'CCSM4':
+            if model in ['CCSM4','GISS-E2-H','GISS-E2-R']:
                 for itime in tqdm(range(ntime)):
                     rawa0 = rawa[itime,:]
                     nanfilt = ~np.isnan(rawa0)

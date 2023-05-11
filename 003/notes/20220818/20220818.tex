@@ -1,0 +1,126 @@
+\documentclass{article}
+
+\usepackage{float}
+\usepackage{mlmodern}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{afterpage}
+\usepackage{natbib}
+\usepackage{listings}
+\lstset{
+    basicstyle=\small\ttfamily,
+    columns=flexible,
+    breaklines=true
+}
+
+\title{Notes on the Q flux methodology and the AQUAqflux climatology}
+\date{Aug 18, 2022}
+% \author{Osamu Miyawaki, Tiffany A. Shaw, Malte F. Jansen}
+
+\begin{document}
+\maketitle
+
+To test the role of sea ice loss on the transient response of the Arctic to increased CO$_2$, we configure AQUA with a 40 m mixed layer and Q-flux ($Q$) but no sea ice. $Q$ is imposed to reproduce the climatology (the last 20 years of a 40 year spin up run) of the AQUAice control climate. We impose a Q-flux because a no-ice run without Q-flux (hereafter AQUAnoice) has a significantly different control climate from that of AQUAice. Before I discuss how I compute $Q$, I will first go over the differences in the climatology of AQUAice and AQUAnoice.
+
+\section{AQUAice and AQUAnoice climatologies}
+\subsection{Annual mean}
+The annual mean surface temperature in AQUAice is 16 K colder than AQUAnoice at the poles (compare blue and black lines in Fig.~\ref{fig:clima-ann}a). AQUAice is also colder than AQUAnoice in the low latitudes but the difference is only 2 K. The cooling effect of sea ice is concentrated near the surface in the high latitudes and in the upper troposphere in the low latitudes (compare Fig.~\ref{fig:taz}a and \ref{fig:taz}b and see Fig.~\ref{fig:dtaz}a). The colder surface temperature in AQUAice is consistent with weaker shortwave absorption in AQUAice (Fig.~\ref{fig:clima-ann}b) associated with the albedo effect of sea ice. Interestingly the net longwave flux at the surface is not significantly different (Fig.~\ref{fig:clima-ann}c). Surface latent heat flux is weaker in the AQUAice high latitudes (Fig.~\ref{fig:clima-ann}d) due to the temperature dependence of evaporation. Sensible heat flux changes signs in AQUAice suggesting the presence of a surface inversion (Fig.~\ref{fig:clima-ann}e). When the surface heat fluxes are summed, they effectively add to 0 in AQUAnoice but do not for AQUAice in the high latitudes (Fig.~\ref{fig:clima-ann}f). The presence of a nonzero net surface flux in AQUAice indicates that the sea ice and slab ocean are not in exact equilibrium in AQUAice.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{./clima}.pdf}
+    \caption{The annual and zonal mean (a) surface temperature, (b) net surface shortwave flux, (c) net surface longwave flux, (d) surface latent heating, (e) surface sensible heating, and (f) net surface heat flux for AQUAice (blue) and AQUAnoice (black). A positive (negative) energy flux corresponds to a flux that heats (cools) the surface.}
+    \label{fig:clima-ann}
+\end{figure}
+
+\subsection{Seasonal cycle}
+I now focus on the seasonal cycle of the Arctic since this is where the effect of sea ice is most significant. The amplitude of the surface temperature seasonality is 30 K in AQUAice compared to 8 K in AQUAnoice (Fig.~\ref{fig:clima-seas}a, \ref{fig:taz-djf}a,b, \ref{fig:dtaz-djf}a). In contrast to the annual mean, the difference in the seasonal cycle of surface temperature cannot be explained by shortwave effects because the amplitude of net shortwave fluxes is larger in AQUAnoice compared to AQUAice (Fig.~\ref{fig:clima-seas}b). The longwave flux, latent heat flux, and sensible heat flux are tightly coupled with surface temperature and thus cannot be the source of a causal mechanism for the difference. The net surface flux in AQUAnoice is larger than that in AQUAice (Fig.~\ref{fig:clima-seas}f). This suggests that the surface heat capacity effect of sea ice plays an important role in the different seasonal cycles of the Arctic climate. Specifically, the ice surface has a smaller heat capacity compared to the ocean mixed layer, so a comparable seasonality of shortwave forcing will result in a larger temperature amplitude for AQUAice compared to AQUAnoice.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{./clima_seas}.pdf}
+    \caption{Same as Fig.~\ref{fig:clima-ann} but for the seasonal cycle in the Arctic ($80$--$90^\circ$N).}
+    \label{fig:clima-seas}
+\end{figure}
+
+\section{Q-flux methodology}
+The previous section highlighted the two key features of sea ice on the Arctic climate: 1) the surface albedo effect and 2) the surface heat capacity effect. In order to fully reproduce the climatology of AQUAice without sea ice, the prescribed Q-flux must represent both effects of sea ice on the surface energy budget:
+\begin{equation}
+    Q = Q_C + Q_\alpha \, ,
+\end{equation}
+where the subscript $C$ represents the heat capacity effect and $\alpha$ represents the albedo effect of sea ice. First, we impose the surface heat capacity effect of sea ice in AQUAice as follows:
+\begin{equation}
+    Q_C =  F_{SFC,\,i} - \rho_w c_w d\frac{\partial T_{s,\,i}}{\partial t}\, ,
+\end{equation}
+where $F_{SFC,\,i}$ is the net surface heat flux in AQUAice, $T_{s,\,i}$ is the surface temperature in AQUAice, $\rho_w=1025$ kg m$^{-3}$ is the density of sea water, $c_w=3994$ J kg$^{-1}$ K$^{-1}$ is the specific heat capacity of sea water, and $d=40$ m is the depth of the slab ocean. $Q_C$ amplifies the surface heat storage term of AQUAice where sea ice exists by a factor of $C_w/C_i$. The resulting seasonal amplitude of surface temperature is comparable to that of AQUAice (compare blue and red lines in Fig.~\ref{fig:qc-seas}a). 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{./qc_seas}.pdf}
+    \caption{Same as Fig.~\ref{fig:clima-ann} but including AQUAqflux with an imposed Q flux of $Q_C$ (red).}
+    \label{fig:qc-seas}
+\end{figure}
+
+However, AQUA with an imposed Q-flux of $Q_C$ is too warm in the annual mean (Fig.~\ref{fig:qc-ann}a, compare Fig.~\ref{fig:taz}a--c, and see \ref{fig:dtaz}b). Surprisingly it is even warmer than the AQUAnoice climatology because the net shortwave flux has also increased due to a cloud response (Fig.~\ref{fig:qc-ann}b). While AQUAqflux with $Q_C$ reproduces the annual mean $F_{SFC}$ climatology (Fig.~\ref{fig:qc-ann}f), this is not sufficient to reproduce the annual mean climatology of AQUAqflux. This is because annual mean $F_{SFC}$ represents the degree of ice and ocean nonequilibrium and not the albedo effect of sea ice. This is why we also need to add an additional term $Q_\alpha$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{./qc}.pdf}
+    \caption{Same as Fig.~\ref{fig:clima-ann} but including AQUAqflux with an imposed Q flux of $Q_C$ (red).}
+    \label{fig:qc-ann}
+\end{figure}
+
+To account for the albedo effect of AQUA with and without sea ice, we impose $Q_\alpha$ as follows:
+
+\begin{equation}
+    Q_\alpha = \overline{SW}_{SFC,\,Q_C} - \overline{SW}_{SFC,\,i} \, ,
+\end{equation}
+where $\overline{SW}_{SFC,\,Q_C}$ and $\overline{SW}_{SFC,\,i}$ are the annual mean net surface shortwave flux for AQUA with an imposed Q-flux of $Q_C$ and AQUAice, respectively. $Q_\alpha$ is a cooling term that offsets the combined effect of the higher surface albedo and the aforementioned cloud response that emerged from imposing $Q_C$. AQUA with an imposed Q-flux of $Q=Q_C+Q_\alpha$ (hereafter AQUAqflux) reproduces the climatology of AQUAice in both the annual mean and seasonal cycle (compare blue and purple lines in Fig.~\ref{fig:q-ann} and \ref{fig:q-seas}, see also Fig.~\ref{fig:taz}d, \ref{fig:dtaz}c,d, \ref{fig:taz}d, \ref{fig:taz-djf}d, \ref{fig:dtaz-djf}c,d).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{./q}.pdf}
+    \caption{Same as Fig.~\ref{fig:qc-ann} but AQUAqflux has an imposed Q flux of $Q_C+Q_\alpha$ (purple). Note that $Q_\alpha$ is subtracted from AQUAqflux (b) net shortwave flux and (f) $F_{SFC}$ to highlight the effect that $Q_\alpha$ has in offsetting the difference between AQUAice and AQUAnoice shortwave flux.}
+    \label{fig:q-ann}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{./q_seas}.pdf}
+    \caption{Same as Fig.~\ref{fig:qc-seas} but AQUAqflux has an imposed Q flux of $Q_C+Q_\alpha$ (purple). Note that $Q_\alpha$ is subtracted from AQUAqflux (b) net shortwave flux and (f) $F_{SFC}$ to highlight the effect that $Q_\alpha$ has in offsetting the difference between AQUAice and AQUAnoice shortwave flux.}
+    \label{fig:q-seas}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{./taz}.pdf}
+    \caption{Annual mean zonal mean temperature for (a) AQUAice, (b) AQUAnoice, (c) AQUAqflux with an imposed Q flux of $Q_C$, and (d) AQUAqflux with an imposed Q flux of $Q_C+Q_\alpha$.}
+    \label{fig:taz}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{./dtaz}.pdf}
+    \caption{Annual mean zonal mean temperature difference between (a) AQUAice and AQUAnoice, (b) AQUAqflux with an imposed Q flux of $Q_C$ and AQUAnoice, (c) AQUAqflux with an imposed Q flux of $Q_C+Q_\alpha$ and AQUAnoice, and (d) AQUAqflux with an imposed Q flux of $Q_C+Q_\alpha$ and AQUAice.}
+    \label{fig:dtaz}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{./taz.djf}.pdf}
+    \caption{Same as Fig.~\ref{fig:taz} but for DJF.}
+    \label{fig:taz-djf}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{{./dtaz.djf}.pdf}
+    \caption{Same as Fig.~\ref{fig:taz} but for DJF.}
+    \label{fig:dtaz-djf}
+\end{figure}
+
+\bibliographystyle{apalike}
+\bibliography{./references.bib}
+
+\end{document}

@@ -4,7 +4,8 @@ freq="Amon"
 # varnames=("ftoa" "fsfc" "rlut" "rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "tend" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" "tas" "ts" "r1" "stgadv" "adv" "ra" "stf")
 # varnames=("rsdt" "rsut" "rlut" "rsds" "rsus" "rlds" "rlus" "hfls" "hfss" "pr" "prc" "evspsbl")
 # varnames=("rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" )
-varnames=("prfrac")
+# varnames=("ta" "zg" "ps")
+varnames=("ftoacs" "racs" "tendv" "ta" "hur" "hus")
 
 # freq="SImon"
 # varnames=("siconc")
@@ -19,9 +20,9 @@ declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MR
 ens="r1i1p1f1"
 yr_span="201501-230012"
 
-# mean=".zonmean"
+mean=".zonmean"
 # mean=".zonmean.ymonmean-30"
-mean=""
+# mean=""
 sim="ssp585"
 
 # save path to current directory

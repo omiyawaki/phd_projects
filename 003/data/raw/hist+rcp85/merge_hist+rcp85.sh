@@ -2,23 +2,33 @@
 set -euo pipefail
 
 table="Amon"
+# declare -a vars_gcm=("stf" "evspsbl" "prfrac" "prc" "pr" "tend" "stgadv" "r1" "ps" "rlut" "rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" "adv" "ftoa" "ftoacs" "fsfc" "tas" "ts" "ra" "racs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("stf" "rlut" "rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" "adv" "ftoa" "ftoacs" "fsfc" "tas" "ts" "ra" "racs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("cl" "clt" "cli" "clw" "clivi" "clwvi") # list of GCM variables that we want to process
+# declare -a vars_gcm=("clt" "clivi" "clwvi") # list of GCM variables that we want to process
+declare -a vars_gcm=("cl" "clw" "cli") # list of GCM variables that we want to process
+# declare -a vars_gcm=("r1" "adv" "stgadv") # list of GCM variables that we want to process
+
+# declare -a vars_gcm=("stf" "evspsbl" "prfrac" "prc" "pr" "tend" "stgadv" "r1" "ps" "rlut" "rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" "adv" "ftoa" "ftoacs" "fsfc" "tas" "ts" "ra" "racs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("pr" "prc" "evspsbl" "ftoa" "fsfc" "rlut" "rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "tend" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" "tas" "ts" "r1" "stgadv" "adv" "ra" "stf")
-# declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
+# declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "mse") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
-declare -a vars_gcm=("tend") # list of GCM variables that we want to process
+# declare -a vars_gcm=("prfrac") # list of GCM variables that we want to process
 
 # table="OImon"
 # declare -a vars_gcm=("sic") # list of GCM variables that we want to process
 
 # mean=".zonmean.djfmean"
-mean=".djfmean"
+# mean=".zonmean"
+mean=""
 
 declare -a ens="r1i1p1" # ensemble specification 
 # declare -a ens="r0i0p0" # ensemble specification 
 # declare -a models=$(cd /project2/tas1/ockham/data9/tas/CMIP5_RAW && ls -d */) # list of GCM models to process
-declare -a models=("HadGEM2-ES/" "bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
-# declare -a models=("bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
-# declare -a models=("bcc-csm1-1/") # extended RCP runs
+declare -a models=("CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+# declare -a models=("HadGEM2-ES/" "bcc-csm1-1/" "CCSM4/" "CNRM-CM5/" "CSIRO-Mk3-6-0/" "IPSL-CM5A-LR/" "MPI-ESM-LR/") # extended RCP runs
+# declare -a models=("GISS-E2-H/" "GISS-E2-R/") # extended RCP runs
+# declare -a models=("GISS-E2-H/") # extended RCP runs
 
 # out_yr_begin=1850
 # out_mn_begin=01

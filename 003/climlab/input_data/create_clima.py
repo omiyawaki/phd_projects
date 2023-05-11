@@ -14,7 +14,8 @@ grid = {}
 grid['lat'] = np.linspace(80,90,101)
 grid['lev'] = np.logspace(3,5,101)
 
-models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR']
+models = ['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR','GISS-E2-H','GISS-E2-R']
+# models = []
 varnames = ['rsdt', 'rsut', 'rsutcs', 'rlut', 'rlutcs', 'rsds', 'rsdscs', 'rsus', 'rsuscs', 'rlus','rlds', 'rldscs', 'adv', 'ftoa', 'ftoacs', 'fsfc','tas', 'ts', 'ra', 'racs','hfls','hfss', 'tendv', 'hur', 'hus', 'ta']
 clim = 'historical'
 yr_span = '186001-200512'
@@ -52,7 +53,7 @@ for varname in varnames:
 
         # interpolate to standard vertical grid if relevant
         if isvertvar(varname):
-            if model == 'CCSM4':
+            if model in ['CCSM4','GISS-E2-H','GISS-E2-R']:
                 for itime in tqdm(range(ntime)):
                     rawa0 = rawa[itime,:]
                     nanfilt = ~np.isnan(rawa0)
@@ -71,5 +72,6 @@ for varname in varnames:
 
     print(varname)
     print(mmm[varname])
+    print(modeldata[varname].shape)
 
 pickle.dump([mmm, grid, modeldata], open('./clima.pickle', 'wb'))

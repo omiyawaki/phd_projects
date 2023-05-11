@@ -21,11 +21,19 @@ def yaxis_r1_mon_hl(sim, **kwargs):
         if latbnd[0] > 0: # NH
             if timemean in ['djfmean', 'sonmean', 'jjamean', 'mammean', 'allseas']: # type of time mean (yearmean, jjamean, djfmean, ymonmean-30)
                 if plotover == 'decomp':
-                    vmin['r1'] = 0.5
-                    vmax['r1'] = 1.3
+                    # vmin['r1'] = 0.65 # previously 0.5
+                    # vmax['r1'] = 1.15 # previously 1.3
+                    vmin['r1'] = 0.5 # previously 0.5
+                    vmax['r1'] = 1.3 # previously 1.3
                 else:
-                    vmin['r1'] = 0.5
-                    vmax['r1'] = 1.3
+                    if sim == 'echam':
+                        vmin['r1'] = 0.5
+                        vmax['r1'] = 1.2
+                    else:
+                        # vmin['r1'] = 0.65
+                        # vmax['r1'] = 1.1
+                        vmin['r1'] = 0.35 # previously 0.5
+                        vmax['r1'] = 1.25 # previously 1.3
                 vmin['dr1dt'] = -0.3e-2
                 vmax['dr1dt'] = 0.2e-2
                 vmin['sic'] = -60
@@ -44,8 +52,8 @@ def yaxis_r1_mon_hl(sim, **kwargs):
                 vmax['prl'] = 1.8
                 vmin['prfrac'] = -0.10
                 vmax['prfrac'] = 0.50
-                vmin['clt'] = 70
-                vmax['clt'] = 95
+                vmin['clt'] = 0
+                vmax['clt'] = 100
                 vmin['clwvi'] = -0.25e-1
                 vmax['clwvi'] = 1.25e-1
                 vmin['clivi'] = -0.25e-1

@@ -21,16 +21,17 @@ alb=0.6
 cld=True
 # clims=['hist', 'rcp'] # hist, rcp
 # clims=['hist', 'rcp', 'rcp_fixq_fixT', 'rcp_fixq_fixco2', 'rcp_fixT_fixco2', 'rcp_fixrh_fixco2'] # hist, rcp
-clims=['rcp_fixT_fixco2_devrh'] # hist, rcp
-models=['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR']
-# models=['CNRM-CM5', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR']
-# models=['mmm']
+# clims=['rcp_fixq_fixco2_planck'] # hist, rcp
+clims=['hist','hist+rcp85','hist+rcp85_fixq_fixT', 'hist+rcp85_fixq_fixco2', 'hist+rcp85_fixT_fixco2', 'hist+rcp85_fixrh_fixco2', 'hist+rcp85_fixq_fixco2_planck', 'hist+rcp85_fixq_fixco2_lapse','hist+rcp85_fixT_fixco2_devrh'] # hist, hist+rcp85
+# models=['bcc-csm1-1', 'CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR','GISS-E2-H','GISS-E2-R']
+# models=['CCSM4', 'CNRM-CM5', 'CSIRO-Mk3-6-0', 'IPSL-CM5A-LR', 'HadGEM2-ES', 'MPI-ESM-LR']
+models=['mmm']
 
 for model in models:
     for clim in clims:
 
-        if 'rcp' in clim:
-            ntime = 295
+        if 'hist+rcp85' in clim:
+            ntime = 441
             [mmm, grid, indiv] = pickle.load(open('../climlab/input_data/forcing.pickle', 'rb'))
             [mmm0, _, indiv0] = pickle.load(open('../climlab/input_data/clima.pickle', 'rb'))
             if model == 'mmm':
@@ -48,7 +49,7 @@ for model in models:
             Ts = gcm_forc['ts']
             q = gcm_forc['hus']
             ds = xr.open_dataset('/project2/tas1/miyawaki/projects/003/echam/ghg/ghg_rcp85_1765-2500_c100203.nc')
-            co2 = 1e-6*ds.CO2.sel(time=slice('2006-01-01', '2300-12-31')).data
+            co2 = 1e-6*ds.CO2.sel(time=slice('1859-12-31', '2300-12-31')).data
 
             if 'fixq' in clim:
                 # q[1:,:] = q[0,:]
@@ -79,6 +80,30 @@ for model in models:
                 p = grid['lev'][None,:]
                 q = e2q(p,e)
 
+            if 'planck' in clim:
+                tbar = np.nanmean(gcm_clim['ta'][-30:,:],axis=0)
+                dt = T - tbar
+                dp = grid['lev'][1:]-grid['lev'][:-1]
+                dp = np.append(dp, dp[-1])
+                vmean_dt = np.nansum( dp*dt, axis=1, keepdims=True) / np.nansum(dp)
+                T = tbar + vmean_dt
+
+                tsbar = np.nanmean(gcm_clim['ts'][-30:])
+                dts = Ts - tsbar
+                Ts = tsbar + np.squeeze(vmean_dt)
+
+            if 'lapse' in clim:
+                tbar = np.nanmean(gcm_clim['ta'][-30:,:],axis=0)
+                dt = T - tbar
+                dp = grid['lev'][1:]-grid['lev'][:-1]
+                dp = np.append(dp, dp[-1])
+                vmean_dt = np.nansum( dp*dt , axis=1, keepdims=True) / np.nansum(dp)
+                T = tbar + dt-vmean_dt
+
+                tsbar = np.nanmean(gcm_clim['ts'][-30:])
+                dts = Ts - tsbar
+                Ts = tsbar + dts - np.squeeze(vmean_dt)
+
         elif clim == 'hist':
             ntime = 147
             [mmm, grid, indiv] = pickle.load(open('../climlab/input_data/clima.pickle', 'rb'))
@@ -95,13 +120,7 @@ for model in models:
             Ts = gcm_clim['ts'];
             q = gcm_clim['hus']
             ds = xr.open_dataset('/project2/tas1/miyawaki/projects/003/echam/ghg/ghg_rcp85_1765-2500_c100203.nc')
-            co2 = 1e-6*ds.CO2.sel(time=slice('1860-01-01', '2006-12-31')).data
-
-            # [gcm_clim, grid] = pickle.load(open('../climlab/input_data/indata.pickle', 'rb'))
-            # T = gcm_clim['ta']; T=T[None,:]
-            # Ts = np.array([gcm_clim['ts']]);
-            # q = gcm_clim['hus']; q=q[None,:]
-            # co2 = np.array([348e-6]);
+            co2 = 1e-6*ds.CO2.sel(time=slice('1859-12-30', '2006-12-31')).data
 
         plev = 1e-2*grid['lev']
         # compute rrtmg radiation
@@ -113,7 +132,6 @@ for model in models:
             raddiag.append(rad)
             ra[i] = rad.ASR - rad.SW_sfc + rad.LW_sfc - rad.OLR
             racs[i] = rad.ASRclr - rad.SW_sfc_clr + rad.LW_sfc_clr - rad.OLRclr
-            print(ra[i])
 
         print(ra[-1]-ra[0])
 

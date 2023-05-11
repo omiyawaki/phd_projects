@@ -22,14 +22,16 @@ file_zg = Dataset(path_zg, 'r')
 file_hus = Dataset(path_hus, 'r')
 
 # read data
+print(file_hus)
+hus = file_hus.variables['hus'][:] # (day x lev x lat x lon)
 ta = file_ta.variables['ta'][:] # (day x lev x lat x lon)
 zg = file_zg.variables['zg'][:] # (day x lev x lat x lon)
-hus = file_hus.variables['hus'][:] # (day x lev x lat x lon)
 
 # for datasets that fill data below surface as missing data, fill with nans
 ta = ta.filled(fill_value=np.nan)
 zg = zg.filled(fill_value=np.nan)
 hus = hus.filled(fill_value=np.nan)
+hus[np.abs(hus)>1e20]=np.nan
 
 # calculate MSE
 m = cpd*ta + g*zg + L*hus

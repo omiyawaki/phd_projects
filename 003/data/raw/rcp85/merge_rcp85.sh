@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# declare -a vars_gcm=("huss" "hurs" "hur" "hus" "zg" "ta" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
-# declare -a vars_gcm=("ta" "hus" "zg") # list of GCM variables that we want to process
+# declare -a vars_gcm=("zg") # list of GCM variables that we want to process
 # declare -a vars_gcm=("rlutcs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("ps" "tas" "ts" "hurs") # list of GCM variables that we want to process
 # declare -a vars_gcm=("clt" "clwvi") # list of GCM variables that we want to process
-declare -a vars_gcm=("hurs") # list of GCM variables that we want to process
-# declare -a vars_gcm=("tas" "ts") # list of GCM variables that we want to process
+# declare -a vars_gcm=("hurs") # list of GCM variables that we want to process
+declare -a vars_gcm=("clt" "clivi" "clwvi") # list of GCM variables that we want to process
+# declare -a vars_gcm=("cl" "cli" "clw") # list of GCM variables that we want to process
 declare -a realm=("atmos")
+
+# declare -a vars_gcm=("sic") # list of GCM variables that we want to process
+# declare -a realm=("seaIce")
+
 declare -a clim="rcp85" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
 declare -a ens="r1i1p1" # ensemble specification 
@@ -38,16 +44,16 @@ declare -a ens="r1i1p1" # ensemble specification
 ###########################################################
 # MODEL SUBSET 2
 ###########################################################
-# declare -a models="ACCESS1-0/ ACCESS1-3/ BNU-ESM/ CanESM2/ CCSM4/ CNRM-CM5/ CESM1-BGC/ CESM1-CAM5/ CSIRO-Mk3-6-0/ GFDL-CM3/ FGOALS-g2/ inmcm4/ IPSL-CM5A-MR/ IPSL-CM5B-LR/ MIROC5/ MIROC-ESM/ MIROC-ESM-CHEM/ MPI-ESM-LR/ MPI-ESM-MR/ MRI-CGCM3/ MRI-ESM1/ NorESM1-M/ NorESM1-ME/"
-# declare -a models="CCSM4/ CNRM-CM5/ CSIRO-Mk3-6-0/ MPI-ESM-LR/"
-declare -a models="CCSM4/ CSIRO-Mk3-6-0/"
+# # declare -a models="ACCESS1-0/ ACCESS1-3/ BNU-ESM/ CanESM2/ CCSM4/ CNRM-CM5/ CESM1-BGC/ CESM1-CAM5/ CSIRO-Mk3-6-0/ GFDL-CM3/ FGOALS-g2/ inmcm4/ IPSL-CM5A-MR/ IPSL-CM5B-LR/ MIROC5/ MIROC-ESM/ MIROC-ESM-CHEM/ MPI-ESM-LR/ MPI-ESM-MR/ MRI-CGCM3/ MRI-ESM1/ NorESM1-M/ NorESM1-ME/"
+declare -a models="CCSM4/ CNRM-CM5/ CSIRO-Mk3-6-0/ MPI-ESM-LR/"
+# declare -a models="CCSM4/ CSIRO-Mk3-6-0/"
 declare -a skip_files=("200501-209912.nc 200501-210012.nc 200601-209912.nc _eady.nc")
 
 ###########################################################
 # MODEL SUBSET 3
 ###########################################################
 # declare -a models="CMCC-CESM/ CMCC-CM/ CMCC-CMS/ GFDL-ESM2G/ GFDL-ESM2M/ GISS-E2-H/ GISS-E2-H-CC/ GISS-E2-R/ GISS-E2-R-CC/ HadGEM2-CC/ IPSL-CM5A-LR/"
-# declare -a models="HadGEM2-ES/"
+# declare -a models="IPSL-CM5A-LR/ GISS-E2-H/ GISS-E2-R/"
 # declare -a skip_files=("200601-209912.nc 200601-210012.nc _eady.nc")
 
 ###########################################################
@@ -130,6 +136,24 @@ for dirs in ${models[@]}; do # loop through models
             #######################################################################
             # convert curvilinear to standard lat lon grid for sea ice data
             #######################################################################
+            if [[ ${dirs} == "GISS-E2-H/" || ${dirs} == "GISS-E2-R/" ]]; then
+                if [ ${vars} == "zg" ]; then
+                    ref_file=$(ls ${cwd}/${dirs}tas_*${yr_begin}01-${yr_end}12.nc)
+                    zg_file=$(ls ${cwd}/${dirs}zg_*${yr_begin}01-${yr_end}12.nc)
+
+                    # rename zg file in original grid
+                    mv ${zg_file} ${zg_file%.nc}.origgrid.nc
+
+                    # first create file containing standard lat-lon grid data (e.g., using tas file)
+                    cdo griddes ${ref_file} > ${cwd}/${dirs}grid_latlon
+                    sed -i "s/generic/lonlat/g" ${cwd}/${dirs}grid_latlon
+
+                    # convert to lat lon
+                    cdo -remapbil,${cwd}/${dirs}grid_latlon ${zg_file%.nc}.origgrid.nc ${zg_file}
+                    
+                fi
+            fi
+
             if [ ${vars} == "sic" ]; then
                 ref_file=$(ls ${cwd}/${dirs}tas_*${yr_begin}01-${yr_end}12.nc)
                 sic_file=$(ls ${cwd}/${dirs}sic_*${yr_begin}01-${yr_end}12.nc)

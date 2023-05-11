@@ -1,24 +1,33 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# table="Amon"
-# declare -a vars_gcm=("prfrac") # list of GCM variables that we want to process
-# # declare -a vars_gcm=("pr" "prc" "evspsbl" "ftoa" "fsfc" "rlut" "rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "tend" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" "tas" "ts" "r1" "stgadv" "adv" "ra" "stf")
-# # declare -a vars_gcm=("zg" "ta" "hur" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl") # list of GCM variables that we want to process
-# # declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
-# # declare -a vars_gcm=("ra" "stf" "stgadv" "adv" "r1") # list of GCM variables that we want to process
+table="Amon"
+# declare -a vars_gcm=("zg" "evspsbl" "prfrac" "prc" "pr" "tend" "stgadv" "r1" "ps" "ta" "hur" "hus" "tendv" "rlut" "rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" "adv" "ftoa" "ftoacs" "fsfc" "tas" "ts" "ra" "racs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("evspsbl" "prfrac" "prc" "pr" "tend" "stgadv" "r1" "ps" "ta" "hur" "hus" "tendv" "adv" "ftoa" "ftoacs" "fsfc" "tas" "ts") # list of GCM variables that we want to process
+# declare -a vars_gcm=("evspsbl")
+# declare -a vars_gcm=("rlut" "rsut" "rsdt" "rsds" "rsus" "rlus" "rlds" "hfls" "hfss" "rsutcs" "rlutcs" "rsdscs" "rsuscs" "rldscs" "ra" "racs") # list of GCM variables that we want to process
+declare -a vars_gcm=("zg" "ta" "hur" "hus" "mse" "tendv") # list of GCM variables that we want to process
+# declare -a vars_gcm=("rlutcs" "rsutcs" "rldscs" "rsdscs" "rsuscs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("zg") # list of GCM variables that we want to process
 
-table="SImon"
-declare -a vars_gcm=("siconc") # list of GCM variables that we want to process
+# table="SImon"
+# declare -a vars_gcm=("siconc") # list of GCM variables that we want to process
 
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
-mean=".djfmean"
-# mean=""
+mean=""
+# mean=".zonmean"
 declare -a ens="r1i1p1f1" # ensemble specification 
 # declare -a ens="r0i0p0" # ensemble specification 
-declare -a models=("CanESM5/") # extended RCP runs
-# declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
-# declare -a models=("ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+# declare -a models=("IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
+# declare -a models=("CanESM5/") # extended RCP runs
+
+# declare -a ens="r1i1p1f2" # ensemble specification 
+# declare -a models=("MIROC-ES2L/") # extended RCP runs
+# declare -a ens="r3i1p1f2" # ensemble specification 
+# declare -a models=("GISS-E2-1-G/" "GISS-E2-1-H/") # extended RCP runs
+# declare -a ens="r4i1p1f2" # ensemble specification 
+# declare -a models=("UKESM1-0-LL/") # extended RCP runs
 
 # out_yr_begin=1850
 # out_mn_begin=01

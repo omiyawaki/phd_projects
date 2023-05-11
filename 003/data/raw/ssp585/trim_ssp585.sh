@@ -1,18 +1,28 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# declare -a vars_gcm=("zg" "ta" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
-declare -a vars_gcm=("rlut") # list of GCM variables that we want to process
+# declare -a vars_gcm=("huss" "hurs" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("ta" "zg") # list of GCM variables that we want to process
+declare -a vars_gcm=("hus") # list of GCM variables that we want to process
+# declare -a vars_gcm=("ra" "racs" "stf" "ftoa" "ftoacs" "fsfc" "hus" "hur" "mse" "tend" "tendv" "r1" "adv" "stgadv" "siconc" "prfrac" "zg" "ta" "ps" "ts" "tas" "rlut" "rsut" "rsdt" "rlus" "rlds" "rsds" "rsus" "hfls" "hfss" "pr" "prc" "evspsbl" "rlutcs" "rldscs" "rsuscs" "rsdscs" "rsutcs") # list of GCM variables that we want to process
+# declare -a vars_gcm=("cl" "clt" "cli" "clw" "clivi" "clwvi") # list of GCM variables that we want to process
+# declare -a vars_gcm=("ta") # list of GCM variables that we want to process
 declare -a clim="ssp585" # climate name
 declare -a freq="mon" # data output frequency (e.g. fx for fixed, mon for monthly, day for daily)
 declare -a ens="r1i1p1f1" # ensemble specification 
-# declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
-# declare -a models=("ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/") # extended RCP runs
-declare -a models=("ACCESS-CM2/") # extended RCP runs
+# declare -a models=("ACCESS-CM2/" "ACCESS-ESM1-5/" "CanESM5/" "IPSL-CM6A-LR/" "MRI-ESM2-0/" "CESM2-WACCM/") # extended RCP runs
+declare -a models=("AWI-CM-1-1-MR/" "BCC-CSM2-MR/" "CAMS-CSM1-0/" "CAS-ESM2-0/" "CMCC-CM2-SR5/" "CMCC-ESM2/" "CanESM5-1/" "E3SM-1-0/" "E3SM-1-1/" "E3SM-1-1-ECA/" "EC-Earth3-CC/" "EC-Earth3-Veg/" "EC-Earth3-Veg-LR/" "FGOALS-f3-L/" "FGOALS-g3/" "FIO-ESM-2-0/" "GFDL-CM4/" "GFDL-ESM4/" "IITM-ESM/" "INM-CM4-8/" "INM-CM5-0/" "KACE-1-0-G/" "KIOST-ESM/" "MIROC6/" "MPI-ESM1-2-HR/" "MPI-ESM1-2-LR/" "NESM3/" "NorESM2-LM/" "NorESM2-MM/" "TaiESM1/")
+
+# declare -a ens="r1i1p1f2" # ensemble specification 
+# declare -a models=("MIROC-ES2L/") # extended RCP runs
+# declare -a ens="r3i1p1f2" # ensemble specification 
+# declare -a models=("GISS-E2-1-G/" "GISS-E2-1-H/") # extended RCP runs
+# declare -a ens="r4i1p1f2" # ensemble specification 
+# declare -a models=("UKESM1-0-LL/") # extended RCP runs
 declare -a skip_models=("")
 declare -a skip_files=("_eady.nc")
 
-in_yr_out=2300
+in_yr_out=2100
 
 out_yr_begin=2015
 out_mn_begin=01
@@ -20,7 +30,7 @@ out_mn_begin=01
 out_mn_end=12
 
 # declare -a yrend_list=("2049" "2099" "2149" "2199" "2249")
-declare -a yrend_list=("2299")
+declare -a yrend_list=("2099")
 
 cwd=$(pwd) # save current working directory
 

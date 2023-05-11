@@ -14,7 +14,7 @@ from netCDF4 import Dataset
 
 def varnames_ga_m(sim):
     if sim == 'echam':
-        varnames = ['sp', 't']
+        varnames = ['aps', 't']
     elif sim == 'era5':
         varnames = ['sp', 't']
     else:
@@ -24,7 +24,7 @@ def varnames_ga_m(sim):
 
 def varnames_ga(sim):
     if sim == 'echam':
-        varnames = ['sp', 'ts', 't', 'zs', 'z']
+        varnames = ['aps', 'temp2', 't', 'orog', 'geopoth']
     elif sim == 'era5':
         varnames = ['sp', 't2m', 't', 'zs', 'z']
     else:
@@ -139,6 +139,7 @@ def make_ga_dev(sim, **kwargs):
             varnames = varnames_ga(sim)
 
             for varname in varnames:
+                print(varname)
                 varname_std = translate_varname(varname)
                 ga_indata[varname_std] = load_var(sim, varname, model=model, zonmean=zonmean, timemean=timemean, yr_span=yr_span, try_load=try_load) # load raw data (in pressure grid)
 
@@ -150,6 +151,9 @@ def make_ga_dev(sim, **kwargs):
                         ga_indata[varname_std] = (pickle.load(open(file_vertconv[varname_std], 'rb')))
 
                     else: # if not convert and save
+                        # if sim == 'echam':
+                        #     ga_indata[varname_std] = pa_to_sigma(varname_std, ga_indata[varname_std], translate_varsfc(varname_std), ga_indata[translate_varsfc(varname_std)], ga_indata['aps'], si_std)
+                        # else:
                         ga_indata[varname_std] = pa_to_sigma(varname_std, ga_indata[varname_std], translate_varsfc(varname_std), ga_indata[translate_varsfc(varname_std)], ga_indata['ps'], si_std)
 
                         pickle.dump(ga_indata[translate_varname(varname)], open(remove_repdots('%s/%s.%s.%s.%s.pickle' % (datadir, varname, vertcoord, zonmean, timemean)), 'wb'), protocol=4)

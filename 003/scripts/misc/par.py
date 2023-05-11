@@ -24,8 +24,10 @@ p50 = np.logspace(1,5,50)
 # p50 = np.linspace(10,1e5,50)
 
 # standard sigma grid
-si50 = np.linspace(0,1,50)
-si100 = np.linspace(0,1,100)
+si50 = np.logspace(-1,0,50)
+si100 = np.logspace(-1,0,100)
+# si50 = np.linspace(0,1,50)
+# si100 = np.linspace(0,1,100)
 
 # standard lat/lon grid
 lon360 = np.linspace(0,360,3600)

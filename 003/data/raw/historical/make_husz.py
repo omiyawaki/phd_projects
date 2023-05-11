@@ -26,6 +26,7 @@ plev = file_hus.variables['plev'][:]
 
 # for datasets that fill data below surface as missing data, fill with nans
 hus = hus.filled(fill_value=np.nan)
+hus[np.abs(hus)>1e20]=np.nan # because giss uses 1e27 for fill value
 
 # check if 2d and 3d lat grids are the same and interpolate 2d data to 3d grid if different
 lat2d = file_ps.variables['lat'][:] 
